@@ -25,4 +25,23 @@ class AnakAsuh extends Model
     protected $casts = [
         'tanggal_lahir' => 'date',
     ];
+
+    public function getUsiaAttribute(): ?int
+    {
+        return $this->tanggal_lahir ? $this->tanggal_lahir->age : null;
+    }
+
+    public function getUsiaFormattedAttribute(): string
+    {
+        return $this->tanggal_lahir ? $this->tanggal_lahir->age . ' Tahun' : '-';
+    }
+
+    public function getInisialAttribute(): string
+    {
+        $name = trim($this->nama_lengkap ?? '');
+        if (empty($name)) {
+            return 'A';
+        }
+        return strtoupper(mb_substr($name, 0, 1));
+    }
 }
