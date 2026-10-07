@@ -14,7 +14,6 @@
     <!-- Scripts & Styles -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
-    @fluxStyles
 </head>
 <body class="min-h-screen bg-slate-50 font-sans antialiased text-slate-800">
     <!-- Navbar Publik -->

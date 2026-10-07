@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use App\Models\Donasi;
+use Illuminate\Support\Enumerable;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
@@ -20,7 +21,7 @@ class DonasiExport implements FromCollection, WithHeadings, WithMapping
         $this->kampanyeId = $kampanyeId;
     }
 
-    public function collection()
+    public function collection(): Enumerable
     {
         $query = Donasi::with('kampanye')->where('status', 'verified');
 
@@ -53,17 +54,17 @@ class DonasiExport implements FromCollection, WithHeadings, WithMapping
         ];
     }
 
-    public function map($donasi): array
+    public function map(mixed $row): array
     {
         return [
-            $donasi->id,
-            $donasi->created_at->format('Y-m-d H:i'),
-            $donasi->nama_donatur,
-            $donasi->no_whatsapp,
-            $donasi->kampanye?->judul ?? 'Donasi Umum',
-            $donasi->nominal,
-            $donasi->pesan_doa,
-            $donasi->status,
+            $row->id,
+            $row->created_at->format('Y-m-d H:i'),
+            $row->nama_donatur,
+            $row->no_whatsapp,
+            $row->kampanye?->judul ?? 'Donasi Umum',
+            $row->nominal,
+            $row->pesan_doa,
+            $row->status,
         ];
     }
 }
