@@ -5,11 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-<<<<<<< HEAD
-    <title>{{ $title ?? 'Kelola Donasi - Himmatun Ayat Bandung' }}</title>
-=======
     <title>{{ $title ?? 'Admin Panel - Himmatun Ayat Bandung' }}</title>
->>>>>>> feature/admin-dashboard
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -30,11 +26,7 @@
              class="fixed inset-0 z-40 bg-slate-900/50 backdrop-blur-2xs transition-opacity lg:hidden"
              style="display: none;"></div>
 
-<<<<<<< HEAD
-        <!-- Sidebar Admin (Konsisten dengan Data Anak Asuh & Dashboard) -->
-=======
         <!-- Sidebar Admin (Sesuai Desain UI: Fixed di Desktop, Off-Canvas Drawer di Mobile/Tablet) -->
->>>>>>> feature/admin-dashboard
         <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
                class="fixed inset-y-0 left-0 z-50 w-64 border-r border-slate-200 bg-white flex flex-col shrink-0 justify-between h-screen overflow-y-auto transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 shadow-lg lg:shadow-none">
             <div>
@@ -101,7 +93,7 @@
                     <a href="/admin/kelola-kampanye" 
                        class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition font-semibold {{ request()->is('admin/kelola-kampanye*') ? 'bg-[#2D6A4F] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}">
                         <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.34 15.84c-.688-.06-1.386-.09-2.09-.09H7.5a4.5 4.5 0 110-9h.75c.704 0 1.402-.03 2.09-.09m0 9.18c.253.962.584 1.892.985 2.783.247.55.06 1.21-.463 1.511l-.657.38c-.551.318-1.26.117-1.527-.461a20.845 20.845 0 01-1.44-4.282m3.102.069a18.03 18.03 0 01-.59-4.59c0-1.586.205-3.124.59-4.59m0 9.18a23.848 23.848 0 018.835 2.535M10.34 6.66a23.847 23.847 0 008.835-2.535m0 0A23.74 23.74 0 0018.795 3m.38 1.125a23.91 23.91 0 011.01 5.395m-1.01-5.395l-1.015-.09m1.015.09A23.87 23.87 0 0121 9.75m-1.825 8.625a23.74 23.74 0 01-.38 1.125m.38-1.125l-1.015.09m1.015-.09a23.91 23.91 0 001.01-5.395m-1.01 5.395A23.87 23.87 0 0021 14.25" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.34 15.84c-.688-.06-1.386-.09-2.09-.09H7.5a4.5 4.5 0 110-9h.75c.704 0 1.402-.03 2.09-.09m0 9.18c.253.962.584 1.892.985 2.783.247.55.06 1.21-.463 1.511l-.657.38c-.551.318-1.26.117-1.527-.461a20.845 20.845 0 01-1.44-4.282m3.102.069a18.03 18.03 0 01-.59-4.59c0-1.586.205-3.124.59-4.59m0 9.18a23.848 23.848 0 018.835 2.535M10.34 6.66a23.847 23.847 0 008.835-2.535m0 0A23.74 23.74 0 0018.795 3m.38 1.125a23.91 23.91 0 011.01 5.395m-1.01-5.395l-1.015-.09m1.015.09A23.87 23.87 0 0121 9.75m-1.825 8.625a23.74 23.74 0 01-.38 1.125m.38-1.125l-1.015.09m1.015-.09a23.91 23.91 0 001.01-5.395m-1.01 5.395A23.87 23.87 0 0021 14.25\" />
                         </svg>
                         <span>Kelola Kampanye</span>
                     </a>
@@ -110,16 +102,16 @@
                     <a href="/admin/cms-berita" 
                        class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition font-semibold {{ request()->is('admin/cms-berita*') ? 'bg-[#2D6A4F] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}">
                         <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5M6 7.5h3v3H6v-3z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5M6 7.5h3v3H6v-3z\" />
                         </svg>
                         <span>CMS Berita</span>
                     </a>
 
                     <!-- Laporan & Ekspor -->
                     <a href="/admin/laporan-ekspor" 
-                       class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition font-semibold {{ request()->is('admin/laporan-ekspor*') ? 'bg-[#2D6A4F] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}">
+                       class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition font-semibold {{ request()->is('admin/laporan-ekspor*') ? 'bg-[#2D6A4F] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}\">
                         <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z\" />
                         </svg>
                         <span>Laporan & Ekspor</span>
                     </a>
@@ -131,7 +123,7 @@
                 <div class="flex items-center gap-3 min-w-0">
                     <div class="w-9 h-9 rounded-full bg-[#2D6A4F] flex items-center justify-center font-bold text-xs text-white shrink-0">
                         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z\" />
                         </svg>
                     </div>
                     <div class="text-xs truncate">
@@ -141,7 +133,7 @@
                 </div>
                 <button type="button" title="Keluar" class="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75\" />
                     </svg>
                 </button>
             </div>
@@ -156,7 +148,7 @@
                         class="p-2 -ml-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition"
                         title="Buka Menu">
                     <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5\" />
                     </svg>
                 </button>
 
@@ -174,10 +166,7 @@
 
             <!-- Scrollable Content Area -->
             <main class="flex-1 overflow-y-auto overflow-x-hidden min-w-0 max-w-full px-4 sm:px-6 lg:px-8 py-5 pb-16">
-<<<<<<< HEAD
-=======
                 {{ $slot ?? '' }}
->>>>>>> feature/admin-dashboard
                 @yield('content')
             </main>
         </div>
