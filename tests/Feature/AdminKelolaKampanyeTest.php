@@ -28,7 +28,7 @@ class AdminKelolaKampanyeTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('Kelola Kampanye');
-        $response->assertSee('+ Buat Kampanye Baru');
+        $response->assertSee('Buat Kampanye Baru');
         $response->assertSee('Program Kafalah Guru Ngaji');
         $response->assertSee('Dakwah &amp; Syiar', false);
     }

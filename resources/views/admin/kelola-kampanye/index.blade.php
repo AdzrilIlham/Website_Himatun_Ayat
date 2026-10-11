@@ -22,13 +22,13 @@
             <p class="text-xs sm:text-sm text-slate-500 mt-0.5 font-medium">Buat, Kelola, dan pantau hasil kampanye donasi Anda.</p>
         </div>
         <div class="flex items-center gap-2">
-            <!-- Tombol + Buat Kampanye Baru -->
+            <!-- Tombol Buat Kampanye Baru -->
             <a href="{{ route('admin.kelola-kampanye.create') }}"
                class="inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-[#24533C] text-white text-xs sm:text-sm font-semibold hover:bg-[#1B4332] transition shadow-xs cursor-pointer">
                 <svg class="w-4 h-4 text-white shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                 </svg>
-                <span>+ Buat Kampanye Baru</span>
+                <span>Buat Kampanye Baru</span>
             </a>
         </div>
     </div>
