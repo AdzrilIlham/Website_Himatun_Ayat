@@ -118,7 +118,7 @@
                 </nav>
             </div>
 
-            <!-- User Footer (Admin Yayasan / Super Admin) -->
+            <!-- User Footer (Admin Yayasan / Admin) -->
             <div class="p-4 border-t border-slate-100 flex items-center justify-between">
                 <div class="flex items-center gap-3 min-w-0">
                     <div class="w-9 h-9 rounded-full bg-[#2D6A4F] flex items-center justify-center font-bold text-xs text-white shrink-0">
@@ -128,7 +128,7 @@
                     </div>
                     <div class="text-xs truncate">
                         <p class="font-bold text-slate-800 leading-tight">Admin Yayasan</p>
-                        <p class="text-slate-400 font-medium">Super Admin</p>
+                        <p class="text-slate-400 font-medium">Admin</p>
                     </div>
                 </div>
                 <button type="button" title="Keluar" class="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition">
