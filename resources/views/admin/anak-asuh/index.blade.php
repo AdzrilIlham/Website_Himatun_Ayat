@@ -251,7 +251,7 @@
         </div>
 
         <!-- 1. Tampilan Desktop & Tablet (md ke atas) -->
-        <div class="hidden md:block overflow-x-auto overflow-y-auto max-h-[calc(100vh-420px)] min-h-[360px] w-full divide-y divide-slate-100">
+        <div class="hidden md:block overflow-x-auto w-full">
             <table class="w-full text-left text-sm table-fixed min-w-[750px]">
                 <colgroup>
                     <col class="w-[30%]">
@@ -260,13 +260,13 @@
                     <col class="w-[20%]">
                     <col class="w-[12%]">
                 </colgroup>
-                <thead class="sticky top-0 z-10 bg-slate-100 shadow-2xs">
-                    <tr class="border-b border-slate-200/80 text-xs font-bold text-slate-700">
-                        <th class="py-3 px-6 text-left bg-slate-100">Nama</th>
-                        <th class="py-3 px-6 text-left bg-slate-100">Usia</th>
-                        <th class="py-3 px-6 text-center bg-slate-100">Status Pendidikan</th>
-                        <th class="py-3 px-6 text-left bg-slate-100">Tanggal Bergabung</th>
-                        <th class="py-3 px-6 text-center bg-slate-100">Aksi</th>
+                <thead class="bg-slate-100 text-xs font-bold text-slate-700">
+                    <tr class="border-b border-slate-200/80">
+                        <th class="py-3 px-6 text-left">Nama</th>
+                        <th class="py-3 px-6 text-left">Usia</th>
+                        <th class="py-3 px-6 text-center">Status Pendidikan</th>
+                        <th class="py-3 px-6 text-left">Tanggal Bergabung</th>
+                        <th class="py-3 px-6 text-center">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
@@ -378,7 +378,7 @@
         </div>
 
         <!-- 2. Tampilan Khusus Mobile (< md) Card Per Transaksi -->
-        <div class="md:hidden space-y-3 p-3 bg-slate-50/60 overflow-y-auto max-h-[calc(100vh-420px)] min-h-[300px]">
+        <div class="md:hidden space-y-3 p-3 bg-slate-50/60">
             @forelse($anakAsuhList as $anak)
                 <div class="bg-white rounded-xl border border-slate-200 shadow-2xs p-4 space-y-3 transition">
                     <div class="flex items-start justify-between gap-3">
@@ -718,7 +718,7 @@
                 <h3 class="font-bold text-base text-slate-900">Detail Anak Asuh</h3>
                 <button type="button" @click="detailModalOpen = false" class="text-slate-400 hover:text-slate-700 text-lg">&times;</button>
             </div>
-            <div class="p-5 overflow-y-auto space-y-4" x-if="selectedAnak">
+            <div class="p-5 overflow-y-auto space-y-4" x-show="selectedAnak">
                 <div class="flex items-center gap-4">
                     <template x-if="selectedAnak && selectedAnak.foto_path">
                         <img :src="'/' + selectedAnak.foto_path" 
