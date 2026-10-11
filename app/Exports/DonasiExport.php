@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use App\Models\Donasi;
+use Illuminate\Support\Enumerable;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
@@ -20,7 +21,7 @@ class DonasiExport implements FromCollection, WithHeadings, WithMapping
         $this->kampanyeId = $kampanyeId;
     }
 
-    public function collection()
+    public function collection(): Enumerable
     {
         $query = Donasi::with('kampanye')->where('status', 'verified');
 
