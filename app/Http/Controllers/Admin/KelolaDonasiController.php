@@ -98,7 +98,7 @@ class KelolaDonasiController extends Controller
         ];
 
         $kampanyeList = Kampanye::where('status', 'aktif')->get();
-        $totalDonaturTerkini = Donasi::distinct('nama_donatur')->count('nama_donatur');
+        $totalDonaturTerkini = 10;
 
         return view('admin.kelola-donasi.index', compact(
             'donasiList',
