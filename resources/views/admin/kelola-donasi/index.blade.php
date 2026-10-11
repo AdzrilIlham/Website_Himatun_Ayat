@@ -22,20 +22,10 @@
             <p class="text-xs text-slate-400 mt-0.5 font-medium">10 donatur terdaftar</p>
         </div>
         <div class="flex items-center gap-2">
-            <!-- Tombol + Tambah Donatur (Preline Modal Trigger) -->
-            <button type="button" 
-                    data-hs-overlay="#modal-tambah-donatur"
-                    class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#24533C] text-white text-xs font-semibold hover:bg-[#1B4332] shadow-2xs transition">
-                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                </svg>
-                <span>+ Tambah Donatur</span>
-            </button>
-
             <!-- Tombol ↓ Export -->
             <a href="{{ route('admin.kelola-donasi.export') }}"
-               class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg border border-slate-300 bg-white text-xs font-semibold text-slate-700 hover:bg-slate-50 transition shadow-2xs">
-                <svg class="w-3.5 h-3.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+               class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#2D6A4F] text-white text-xs font-semibold hover:bg-[#1B4332] transition shadow-xs">
+                <svg class="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.5V16.5M7.5 12l4.5 4.5m0 0l4.5-4.5M12 3v13.5" />
                 </svg>
                 <span>Export</span>
@@ -379,115 +369,6 @@
                 </span>
             @endif
         </nav>
-    </div>
-
-    <!-- Modal Preline: + Tambah Donatur -->
-    <div id="modal-tambah-donatur" 
-         class="hs-overlay hidden fixed inset-0 z-60 overflow-x-hidden overflow-y-auto pointer-events-none"
-         role="dialog" 
-         tabindex="-1" 
-         aria-labelledby="modal-tambah-donatur-label">
-        <div class="hs-overlay-open:opacity-100 hs-overlay-open:duration-500 opacity-0 transition-all sm:max-w-lg sm:w-full m-3 sm:mx-auto min-h-[calc(100%-3.5rem)] flex items-center">
-            <div class="w-full flex flex-col bg-white border border-slate-200 shadow-xl rounded-2xl pointer-events-auto overflow-hidden">
-                <div class="flex justify-between items-center py-3.5 px-5 border-b border-slate-100 bg-slate-50/70">
-                    <h3 id="modal-tambah-donatur-label" class="font-bold text-slate-900 text-sm">
-                        Tambah Data Donatur
-                    </h3>
-                    <button type="button" 
-                            class="inline-flex justify-center items-center size-8 rounded-full text-slate-500 hover:bg-slate-200 transition focus:outline-hidden"
-                            data-hs-overlay="#modal-tambah-donatur">
-                        <span class="sr-only">Tutup</span>
-                        <svg class="shrink-0 size-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-                </div>
-
-                <!-- Form Tambah Donatur -->
-                <form action="{{ route('admin.kelola-donasi.store') }}" method="POST">
-                    @csrf
-                    <div class="p-5 space-y-4 text-xs sm:text-sm">
-                        <!-- Nama Donatur -->
-                        <div>
-                            <label class="block font-semibold text-slate-700 mb-1">Nama Donatur <span class="text-rose-500">*</span></label>
-                            <input type="text" name="nama_donatur" required placeholder="Contoh: Hendra Wijaya" 
-                                   class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-slate-800 placeholder:text-slate-400 focus:border-[#24533C] focus:outline-hidden">
-                        </div>
-
-                        <!-- Email & WhatsApp Grid -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <div>
-                                <label class="block font-semibold text-slate-700 mb-1">Email Donatur</label>
-                                <input type="email" name="email" placeholder="hendra.w@gmail.com" 
-                                       class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-slate-800 placeholder:text-slate-400 focus:border-[#24533C] focus:outline-hidden">
-                            </div>
-                            <div>
-                                <label class="block font-semibold text-slate-700 mb-1">Nomor WhatsApp</label>
-                                <input type="text" name="no_whatsapp" placeholder="+62 816-5678-9012" 
-                                       class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-slate-800 placeholder:text-slate-400 focus:border-[#24533C] focus:outline-hidden">
-                            </div>
-                        </div>
-
-                        <!-- Program Kampanye & Nominal -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <div>
-                                <label class="block font-semibold text-slate-700 mb-1">Program Kampanye</label>
-                                <select name="kampanye_id" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-slate-800 focus:border-[#24533C] focus:outline-hidden">
-                                    <option value="">Renovasi</option>
-                                    @foreach($kampanyeList as $k)
-                                        <option value="{{ $k->id }}">{{ $k->judul }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block font-semibold text-slate-700 mb-1">Nominal Donasi (Rp) <span class="text-rose-500">*</span></label>
-                                <input type="number" name="nominal" required min="10000" step="1000" value="3200000" placeholder="3200000" 
-                                       class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-slate-800 placeholder:text-slate-400 focus:border-[#24533C] focus:outline-hidden">
-                            </div>
-                        </div>
-
-                        <!-- Metode & Status -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <div>
-                                <label class="block font-semibold text-slate-700 mb-1">Metode Pembayaran</label>
-                                <select name="metode_pembayaran" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-slate-800 focus:border-[#24533C] focus:outline-hidden">
-                                    <option value="Transfer Bank (BSI)">Transfer Bank (BSI)</option>
-                                    <option value="Transfer Bank (BCA)">Transfer Bank (BCA)</option>
-                                    <option value="Transfer Bank (Mandiri)">Transfer Bank (Mandiri)</option>
-                                    <option value="QRIS Manual">QRIS Manual</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block font-semibold text-slate-700 mb-1">Status Verifikasi</label>
-                                <select name="status" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-slate-800 focus:border-[#24533C] focus:outline-hidden">
-                                    <option value="verified">Langsung Terverifikasi (Terima)</option>
-                                    <option value="pending">Menunggu Verifikasi (Pending)</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <!-- Pesan Doa / Harapan -->
-                        <div>
-                            <label class="block font-semibold text-slate-700 mb-1">Pesan Doa / Harapan</label>
-                            <textarea name="pesan_doa" rows="2" placeholder="Semoga berkah dan bermanfaat untuk santri..." 
-                                      class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-slate-800 placeholder:text-slate-400 focus:border-[#24533C] focus:outline-hidden">Semoga berkah dan bermanfaat bagi seluruh anak asuh.</textarea>
-                        </div>
-                    </div>
-
-                    <div class="flex justify-end items-center gap-x-2 py-3 px-5 border-t border-slate-100 bg-slate-50/50">
-                        <button type="button" 
-                                class="py-2 px-3.5 inline-flex items-center gap-x-2 text-xs font-semibold rounded-xl border border-slate-300 bg-white text-slate-700 shadow-2xs hover:bg-slate-50 transition"
-                                data-hs-overlay="#modal-tambah-donatur">
-                            Batal
-                        </button>
-                        <button type="submit" 
-                                class="py-2 px-4 inline-flex items-center gap-x-2 text-xs font-semibold rounded-xl bg-[#24533C] text-white hover:bg-[#1B4332] shadow-xs transition">
-                            Simpan Donatur
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
     </div>
 </div>
 @endsection
