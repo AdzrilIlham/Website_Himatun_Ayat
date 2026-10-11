@@ -33,11 +33,9 @@
                 <!-- Brand / Header -->
                 <div class="p-5 sm:p-6 border-b border-slate-100 flex items-center justify-between">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0 shadow-xs text-emerald-800 font-bold text-sm">
-                            <svg class="w-6 h-6 text-emerald-700" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.333A48.357 48.357 0 0012 9.75c-2.551 0-5.056.2-7.5.583V21" />
-                            </svg>
-                        </div>
+                        <img src="{{ asset('images/logo-himmatun-ayat.png') }}" 
+                             alt="Logo Himmatun Ayat" 
+                             class="w-10 h-10 object-contain shrink-0">
                         <div>
                             <h1 class="text-base font-bold text-slate-900 leading-tight">Admin Panel</h1>
                             <p class="text-xs text-slate-500 font-medium">Himmatun Ayat Bandung</p>
@@ -153,9 +151,9 @@
                 </button>
 
                 <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0 text-emerald-800 font-bold text-xs">
-                        HA
-                    </div>
+                    <img src="{{ asset('images/logo-himmatun-ayat.png') }}" 
+                         alt="Logo Himmatun Ayat" 
+                         class="w-8 h-8 object-contain shrink-0">
                     <span class="font-bold text-sm text-slate-900">Admin Panel</span>
                 </div>
 
