@@ -4,9 +4,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\KelolaDonasiController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return redirect()->route('admin.dashboard');
-})->name('home');
+Route::get('/', [DashboardController::class, 'index'])->name('home');
 
 Route::prefix('admin')->name('admin.')->group(function () {
     // Dashboard Admin
