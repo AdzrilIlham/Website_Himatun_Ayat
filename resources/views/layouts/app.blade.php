@@ -13,8 +13,6 @@
 
     <!-- Scripts & Styles -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @livewireStyles
-    @fluxStyles
 </head>
 <body class="min-h-screen bg-slate-50 font-sans antialiased text-slate-800">
     <!-- Navbar Publik -->
@@ -59,8 +57,5 @@
             <p class="mt-4 text-xs text-slate-400">&copy; {{ date('Y') }} Yayasan Mitra. Seluruh hak cipta dilindungi.</p>
         </div>
     </footer>
-
-    @livewireScripts
-    @fluxScripts
 </body>
 </html>

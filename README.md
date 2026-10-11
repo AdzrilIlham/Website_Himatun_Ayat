@@ -19,9 +19,10 @@ Aplikasi ini menghubungkan masyarakat/calon donatur dengan pengelola yayasan mel
 
 | Komponen | Teknologi | Peran & Keterangan |
 | :--- | :--- | :--- |
-| **Framework Backend** | **Laravel 13 (PHP 8.4+)** | Routing, Eloquent ORM, migrasi database, autentikasi session admin. |
-| **Fullstack Reactive UI** | **Livewire & Flux UI** | Komponen UI reaktif tanpa reload halaman (modal verifikasi, form upload bukti). |
-| **Styling & Assets** | **Tailwind CSS v4 & Vite** | Desain responsif (*mobile-friendly*) dan build tools berkecepatan tinggi. |
+| **Framework Backend** | **Laravel 13 (PHP 8.4+)** | Routing, Controller MVC, Eloquent ORM, migrasi database, autentikasi session admin. |
+| **UI Components & Styling** | **Preline UI & Tailwind CSS v4** | Komponen UI modern & responsif (sidebar offcanvas drawer, modal popups, tabel responsif, stat cards, dropdown). |
+| **Interaktivitas Client-side** | **Preline JS & Alpine.js** | Interaksi drawer/modal bebas reload, instant photo preview, dan manipulasi form yang ringan dan cepat. |
+| **Build Tools** | **Vite** | Bundler aset modern berkecepatan tinggi dengan integrasi `@tailwindcss/vite`. |
 | **Cloud Storage** | **Cloudflare R2** | *Object storage* dengan *zero egress fee* untuk penyimpanan aset gambar & dokumen. |
 | **Laporan & Ekspor** | **DomPDF & Maatwebsite Excel** | *Engine* pembuatan laporan rekap donasi format PDF dan berkas spreadsheet Excel. |
 | **Database** | **MySQL** | Basis data relasional untuk anak asuh, kampanye, transaksi donasi, dan berita. |
@@ -53,43 +54,44 @@ Cloudflare R2 Storage
 Website_Himattun/
 ├── app/
 │   ├── Exports/
+│   │   ├── AnakAsuhExport.php             # Logika ekspor data santri ke Excel
 │   │   └── DonasiExport.php               # Logika ekspor rekap donasi ke Excel
-│   ├── Livewire/
-│   │   ├── User/                          # Komponen Livewire Modul Donatur
-│   │   │   ├── LandingPage.php            # Beranda, Hero, Kontak WA & Maps
-│   │   │   ├── Profile.php                # Profil, Visi-Misi, Dokumen Legalitas
-│   │   │   ├── KampanyeDonasi.php         # Katalog program donasi
-│   │   │   ├── FormDonasi.php             # Form transfer & upload bukti
-│   │   │   └── BeritaKegiatan.php         # Artikel berita & galeri foto
-│   │   └── Admin/                         # Komponen Livewire Modul Admin
-│   │       ├── Auth/Login.php             # Login pengurus yayasan
-│   │       ├── Dashboard.php              # Statistik donasi & anak asuh
-│   │       ├── AnakAsuh/                  # CRUD biodata anak asuh
-│   │       ├── KelolaDonasi/              # Verifikasi bukti transfer donatur
-│   │       ├── KelolaKampanye/            # CRUD kampanye & target dana
-│   │       ├── CmsBerita/                 # Editor berita & dokumentasi
-│   │       └── LaporanEkspor/             # Rekapitulasi & tombol cetak PDF/Excel
+│   ├── Http/
+│   │   └── Controllers/
+│   │       ├── Controller.php             # Base controller
+│   │       └── Admin/                     # Controller modul manajemen yayasan
+│   │           ├── DashboardController.php# Ringkasan statistik & validasi donasi
+│   │           └── AnakAsuhController.php # CRUD data anak asuh & ekspor
 │   ├── Models/
 │   │   ├── User.php                       # Akun pengurus admin yayasan
 │   │   ├── AnakAsuh.php                   # Model tabel anak_asuh
 │   │   ├── Kampanye.php                   # Model tabel kampanye
 │   │   ├── Donasi.php                     # Model tabel donasi & bukti transfer
 │   │   └── Berita.php                     # Model tabel berita & kegiatan
+│   ├── Providers/
+│   │   └── AppServiceProvider.php         # Provider konfigurasi pagination & app
 │   └── Services/
 │       ├── CloudflareR2Service.php        # Helper upload & signed URL Cloudflare R2
 │       └── LaporanService.php             # Kalkulasi rumus & rekapitulasi data donasi
 ├── config/
 │   └── filesystems.php                    # Konfigurasi disk r2_public & r2_private
 ├── database/
-│   └── migrations/                        # Skema database inti (anak asuh, donasi, dll.)
+│   ├── migrations/                        # Skema database inti (anak asuh, donasi, dll.)
+│   └── seeders/                           # Seeder data demo & akun pengurus
 └── resources/
+    ├── css/
+    │   └── app.css                        # Tailwind CSS v4 & varian Preline UI
+    ├── js/
+    │   └── app.js                         # Bundler JS (Preline UI & Alpine.js)
     └── views/
         ├── layouts/
-        │   ├── app.blade.php              # Layout publik (Navbar, Footer, Flux container)
-        │   └── admin.blade.php            # Layout CMS (Sidebar hijau manajemen yayasan)
-        └── livewire/
-            ├── user/                      # Blade view sisi donatur
-            └── admin/                     # Blade view sisi admin
+        │   ├── app.blade.php              # Layout publik (Navbar, Footer, Preline scripts)
+        │   └── admin.blade.php            # Layout CMS (Sidebar responsif Preline Offcanvas)
+        ├── admin/                         # View modul manajemen yayasan
+        │   ├── dashboard.blade.php        # Ringkasan & antrean validasi donasi
+        │   ├── anak-asuh/                 # View data santri (tabel, modal & cetak PDF)
+        │   └── laporan/                   # Template cetak PDF rekapitulasi donasi
+        └── welcome.blade.php              # Halaman awal publik
 ```
 
 ---
