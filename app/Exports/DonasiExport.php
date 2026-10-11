@@ -54,17 +54,17 @@ class DonasiExport implements FromCollection, WithHeadings, WithMapping
         ];
     }
 
-    public function map($donasi): array
+    public function map(mixed $row): array
     {
         return [
-            $donasi->id,
-            $donasi->created_at->format('Y-m-d H:i'),
-            $donasi->nama_donatur,
-            $donasi->no_whatsapp,
-            $donasi->kampanye?->judul ?? 'Donasi Umum',
-            $donasi->nominal,
-            $donasi->pesan_doa,
-            $donasi->status,
+            $row->id,
+            $row->created_at->format('Y-m-d H:i'),
+            $row->nama_donatur,
+            $row->no_whatsapp,
+            $row->kampanye?->judul ?? 'Donasi Umum',
+            $row->nominal,
+            $row->pesan_doa,
+            $row->status,
         ];
     }
 }

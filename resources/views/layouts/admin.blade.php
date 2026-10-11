@@ -5,7 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
+<<<<<<< HEAD
     <title>{{ $title ?? 'Kelola Donasi - Himmatun Ayat Bandung' }}</title>
+=======
+    <title>{{ $title ?? 'Admin Panel - Himmatun Ayat Bandung' }}</title>
+>>>>>>> feature/admin-dashboard
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -26,7 +30,11 @@
              class="fixed inset-0 z-40 bg-slate-900/50 backdrop-blur-2xs transition-opacity lg:hidden"
              style="display: none;"></div>
 
+<<<<<<< HEAD
         <!-- Sidebar Admin (Konsisten dengan Data Anak Asuh & Dashboard) -->
+=======
+        <!-- Sidebar Admin (Sesuai Desain UI: Fixed di Desktop, Off-Canvas Drawer di Mobile/Tablet) -->
+>>>>>>> feature/admin-dashboard
         <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
                class="fixed inset-y-0 left-0 z-50 w-64 border-r border-slate-200 bg-white flex flex-col shrink-0 justify-between h-screen overflow-y-auto transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 shadow-lg lg:shadow-none">
             <div>
@@ -82,7 +90,7 @@
 
                     <!-- Kelola Donasi -->
                     <a href="/admin/kelola-donasi" 
-                       class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition font-semibold {{ request()->is('admin/kelola-donasi*') || request()->is('/') ? 'bg-[#2D6A4F] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}">
+                       class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition font-semibold {{ request()->is('admin/kelola-donasi*') ? 'bg-[#2D6A4F] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}">
                         <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
                         </svg>
@@ -166,6 +174,10 @@
 
             <!-- Scrollable Content Area -->
             <main class="flex-1 overflow-y-auto overflow-x-hidden min-w-0 max-w-full px-4 sm:px-6 lg:px-8 py-5 pb-16">
+<<<<<<< HEAD
+=======
+                {{ $slot ?? '' }}
+>>>>>>> feature/admin-dashboard
                 @yield('content')
             </main>
         </div>
