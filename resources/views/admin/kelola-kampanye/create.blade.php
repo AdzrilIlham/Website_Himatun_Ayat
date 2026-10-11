@@ -4,6 +4,7 @@
 <div class="space-y-5 pb-16 w-full max-w-full min-w-0" 
      x-data="{
         tab: 'informasi-dasar',
+        isDirty: false,
         judul: 'Beasiswa Pendidikan Untuk Anak Yatim',
         kategori: 'Pendidikan & Tahfidz',
         deskripsi: 'Dukung pendidikan mereka untuk masa depan yang lebih baik. Kampanye ini bertujuan untuk memberikan beasiswa pendidikan kepada anak-anak yatim dan dhuafa agar mereka dapat melanjutkan pendidikan ke jenjang yang lebih tinggi. Dengan dukungan Anda, kami yakin mereka bisa meraih masa depan yang lebih baik dan bermanfaat bagi umat.',
@@ -12,11 +13,19 @@
         tenggat_waktu: '{{ date('Y-m-d', strtotime('+30 days')) }}',
         status: 'aktif',
         bannerPreview: null,
+        confirmLeave(e) {
+            if (this.isDirty) {
+                if (!confirm('Perubahan formulir belum disimpan. Yakin ingin kembali ke halaman Kelola Kampanye?')) {
+                    e.preventDefault();
+                }
+            }
+        },
         formatRupiah(val) {
             if (!val || isNaN(val)) return 'Rp 0';
             return 'Rp ' + Number(val).toLocaleString('id-ID');
         },
         handleImageUpload(e) {
+            this.isDirty = true;
             const file = e.target.files[0];
             if (file) {
                 const reader = new FileReader();
@@ -46,22 +55,41 @@
         </div>
     @endif
 
-    <!-- Top Header: Title & Subtitle (Persis Screenshot 2) -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-            <div class="flex items-center gap-2 mb-1">
-                <a href="{{ route('admin.kelola-kampanye.index') }}" 
-                   class="inline-flex items-center gap-1 text-xs font-semibold text-slate-500 hover:text-[#24533C] transition">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-                    </svg>
-                    <span>Kembali ke Kelola Kampanye</span>
-                </a>
+    <!-- Navigasi Ergonomis & Breadcrumbs (Prinsip Interaksi Manusia & Komputer / IMK) -->
+    <div class="flex flex-col gap-2.5">
+        <!-- Breadcrumb Hierarki Navigasi -->
+        <nav aria-label="Breadcrumb" class="flex items-center gap-2 text-xs font-medium text-slate-400">
+            <a href="{{ route('admin.dashboard') }}" class="hover:text-slate-700 transition">Dashboard</a>
+            <svg class="w-3.5 h-3.5 text-slate-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+            </svg>
+            <a href="{{ route('admin.kelola-kampanye.index') }}" class="hover:text-slate-700 transition">Kelola Kampanye</a>
+            <svg class="w-3.5 h-3.5 text-slate-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+            </svg>
+            <span class="text-slate-600 font-semibold">Buat Kampanye Baru</span>
+        </nav>
+
+        <!-- Header Bar dengan Tombol Back Taktil & Ramah Fitts's Law -->
+        <div class="flex items-center gap-3.5 pt-0.5">
+            <!-- Tombol Kembali Ber-affordance Kuat -->
+            <a href="{{ route('admin.kelola-kampanye.index') }}"
+               @click="confirmLeave($event)"
+               title="Kembali ke Kelola Kampanye"
+               aria-label="Kembali ke halaman Kelola Kampanye"
+               class="group inline-flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-white border border-slate-200/90 text-slate-600 hover:text-[#24533C] hover:border-emerald-300 hover:bg-emerald-50/40 active:scale-95 shadow-2xs hover:shadow-xs transition-all duration-200 cursor-pointer shrink-0 focus:outline-hidden focus:ring-2 focus:ring-[#24533C]/20">
+                <svg class="w-5 h-5 transition-transform duration-200 ease-out group-hover:-translate-x-1" 
+                     fill="none" viewBox="0 0 24 24" stroke-width="2.25" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                </svg>
+            </a>
+
+            <div>
+                <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-[#1B4332]">Buat Kampanye Baru</h1>
+                <p class="text-xs sm:text-sm text-slate-500 mt-0.5 font-medium max-w-2xl">
+                    Mulai dengan mengisi informasi kampanye. Pastikan semua data sudah lengkap agar kampanye Anda dapat menjangkau lebih banyak donatur.
+                </p>
             </div>
-            <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-[#1B4332]">Buat Kampanye Baru</h1>
-            <p class="text-xs sm:text-sm text-slate-500 mt-0.5 font-medium max-w-2xl">
-                Mulai dengan mengisi informasi kampanye. Pastikan semua data sudah lengkap agar kampanye Anda dapat menjangkau lebih banyak donatur.
-            </p>
         </div>
     </div>
 
@@ -120,6 +148,7 @@
                             <input type="text" 
                                    name="judul" 
                                    x-model="judul"
+                                   @input="isDirty = true"
                                    required 
                                    placeholder="Contoh: Beasiswa Pendidikan Untuk Anak Yatim"
                                    class="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 focus:border-[#24533C] focus:ring-1 focus:ring-[#24533C] focus:outline-hidden transition shadow-2xs">
@@ -132,6 +161,7 @@
                             </label>
                             <select name="kategori" 
                                     x-model="kategori"
+                                    @change="isDirty = true"
                                     required 
                                     class="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs sm:text-sm text-slate-800 focus:border-[#24533C] focus:ring-1 focus:ring-[#24533C] focus:outline-hidden transition shadow-2xs">
                                 <option value="" disabled>Pilih kategori</option>
@@ -148,6 +178,7 @@
                             </label>
                             <textarea name="deskripsi" 
                                       x-model="deskripsi"
+                                      @input="isDirty = true"
                                       rows="5"
                                       required 
                                       placeholder="Tuliskan Deskripsi kampanye, Tuliskan detail program, tujuan, dan manfaat kampanye..."

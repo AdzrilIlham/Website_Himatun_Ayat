@@ -11,12 +11,21 @@
         tanggal_mulai: {{ json_encode($kampanye->tanggal_mulai ? $kampanye->tanggal_mulai->format('Y-m-d') : '') }},
         tenggat_waktu: {{ json_encode($kampanye->tenggat_waktu ? $kampanye->tenggat_waktu->format('Y-m-d') : '') }},
         status: {{ json_encode($kampanye->status) }},
+        isDirty: false,
         bannerPreview: {{ json_encode($kampanye->banner_path ? app(\App\Services\CloudflareR2Service::class)->getPublicUrl($kampanye->banner_path) : null) }},
+        confirmLeave(e) {
+            if (this.isDirty) {
+                if (!confirm('Perubahan formulir belum disimpan. Yakin ingin kembali ke halaman Kelola Kampanye?')) {
+                    e.preventDefault();
+                }
+            }
+        },
         formatRupiah(val) {
             if (!val || isNaN(val)) return 'Rp 0';
             return 'Rp ' + Number(val).toLocaleString('id-ID');
         },
         handleImageUpload(e) {
+            this.isDirty = true;
             const file = e.target.files[0];
             if (file) {
                 const reader = new FileReader();
@@ -46,22 +55,40 @@
         </div>
     @endif
 
-    <!-- Top Header: Title & Subtitle -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-            <div class="flex items-center gap-2 mb-1">
-                <a href="{{ route('admin.kelola-kampanye.index') }}" 
-                   class="inline-flex items-center gap-1 text-xs font-semibold text-slate-500 hover:text-[#24533C] transition">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-                    </svg>
-                    <span>Kembali ke Kelola Kampanye</span>
-                </a>
+    <!-- Navigasi Ergonomis & Breadcrumbs (Prinsip Interaksi Manusia & Komputer / IMK) -->
+    <div class="flex flex-col gap-2.5">
+        <!-- Breadcrumb Navigasi -->
+        <nav aria-label="Breadcrumb" class="flex items-center gap-2 text-xs font-medium text-slate-400">
+            <a href="{{ route('admin.dashboard') }}" class="hover:text-slate-700 transition">Dashboard</a>
+            <svg class="w-3.5 h-3.5 text-slate-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+            </svg>
+            <a href="{{ route('admin.kelola-kampanye.index') }}" class="hover:text-slate-700 transition">Kelola Kampanye</a>
+            <svg class="w-3.5 h-3.5 text-slate-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+            </svg>
+            <span class="text-slate-600 font-semibold truncate max-w-xs">Edit: {{ $kampanye->judul }}</span>
+        </nav>
+
+        <!-- Header Bar dengan Tombol Back Taktil & Ramah Fitts's Law -->
+        <div class="flex items-center gap-3.5 pt-0.5">
+            <a href="{{ route('admin.kelola-kampanye.index') }}"
+               @click="confirmLeave($event)"
+               title="Kembali ke Kelola Kampanye"
+               aria-label="Kembali ke halaman Kelola Kampanye"
+               class="group inline-flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-white border border-slate-200/90 text-slate-600 hover:text-[#24533C] hover:border-emerald-300 hover:bg-emerald-50/40 active:scale-95 shadow-2xs hover:shadow-xs transition-all duration-200 cursor-pointer shrink-0 focus:outline-hidden focus:ring-2 focus:ring-[#24533C]/20">
+                <svg class="w-5 h-5 transition-transform duration-200 ease-out group-hover:-translate-x-1" 
+                     fill="none" viewBox="0 0 24 24" stroke-width="2.25" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                </svg>
+            </a>
+
+            <div>
+                <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-[#1B4332]">Edit Kampanye</h1>
+                <p class="text-xs sm:text-sm text-slate-500 mt-0.5 font-medium max-w-2xl">
+                    Perbarui informasi kampanye, target donasi, atau jadwal periode penggalangan dana.
+                </p>
             </div>
-            <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-[#1B4332]">Edit Kampanye</h1>
-            <p class="text-xs sm:text-sm text-slate-500 mt-0.5 font-medium max-w-2xl">
-                Perbarui informasi kampanye, target donasi, atau jadwal periode penggalangan dana.
-            </p>
         </div>
     </div>
 
