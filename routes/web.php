@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AnakAsuhController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\KelolaDonasiController;
+use App\Http\Controllers\Admin\KampanyeController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [DashboardController::class, 'index'])->name('home');
@@ -26,4 +27,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::post('/kelola-donasi/{donasi}/terima', [KelolaDonasiController::class, 'terima'])->name('kelola-donasi.terima');
     Route::delete('/kelola-donasi/{donasi}', [KelolaDonasiController::class, 'destroy'])->name('kelola-donasi.destroy');
     Route::get('/kelola-donasi/export', [KelolaDonasiController::class, 'export'])->name('kelola-donasi.export');
+
+    // Kelola Kampanye
+    Route::resource('/kelola-kampanye', KampanyeController::class)->parameters([
+        'kelola-kampanye' => 'kampanye',
+    ]);
 });
