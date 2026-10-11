@@ -5,14 +5,122 @@
      x-data="{
         tab: 'informasi-dasar',
         isDirty: false,
-        judul: 'Beasiswa Pendidikan Untuk Anak Yatim',
-        kategori: 'Pendidikan & Tahfidz',
-        deskripsi: 'Dukung pendidikan mereka untuk masa depan yang lebih baik. Kampanye ini bertujuan untuk memberikan beasiswa pendidikan kepada anak-anak yatim dan dhuafa agar mereka dapat melanjutkan pendidikan ke jenjang yang lebih tinggi. Dengan dukungan Anda, kami yakin mereka bisa meraih masa depan yang lebih baik dan bermanfaat bagi umat.',
-        target_dana: 118500000,
-        tanggal_mulai: '{{ date('Y-m-d') }}',
-        tenggat_waktu: '{{ date('Y-m-d', strtotime('+30 days')) }}',
+        judul: '',
+        kategori: '',
+        deskripsi: '',
+        target_dana: '',
+        tanggal_mulai: '',
+        tenggat_waktu: '',
         status: 'aktif',
         bannerPreview: null,
+        errorMessage: '',
+        
+        step1Errors: { judul: false, kategori: false, deskripsi: false },
+        step2Errors: { target_dana: false, tanggal_mulai: false, tenggat_waktu: false },
+        step3Errors: { banner: false },
+
+        isStep1Valid() {
+            return (this.judul || '').trim().length > 0 &&
+                   (this.kategori || '').trim().length > 0 &&
+                   (this.deskripsi || '').trim().length > 0;
+        },
+
+        validateAndGoToStep2() {
+            this.errorMessage = '';
+            this.step1Errors.judul = !(this.judul || '').trim();
+            this.step1Errors.kategori = !(this.kategori || '').trim();
+            this.step1Errors.deskripsi = !(this.deskripsi || '').trim();
+
+            if (!this.isStep1Valid()) {
+                this.errorMessage = 'Mohon lengkapi semua kolom wajib pada Langkah 1 (Informasi Dasar) sebelum melanjutkan.';
+                if (this.step1Errors.judul && this.$refs.judulInput) {
+                    this.$refs.judulInput.focus();
+                } else if (this.step1Errors.kategori && this.$refs.kategoriInput) {
+                    this.$refs.kategoriInput.focus();
+                } else if (this.step1Errors.deskripsi && this.$refs.deskripsiInput) {
+                    this.$refs.deskripsiInput.focus();
+                }
+                return false;
+            }
+
+            this.tab = 'detail-kampanye';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return true;
+        },
+
+        isStep2Valid() {
+            const target = Number(this.target_dana);
+            const validTarget = !isNaN(target) && target >= 1000;
+            const validStartDate = Boolean(this.tanggal_mulai);
+            const validEndDate = Boolean(this.tenggat_waktu);
+            const validRange = validStartDate && validEndDate && (this.tenggat_waktu >= this.tanggal_mulai);
+
+            return this.isStep1Valid() && validTarget && validRange;
+        },
+
+        validateAndGoToStep3() {
+            this.errorMessage = '';
+            const target = Number(this.target_dana);
+            this.step2Errors.target_dana = isNaN(target) || target < 1000;
+            this.step2Errors.tanggal_mulai = !this.tanggal_mulai;
+            this.step2Errors.tenggat_waktu = !this.tenggat_waktu || (this.tanggal_mulai && this.tenggat_waktu < this.tanggal_mulai);
+
+            if (!this.isStep2Valid()) {
+                this.errorMessage = 'Mohon lengkapi target donasi dan periode tanggal yang valid pada Langkah 2 (Detail Kampanye).';
+                if (this.step2Errors.target_dana && this.$refs.targetInput) {
+                    this.$refs.targetInput.focus();
+                } else if (this.step2Errors.tanggal_mulai && this.$refs.mulaiInput) {
+                    this.$refs.mulaiInput.focus();
+                } else if (this.step2Errors.tenggat_waktu && this.$refs.tenggatInput) {
+                    this.$refs.tenggatInput.focus();
+                }
+                return false;
+            }
+
+            this.tab = 'media-konten';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return true;
+        },
+
+        isStep3Valid() {
+            return this.isStep2Valid() && Boolean(this.bannerPreview);
+        },
+
+        validateStep3() {
+            this.errorMessage = '';
+            this.step3Errors.banner = !this.bannerPreview;
+            if (!this.bannerPreview) {
+                this.errorMessage = 'Foto banner utama kampanye wajib diunggah sebelum menyimpan kampanye.';
+                return false;
+            }
+            return true;
+        },
+
+        handleFormSubmit(e, statusOverride = null) {
+            if (statusOverride) {
+                this.status = statusOverride;
+            }
+
+            if (!this.isStep1Valid()) {
+                e.preventDefault();
+                this.tab = 'informasi-dasar';
+                this.validateAndGoToStep2();
+                return false;
+            }
+
+            if (!this.isStep2Valid()) {
+                e.preventDefault();
+                this.tab = 'detail-kampanye';
+                this.validateAndGoToStep3();
+                return false;
+            }
+
+            if (!this.validateStep3()) {
+                e.preventDefault();
+                return false;
+            }
+        },
+
         confirmLeave(e) {
             if (this.isDirty) {
                 if (!confirm('Perubahan formulir belum disimpan. Yakin ingin kembali ke halaman Kelola Kampanye?')) {
@@ -20,12 +128,16 @@
                 }
             }
         },
+
         formatRupiah(val) {
             if (!val || isNaN(val)) return 'Rp 0';
             return 'Rp ' + Number(val).toLocaleString('id-ID');
         },
+
         handleImageUpload(e) {
             this.isDirty = true;
+            this.step3Errors.banner = false;
+            this.errorMessage = '';
             const file = e.target.files[0];
             if (file) {
                 const reader = new FileReader();
@@ -35,6 +147,7 @@
                 reader.readAsDataURL(file);
             }
         },
+
         formatDateDisplay(d) {
             if (!d) return '-';
             const date = new Date(d);
@@ -43,9 +156,9 @@
         }
      }">
 
-    <!-- Flash Errors -->
+    <!-- Flash Errors Backend -->
     @if($errors->any())
-        <div class="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs sm:text-sm space-y-1">
+        <div class="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs sm:text-sm space-y-1 shadow-2xs">
             <p class="font-bold">Mohon periksa kesalahan input berikut:</p>
             <ul class="list-disc list-inside">
                 @foreach($errors->all() as $err)
@@ -93,51 +206,133 @@
         </div>
     </div>
 
-    <!-- 2 Columns Grid: Form (Kiri) & Live Preview (Kanan) -->
+    <!-- 2 Columns Grid: Form Wizard (Kiri) & Live Preview (Kanan) -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         
-        <!-- KOLOM KIRI: Form Input dengan 3 Tab (Persis Screenshot 2) -->
+        <!-- KOLOM KIRI: Form Input dengan Multi-Step Wizard Gating -->
         <div class="lg:col-span-7 bg-white rounded-2xl border border-slate-200/80 shadow-2xs overflow-hidden">
             <!-- Header Kartu -->
-            <div class="p-5 sm:p-6 border-b border-slate-100 flex items-center gap-3 bg-slate-50/40">
-                <div class="w-10 h-10 rounded-xl bg-[#24533C] text-white flex items-center justify-center shrink-0 shadow-2xs">
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                    </svg>
+            <div class="p-5 sm:p-6 border-b border-slate-100 flex items-center justify-between gap-3 bg-slate-50/40">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-[#24533C] text-white flex items-center justify-center shrink-0 shadow-2xs">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="font-bold text-slate-900 text-base leading-snug">Formulir Kampanye Baru</h2>
+                        <p class="text-xs text-slate-500 font-medium">Lengkapi setiap tahapan formulir secara berurutan.</p>
+                    </div>
                 </div>
-                <div>
-                    <h2 class="font-bold text-slate-900 text-base leading-snug">Buat Kampanye Baru</h2>
-                    <p class="text-xs text-slate-500 font-medium">Isi detail kampanye untuk menggalang dana dari donatur.</p>
+
+                <!-- Step Tracker Badge -->
+                <div class="shrink-0 text-xs font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-full shadow-2xs">
+                    <span x-text="tab === 'informasi-dasar' ? 'Langkah 1 dari 3' : (tab === 'detail-kampanye' ? 'Langkah 2 dari 3' : 'Langkah 3 dari 3')"></span>
                 </div>
             </div>
 
-            <!-- Tab Navigation: Informasi Dasar | Detail Kampanye | Media & Konten -->
-            <div class="border-b border-slate-200 px-5 sm:px-6 flex items-center gap-6 overflow-x-auto text-xs sm:text-sm font-semibold">
-                <button type="button" 
-                        @click="tab = 'informasi-dasar'"
-                        :class="tab === 'informasi-dasar' ? 'border-[#24533C] text-[#24533C]' : 'border-transparent text-slate-500 hover:text-slate-800'"
-                        class="py-3.5 border-b-2 transition shrink-0 cursor-pointer">
-                    Informasi Dasar
-                </button>
-                <button type="button" 
-                        @click="tab = 'detail-kampanye'"
-                        :class="tab === 'detail-kampanye' ? 'border-[#24533C] text-[#24533C]' : 'border-transparent text-slate-500 hover:text-slate-800'"
-                        class="py-3.5 border-b-2 transition shrink-0 cursor-pointer">
-                    Detail Kampanye
-                </button>
-                <button type="button" 
-                        @click="tab = 'media-konten'"
-                        :class="tab === 'media-konten' ? 'border-[#24533C] text-[#24533C]' : 'border-transparent text-slate-500 hover:text-slate-800'"
-                        class="py-3.5 border-b-2 transition shrink-0 cursor-pointer">
-                    Media & Konten
-                </button>
+            <!-- STEP INDICATOR PROGRESS BAR (Non-clickable: Admin TIDAK bisa klik lompat langsung di atas) -->
+            <div class="border-b border-slate-200 bg-slate-50/60 px-5 sm:px-6 py-3.5 select-none" aria-label="Progress Tahapan">
+                <div class="grid grid-cols-3 gap-2 sm:gap-3 text-xs">
+                    <!-- Step 1 Indicator -->
+                    <div class="flex items-center gap-2 transition"
+                         :class="tab === 'informasi-dasar' ? 'text-[#24533C] font-bold' : (isStep1Valid() ? 'text-emerald-700 font-semibold' : 'text-slate-400 font-medium')">
+                        <span class="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 transition"
+                              :class="isStep1Valid() && tab !== 'informasi-dasar' ? 'bg-emerald-600 text-white' : (tab === 'informasi-dasar' ? 'bg-[#24533C] text-white ring-2 ring-emerald-200' : 'bg-slate-200 text-slate-600')">
+                            <template x-if="isStep1Valid() && tab !== 'informasi-dasar'">
+                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                </svg>
+                            </template>
+                            <template x-if="!isStep1Valid() || tab === 'informasi-dasar'">
+                                <span>1</span>
+                            </template>
+                        </span>
+                        <div class="min-w-0">
+                            <p class="truncate text-[11px] sm:text-xs">Informasi Dasar</p>
+                        </div>
+                    </div>
+
+                    <!-- Step 2 Indicator -->
+                    <div class="flex items-center gap-2 transition"
+                         :class="tab === 'detail-kampanye' ? 'text-[#24533C] font-bold' : (isStep2Valid() ? 'text-emerald-700 font-semibold' : 'text-slate-400 font-medium')">
+                        <span class="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 transition"
+                              :class="isStep2Valid() && tab !== 'detail-kampanye' ? 'bg-emerald-600 text-white' : (tab === 'detail-kampanye' ? 'bg-[#24533C] text-white ring-2 ring-emerald-200' : 'bg-slate-200 text-slate-400')">
+                            <template x-if="isStep2Valid() && tab !== 'detail-kampanye'">
+                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                </svg>
+                            </template>
+                            <template x-if="!isStep2Valid() || tab === 'detail-kampanye'">
+                                <span>2</span>
+                            </template>
+                        </span>
+                        <div class="min-w-0 flex items-center gap-1">
+                            <p class="truncate text-[11px] sm:text-xs">Detail Kampanye</p>
+                            <template x-if="!isStep1Valid()">
+                                <svg class="w-3 h-3 text-slate-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" title="Langkah terkunci">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                                </svg>
+                            </template>
+                        </div>
+                    </div>
+
+                    <!-- Step 3 Indicator -->
+                    <div class="flex items-center gap-2 transition"
+                         :class="tab === 'media-konten' ? 'text-[#24533C] font-bold' : (isStep3Valid() ? 'text-emerald-700 font-semibold' : 'text-slate-400 font-medium')">
+                        <span class="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 transition"
+                              :class="isStep3Valid() ? 'bg-emerald-600 text-white' : (tab === 'media-konten' ? 'bg-[#24533C] text-white ring-2 ring-emerald-200' : 'bg-slate-200 text-slate-400')">
+                            <template x-if="isStep3Valid()">
+                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                </svg>
+                            </template>
+                            <template x-if="!isStep3Valid()">
+                                <span>3</span>
+                            </template>
+                        </span>
+                        <div class="min-w-0 flex items-center gap-1">
+                            <p class="truncate text-[11px] sm:text-xs">Media & Konten</p>
+                            <template x-if="!isStep2Valid()">
+                                <svg class="w-3 h-3 text-slate-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" title="Langkah terkunci">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                                </svg>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Baris Keterangan Informasi IMK -->
+                <div class="mt-2.5 pt-2 border-t border-slate-200/60 flex items-center justify-between text-[11px] text-slate-500">
+                    <span class="inline-flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5 text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                        </svg>
+                        <span>Selesaikan pengisian halaman saat ini untuk membuka halaman selanjutnya.</span>
+                    </span>
+                    <span class="hidden sm:inline text-slate-400 font-medium">Navigasi terkunci berurutan</span>
+                </div>
             </div>
 
             <!-- Form Wrapper -->
-            <form action="{{ route('admin.kelola-kampanye.store') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('admin.kelola-kampanye.store') }}" 
+                  method="POST" 
+                  enctype="multipart/form-data"
+                  @submit="handleFormSubmit($event)">
                 @csrf
 
                 <div class="p-5 sm:p-6 space-y-4">
+                    <!-- Alert Error Banner Real-time -->
+                    <div x-show="errorMessage" 
+                         x-transition
+                         class="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-medium flex items-center gap-2.5 shadow-2xs"
+                         style="display: none;">
+                        <svg class="w-4 h-4 text-rose-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2.25" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                        </svg>
+                        <span x-text="errorMessage"></span>
+                    </div>
+
                     <!-- ================= TAB 1: INFORMASI DASAR ================= -->
                     <div x-show="tab === 'informasi-dasar'" class="space-y-4">
                         <!-- Judul Kampanye * -->
@@ -147,11 +342,19 @@
                             </label>
                             <input type="text" 
                                    name="judul" 
+                                   x-ref="judulInput"
                                    x-model="judul"
-                                   @input="isDirty = true"
+                                   @input="isDirty = true; step1Errors.judul = false; errorMessage = ''"
                                    required 
                                    placeholder="Contoh: Beasiswa Pendidikan Untuk Anak Yatim"
-                                   class="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 focus:border-[#24533C] focus:ring-1 focus:ring-[#24533C] focus:outline-hidden transition shadow-2xs">
+                                   :class="step1Errors.judul ? 'border-rose-400 ring-2 ring-rose-100 bg-rose-50/20' : 'border-slate-300 focus:border-[#24533C] focus:ring-1 focus:ring-[#24533C] bg-white'"
+                                   class="w-full rounded-xl border px-4 py-2.5 text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 focus:outline-hidden transition shadow-2xs">
+                            <p x-show="step1Errors.judul" class="text-[11px] font-semibold text-rose-500 mt-1 flex items-center gap-1" style="display: none;">
+                                <svg class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                                </svg>
+                                <span>Judul kampanye wajib diisi sebelum lanjut ke langkah berikutnya.</span>
+                            </p>
                         </div>
 
                         <!-- Kategori * -->
@@ -160,15 +363,23 @@
                                 Kategori <span class="text-rose-500">*</span>
                             </label>
                             <select name="kategori" 
+                                    x-ref="kategoriInput"
                                     x-model="kategori"
-                                    @change="isDirty = true"
+                                    @change="isDirty = true; step1Errors.kategori = false; errorMessage = ''"
                                     required 
-                                    class="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs sm:text-sm text-slate-800 focus:border-[#24533C] focus:ring-1 focus:ring-[#24533C] focus:outline-hidden transition shadow-2xs">
-                                <option value="" disabled>Pilih kategori</option>
+                                    :class="step1Errors.kategori ? 'border-rose-400 ring-2 ring-rose-100 bg-rose-50/20' : 'border-slate-300 focus:border-[#24533C] focus:ring-1 focus:ring-[#24533C] bg-white'"
+                                    class="w-full rounded-xl border px-4 py-2.5 text-xs sm:text-sm text-slate-800 focus:outline-hidden transition shadow-2xs">
+                                <option value="" disabled selected>Pilih kategori kampanye</option>
                                 @foreach($kategoriList as $kat)
                                     <option value="{{ $kat }}">{{ $kat }}</option>
                                 @endforeach
                             </select>
+                            <p x-show="step1Errors.kategori" class="text-[11px] font-semibold text-rose-500 mt-1 flex items-center gap-1" style="display: none;">
+                                <svg class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                                </svg>
+                                <span>Silakan pilih kategori program kampanye.</span>
+                            </p>
                         </div>
 
                         <!-- Deskripsi * -->
@@ -177,19 +388,31 @@
                                 Deskripsi <span class="text-rose-500">*</span>
                             </label>
                             <textarea name="deskripsi" 
+                                      x-ref="deskripsiInput"
                                       x-model="deskripsi"
-                                      @input="isDirty = true"
+                                      @input="isDirty = true; step1Errors.deskripsi = false; errorMessage = ''"
                                       rows="5"
                                       required 
-                                      placeholder="Tuliskan Deskripsi kampanye, Tuliskan detail program, tujuan, dan manfaat kampanye..."
-                                      class="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 focus:border-[#24533C] focus:ring-1 focus:ring-[#24533C] focus:outline-hidden transition shadow-2xs"></textarea>
+                                      placeholder="Tuliskan deskripsi kampanye, detail program, tujuan, dan manfaat bagi penerima bantuan..."
+                                      :class="step1Errors.deskripsi ? 'border-rose-400 ring-2 ring-rose-100 bg-rose-50/20' : 'border-slate-300 focus:border-[#24533C] focus:ring-1 focus:ring-[#24533C] bg-white'"
+                                      class="w-full rounded-xl border px-4 py-2.5 text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 focus:outline-hidden transition shadow-2xs"></textarea>
+                            <p x-show="step1Errors.deskripsi" class="text-[11px] font-semibold text-rose-500 mt-1 flex items-center gap-1" style="display: none;">
+                                <svg class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                                </svg>
+                                <span>Deskripsi kampanye wajib diisi sebelum lanjut.</span>
+                            </p>
                         </div>
 
-                        <div class="pt-2 flex justify-end">
+                        <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+                            <span class="text-[11px] text-slate-400 font-medium">Langkah 1: Informasi Dasar</span>
                             <button type="button" 
-                                    @click="tab = 'detail-kampanye'" 
-                                    class="px-5 py-2.5 rounded-xl bg-[#24533C] text-white text-xs sm:text-sm font-semibold hover:bg-[#1B4332] transition shadow-xs cursor-pointer">
-                                Lanjut: Detail Kampanye &rarr;
+                                    @click="validateAndGoToStep2()" 
+                                    class="px-5 py-2.5 rounded-xl bg-[#24533C] text-white text-xs sm:text-sm font-semibold hover:bg-[#1B4332] active:scale-95 transition-all shadow-xs cursor-pointer inline-flex items-center gap-2">
+                                <span>Lanjut: Detail Kampanye</span>
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.25" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                                </svg>
                             </button>
                         </div>
                     </div>
@@ -205,13 +428,22 @@
                                 <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-xs sm:text-sm font-bold text-slate-500">Rp</span>
                                 <input type="number" 
                                        name="target_dana" 
+                                       x-ref="targetInput"
                                        x-model="target_dana"
+                                       @input="isDirty = true; step2Errors.target_dana = false; errorMessage = ''"
                                        min="1000"
                                        step="1000"
                                        required 
-                                       placeholder="118500000"
-                                       class="w-full rounded-xl border border-slate-300 bg-white pl-12 pr-4 py-2.5 text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 focus:border-[#24533C] focus:ring-1 focus:ring-[#24533C] focus:outline-hidden transition shadow-2xs">
+                                       placeholder="Contoh: 118500000"
+                                       :class="step2Errors.target_dana ? 'border-rose-400 ring-2 ring-rose-100 bg-rose-50/20' : 'border-slate-300 focus:border-[#24533C] focus:ring-1 focus:ring-[#24533C] bg-white'"
+                                       class="w-full rounded-xl border pl-12 pr-4 py-2.5 text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 focus:outline-hidden transition shadow-2xs">
                             </div>
+                            <p x-show="step2Errors.target_dana" class="text-[11px] font-semibold text-rose-500 mt-1 flex items-center gap-1" style="display: none;">
+                                <svg class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                                </svg>
+                                <span>Target donasi wajib diisi minimal Rp 1.000.</span>
+                            </p>
                         </div>
 
                         <!-- Grid Tanggal Mulai & Tenggat Waktu -->
@@ -222,8 +454,15 @@
                                 </label>
                                 <input type="date" 
                                        name="tanggal_mulai" 
+                                       x-ref="mulaiInput"
                                        x-model="tanggal_mulai"
-                                       class="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs sm:text-sm text-slate-800 focus:border-[#24533C] focus:outline-hidden transition shadow-2xs">
+                                       @change="isDirty = true; step2Errors.tanggal_mulai = false; errorMessage = ''"
+                                       required
+                                       :class="step2Errors.tanggal_mulai ? 'border-rose-400 ring-2 ring-rose-100 bg-rose-50/20' : 'border-slate-300 focus:border-[#24533C] bg-white'"
+                                       class="w-full rounded-xl border px-4 py-2.5 text-xs sm:text-sm text-slate-800 focus:outline-hidden transition shadow-2xs">
+                                <p x-show="step2Errors.tanggal_mulai" class="text-[11px] font-semibold text-rose-500 mt-1" style="display: none;">
+                                    Tanggal mulai kampanye wajib diisi.
+                                </p>
                             </div>
                             <div>
                                 <label class="block text-xs sm:text-sm font-bold text-slate-800 mb-1.5">
@@ -231,8 +470,15 @@
                                 </label>
                                 <input type="date" 
                                        name="tenggat_waktu" 
+                                       x-ref="tenggatInput"
                                        x-model="tenggat_waktu"
-                                       class="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs sm:text-sm text-slate-800 focus:border-[#24533C] focus:outline-hidden transition shadow-2xs">
+                                       @change="isDirty = true; step2Errors.tenggat_waktu = false; errorMessage = ''"
+                                       required
+                                       :class="step2Errors.tenggat_waktu ? 'border-rose-400 ring-2 ring-rose-100 bg-rose-50/20' : 'border-slate-300 focus:border-[#24533C] bg-white'"
+                                       class="w-full rounded-xl border px-4 py-2.5 text-xs sm:text-sm text-slate-800 focus:outline-hidden transition shadow-2xs">
+                                <p x-show="step2Errors.tenggat_waktu" class="text-[11px] font-semibold text-rose-500 mt-1" style="display: none;">
+                                    Tenggat waktu harus sama atau setelah tanggal mulai.
+                                </p>
                             </div>
                         </div>
 
@@ -261,16 +507,22 @@
                             </div>
                         </div>
 
-                        <div class="pt-2 flex justify-between">
+                        <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
                             <button type="button" 
-                                    @click="tab = 'informasi-dasar'" 
-                                    class="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-700 text-xs sm:text-sm font-semibold hover:bg-slate-50 transition cursor-pointer">
-                                &larr; Kembali
+                                    @click="tab = 'informasi-dasar'; errorMessage = ''; window.scrollTo({ top: 0, behavior: 'smooth' })" 
+                                    class="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-700 text-xs sm:text-sm font-semibold hover:bg-slate-50 active:scale-95 transition-all cursor-pointer inline-flex items-center gap-1.5">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                                </svg>
+                                <span>Kembali ke Informasi Dasar</span>
                             </button>
                             <button type="button" 
-                                    @click="tab = 'media-konten'" 
-                                    class="px-5 py-2.5 rounded-xl bg-[#24533C] text-white text-xs sm:text-sm font-semibold hover:bg-[#1B4332] transition shadow-xs cursor-pointer">
-                                Lanjut: Media & Konten &rarr;
+                                    @click="validateAndGoToStep3()" 
+                                    class="px-5 py-2.5 rounded-xl bg-[#24533C] text-white text-xs sm:text-sm font-semibold hover:bg-[#1B4332] active:scale-95 transition-all shadow-xs cursor-pointer inline-flex items-center gap-2">
+                                <span>Lanjut: Media & Konten</span>
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.25" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                                </svg>
                             </button>
                         </div>
                     </div>
@@ -279,41 +531,66 @@
                     <div x-show="tab === 'media-konten'" class="space-y-4" style="display: none;">
                         <div>
                             <label class="block text-xs sm:text-sm font-bold text-slate-800 mb-1.5">
-                                Foto Banner Utama Kampanye
+                                Foto Banner Utama Kampanye <span class="text-rose-500">*</span>
                             </label>
-                            <div class="border-2 border-dashed border-slate-300 hover:border-[#24533C] rounded-2xl p-6 text-center transition cursor-pointer bg-slate-50/50 relative">
+                            <div class="border-2 border-dashed rounded-2xl p-6 text-center transition cursor-pointer bg-slate-50/50 relative"
+                                 :class="step3Errors.banner ? 'border-rose-400 ring-2 ring-rose-100 bg-rose-50/30' : 'border-slate-300 hover:border-[#24533C]'">
                                 <input type="file" 
                                        name="banner" 
                                        accept="image/*"
+                                       required
                                        @change="handleImageUpload($event)"
                                        class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
                                 <div class="flex flex-col items-center justify-center pointer-events-none">
-                                    <svg class="w-8 h-8 text-slate-400 mb-2" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h1.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-                                    </svg>
-                                    <p class="text-xs sm:text-sm font-semibold text-slate-700">Klik atau geser file foto banner ke sini</p>
-                                    <p class="text-[11px] text-slate-400 mt-1">Format: JPG, PNG, WEBP (Maksimal 5MB, rasio 16:9 disarankan)</p>
+                                    <template x-if="bannerPreview">
+                                        <div class="space-y-2">
+                                            <div class="w-36 h-22 rounded-xl overflow-hidden mx-auto border border-emerald-300 shadow-2xs">
+                                                <img :src="bannerPreview" alt="Preview Banner" class="w-full h-full object-cover">
+                                            </div>
+                                            <p class="text-xs font-bold text-emerald-800">Banner terpilih &amp; siap diunggah</p>
+                                            <p class="text-[11px] text-slate-400">Klik untuk mengganti foto banner lain</p>
+                                        </div>
+                                    </template>
+                                    <template x-if="!bannerPreview">
+                                        <div>
+                                            <svg class="w-9 h-9 text-slate-400 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h1.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                                            </svg>
+                                            <p class="text-xs sm:text-sm font-semibold text-slate-700">Pilih atau unggah file foto banner <span class="text-rose-500">*</span></p>
+                                            <p class="text-[11px] text-slate-400 mt-1">Format: JPG, PNG, WEBP (Maksimal 5MB, rasio 16:9 disarankan)</p>
+                                        </div>
+                                    </template>
                                 </div>
                             </div>
+                            <p x-show="step3Errors.banner" class="text-[11px] font-semibold text-rose-500 mt-1.5 text-center flex items-center justify-center gap-1" style="display: none;">
+                                <svg class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                                </svg>
+                                <span>Foto banner utama kampanye wajib diunggah sebelum menyimpan.</span>
+                            </p>
                         </div>
 
                         <div class="pt-4 border-t border-slate-100 flex items-center justify-between gap-3">
                             <button type="button" 
-                                    @click="tab = 'detail-kampanye'" 
-                                    class="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-700 text-xs sm:text-sm font-semibold hover:bg-slate-50 transition cursor-pointer">
-                                &larr; Kembali
+                                    @click="tab = 'detail-kampanye'; errorMessage = ''; window.scrollTo({ top: 0, behavior: 'smooth' })" 
+                                    class="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-700 text-xs sm:text-sm font-semibold hover:bg-slate-50 active:scale-95 transition-all cursor-pointer inline-flex items-center gap-1.5">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                                </svg>
+                                <span>Kembali ke Detail Kampanye</span>
                             </button>
 
                             <div class="flex items-center gap-2">
                                 <button type="submit" 
                                         name="status_override" 
                                         value="draft"
-                                        @click="status = 'draft'"
-                                        class="px-4 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-700 text-xs sm:text-sm font-semibold hover:bg-slate-50 transition shadow-2xs cursor-pointer">
+                                        @click="handleFormSubmit($event, 'draft')"
+                                        class="px-4 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-700 text-xs sm:text-sm font-semibold hover:bg-slate-50 active:scale-95 transition-all shadow-2xs cursor-pointer">
                                     Simpan Draft
                                 </button>
                                 <button type="submit" 
-                                        class="px-5 py-2.5 rounded-xl bg-[#24533C] text-white text-xs sm:text-sm font-semibold hover:bg-[#1B4332] transition shadow-xs cursor-pointer">
+                                        @click="handleFormSubmit($event)"
+                                        class="px-5 py-2.5 rounded-xl bg-[#24533C] text-white text-xs sm:text-sm font-semibold hover:bg-[#1B4332] active:scale-95 transition-all shadow-xs cursor-pointer">
                                     Simpan &amp; Terbitkan Kampanye
                                 </button>
                             </div>
@@ -331,7 +608,7 @@
                     <svg class="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
                     </svg>
-                    <span>Preview Kampanye</span>
+                    <span>Preview Kampanye Real-Time</span>
                 </div>
 
                 <div class="p-5 space-y-4">
@@ -369,7 +646,7 @@
                     <!-- Kategori Pill (Persis Screenshot 2: Hijau Pastel) -->
                     <div>
                         <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-[#D1FAE5] text-[#047857] border border-emerald-200"
-                              x-text="kategori || 'Pendidikan & Tahfidz'"></span>
+                              x-text="kategori || 'Pilih Kategori'"></span>
                     </div>
 
                     <!-- 3 Row Metrics: Target | Terkumpul | Progres -->
@@ -400,7 +677,7 @@
                             <div>
                                 <span class="block text-[10px] text-slate-400 font-medium">Periode</span>
                                 <span class="font-semibold text-slate-800" 
-                                      x-text="formatDateDisplay(tanggal_mulai) + ' - ' + formatDateDisplay(tenggat_waktu)"></span>
+                                      x-text="(tanggal_mulai && tenggat_waktu) ? (formatDateDisplay(tanggal_mulai) + ' - ' + formatDateDisplay(tenggat_waktu)) : 'Periode belum ditentukan'"></span>
                             </div>
                         </div>
 
