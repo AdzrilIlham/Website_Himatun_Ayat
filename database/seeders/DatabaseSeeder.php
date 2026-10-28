@@ -15,11 +15,15 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        // Akun Admin Yayasan Himatun Ayat
+        // Catatan: Model User punya cast 'password' => 'hashed',
+        // Laravel otomatis hash password → jangan pakai Hash::make() di sini.
+        User::firstOrCreate(
+            ['email' => 'admin@himatunayyat.org'],
+            [
+                'name'     => 'Admin Yayasan',
+                'password' => 'password123',
+            ]
+        );
     }
 }
