@@ -10,6 +10,11 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [DashboardController::class, 'index'])->name('home');
 
+// Halaman preview design system (hanya lokal).
+if (app()->environment('local')) {
+    Route::view('/design-system', 'design-system')->name('design-system');
+}
+
 Route::prefix('admin')->name('admin.')->group(function () {
     // Dashboard Admin
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
