@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
 @section('content')
-<div class="space-y-6 max-w-7xl mx-auto pb-12" x-data="{
+<div class="space-y-4 sm:space-y-5 pb-12 w-full max-w-full min-w-0" x-data="{
     searchQuery: '',
     selectedSort: 'status',
     beritaList: {{ Js::from($daftarBerita) }},
@@ -13,16 +13,29 @@
         );
     }
 }">
+    <!-- Flash Notifications -->
+    @if(session('success'))
+        <div class="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs sm:text-sm flex items-center justify-between shadow-2xs">
+            <div class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>{{ session('success') }}</span>
+            </div>
+            <button type="button" onclick="this.parentElement.remove()" class="text-emerald-600 hover:text-emerald-900 text-lg leading-none cursor-pointer">&times;</button>
+        </div>
+    @endif
+
     <!-- Header Page: Title + Tambah Berita Button -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-            <h1 class="text-2xl sm:text-3xl font-extrabold text-[#1E3A2F] tracking-tight">CMS Berita</h1>
-            <p class="text-sm text-slate-500 mt-0.5">Kelola dan Publikasikan berita terbaru yayasan</p>
+            <h1 class="text-2xl sm:text-3xl font-bold text-[#1B4332] tracking-tight">CMS Berita</h1>
+            <p class="text-xs sm:text-sm text-slate-500 mt-0.5 font-medium">Kelola dan Publikasikan berita terbaru yayasan</p>
         </div>
         <div>
             <a href="{{ route('admin.berita.create') }}" 
-               class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-[#2D6A4F] hover:bg-[#23533E] text-white font-medium text-sm shadow-xs transition hover:shadow-md">
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+               class="inline-flex items-center justify-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-[#24533C] hover:bg-[#1B4332] text-white font-semibold text-xs sm:text-sm shadow-xs transition cursor-pointer">
+                <svg class="w-4 h-4 text-white shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                 </svg>
                 <span>Tambah Berita</span>

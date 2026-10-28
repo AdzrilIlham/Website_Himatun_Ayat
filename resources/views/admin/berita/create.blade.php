@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
 @section('content')
-<div class="space-y-6 max-w-5xl mx-auto pb-16" x-data="{
+<div class="space-y-4 sm:space-y-5 pb-16 w-full max-w-full min-w-0" x-data="{
     status: 'tayang',
     ringkasan: '',
     isiBerita: '',
@@ -33,14 +33,14 @@
     }
 }">
     <!-- Header Page: Title + Kembali Button -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-            <h1 class="text-2xl sm:text-3xl font-extrabold text-[#1E3A2F] tracking-tight">Tambah Berita</h1>
-            <p class="text-sm text-slate-500 mt-0.5">Buat berita atau pengumuman terbaru untuk yayasan</p>
+            <h1 class="text-2xl sm:text-3xl font-bold text-[#1B4332] tracking-tight">Tambah Berita</h1>
+            <p class="text-xs sm:text-sm text-slate-500 mt-0.5 font-medium">Buat berita atau pengumuman terbaru untuk yayasan</p>
         </div>
         <div>
             <a href="{{ route('admin.berita.index') }}" 
-               class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-[#2D6A4F] hover:bg-[#23533E] text-white font-medium text-sm shadow-xs transition hover:shadow-md">
+               class="inline-flex items-center justify-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-[#24533C] hover:bg-[#1B4332] text-white font-semibold text-xs sm:text-sm shadow-xs transition cursor-pointer">
                 <span>Kembali ke Daftar</span>
             </a>
         </div>
