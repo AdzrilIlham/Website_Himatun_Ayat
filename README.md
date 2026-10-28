@@ -204,7 +204,28 @@ CLOUDFLARE_R2_BUCKET_PRIVATE=yayasan-private
 php artisan migrate
 ```
 
-### 5. Menjalankan Server Pengembangan
+### 5. Seed Data Dummy (Opsional)
+Untuk mengisi database dengan data contoh yang saling terhubung:
+```bash
+php artisan db:seed
+```
+
+Seeder `DummyDataSeeder` akan membuat:
+- 2 akun admin: `admin@himmatunayat.org` dan `operator@himmatunayat.org` (password: `password`).
+- 14 kampanye (8 aktif, 3 selesai, 3 draft), termasuk 2 kampanye yang mendekati tenggat.
+- 80 data anak asuh dengan variasi jenjang, status, dan foto avatar.
+- 120 donasi (94 terverifikasi, 18 menunggu verifikasi, 8 ditolak) beserta perhitungan dana kampanye.
+- 16 berita (12 published, 4 draft).
+
+Seeder ini bersifat idempotent: aman dijalankan berulang tanpa menggandakan data. Donasi demo dikenali dari penanda `seed/bukti-transfer-demo.svg`, sehingga donasi yang diinput manual tidak ikut terhapus.
+
+Jika ingin memulai database dari nol sekaligus mengisi data dummy:
+```bash
+php artisan migrate:fresh --seed
+```
+> Perintah di atas akan menghapus seluruh data yang sudah ada.
+
+### 6. Menjalankan Server Pengembangan
 Jalankan frontend compiler dan server backend secara paralel:
 ```bash
 # Terminal 1: Vite & Tailwind Compiler
