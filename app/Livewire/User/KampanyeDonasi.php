@@ -32,7 +32,13 @@ class KampanyeDonasi extends Component
 
     public string $doaHarapan = '';
 
-    public string $metodePembayaran = 'Transfer Bank (BCA)';
+    public string $metodePembayaran = 'QRIS';
+
+    public string $paymentId = 'DNS-12345678-123';
+
+    public int $paymentStep = 1;
+
+    public bool $showAllPaymentMethods = false;
 
     public $buktiTransfer;
 
@@ -157,7 +163,40 @@ class KampanyeDonasi extends Component
         ]);
 
         $this->currentDonasi = $donasi;
+        $this->paymentId = 'DNS-'.str_pad((string) (12345000 + $donasi->id), 8, '0', STR_PAD_LEFT).'-'.str_pad((string) (($donasi->id * 37 + 123) % 900 + 100), 3, '0', STR_PAD_LEFT);
+        $this->paymentStep = 1;
         $this->showPaymentModal = true;
+    }
+
+    public function selectMetodePembayaran(string $metode): void
+    {
+        $this->metodePembayaran = $metode;
+        if ($this->currentDonasi) {
+            $this->currentDonasi->update([
+                'metode_pembayaran' => $metode,
+            ]);
+        }
+    }
+
+    public function payNow(): void
+    {
+        if ($this->currentDonasi) {
+            $this->currentDonasi->update([
+                'metode_pembayaran' => $this->metodePembayaran,
+            ]);
+        }
+        $this->paymentStep = 2;
+    }
+
+    public function backToStepOne(): void
+    {
+        $this->paymentStep = 1;
+    }
+
+    public function closePaymentModal(): void
+    {
+        $this->showPaymentModal = false;
+        $this->paymentStep = 1;
     }
 
     public function uploadBuktiTransfer(CloudflareR2Service $r2Service): void
@@ -215,6 +254,96 @@ class KampanyeDonasi extends Component
         $this->customNominal = 50000;
         $this->currentDonasi = null;
         $this->buktiTransfer = null;
+        $this->paymentStep = 1;
+        $this->metodePembayaran = 'QRIS';
+        $this->showAllPaymentMethods = false;
+    }
+
+    public function getVirtualAccountDetailsProperty(): array
+    {
+        $id = $this->currentDonasi?->id ?? 1;
+        $nominal = $this->currentDonasi?->nominal ?? $this->selectedNominal;
+
+        return match ($this->metodePembayaran) {
+            'Virrtual Account BNI', 'Virtual Account BNI' => [
+                'bank' => 'BNI',
+                'va_number' => '8808'.str_pad((string) (12340000 + $id), 8, '0', STR_PAD_LEFT),
+                'atas_nama' => 'Yayasan Himatun Ayat Bandung',
+                'type' => 'va',
+                'cara_bayar' => [
+                    'Buka BNI Mobile Banking > Pembayaran > Virtual Account Billing.',
+                    'Masukkan nomor Virtual Account BNI di atas.',
+                    'Pastikan nominal sesuai (Rp '.number_format($nominal, 0, ',', '.').') lalu masukkan PIN.',
+                ],
+            ],
+            'Virrtual Account MANDIRI', 'Virtual Account MANDIRI' => [
+                'bank' => 'Mandiri',
+                'va_number' => '8921'.str_pad((string) (12340000 + $id), 8, '0', STR_PAD_LEFT),
+                'atas_nama' => 'Yayasan Himatun Ayat Bandung',
+                'type' => 'va',
+                'cara_bayar' => [
+                    'Buka Livin\' by Mandiri > Bayar > Cari penyedia jasa Yayasan Himatun (8921).',
+                    'Masukkan nomor Virtual Account Mandiri di atas.',
+                    'Konfirmasi nominal dan selesaikan pembayaran.',
+                ],
+            ],
+            'Virtual Account BCA' => [
+                'bank' => 'BCA',
+                'va_number' => '1268'.str_pad((string) (12340000 + $id), 8, '0', STR_PAD_LEFT),
+                'atas_nama' => 'Yayasan Himatun Ayat Bandung',
+                'type' => 'va',
+                'cara_bayar' => [
+                    'Buka BCA Mobile > m-Transfer > BCA Virtual Account.',
+                    'Masukkan nomor Virtual Account BCA di atas.',
+                    'Konfirmasi nominal dan masukkan PIN m-BCA.',
+                ],
+            ],
+            'Virtual Account BRI' => [
+                'bank' => 'BRI',
+                'va_number' => '1028'.str_pad((string) (12340000 + $id), 8, '0', STR_PAD_LEFT),
+                'atas_nama' => 'Yayasan Himatun Ayat Bandung',
+                'type' => 'va',
+                'cara_bayar' => [
+                    'Buka BRImo > Tagihan > BRIVA.',
+                    'Masukkan nomor BRIVA di atas.',
+                    'Konfirmasi nominal dan masukkan PIN BRImo.',
+                ],
+            ],
+            'Virtual Account BSI' => [
+                'bank' => 'BSI',
+                'va_number' => '7182'.str_pad((string) (12340000 + $id), 8, '0', STR_PAD_LEFT),
+                'atas_nama' => 'Yayasan Himatun Ayat Bandung',
+                'type' => 'va',
+                'cara_bayar' => [
+                    'Buka BSI Mobile > Bayar > Institusi.',
+                    'Masukkan nomor Virtual Account BSI di atas.',
+                    'Periksa rincian donasi dan selesaikan transaksi.',
+                ],
+            ],
+            'Transfer Bank Manual' => [
+                'bank' => 'Transfer Manual',
+                'va_number' => null,
+                'atas_nama' => 'Yayasan Himatun Ayat Bandung',
+                'type' => 'manual',
+                'cara_bayar' => [
+                    'Pilih salah satu nomor rekening resmi yayasan di bawah.',
+                    'Transfer sesuai nominal donasi yang tertera.',
+                    'Unggah foto bukti transfer atau kirimkan via WhatsApp admin.',
+                ],
+            ],
+            default => [
+                'bank' => 'QRIS',
+                'va_number' => null,
+                'atas_nama' => 'Yayasan Himatun Ayat Bandung',
+                'type' => 'qris',
+                'cara_bayar' => [
+                    'Buka aplikasi m-Banking atau e-Wallet favorit Anda.',
+                    'Pilih menu QRIS / Scan.',
+                    'Arahkan kamera ke kode QRIS di bawah.',
+                    'Konfirmasi nominal donasi dan selesaikan pembayaran.',
+                ],
+            ],
+        };
     }
 
     public function getWhatsappLinkProperty(): string
@@ -222,9 +351,11 @@ class KampanyeDonasi extends Component
         $nominal = number_format($this->currentDonasi?->nominal ?? $this->selectedNominal, 0, ',', '.');
         $nama = $this->currentDonasi?->nama_donatur ?? ($this->isAnonim ? 'Hamba Allah' : ($this->namaDonatur ?: 'Donatur'));
         $kampanye = $this->currentDonasi?->kampanye?->judul ?? 'Program Donasi Umum';
+        $pembayaranId = $this->paymentId ?: 'DNS-12345678-123';
 
         $text = "Assalamu'alaikum Warahmatullahi Wabarakatuh Pengurus Yayasan Himatun Ayat Bandung.\n\n"
             ."Saya ingin konfirmasi donasi:\n"
+            ."• ID Pembayaran: {$pembayaranId}\n"
             ."• Nama: {$nama}\n"
             ."• Program: {$kampanye}\n"
             ."• Nominal: Rp {$nominal}\n"

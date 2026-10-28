@@ -59,4 +59,44 @@ class KampanyeDonasiTest extends TestCase
             'nominal' => 100000,
         ]);
     }
+
+    public function test_payment_modal_matches_mockup_and_can_proceed_to_payment_step(): void
+    {
+        $test = Livewire::test(KampanyeDonasi::class)
+            ->set('namaDonatur', 'Siti Aminah')
+            ->set('noTelepon', '081234567890')
+            ->set('selectedNominal', 50000)
+            ->call('confirmDonasi')
+            ->assertSet('showPaymentModal', true)
+            ->assertSet('paymentStep', 1)
+            ->assertSee('Yayasan Himatun')
+            ->assertSee('Selesaikan pembayaran anda')
+            ->assertSee('ID Pembayaran:')
+            ->assertSee('QRIS')
+            ->assertSee('Virrtual Account BNI')
+            ->assertSee('Virrtual Account MANDIRI')
+            ->assertSee('Rincian Pembayaran')
+            ->assertSee('Biaya Donasi')
+            ->assertSee('Biaya Admin')
+            ->assertSee('Bayar Sekarang');
+
+        // Select Virtual Account BNI
+        $test->call('selectMetodePembayaran', 'Virrtual Account BNI')
+            ->assertSet('metodePembayaran', 'Virrtual Account BNI');
+
+        // Click Bayar Sekarang -> Step 2
+        $test->call('payNow')
+            ->assertSet('paymentStep', 2)
+            ->assertSee('Instruksi Pembayaran')
+            ->assertSee('Nomor Virtual Account:')
+            ->assertSee('Kembali');
+
+        // Back to step 1
+        $test->call('backToStepOne')
+            ->assertSet('paymentStep', 1);
+
+        // Close modal
+        $test->call('closePaymentModal')
+            ->assertSet('showPaymentModal', false);
+    }
 }

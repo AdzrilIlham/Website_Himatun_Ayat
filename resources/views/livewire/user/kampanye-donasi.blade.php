@@ -461,125 +461,347 @@
         </div>
     </section>
 
-    <!-- Modal Konfirmasi Donasi & Pembayaran / Upload Bukti -->
+    <!-- Modal Konfirmasi Donasi & Pembayaran Sesuai Mockup -->
     @if ($showPaymentModal)
-        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs transition-opacity animate-in fade-in">
-            <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-slate-100 max-h-[92vh] overflow-y-auto">
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-xs transition-opacity animate-in fade-in overflow-y-auto">
+            <div class="bg-[#f4f6f5] rounded-[28px] sm:rounded-[32px] max-w-lg w-full p-3.5 sm:p-5 shadow-2xl border border-slate-200/90 space-y-3 sm:space-y-3.5 my-auto max-h-[95vh] overflow-y-auto text-slate-800">
 
-                <!-- Header Modal -->
-                <div class="flex items-center justify-between pb-4 border-b border-slate-100">
-                    <div>
-                        <h3 class="text-lg font-bold text-slate-900">Instruksi Pembayaran Donasi</h3>
-                        <p class="text-xs text-slate-500">Selesaikan donasi Anda dengan transfer bank atau QRIS</p>
-                    </div>
-                    <button type="button" wire:click="$set('showPaymentModal', false)" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                    </button>
-                </div>
+                @if ($paymentStep === 1)
+                    <!-- STEP 1: POP-UP SESUAI MOCKUP -->
 
-                <!-- Ringkasan Donasi -->
-                <div class="mt-4 p-4 rounded-2xl bg-[#edf6f1] border border-[#d3e8dc] space-y-2">
-                    <div class="flex justify-between items-center text-xs">
-                        <span class="text-slate-500 font-medium">Program:</span>
-                        <span class="font-bold text-slate-800">{{ $currentDonasi?->kampanye?->judul ?? 'Donasi Umum Santri' }}</span>
-                    </div>
-                    <div class="flex justify-between items-center text-xs">
-                        <span class="text-slate-500 font-medium">Atas Nama:</span>
-                        <span class="font-bold text-slate-800">{{ $currentDonasi?->nama_donatur }}</span>
-                    </div>
-                    <div class="flex justify-between items-center text-xs pt-1 border-t border-[#c6e0d0]">
-                        <span class="text-slate-600 font-bold">Total Nominal:</span>
-                        <span class="text-base font-extrabold text-emerald-800">
-                            Rp {{ number_format($currentDonasi?->nominal ?? $selectedNominal, 0, ',', '.') }}
-                        </span>
-                    </div>
-                </div>
-
-                <!-- Pilihan Rekening Pembayaran -->
-                <div class="mt-5 space-y-3">
-                    <label class="block text-xs font-bold text-slate-700">
-                        Transfer ke Rekening Resmi Yayasan:
-                    </label>
-
-                    <div class="space-y-2">
-                        @foreach ($bankAccounts as $acc)
-                            <div class="p-3 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-between">
-                                <div class="flex items-center gap-3">
-                                    <span class="px-2.5 py-1 rounded-md text-[11px] font-bold bg-[#244b37] text-white">
-                                        {{ $acc['bank'] }}
-                                    </span>
-                                    <div>
-                                        <div class="font-bold text-xs text-slate-800 tracking-wider">
-                                            {{ $acc['no_rekening'] }}
-                                        </div>
-                                        <div class="text-[10px] text-slate-500">
-                                            a.n. {{ $acc['atas_nama'] }}
-                                        </div>
-                                    </div>
-                                </div>
-                                <button type="button"
-                                    @click="navigator.clipboard.writeText('{{ $acc['no_rekening'] }}'); copiedBank = '{{ $acc['bank'] }}'; setTimeout(() => copiedBank = null, 2000)"
-                                    class="text-xs font-semibold px-2.5 py-1 rounded-lg bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 transition shadow-2xs">
-                                    <span x-show="copiedBank !== '{{ $acc['bank'] }}'">Salin</span>
-                                    <span x-show="copiedBank === '{{ $acc['bank'] }}'" class="text-emerald-700 font-bold">Tersalin!</span>
-                                </button>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-
-                <!-- Form Upload Bukti Transfer -->
-                <div class="mt-6 pt-5 border-t border-slate-100">
-                    <label class="block text-xs font-bold text-slate-700 mb-2">
-                        Upload Bukti Transfer (Opsional / Dapat disusulkan)
-                    </label>
-
-                    <div class="relative border-2 border-dashed border-emerald-300 hover:border-emerald-500 rounded-2xl p-4 text-center bg-emerald-50/40 transition">
-                        <input type="file" wire:model="buktiTransfer" accept="image/*"
-                            class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
-                        <div class="space-y-1">
-                            <svg class="w-7 h-7 mx-auto text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    <!-- Header Card: [X] Yayasan Himatun -->
+                    <div class="bg-white rounded-2xl px-4 sm:px-5 py-3.5 sm:py-4 flex items-center gap-4 shadow-2xs">
+                        <button type="button" wire:click="closePaymentModal" class="text-[#dc2626] hover:text-red-700 transition cursor-pointer p-0.5 flex items-center justify-center" aria-label="Tutup">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
                             </svg>
-                            <p class="text-xs font-medium text-slate-700">
-                                @if ($buktiTransfer)
-                                    <span class="text-emerald-700 font-bold">{{ $buktiTransfer->getClientOriginalName() }}</span>
-                                @else
-                                    Klik atau seret foto bukti transfer di sini (JPG/PNG max 5MB)
-                                @endif
-                            </p>
+                        </button>
+                        <h3 class="text-base sm:text-lg font-bold text-[#234936] tracking-tight">
+                            Yayasan Himatun
+                        </h3>
+                    </div>
+
+                    <!-- Card 1: Selesaikan pembayaran anda + ID Pembayaran + Timer -->
+                    <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-2xs flex items-center justify-between gap-3">
+                        <div>
+                            <h4 class="text-sm sm:text-base font-bold text-slate-800 leading-tight">
+                                Selesaikan pembayaran anda
+                            </h4>
+                            <div class="flex items-center gap-1.5 mt-1.5 text-xs sm:text-sm" x-data="{ copiedId: false }">
+                                <span class="text-slate-400 font-medium">ID Pembayaran:</span>
+                                <span class="font-bold text-slate-800 font-mono">{{ $paymentId }}</span>
+                                <button type="button"
+                                    @click="navigator.clipboard.writeText('{{ $paymentId }}'); copiedId = true; setTimeout(() => copiedId = false, 2000)"
+                                    class="text-slate-400 hover:text-slate-700 transition p-0.5"
+                                    title="Salin ID Pembayaran">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path>
+                                    </svg>
+                                </button>
+                                <span x-show="copiedId" class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">Tersalin!</span>
+                            </div>
+                        </div>
+
+                        <!-- Countdown Timer Badges [00] : [50] : [35] -->
+                        <div class="flex items-center gap-1 shrink-0 font-mono text-xs sm:text-sm font-bold text-slate-800"
+                            x-data="{
+                                timeLeft: 3035,
+                                hh: '00',
+                                mm: '50',
+                                ss: '35',
+                                init() {
+                                    const pad = (n) => String(n).padStart(2, '0');
+                                    const update = () => {
+                                        if (this.timeLeft <= 0) return;
+                                        const h = Math.floor(this.timeLeft / 3600);
+                                        const m = Math.floor((this.timeLeft % 3600) / 60);
+                                        const s = this.timeLeft % 60;
+                                        this.hh = pad(h);
+                                        this.mm = pad(m);
+                                        this.ss = pad(s);
+                                        this.timeLeft--;
+                                    };
+                                    update();
+                                    setInterval(update, 1000);
+                                }
+                            }">
+                            <span class="inline-flex items-center justify-center min-w-[28px] sm:min-w-[32px] h-7 sm:h-8 px-1.5 rounded-md bg-[#234936] text-white" x-text="hh">00</span>
+                            <span class="text-slate-800 font-bold">:</span>
+                            <span class="inline-flex items-center justify-center min-w-[28px] sm:min-w-[32px] h-7 sm:h-8 px-1.5 rounded-md bg-[#234936] text-white" x-text="mm">50</span>
+                            <span class="text-slate-800 font-bold">:</span>
+                            <span class="inline-flex items-center justify-center min-w-[28px] sm:min-w-[32px] h-7 sm:h-8 px-1.5 rounded-md bg-[#234936] text-white" x-text="ss">35</span>
                         </div>
                     </div>
 
-                    <div wire:loading wire:target="buktiTransfer" class="text-xs text-emerald-700 font-semibold mt-1">
-                        Mengunggah pratinjau berkas...
-                    </div>
-                    @error('buktiTransfer')
-                        <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
-                    @enderror
+                    <!-- Card 2: Pilih Jenis Pembayaran anda -->
+                    <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-2xs space-y-3.5">
+                        <h4 class="text-sm sm:text-base font-bold text-slate-800">
+                            Pilih Jenis Pembayaran anda
+                        </h4>
 
-                    <!-- Action Buttons Modal -->
-                    <div class="mt-6 flex flex-col sm:flex-row gap-2.5">
-                        @if ($buktiTransfer)
-                            <button type="button" wire:click="uploadBuktiTransfer"
-                                class="w-full py-3 rounded-full bg-[#244b37] hover:bg-[#1a3829] text-white text-xs sm:text-sm font-bold shadow-md transition">
-                                Kirim Bukti Transfer & Selesai
+                        <div class="space-y-2.5">
+                            <!-- QRIS -->
+                            <button type="button" wire:click="selectMetodePembayaran('QRIS')"
+                                class="w-full py-3 sm:py-3.5 px-4 rounded-xl text-center text-xs sm:text-sm font-bold transition border {{ $metodePembayaran === 'QRIS' ? 'bg-[#d8e7de] border-[#234936] text-[#234936] ring-2 ring-[#234936]/25 shadow-xs' : 'bg-[#e2ede6]/75 hover:bg-[#d8e7de] border-[#cadfd1] text-[#234936]' }}">
+                                QRIS
                             </button>
+
+                            <!-- Virrtual Account BNI -->
+                            <button type="button" wire:click="selectMetodePembayaran('Virrtual Account BNI')"
+                                class="w-full py-3 sm:py-3.5 px-4 rounded-xl text-center text-xs sm:text-sm font-bold transition border {{ $metodePembayaran === 'Virrtual Account BNI' ? 'bg-[#d8e7de] border-[#234936] text-[#234936] ring-2 ring-[#234936]/25 shadow-xs' : 'bg-[#e2ede6]/75 hover:bg-[#d8e7de] border-[#cadfd1] text-[#234936]' }}">
+                                Virrtual Account BNI
+                            </button>
+
+                            <!-- Virrtual Account MANDIRI -->
+                            <button type="button" wire:click="selectMetodePembayaran('Virrtual Account MANDIRI')"
+                                class="w-full py-3 sm:py-3.5 px-4 rounded-xl text-center text-xs sm:text-sm font-bold transition border {{ $metodePembayaran === 'Virrtual Account MANDIRI' ? 'bg-[#d8e7de] border-[#234936] text-[#234936] ring-2 ring-[#234936]/25 shadow-xs' : 'bg-[#e2ede6]/75 hover:bg-[#d8e7de] border-[#cadfd1] text-[#234936]' }}">
+                                Virrtual Account MANDIRI
+                            </button>
+
+                            <!-- Extended payment options -->
+                            @if ($showAllPaymentMethods)
+                                <div class="space-y-2.5 pt-1 animate-in fade-in duration-200">
+                                    <button type="button" wire:click="selectMetodePembayaran('Virtual Account BCA')"
+                                        class="w-full py-3 sm:py-3.5 px-4 rounded-xl text-center text-xs sm:text-sm font-bold transition border {{ $metodePembayaran === 'Virtual Account BCA' ? 'bg-[#d8e7de] border-[#234936] text-[#234936] ring-2 ring-[#234936]/25 shadow-xs' : 'bg-[#e2ede6]/75 hover:bg-[#d8e7de] border-[#cadfd1] text-[#234936]' }}">
+                                        Virtual Account BCA
+                                    </button>
+                                    <button type="button" wire:click="selectMetodePembayaran('Virtual Account BRI')"
+                                        class="w-full py-3 sm:py-3.5 px-4 rounded-xl text-center text-xs sm:text-sm font-bold transition border {{ $metodePembayaran === 'Virtual Account BRI' ? 'bg-[#d8e7de] border-[#234936] text-[#234936] ring-2 ring-[#234936]/25 shadow-xs' : 'bg-[#e2ede6]/75 hover:bg-[#d8e7de] border-[#cadfd1] text-[#234936]' }}">
+                                        Virtual Account BRI
+                                    </button>
+                                    <button type="button" wire:click="selectMetodePembayaran('Virtual Account BSI')"
+                                        class="w-full py-3 sm:py-3.5 px-4 rounded-xl text-center text-xs sm:text-sm font-bold transition border {{ $metodePembayaran === 'Virtual Account BSI' ? 'bg-[#d8e7de] border-[#234936] text-[#234936] ring-2 ring-[#234936]/25 shadow-xs' : 'bg-[#e2ede6]/75 hover:bg-[#d8e7de] border-[#cadfd1] text-[#234936]' }}">
+                                        Virtual Account BSI
+                                    </button>
+                                    <button type="button" wire:click="selectMetodePembayaran('Transfer Bank Manual')"
+                                        class="w-full py-3 sm:py-3.5 px-4 rounded-xl text-center text-xs sm:text-sm font-bold transition border {{ $metodePembayaran === 'Transfer Bank Manual' ? 'bg-[#d8e7de] border-[#234936] text-[#234936] ring-2 ring-[#234936]/25 shadow-xs' : 'bg-[#e2ede6]/75 hover:bg-[#d8e7de] border-[#cadfd1] text-[#234936]' }}">
+                                        Transfer Bank Manual (BCA, Mandiri, BSI, BRI)
+                                    </button>
+                                </div>
+                            @endif
+                        </div>
+
+                        <!-- Toggle link: Lihat semua jenis pembayaran lainnya -> -->
+                        <div class="text-center pt-2">
+                            <button type="button" wire:click="$toggle('showAllPaymentMethods')"
+                                class="inline-flex items-center gap-1 text-xs sm:text-sm font-bold text-[#234936] hover:underline transition">
+                                <span>{{ $showAllPaymentMethods ? 'Sembunyikan jenis pembayaran lainnya' : 'Lihat semua jenis pembayaran lainnya' }}</span>
+                                <span class="text-base leading-none">&rarr;</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Card 3: Rincian Pembayaran -->
+                    <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-2xs space-y-2.5">
+                        <h4 class="text-sm sm:text-base font-bold text-slate-800">
+                            Rincian Pembayaran
+                        </h4>
+                        <div class="space-y-2 text-xs sm:text-sm">
+                            <div class="flex items-center justify-between">
+                                <span class="text-slate-400 font-medium">Biaya Donasi</span>
+                                <span class="font-bold text-slate-800">Rp{{ number_format($currentDonasi?->nominal ?? $selectedNominal, 2, ',', '.') }}</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-slate-400 font-medium">Biaya Admin</span>
+                                <span class="font-bold text-slate-800">Rp0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 4: Footer Bar (Total & Tombol Bayar Sekarang) -->
+                    <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-2xs flex items-center justify-between gap-4">
+                        <div class="text-base sm:text-lg font-bold text-slate-800">
+                            Rp{{ number_format($currentDonasi?->nominal ?? $selectedNominal, 2, ',', '.') }}
+                        </div>
+                        <button type="button" wire:click="payNow"
+                            class="px-6 sm:px-8 py-2.5 sm:py-3 rounded-xl bg-[#234936] hover:bg-[#1a3829] text-white text-xs sm:text-sm font-bold shadow-xs hover:shadow transition transform active:scale-95">
+                            Bayar Sekarang
+                        </button>
+                    </div>
+
+                @else
+                    <!-- STEP 2: DETAIL INSTRUKSI PEMBAYARAN & UPLOAD BUKTI -->
+
+                    <!-- Header Card Step 2: [<- Kembali] [Yayasan Himatun] [X] -->
+                    <div class="bg-white rounded-2xl px-4 sm:px-5 py-3.5 sm:py-4 flex items-center justify-between gap-2 shadow-2xs">
+                        <button type="button" wire:click="backToStepOne"
+                            class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#234936] hover:underline cursor-pointer">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                            </svg>
+                            <span>Kembali</span>
+                        </button>
+                        <h3 class="text-sm sm:text-base font-bold text-[#234936] text-center flex-1">
+                            Instruksi Pembayaran
+                        </h3>
+                        <button type="button" wire:click="closePaymentModal" class="text-[#dc2626] hover:text-red-700 transition cursor-pointer p-0.5" aria-label="Tutup">
+                            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Card ID & Timer Selesaikan Pembayaran -->
+                    <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-2xs flex items-center justify-between gap-3">
+                        <div>
+                            <div class="text-xs text-slate-500 font-medium">ID Pembayaran:</div>
+                            <div class="text-xs sm:text-sm font-bold text-slate-800 font-mono">{{ $paymentId }}</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-xs text-slate-500 font-medium">Metode:</div>
+                            <span class="inline-block text-xs font-bold text-[#234936] bg-[#d8e7de] px-2.5 py-0.5 rounded-full border border-[#cadfd1]">
+                                {{ $metodePembayaran }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Card Detail Metode Pembayaran -->
+                    <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-2xs space-y-4">
+                        @if ($this->virtualAccountDetails['type'] === 'qris')
+                            <!-- Tampilan QRIS -->
+                            <div class="text-center space-y-3">
+                                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-800">
+                                    <span>QRIS Standar Nasional Bank Indonesia</span>
+                                </div>
+
+                                <div class="p-3 bg-white border border-slate-200 rounded-2xl inline-block shadow-xs">
+                                    <img src="{{ asset('images/qris-code.svg') }}" alt="QRIS Yayasan Himatun Ayat" class="w-52 h-52 mx-auto" />
+                                    <div class="text-[11px] font-bold text-slate-700 mt-2">
+                                        NMID: ID1024389201948 • Yayasan Himatun Ayat
+                                    </div>
+                                </div>
+
+                                <div class="p-3 rounded-xl bg-[#edf6f1] border border-[#d3e8dc]">
+                                    <div class="text-xs text-slate-500 font-medium">Total Nominal Donasi:</div>
+                                    <div class="text-lg font-extrabold text-[#234936]">
+                                        Rp{{ number_format($currentDonasi?->nominal ?? $selectedNominal, 0, ',', '.') }}
+                                    </div>
+                                </div>
+                            </div>
+                        @elseif ($this->virtualAccountDetails['type'] === 'va')
+                            <!-- Tampilan Virtual Account -->
+                            <div class="space-y-3" x-data="{ copiedVa: false }">
+                                <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                                    <span class="text-xs font-semibold text-slate-500">Bank Tujuan:</span>
+                                    <span class="px-2.5 py-0.5 rounded-md text-xs font-bold bg-[#234936] text-white">
+                                        {{ $this->virtualAccountDetails['bank'] }}
+                                    </span>
+                                </div>
+
+                                <div class="p-4 rounded-xl bg-[#edf6f1] border border-[#d3e8dc] space-y-1">
+                                    <div class="text-xs text-slate-500 font-medium">Nomor Virtual Account:</div>
+                                    <div class="flex items-center justify-between gap-2">
+                                        <div class="text-base sm:text-lg font-mono font-bold text-[#234936] tracking-wider">
+                                            {{ $this->virtualAccountDetails['va_number'] }}
+                                        </div>
+                                        <button type="button"
+                                            @click="navigator.clipboard.writeText('{{ $this->virtualAccountDetails['va_number'] }}'); copiedVa = true; setTimeout(() => copiedVa = false, 2000)"
+                                            class="px-2.5 py-1 rounded-lg text-xs font-bold bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 transition shadow-2xs">
+                                            <span x-show="!copiedVa">Salin</span>
+                                            <span x-show="copiedVa" class="text-emerald-700">Tersalin!</span>
+                                        </button>
+                                    </div>
+                                    <div class="text-[11px] text-slate-600">
+                                        Atas Nama: <strong class="text-slate-800">{{ $this->virtualAccountDetails['atas_nama'] }}</strong>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200">
+                                    <span class="text-xs font-bold text-slate-700">Total Pembayaran:</span>
+                                    <span class="text-sm font-extrabold text-[#234936]">
+                                        Rp{{ number_format($currentDonasi?->nominal ?? $selectedNominal, 0, ',', '.') }}
+                                    </span>
+                                </div>
+                            </div>
                         @else
-                            <button type="button" wire:click="completeWithoutUpload"
-                                class="w-full py-3 rounded-full bg-[#244b37] hover:bg-[#1a3829] text-white text-xs sm:text-sm font-bold shadow-md transition">
-                                Saya Sudah Transfer / Selesai
-                            </button>
+                            <!-- Tampilan Rekening Transfer Manual -->
+                            <div class="space-y-2.5">
+                                <div class="text-xs font-bold text-slate-700">Pilih Rekening Resmi Yayasan:</div>
+                                @foreach ($bankAccounts as $acc)
+                                    <div class="p-3 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-between">
+                                        <div class="flex items-center gap-2.5">
+                                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-[#234936] text-white">
+                                                {{ $acc['bank'] }}
+                                            </span>
+                                            <div>
+                                                <div class="font-mono font-bold text-xs text-slate-800">{{ $acc['no_rekening'] }}</div>
+                                                <div class="text-[10px] text-slate-500">a.n. {{ $acc['atas_nama'] }}</div>
+                                            </div>
+                                        </div>
+                                        <button type="button"
+                                            @click="navigator.clipboard.writeText('{{ $acc['no_rekening'] }}'); copiedBank = '{{ $acc['bank'] }}'; setTimeout(() => copiedBank = null, 2000)"
+                                            class="text-xs font-semibold px-2.5 py-1 rounded-lg bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 transition shadow-2xs">
+                                            <span x-show="copiedBank !== '{{ $acc['bank'] }}'">Salin</span>
+                                            <span x-show="copiedBank === '{{ $acc['bank'] }}'" class="text-emerald-700 font-bold">Tersalin!</span>
+                                        </button>
+                                    </div>
+                                @endforeach
+                            </div>
                         @endif
 
-                        <a href="{{ $this->whatsappLink }}" target="_blank"
-                            class="w-full py-3 rounded-full bg-emerald-100 hover:bg-emerald-200 text-emerald-900 text-xs sm:text-sm font-bold text-center border border-emerald-300 transition">
-                            Konfirmasi via WhatsApp ↗
-                        </a>
+                        <!-- Petunjuk Pembayaran -->
+                        <div class="pt-2 border-t border-slate-100">
+                            <div class="text-xs font-bold text-slate-700 mb-2">Petunjuk Pembayaran:</div>
+                            <ol class="space-y-1.5 text-xs text-slate-600 list-decimal list-inside pl-1">
+                                @foreach ($this->virtualAccountDetails['cara_bayar'] as $step)
+                                    <li>{{ $step }}</li>
+                                @endforeach
+                            </ol>
+                        </div>
                     </div>
-                </div>
+
+                    <!-- Card Form Upload Bukti Transfer & Konfirmasi -->
+                    <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-2xs space-y-3.5">
+                        <label class="block text-xs font-bold text-slate-700">
+                            Upload Bukti Transfer (Opsional / Dapat disusulkan):
+                        </label>
+
+                        <div class="relative border-2 border-dashed border-emerald-300 hover:border-emerald-500 rounded-xl p-3.5 text-center bg-emerald-50/40 transition">
+                            <input type="file" wire:model="buktiTransfer" accept="image/*"
+                                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                            <div class="space-y-1">
+                                <svg class="w-6 h-6 mx-auto text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2 2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                                <p class="text-xs font-medium text-slate-700">
+                                    @if ($buktiTransfer)
+                                        <span class="text-emerald-700 font-bold">{{ $buktiTransfer->getClientOriginalName() }}</span>
+                                    @else
+                                        Klik atau seret foto bukti transfer di sini (JPG/PNG max 5MB)
+                                    @endif
+                                </p>
+                            </div>
+                        </div>
+
+                        <div wire:loading wire:target="buktiTransfer" class="text-xs text-emerald-700 font-semibold">
+                            Mengunggah pratinjau berkas...
+                        </div>
+                        @error('buktiTransfer')
+                            <p class="text-xs text-red-500">{{ $message }}</p>
+                        @enderror
+
+                        <!-- Tombol Aksi Step 2 -->
+                        <div class="flex flex-col sm:flex-row gap-2 pt-1">
+                            @if ($buktiTransfer)
+                                <button type="button" wire:click="uploadBuktiTransfer"
+                                    class="w-full py-3 rounded-xl bg-[#234936] hover:bg-[#1a3829] text-white text-xs sm:text-sm font-bold shadow-sm transition">
+                                    Kirim Bukti Pembayaran & Selesai
+                                </button>
+                            @else
+                                <button type="button" wire:click="completeWithoutUpload"
+                                    class="w-full py-3 rounded-xl bg-[#234936] hover:bg-[#1a3829] text-white text-xs sm:text-sm font-bold shadow-sm transition">
+                                    Saya Sudah Bayar / Selesai
+                                </button>
+                            @endif
+
+                            <a href="{{ $this->whatsappLink }}" target="_blank"
+                                class="w-full py-3 rounded-xl bg-[#edf6f1] hover:bg-[#d8e7de] text-[#234936] text-xs sm:text-sm font-bold text-center border border-[#cadfd1] transition">
+                                Konfirmasi via WhatsApp ↗
+                            </a>
+                        </div>
+                    </div>
+
+                @endif
 
             </div>
         </div>
