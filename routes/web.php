@@ -6,8 +6,9 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\KampanyeController;
 use App\Http\Controllers\Admin\KelolaDonasiController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\User\LandingPageController;
 
-Route::get('/', [DashboardController::class, 'index'])->name('home');
+Route::get('/', [LandingPageController::class, 'index'])->name('home');
 
 Route::prefix('admin')->name('admin.')->group(function () {
     // Dashboard Admin
