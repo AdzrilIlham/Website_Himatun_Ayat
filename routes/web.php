@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\BeritaController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\KampanyeController;
 use App\Http\Controllers\Admin\KelolaDonasiController;
+use App\Http\Controllers\Admin\LaporanEksporController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [DashboardController::class, 'index'])->name('home');
@@ -38,6 +39,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/cms-berita', [BeritaController::class, 'index'])->name('berita.index');
     Route::get('/cms-berita/create', [BeritaController::class, 'create'])->name('berita.create');
 
-    // Laporan & Ekspor (Redirect ke export dashboard agar tidak 404)
-    Route::get('/laporan-ekspor', [DashboardController::class, 'index'])->name('laporan-ekspor');
+    // Laporan & Ekspor
+    Route::get('/laporan-ekspor', [LaporanEksporController::class, 'index'])->name('laporan-ekspor.index');
+    Route::get('/laporan-ekspor/export/excel', [LaporanEksporController::class, 'exportExcel'])->name('laporan-ekspor.export.excel');
+    Route::get('/laporan-ekspor/export/pdf', [LaporanEksporController::class, 'exportPdf'])->name('laporan-ekspor.export.pdf');
 });
