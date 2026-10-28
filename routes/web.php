@@ -5,10 +5,16 @@ use App\Http\Controllers\Admin\BeritaController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\KampanyeController;
 use App\Http\Controllers\Admin\KelolaDonasiController;
+use App\Http\Controllers\Admin\LaporanEksporController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\User\LandingPageController;
 
 Route::get('/', [LandingPageController::class, 'index'])->name('home');
+
+// Halaman preview design system (hanya lokal).
+if (app()->environment('local')) {
+    Route::view('/design-system', 'design-system')->name('design-system');
+}
 
 Route::prefix('admin')->name('admin.')->group(function () {
     // Dashboard Admin
@@ -41,4 +47,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     // Laporan & Ekspor (Redirect ke export dashboard agar tidak 404)
     Route::get('/laporan-ekspor', [DashboardController::class, 'index'])->name('laporan-ekspor');
+    // Laporan & Ekspor
+    Route::get('/laporan-ekspor', [LaporanEksporController::class, 'index'])->name('laporan-ekspor.index');
+    Route::get('/laporan-ekspor/export/excel', [LaporanEksporController::class, 'exportExcel'])->name('laporan-ekspor.export.excel');
+    Route::get('/laporan-ekspor/export/pdf', [LaporanEksporController::class, 'exportPdf'])->name('laporan-ekspor.export.pdf');
 });

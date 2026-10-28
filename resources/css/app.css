@@ -1,9 +1,177 @@
 @import 'tailwindcss';
 
+/* ==========================================================================
+   Preline UI
+   - variants.css  : state variant (hs-*) untuk plugin Preline
+   - themes/theme.css : mapping token semantik -> utility Tailwind
+                         (bg-primary, text-foreground, border-border, dst)
+   ========================================================================== */
+@import '../../node_modules/preline/variants.css';
+@import '../../node_modules/preline/css/themes/theme.css';
+
+/* Design token milik proyek (warna brand, dark mode, status, dll). */
+@import './theme.css';
+
+/* File yang dipindai Tailwind untuk generate class. */
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
+@source '../views/**/*.blade.php';
+@source '../../app/Models/*.php';
+@source '../../node_modules/preline/dist/*.js';
+
+/* Dark mode berbasis class (.dark di <html>), bukan prefers-color-scheme. */
+@custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+/* --------------------------------------------------------------------------
+   Base
+   -------------------------------------------------------------------------- */
+@layer base {
+    body {
+        @apply bg-background text-foreground font-sans antialiased;
+    }
+
+    ::selection {
+        background-color: var(--color-brand-200);
+        color: var(--color-brand-950);
+    }
+
+    /* Angka nominal donasi lebih mudah dibaca dengan tabular figures. */
+    .tabular {
+        font-variant-numeric: tabular-nums;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   Komponen dasar (opsional — utility Tailwind tetap bisa dipakai langsung)
+   -------------------------------------------------------------------------- */
+@layer components {
+    /* Button -----------------------------------------------------------------
+       <button class="btn btn-primary">Donasi</button>
+       <a class="btn btn-primary btn-sm" href="...">Simpan</a>
+    */
+    .btn {
+        @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:pointer-events-none disabled:opacity-60;
+    }
+
+    .btn-primary {
+        @apply bg-primary text-primary-foreground shadow-xs hover:bg-primary-hover active:bg-primary-active;
+    }
+
+    .btn-secondary {
+        @apply border border-border bg-layer text-layer-foreground shadow-2xs hover:bg-layer-hover;
+    }
+
+    .btn-ghost {
+        @apply text-muted-foreground-1 hover:bg-muted hover:text-foreground;
+    }
+
+    .btn-danger {
+        @apply bg-danger text-white shadow-xs hover:bg-red-700 active:bg-red-800;
+    }
+
+    .btn-sm {
+        @apply gap-1.5 rounded-lg px-3 py-1.5 text-xs;
+    }
+
+    .btn-lg {
+        @apply rounded-xl px-5 py-3 text-base;
+    }
+
+    /* Card -------------------------------------------------------------------
+       <div class="card">
+           <div class="card-header">Judul</div>
+           <div class="card-body">...</div>
+       </div>
+    */
+    .card {
+        @apply overflow-hidden rounded-2xl border border-border bg-card shadow-2xs;
+    }
+
+    .card-header {
+        @apply flex items-center justify-between gap-3 border-b border-border px-4 py-3.5 sm:px-5;
+    }
+
+    .card-body {
+        @apply p-4 sm:p-5;
+    }
+
+    .card-footer {
+        @apply border-t border-border bg-muted px-4 py-3.5 sm:px-5;
+    }
+
+    /* Form -------------------------------------------------------------------
+       <label class="form-label">Nama</label>
+       <input class="form-input" type="text">
+       <p class="form-hint">...</p>
+    */
+    .form-label {
+        @apply mb-1.5 block text-sm font-medium text-foreground;
+    }
+
+    .form-input {
+        @apply block w-full rounded-xl border border-border bg-layer px-3.5 py-2.5 text-sm text-foreground shadow-2xs transition placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none disabled:pointer-events-none disabled:bg-muted disabled:text-muted-foreground;
+    }
+
+    .form-hint {
+        @apply mt-1.5 text-xs text-muted-foreground-1;
+    }
+
+    .form-error {
+        @apply mt-1.5 text-xs font-medium text-danger;
+    }
+
+    /* Badge ------------------------------------------------------------------
+       <span class="badge badge-success">Terverifikasi</span>
+    */
+    .badge {
+        @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-2xs font-semibold;
+    }
+
+    .badge-success {
+        @apply bg-success-soft text-brand-800 dark:bg-brand-900/60 dark:text-brand-200;
+    }
+
+    .badge-warning {
+        @apply bg-warning-soft text-warning dark:bg-amber-950/50 dark:text-amber-200;
+    }
+
+    .badge-danger {
+        @apply bg-danger-soft text-danger dark:bg-red-950/50 dark:text-red-300;
+    }
+
+    .badge-info {
+        @apply bg-info-soft text-info dark:bg-sky-950/50 dark:text-sky-300;
+    }
+
+    .badge-neutral {
+        @apply bg-muted text-muted-foreground-2;
+    }
+
+    /* Alert ------------------------------------------------------------------
+       <div class="alert alert-success">Berhasil disimpan.</div>
+    */
+    .alert {
+        @apply flex items-start gap-2.5 rounded-xl border px-3.5 py-3 text-sm;
+    }
+
+    .alert-success {
+        @apply border-brand-200 bg-brand-50 text-brand-800 dark:border-brand-800 dark:bg-brand-950/60 dark:text-brand-200;
+    }
+
+    .alert-warning {
+        @apply border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-200;
+    }
+
+    .alert-danger {
+        @apply border-red-200 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-950/50 dark:text-red-200;
+    }
+
+    .alert-info {
+        @apply border-sky-200 bg-sky-50 text-sky-800 dark:border-sky-800 dark:bg-sky-950/50 dark:text-sky-200;
+    }
 }
