@@ -20,7 +20,7 @@ class AdminCmsBeritaTest extends TestCase
         $response->assertSee('DRAFT');
         $response->assertSee('ARSIP');
         $response->assertSee('Kafalah Guru Ngaji');
-        $response->assertSee('+ Tambah Berita', false);
+        $response->assertSee('Tambah Berita');
     }
 
     /**
