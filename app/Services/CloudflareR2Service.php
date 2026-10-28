@@ -13,8 +13,9 @@ class CloudflareR2Service
      */
     public function uploadPublic(UploadedFile $file, string $directory = 'berita'): string
     {
-        $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
-        $path = $file->storeAs($directory, $filename, 'r2_public');
+        $disk = ! empty(config('filesystems.disks.r2_public.key')) ? 'r2_public' : 'public';
+        $filename = Str::uuid().'.'.$file->getClientOriginalExtension();
+        $path = $file->storeAs($directory, $filename, $disk);
 
         return $path ?: '';
     }
@@ -24,8 +25,9 @@ class CloudflareR2Service
      */
     public function uploadPrivate(UploadedFile $file, string $directory = 'bukti-transfer'): string
     {
-        $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
-        $path = $file->storeAs($directory, $filename, 'r2_private');
+        $disk = ! empty(config('filesystems.disks.r2_private.key')) ? 'r2_private' : 'public';
+        $filename = Str::uuid().'.'.$file->getClientOriginalExtension();
+        $path = $file->storeAs($directory, $filename, $disk);
 
         return $path ?: '';
     }
@@ -35,14 +37,21 @@ class CloudflareR2Service
      */
     public function getPrivateTemporaryUrl(string $path, int $minutes = 10): string
     {
-        if (!Storage::disk('r2_private')->exists($path)) {
+        $diskName = ! empty(config('filesystems.disks.r2_private.key')) ? 'r2_private' : 'public';
+        $disk = Storage::disk($diskName);
+
+        if (! $disk->exists($path)) {
             return '';
         }
 
-        return Storage::disk('r2_private')->temporaryUrl(
-            $path,
-            now()->addMinutes($minutes)
-        );
+        if ($diskName === 'r2_private') {
+            return $disk->temporaryUrl(
+                $path,
+                now()->addMinutes($minutes)
+            );
+        }
+
+        return $disk->url($path);
     }
 
     /**
@@ -50,6 +59,8 @@ class CloudflareR2Service
      */
     public function getPublicUrl(string $path): string
     {
-        return Storage::disk('r2_public')->url($path);
+        $diskName = ! empty(config('filesystems.disks.r2_public.key')) ? 'r2_public' : 'public';
+
+        return Storage::disk($diskName)->url($path);
     }
 }

@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 320" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgNutrisi" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fdfbf7"/>
+      <stop offset="100%" stop-color="#f3ece2"/>
+    </linearGradient>
+    <filter id="softShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#1b4332" flood-opacity="0.12"/>
+    </filter>
+    <linearGradient id="plateGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#eceff1"/>
+    </linearGradient>
+    <linearGradient id="riceGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#f5f5f5"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="400" height="320" rx="20" fill="url(#bgNutrisi)"/>
+
+  <!-- Serving Tray / Mat -->
+  <rect x="35" y="40" width="330" height="240" rx="24" fill="#ede3d5" stroke="#e0d4c3" stroke-width="2"/>
+  <rect x="45" y="50" width="310" height="220" rx="18" fill="#fcf9f5"/>
+
+  <!-- Big Food Plate -->
+  <g filter="url(#softShadow)">
+    <circle cx="160" cy="155" r="95" fill="url(#plateGrad)" stroke="#e2e8f0" stroke-width="3"/>
+    <circle cx="160" cy="155" r="82" fill="#fafafa"/>
+
+    <!-- Rice bowl inside plate -->
+    <circle cx="125" cy="140" r="42" fill="url(#riceGrad)" stroke="#e5e7eb" stroke-width="2"/>
+    <ellipse cx="125" cy="136" rx="38" ry="32" fill="#ffffff"/>
+    <circle cx="120" cy="130" r="2.5" fill="#10b981"/>
+    <circle cx="128" cy="132" r="2.5" fill="#059669"/>
+    <circle cx="124" cy="124" r="2" fill="#047857"/>
+
+    <!-- Corn and Veggies section -->
+    <path d="M 160 100 Q 200 90 215 130 Q 185 150 160 100 Z" fill="#fbbf24" stroke="#f59e0b" stroke-width="1.5"/>
+    <circle cx="185" cy="115" r="4" fill="#fef08a"/>
+    <circle cx="195" cy="120" r="4" fill="#fef08a"/>
+    <circle cx="178" cy="123" r="4" fill="#fef08a"/>
+
+    <!-- Fresh Green Broccoli / Vegetables -->
+    <circle cx="165" cy="180" r="14" fill="#22c55e"/>
+    <circle cx="180" cy="172" r="16" fill="#16a34a"/>
+    <circle cx="190" cy="188" r="14" fill="#15803d"/>
+    <circle cx="172" cy="195" r="13" fill="#166534"/>
+
+    <!-- Boiled Egg half -->
+    <ellipse cx="130" cy="200" rx="20" ry="14" fill="#ffffff" stroke="#f3f4f6" stroke-width="2"/>
+    <circle cx="130" cy="200" r="9" fill="#f59e0b"/>
+    <circle cx="128" cy="198" r="7" fill="#fbbf24"/>
+
+    <!-- Tomatoes / Carrots -->
+    <circle cx="205" cy="155" r="10" fill="#ef4444"/>
+    <circle cx="218" cy="165" r="8" fill="#dc2626"/>
+  </g>
+
+  <!-- Side Soup Bowl -->
+  <g filter="url(#softShadow)">
+    <circle cx="295" cy="105" r="38" fill="url(#plateGrad)" stroke="#e2e8f0" stroke-width="2"/>
+    <circle cx="295" cy="105" r="30" fill="#fef3c7"/>
+    <path d="M 285 100 Q 295 95 305 102" stroke="#d97706" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <circle cx="290" cy="110" r="3" fill="#22c55e"/>
+    <circle cx="302" cy="106" r="2.5" fill="#f59e0b"/>
+  </g>
+
+  <!-- Cup of Fresh Milk -->
+  <g filter="url(#softShadow)">
+    <rect x="275" y="170" width="42" height="55" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+    <rect x="279" y="180" width="34" height="40" rx="4" fill="#f1f5f9"/>
+    <!-- Glass reflection -->
+    <line x1="285" y1="184" x2="285" y2="212" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="296" cy="165" r="14" fill="#38bdf8" opacity="0.15"/>
+  </g>
+
+  <!-- Chopsticks / Cutlery on the left -->
+  <line x1="75" y1="90" x2="65" y2="230" stroke="#b45309" stroke-width="4.5" stroke-linecap="round"/>
+  <line x1="85" y1="90" x2="75" y2="230" stroke="#92400e" stroke-width="4.5" stroke-linecap="round"/>
+</svg>

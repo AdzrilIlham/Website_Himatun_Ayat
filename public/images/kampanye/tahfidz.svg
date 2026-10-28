@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 320" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgTahfidz" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="100%" stop-color="#f0fdf4"/>
+    </linearGradient>
+    <filter id="quranShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#064e3b" flood-opacity="0.22"/>
+    </filter>
+    <linearGradient id="quranCover" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f3c2c"/>
+      <stop offset="50%" stop-color="#14532d"/>
+      <stop offset="100%" stop-color="#064e3b"/>
+    </linearGradient>
+    <linearGradient id="goldOrnament" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="50%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#b45309"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="400" height="320" rx="20" fill="url(#bgTahfidz)"/>
+
+  <g filter="url(#quranShadow)">
+    <!-- Quran Stand / Rehal wood base -->
+    <path d="M 120 250 L 280 250 L 265 265 L 135 265 Z" fill="#78350f"/>
+    <path d="M 140 240 L 260 240 L 250 250 L 150 250 Z" fill="#92400e"/>
+
+    <!-- Gold-Gilded Page Edges (Thickness of the book) -->
+    <polygon points="265,95 285,115 285,230 265,220" fill="#d97706" stroke="#b45309" stroke-width="1"/>
+    <!-- Page lines -->
+    <line x1="268" y1="102" x2="282" y2="118" stroke="#fef08a" stroke-width="1.5"/>
+    <line x1="268" y1="120" x2="282" y2="136" stroke="#fef08a" stroke-width="1.5"/>
+    <line x1="268" y1="140" x2="282" y2="156" stroke="#fef08a" stroke-width="1.5"/>
+    <line x1="268" y1="160" x2="282" y2="176" stroke="#fef08a" stroke-width="1.5"/>
+    <line x1="268" y1="180" x2="282" y2="196" stroke="#fef08a" stroke-width="1.5"/>
+    <line x1="268" y1="200" x2="282" y2="216" stroke="#fef08a" stroke-width="1.5"/>
+
+    <!-- Spine of the Book on Left -->
+    <path d="M 135 75 C 130 80 130 220 135 235 L 148 232 C 144 218 144 90 148 78 Z" fill="#064e3b" stroke="#f59e0b" stroke-width="1.5"/>
+    <!-- Gold bands on spine -->
+    <line x1="133" y1="105" x2="146" y2="107" stroke="#fde047" stroke-width="2.5"/>
+    <line x1="133" y1="150" x2="146" y2="152" stroke="#fde047" stroke-width="2.5"/>
+    <line x1="133" y1="195" x2="146" y2="197" stroke="#fde047" stroke-width="2.5"/>
+
+    <!-- Main Front Cover (slight 3D angle) -->
+    <polygon points="148,78 265,95 265,220 148,232" fill="url(#quranCover)" stroke="#f59e0b" stroke-width="2.5"/>
+
+    <!-- Outer Gold Border on Cover -->
+    <polygon points="156,86 257,100 257,212 156,224" fill="none" stroke="url(#goldOrnament)" stroke-width="2.5"/>
+    <!-- Inner Gold Border -->
+    <polygon points="163,94 250,106 250,206 163,217" fill="none" stroke="#fde047" stroke-width="1.5" stroke-dasharray="3,3"/>
+
+    <!-- Central Gold Islamic Arabesque Medallion -->
+    <!-- Outer Star/Flower -->
+    <ellipse cx="206" cy="155" rx="30" ry="34" fill="#064e3b" stroke="url(#goldOrnament)" stroke-width="2.5"/>
+    <ellipse cx="206" cy="155" rx="22" ry="26" fill="url(#goldOrnament)"/>
+    <ellipse cx="206" cy="155" rx="16" ry="20" fill="#064e3b"/>
+
+    <!-- Calligraphy abstract art in center (Al-Quran Al-Kareem) -->
+    <path d="M 197 150 Q 206 142 215 150 Q 206 160 197 150" fill="none" stroke="#fde047" stroke-width="2.5" stroke-linecap="round"/>
+    <circle cx="206" cy="155" r="3" fill="#fde047"/>
+    <circle cx="200" cy="152" r="1.5" fill="#fde047"/>
+    <circle cx="212" cy="152" r="1.5" fill="#fde047"/>
+
+    <!-- Corner Ornaments (Top-Left, Top-Right, Bottom-Left, Bottom-Right) -->
+    <polygon points="164,96 178,98 166,112" fill="url(#goldOrnament)"/>
+    <polygon points="248,107 234,105 246,121" fill="url(#goldOrnament)"/>
+    <polygon points="164,215 178,213 166,199" fill="url(#goldOrnament)"/>
+    <polygon points="248,204 234,206 246,190" fill="url(#goldOrnament)"/>
+
+    <!-- Silk Bookmark Ribbon -->
+    <path d="M 215 90 Q 220 70 230 65 Q 240 60 235 90" stroke="#ef4444" stroke-width="4" fill="none" stroke-linecap="round"/>
+  </g>
+</svg>
