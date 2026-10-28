@@ -21,10 +21,10 @@
             <h1 class="text-2xl sm:text-3xl font-bold text-[#1B4332] tracking-tight">Laporan & Ekspor</h1>
             <p class="text-xs sm:text-sm text-slate-500 mt-0.5 font-medium">Filter laporan sesuai kebutuhan, preview data sebelum diunduh</p>
         </div>
-        <div>
+        <div class="w-full sm:w-auto">
             <button type="button" 
                     @click="showHistoryModal = true"
-                    class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-semibold shadow-2xs transition cursor-pointer">
+                    class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-semibold shadow-2xs transition cursor-pointer">
                 <svg class="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
                 </svg>
@@ -168,10 +168,10 @@
                     </div>
                 </div>
 
-                <div>
+                <div class="w-full sm:w-auto">
                     <button type="button" 
                             @click="triggerPreview()"
-                            class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#1B4332] hover:bg-[#143326] text-white text-xs sm:text-sm font-semibold shadow-xs transition cursor-pointer">
+                            class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-[#1B4332] hover:bg-[#143326] text-white text-xs sm:text-sm font-semibold shadow-xs transition cursor-pointer">
                         <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -181,9 +181,9 @@
                 </div>
             </div>
 
-            <!-- Tabel Preview -->
-            <div class="overflow-x-auto rounded-xl">
-                <table class="w-full text-left border-collapse text-xs sm:text-sm">
+            <!-- 1. Tampilan Desktop & Tablet (md ke atas): Tabel Lengkap Sesuai Mockup -->
+            <div class="hidden md:block overflow-x-auto w-full rounded-xl">
+                <table class="w-full text-left border-collapse text-xs sm:text-sm min-w-[650px]">
                     <thead>
                         <tr class="text-slate-600 font-bold border-b border-slate-200 bg-transparent">
                             <th scope="col" class="py-3 px-3 w-12">No</th>
@@ -225,12 +225,50 @@
                 </table>
             </div>
 
+            <!-- 2. Tampilan Khusus Mobile (< md): Kartu Responsif -->
+            <div class="md:hidden space-y-3">
+                @foreach($previewData as $item)
+                    <div class="bg-slate-50/70 border border-slate-200/80 rounded-xl p-3.5 space-y-2.5">
+                        <!-- Header Kartu: No, ID Anak, & Status Badge -->
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-bold text-slate-400">#{{ $item['no'] }}</span>
+                                <span class="px-2 py-0.5 rounded-md bg-white border border-slate-200 text-xs font-black text-slate-800 shadow-2xs">
+                                    {{ $item['id_anak'] }}
+                                </span>
+                            </div>
+                            <span class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold {{ $item['status'] === 'Aktif' ? 'bg-[#E8F5E9] text-[#2E7D32]' : 'bg-[#FFF3E0] text-[#E65100]' }}">
+                                {{ $item['status'] }}
+                            </span>
+                        </div>
+
+                        <!-- Nama Anak Asuh -->
+                        <div>
+                            <h4 class="font-bold text-slate-900 text-sm leading-snug">{{ $item['nama'] }}</h4>
+                        </div>
+
+                        <!-- Footer: Kategori & Tanggal Bergabung -->
+                        <div class="flex items-center justify-between text-xs pt-2 border-t border-slate-200/60">
+                            <span class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold {{ $item['kategori'] === 'Pendidikan' ? 'bg-[#E8F5E9] text-[#2E7D32]' : 'bg-[#E3F2FD] text-[#1976D2]' }}">
+                                {{ $item['kategori'] }}
+                            </span>
+                            <span class="text-slate-400 font-medium flex items-center gap-1">
+                                <svg class="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 9v7.5" />
+                                </svg>
+                                {{ $item['tanggal'] }}
+                            </span>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+
             <!-- Footer Paginasi -->
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-slate-100 text-xs text-slate-500 font-medium">
-                <div>
+                <div class="text-center sm:text-left">
                     Menampilkan <span class="font-bold text-slate-800">1 - 5</span> dari <span class="font-bold text-slate-800">128</span> data
                 </div>
-                <div class="flex items-center gap-1 self-center sm:self-auto">
+                <div class="flex items-center justify-center gap-1 self-center sm:self-auto">
                     <button type="button" class="w-8 h-8 rounded-lg border border-slate-200 bg-white text-slate-400 hover:bg-slate-50 flex items-center justify-center transition cursor-pointer">
                         &lt;
                     </button>
