@@ -124,7 +124,7 @@
                     </div>
                     <div class="text-xs truncate">
                         <p class="font-bold text-slate-800 leading-tight truncate">{{ auth()->user()->name ?? 'Admin Yayasan' }}</p>
-                        <p class="text-slate-400 font-medium truncate">{{ auth()->user()->email ?? 'admin@himatunayyat.org' }}</p>
+                        <p class="text-slate-400 font-medium truncate">{{ auth()->user()->email ?? 'admin@himmatunayat.org' }}</p>
                     </div>
                 </div>
                 <form method="POST" action="{{ route('admin.logout') }}" class="inline">

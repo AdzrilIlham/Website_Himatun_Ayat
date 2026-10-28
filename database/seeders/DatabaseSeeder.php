@@ -15,9 +15,16 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Akun Admin Yayasan Himatun Ayat
-        // Catatan: Model User punya cast 'password' => 'hashed',
-        // Laravel otomatis hash password → jangan pakai Hash::make() di sini.
+        // Akun Admin Utama Yayasan Himmatun Ayat
+        User::updateOrCreate(
+            ['email' => 'admin@himmatunayat.org'],
+            [
+                'name'     => 'Admin Yayasan',
+                'password' => 'password123',
+            ]
+        );
+
+        // Alias variasi spelling untuk kemudahan pengembang
         User::firstOrCreate(
             ['email' => 'admin@himatunayyat.org'],
             [
@@ -25,5 +32,12 @@ class DatabaseSeeder extends Seeder
                 'password' => 'password123',
             ]
         );
+
+        // Panggil demo seeders untuk melengkapi data program, santri, dan donasi
+        $this->call([
+            DashboardDemoSeeder::class,
+            KampanyeDemoSeeder::class,
+            KelolaDonasiDemoSeeder::class,
+        ]);
     }
 }

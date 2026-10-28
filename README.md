@@ -197,10 +197,15 @@ CLOUDFLARE_R2_PUBLIC_URL=https://pub-xxxxxx.r2.dev
 CLOUDFLARE_R2_BUCKET_PRIVATE=yayasan-private
 ```
 
-### 4. Migrasi Database
+### 4. Migrasi & Seeding Database
 ```bash
-php artisan migrate
+php artisan migrate --seed
 ```
+
+> **Catatan Kredensial Admin Default:**
+> - URL Login: `http://localhost:8000/admin/login`
+> - Email: `admin@himmatunayat.org`
+> - Password: `password123`
 
 ### 5. Menjalankan Server Pengembangan
 Jalankan frontend compiler dan server backend secara paralel:

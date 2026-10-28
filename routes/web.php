@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\LaporanEksporController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [DashboardController::class, 'index'])->name('home');
+Route::redirect('/login', '/admin/login');
 
 // ─── Route Auth (Publik, tidak butuh login) ───────────────────────────────────
 Route::prefix('admin')->name('admin.')->group(function () {
