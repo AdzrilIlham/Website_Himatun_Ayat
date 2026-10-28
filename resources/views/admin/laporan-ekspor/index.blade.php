@@ -64,54 +64,54 @@
                 <!-- Jenis Laporan -->
                 <div class="space-y-1.5">
                     <label class="block text-xs font-semibold text-foreground">Jenis Laporan</label>
-                    <select name="jenis_laporan"
-                            x-model="jenisLaporan"
-                            @change="handleJenisChange()"
-                            class="w-full bg-layer border border-border rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-foreground shadow-2xs focus:outline-hidden focus:ring-2 focus:ring-primary/20 focus:border-primary transition cursor-pointer">
-                        <option value="Data Anak Asuh" {{ $jenisLaporan === 'Data Anak Asuh' ? 'selected' : '' }}>Data Anak Asuh</option>
-                        <option value="Kelola Donasi" {{ $jenisLaporan === 'Kelola Donasi' ? 'selected' : '' }}>Kelola Donasi</option>
-                        <option value="Kelola Kampanye" {{ $jenisLaporan === 'Kelola Kampanye' ? 'selected' : '' }}>Kelola Kampanye</option>
-                    </select>
+                    <x-preline-select name="jenis_laporan"
+                                      x-model="jenisLaporan"
+                                      @change="handleJenisChange()"
+                                      placeholder="Pilih jenis laporan">
+                        <option value="Data Anak Asuh" @selected($jenisLaporan === 'Data Anak Asuh')>Data Anak Asuh</option>
+                        <option value="Kelola Donasi" @selected($jenisLaporan === 'Kelola Donasi')>Kelola Donasi</option>
+                        <option value="Kelola Kampanye" @selected($jenisLaporan === 'Kelola Kampanye')>Kelola Kampanye</option>
+                    </x-preline-select>
                 </div>
 
                 <!-- Bulan -->
                 <div class="space-y-1.5">
                     <label class="block text-xs font-semibold text-foreground">Bulan</label>
-                    <select name="bulan"
-                            x-model="bulan"
-                            @change="handleFilterChange()"
-                            class="w-full bg-layer border border-border rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-foreground shadow-2xs focus:outline-hidden focus:ring-2 focus:ring-primary/20 focus:border-primary transition cursor-pointer">
+                    <x-preline-select name="bulan"
+                                      x-model="bulan"
+                                      @change="handleFilterChange()"
+                                      placeholder="Pilih bulan">
                         @foreach($daftarBulan as $b)
-                            <option value="{{ $b }}" {{ $bulan === $b ? 'selected' : '' }}>{{ $b }}</option>
+                            <option value="{{ $b }}" @selected($bulan === $b)>{{ $b }}</option>
                         @endforeach
-                    </select>
+                    </x-preline-select>
                 </div>
 
                 <!-- Tahun -->
                 <div class="space-y-1.5">
                     <label class="block text-xs font-semibold text-foreground">Tahun</label>
-                    <select name="tahun"
-                            x-model="tahun"
-                            @change="handleFilterChange()"
-                            class="w-full bg-layer border border-border rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-foreground shadow-2xs focus:outline-hidden focus:ring-2 focus:ring-primary/20 focus:border-primary transition cursor-pointer">
+                    <x-preline-select name="tahun"
+                                      x-model="tahun"
+                                      @change="handleFilterChange()"
+                                      placeholder="Pilih tahun">
                         @foreach($daftarTahun as $t)
-                            <option value="{{ $t }}" {{ $tahun === $t ? 'selected' : '' }}>{{ $t }}</option>
+                            <option value="{{ $t }}" @selected($tahun === $t)>{{ $t }}</option>
                         @endforeach
-                    </select>
+                    </x-preline-select>
                 </div>
 
                 <!-- Kategori -->
                 <div class="space-y-1.5">
                     <label class="block text-xs font-semibold text-foreground">Kategori</label>
-                    <select name="kategori"
-                            x-ref="kategoriSelect"
-                            x-model="kategori"
-                            @change="handleFilterChange()"
-                            class="w-full bg-layer border border-border rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-foreground shadow-2xs focus:outline-hidden focus:ring-2 focus:ring-primary/20 focus:border-primary transition cursor-pointer">
+                    <x-preline-select name="kategori"
+                                      x-ref="kategoriSelect"
+                                      x-model="kategori"
+                                      @change="handleFilterChange()"
+                                      placeholder="Pilih kategori">
                         @foreach($daftarKategori as $opt)
-                            <option value="{{ $opt }}" {{ $kategori === $opt ? 'selected' : '' }}>{{ $opt }}</option>
+                            <option value="{{ $opt }}" @selected($kategori === $opt)>{{ $opt }}</option>
                         @endforeach
-                    </select>
+                    </x-preline-select>
                 </div>
             </div>
 
@@ -845,6 +845,25 @@ function laporanEksporApp() {
 
             // Inisialisasi dropdown kategori
             this.syncKategoriDropdown();
+
+            // Tombol detail dirender Alpine (x-for), daftarkan ulang toggle overlay Preline.
+            this.refreshOverlayToggles();
+        },
+
+        refreshOverlayToggles() {
+            this.$nextTick(() => {
+                window.HSStaticMethods?.autoInit(['overlay']);
+            });
+        },
+
+        // Samakan tampilan semua Preline Select dengan nilai state Alpine
+        // (dipakai saat filter diubah secara programatik, mis. tombol Reset).
+        syncPrelineSelects() {
+            this.$nextTick(() => {
+                this.$root.querySelectorAll('select[data-hs-select]').forEach((el) => {
+                    window.syncPrelineSelect?.(el);
+                });
+            });
         },
 
         setPreviewMode(mode) {
@@ -859,11 +878,34 @@ function laporanEksporApp() {
         syncKategoriDropdown() {
             const select = this.$refs.kategoriSelect;
             if (!select) return;
+
             const options = this.categoriesMap[this.jenisLaporan] || ['Semua Kategori'];
             this.kategoriOptions = options;
 
+            if (!options.includes(this.kategori)) {
+                this.kategori = 'Semua Kategori';
+            }
+
+            // Sinkronkan opsi ke instance Preline Select (bukan hanya <select> aslinya),
+            // agar dropdown yang terlihat ikut berubah saat jenis laporan diganti.
+            const instance = window.HSSelect?.getInstance(select, true)?.element;
+
+            if (instance) {
+                const existing = Array.from(select.options).map((option) => option.value);
+                if (existing.length) {
+                    instance.removeOption(existing);
+                }
+
+                options.forEach((opt) => instance.addOption({ title: opt, val: opt }));
+
+                select.value = this.kategori;
+                window.syncPrelineSelect?.(select);
+                return;
+            }
+
+            // Fallback bila Preline Select belum terpasang.
             select.innerHTML = '';
-            options.forEach(opt => {
+            options.forEach((opt) => {
                 const el = document.createElement('option');
                 el.value = opt;
                 el.textContent = opt;
@@ -878,6 +920,7 @@ function laporanEksporApp() {
         handleJenisChange() {
             this.kategori = 'Semua Kategori';
             this.syncKategoriDropdown();
+            this.syncPrelineSelects();
             this.triggerPreview(1);
         },
 
@@ -891,6 +934,7 @@ function laporanEksporApp() {
             this.tahun = 'Semua Tahun';
             this.kategori = 'Semua Kategori';
             this.syncKategoriDropdown();
+            this.syncPrelineSelects();
             this.triggerPreview(1);
         },
 
@@ -927,6 +971,9 @@ function laporanEksporApp() {
                     if (data.kategoriOptions) {
                         this.kategoriOptions = data.kategoriOptions;
                     }
+
+                    // Baris tabel di-render ulang, refresh toggle modal detail.
+                    this.refreshOverlayToggles();
                 }
             } catch (err) {
                 console.error('Gagal memuat preview data laporan:', err);
