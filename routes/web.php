@@ -6,10 +6,12 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\KampanyeController;
 use App\Http\Controllers\Admin\KelolaDonasiController;
 use App\Http\Controllers\Admin\LaporanEksporController;
+use App\Http\Controllers\BeritaKegiatanController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\User\LandingPageController;
 
 Route::get('/', [LandingPageController::class, 'index'])->name('home');
+Route::get('/berita-kegiatan', [BeritaKegiatanController::class, 'index'])->name('berita-kegiatan.index');
 
 // Halaman preview design system (hanya lokal).
 if (app()->environment('local')) {
