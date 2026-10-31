@@ -47,10 +47,10 @@
 
             <!-- Desktop Navigation Links -->
             <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
-                <a href="{{ route('home') }}" class="text-slate-900 font-semibold border-b-2 border-slate-900 pb-0.5">
+                <a href="{{ route('home') }}" class="{{ (request()->routeIs('home') || request()->is('/')) ? 'text-slate-900 font-semibold border-b-2 border-slate-900 pb-0.5' : 'hover:text-[#2D6A4F] transition' }}">
                     Beranda
                 </a>
-                <a href="#tentang-kami" class="hover:text-[#2D6A4F] transition">
+                <a href="{{ route('tentang-kami') }}" class="{{ (request()->routeIs('tentang-kami', 'profile') || request()->is('tentang-kami*') || request()->is('profile*')) ? 'text-slate-900 font-semibold border-b-2 border-slate-900 pb-0.5' : 'hover:text-[#2D6A4F] transition' }}">
                     Tentang Kami
                 </a>
 
@@ -64,16 +64,16 @@
                     </button>
 
                     <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden min-w-48 bg-white shadow-xl rounded-2xl p-1.5 mt-2 z-50 border border-slate-100" role="menu" aria-orientation="vertical" aria-labelledby="hs-dropdown-layanan">
-                        <a class="flex items-center gap-x-2 py-2 px-3 rounded-xl text-xs font-medium text-slate-700 hover:bg-[#E4F1EB] hover:text-[#2D6A4F] transition" href="#paket-donasi">
+                        <a class="flex items-center gap-x-2 py-2 px-3 rounded-xl text-xs font-medium text-slate-700 hover:bg-[#E4F1EB] hover:text-[#2D6A4F] transition" href="{{ route('home') }}#paket-donasi">
                             <span>Program Donasi Utama</span>
                         </a>
-                        <a class="flex items-center gap-x-2 py-2 px-3 rounded-xl text-xs font-medium text-slate-700 hover:bg-[#E4F1EB] hover:text-[#2D6A4F] transition" href="#paket-sedekah">
+                        <a class="flex items-center gap-x-2 py-2 px-3 rounded-xl text-xs font-medium text-slate-700 hover:bg-[#E4F1EB] hover:text-[#2D6A4F] transition" href="{{ route('home') }}#paket-sedekah">
                             <span>Paket Sedekah Kilat</span>
                         </a>
-                        <a class="flex items-center gap-x-2 py-2 px-3 rounded-xl text-xs font-medium text-slate-700 hover:bg-[#E4F1EB] hover:text-[#2D6A4F] transition" href="#transparansi">
+                        <a class="flex items-center gap-x-2 py-2 px-3 rounded-xl text-xs font-medium text-slate-700 hover:bg-[#E4F1EB] hover:text-[#2D6A4F] transition" href="{{ route('home') }}#transparansi">
                             <span>Laporan Transparansi</span>
                         </a>
-                        <a class="flex items-center gap-x-2 py-2 px-3 rounded-xl text-xs font-medium text-slate-700 hover:bg-[#E4F1EB] hover:text-[#2D6A4F] transition" href="#kabar-berita">
+                        <a class="flex items-center gap-x-2 py-2 px-3 rounded-xl text-xs font-medium text-slate-700 hover:bg-[#E4F1EB] hover:text-[#2D6A4F] transition" href="{{ route('home') }}#kabar-berita">
                             <span>Kabar & Dokumentasi</span>
                         </a>
                     </div>
@@ -82,7 +82,7 @@
 
             <!-- Right CTA Button (Desktop) & Hamburger (Mobile) -->
             <div class="flex items-center gap-2">
-                <a href="#paket-donasi" class="hidden sm:inline-flex py-2.5 px-6 items-center justify-center text-xs sm:text-sm font-semibold rounded-full border border-transparent bg-[#2D6A4F] text-white hover:bg-[#235843] focus:outline-hidden transition shadow-xs">
+                <a href="{{ route('home') }}#paket-donasi" class="hidden sm:inline-flex py-2.5 px-6 items-center justify-center text-xs sm:text-sm font-semibold rounded-full border border-transparent bg-[#2D6A4F] text-white hover:bg-[#235843] focus:outline-hidden transition shadow-xs">
                     Donasi
                 </a>
 
@@ -107,23 +107,23 @@
         <!-- Mobile Menu Container (Collapse) -->
         <div id="hs-navbar-collapse-heading" class="hs-collapse hidden md:hidden overflow-hidden transition-all duration-300 max-w-7xl mx-auto mt-2 pointer-events-auto">
             <div class="bg-white/95 backdrop-blur-md rounded-3xl border border-slate-200/80 p-4 shadow-xl flex flex-col gap-3 text-sm font-medium text-slate-700">
-                <a href="{{ route('home') }}" class="px-3 py-2 rounded-xl bg-slate-50 font-bold text-[#2D6A4F]">
+                <a href="{{ route('home') }}" class="px-3 py-2 rounded-xl {{ (request()->routeIs('home') || request()->is('/')) ? 'bg-slate-50 font-bold text-[#2D6A4F]' : 'hover:bg-slate-50 transition' }}">
                     Beranda
                 </a>
-                <a href="#tentang-kami" class="px-3 py-2 rounded-xl hover:bg-slate-50 transition">
+                <a href="{{ route('tentang-kami') }}" class="px-3 py-2 rounded-xl {{ (request()->routeIs('tentang-kami', 'profile') || request()->is('tentang-kami*') || request()->is('profile*')) ? 'bg-slate-50 font-bold text-[#2D6A4F]' : 'hover:bg-slate-50 transition' }}">
                     Tentang Kami
                 </a>
-                <a href="#paket-donasi" class="px-3 py-2 rounded-xl hover:bg-slate-50 transition">
+                <a href="{{ route('home') }}#paket-donasi" class="px-3 py-2 rounded-xl hover:bg-slate-50 transition">
                     Paket Donasi
                 </a>
-                <a href="#transparansi" class="px-3 py-2 rounded-xl hover:bg-slate-50 transition">
+                <a href="{{ route('home') }}#transparansi" class="px-3 py-2 rounded-xl hover:bg-slate-50 transition">
                     Laporan Transparansi
                 </a>
-                <a href="#kabar-berita" class="px-3 py-2 rounded-xl hover:bg-slate-50 transition">
+                <a href="{{ route('home') }}#kabar-berita" class="px-3 py-2 rounded-xl hover:bg-slate-50 transition">
                     Kabar & Dokumentasi
                 </a>
                 <div class="pt-2 border-t border-slate-100 flex flex-col gap-2">
-                    <a href="#paket-donasi" class="py-2.5 px-4 text-center font-bold text-xs rounded-full bg-[#2D6A4F] text-white hover:bg-[#235843] transition shadow-xs">
+                    <a href="{{ route('home') }}#paket-donasi" class="py-2.5 px-4 text-center font-bold text-xs rounded-full bg-[#2D6A4F] text-white hover:bg-[#235843] transition shadow-xs">
                         Donasi Sekarang
                     </a>
                 </div>

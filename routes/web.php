@@ -8,8 +8,11 @@ use App\Http\Controllers\Admin\KelolaDonasiController;
 use App\Http\Controllers\Admin\LaporanEksporController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\User\LandingPageController;
+use App\Http\Controllers\User\TentangKamiController;
 
 Route::get('/', [LandingPageController::class, 'index'])->name('home');
+Route::get('/tentang-kami', [TentangKamiController::class, 'index'])->name('tentang-kami');
+Route::get('/profile', [TentangKamiController::class, 'index'])->name('profile');
 
 // Halaman preview design system (hanya lokal).
 if (app()->environment('local')) {
