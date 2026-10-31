@@ -19,7 +19,6 @@ class AgendaKegiatan extends Model
         'lokasi',
         'deskripsi',
         'label',
-        'status',
     ];
 
     /**

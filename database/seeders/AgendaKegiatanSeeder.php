@@ -23,7 +23,6 @@ class AgendaKegiatanSeeder extends Seeder
                 'lokasi' => 'Asrama Cibiru, Bandung',
                 'deskripsi' => 'Silaturahmi bersama anak asuh dan penyaluran santunan dari para muhsinin.',
                 'label' => 'Terbuka untuk umum',
-                'status' => 'umum',
             ],
             [
                 'judul' => 'Kelas Inspirasi Bersama Relawan',
@@ -31,8 +30,7 @@ class AgendaKegiatanSeeder extends Seeder
                 'waktu' => '09.00–12.00 WIB',
                 'lokasi' => 'Ruang Belajar Cikutra',
                 'deskripsi' => 'Berbagi cerita profesi dan pengalaman untuk menumbuhkan cita-cita anak asuh.',
-                'label' => 'Pendaftaran dibuka',
-                'status' => 'pendaftaran',
+                'label' => null,
             ],
             [
                 'judul' => "Kajian Ahad & Khataman Al-Qur'an",
@@ -41,7 +39,6 @@ class AgendaKegiatanSeeder extends Seeder
                 'lokasi' => 'Asrama Cibiru, Bandung',
                 'deskripsi' => 'Menguatkan ukhuwah melalui kajian, tilawah, dan doa bersama keluarga yayasan.',
                 'label' => 'Terbuka untuk umum',
-                'status' => 'umum',
             ],
         ];
 

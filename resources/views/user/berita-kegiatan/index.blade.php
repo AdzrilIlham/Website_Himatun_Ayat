@@ -327,9 +327,11 @@
                                 <div class="mt-1 text-[10px] font-bold uppercase tracking-wider text-brand-800">{{ $event['month'] }}</div>
                             </div>
 
-                            <span class="rounded-full px-2.5 py-0.5 text-2xs font-semibold {{ $event['badge_class'] }}">
-                                {{ $event['badge'] }}
-                            </span>
+                            @if ($event['badge'])
+                                <span class="rounded-full bg-brand-100 px-2.5 py-0.5 text-2xs font-semibold text-brand-800">
+                                    {{ $event['badge'] }}
+                                </span>
+                            @endif
                         </div>
 
                         <h3 class="mt-3.5 text-sm sm:text-base font-bold leading-snug text-brand-900">

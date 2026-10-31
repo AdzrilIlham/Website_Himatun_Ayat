@@ -65,10 +65,7 @@ class BeritaKegiatanController extends Controller
         return [
             'day' => $agenda->tanggal->format('d'),
             'month' => strtoupper($agenda->tanggal->locale('id')->translatedFormat('M Y')),
-            'badge' => $agenda->label ?? 'Terbuka untuk umum',
-            'badge_class' => $agenda->status === 'pendaftaran'
-                ? 'bg-warning-soft text-warning'
-                : 'bg-brand-100 text-brand-800',
+            'badge' => $agenda->label,
             'title' => $agenda->judul,
             'time' => trim($agenda->tanggal->locale('id')->translatedFormat('l') . ', ' . $agenda->waktu, ', '),
             'location' => $agenda->lokasi,
