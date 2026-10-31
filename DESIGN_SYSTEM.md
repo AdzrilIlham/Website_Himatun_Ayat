@@ -73,7 +73,8 @@ supaya otomatis ikut tema.
 
 ## 3. Tipografi
 
-- Font: **Instrument Sans** (sudah di-load oleh `laravel-vite-plugin/fonts`).
+- Font: **Plus Jakarta Sans** (di-load lewat `laravel-vite-plugin/fonts` di `vite.config.js`
+  dan `<link>` Bunny Fonts di setiap layout).
 - Utility `text-2xs` (`11px`) disediakan untuk label tabel, badge, dan metadata.
 - Gunakan `tabular` pada nominal uang agar angka rata:
 

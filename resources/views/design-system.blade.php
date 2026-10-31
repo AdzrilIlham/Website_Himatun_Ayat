@@ -95,7 +95,7 @@
             <div class="card">
                 <div class="card-header">
                     <h2 class="font-semibold text-brand-900 dark:text-brand-200">Tipografi</h2>
-                    <span class="badge badge-neutral">Instrument Sans</span>
+                    <span class="badge badge-neutral">Plus Jakarta Sans</span>
                 </div>
                 <div class="card-body space-y-3">
                     <p class="text-3xl font-bold tracking-tight text-brand-900 dark:text-brand-200">Judul halaman</p>
