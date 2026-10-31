@@ -22,59 +22,63 @@
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
-        /* Skala 125% pada layar desktop/laptop agar pada zoom 100% ukurannya pas dan lega */
-        @media (min-width: 1024px) {
-            html {
-                font-size: 125%; /* 1rem = 20px (skala 125% dari 16px) */
-            }
-        }
+        /* Skala mengikuti ukuran font browser (1rem = 16px) agar tampilan
+           tetap proporsional pada zoom 100% dan konsisten dengan layout admin. */
     </style>
 </head>
 <body class="min-h-screen bg-white font-sans antialiased text-slate-800 selection:bg-[#2D6A4F] selection:text-white">
 
     <!-- Floating Fixed Navbar (Tetap Melayang Fixed / Mengambang Saat Halaman di-Scroll) -->
-    <header class="fixed top-0 inset-x-0 z-50 w-full pt-3 sm:pt-4 px-4 sm:px-6 lg:px-8 pointer-events-none transition-all duration-300">
-        <div class="max-w-7xl mx-auto bg-white/92 backdrop-blur-md rounded-full border border-slate-200/90 shadow-md hover:shadow-lg px-6 sm:px-8 py-3 sm:py-3.5 flex items-center justify-between pointer-events-auto transition-all duration-300">
+
+    <header class="fixed top-0 inset-x-0 z-50 w-full pt-2.5 sm:pt-3.5 px-4 sm:px-6 lg:px-8 pointer-events-none transition-all duration-300">
+        <div class="max-w-7xl mx-auto rounded-full px-5 sm:px-7 py-2.5 sm:py-3 flex items-center justify-between pointer-events-auto transition-all duration-300
+                    bg-white/60 backdrop-blur-xl backdrop-saturate-150
+                    border border-white/70 ring-1 ring-inset ring-white/40
+                    shadow-lg shadow-brand-900/5 hover:bg-white/70">
             <!-- Brand / Logo -->
-            <a href="{{ route('home') }}" class="flex items-center gap-2 group">
+            <a href="{{ route('home') }}" class="flex items-center gap-2 group -ml-3 sm:-ml-4 pl-2 pr-4 py-1.5 rounded-full bg-white/70 border border-white/60 shadow-2xs hover:bg-white transition">
                 @if(file_exists(public_path('images/logo-himmatun-ayat.png')))
                     <img src="{{ asset('images/logo-himmatun-ayat.png') }}" alt="Logo Himatun" class="w-8 h-8 object-contain">
                 @endif
-                <span class="font-bold text-base sm:text-lg tracking-tight text-slate-900 group-hover:text-[#2D6A4F] transition">
+                <span class="font-bold text-base sm:text-lg tracking-tight text-brand-900 group-hover:text-brand-700 transition">
                     Yayasan Himatun
                 </span>
             </a>
 
             <!-- Desktop Navigation Links -->
-            <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
-                <a href="{{ route('home') }}" class="text-slate-900 font-semibold border-b-2 border-slate-900 pb-0.5">
+            <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-brand-900/70">
+                <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'text-brand-900 font-semibold border-b-2 border-brand-700 pb-0.5' : 'hover:text-brand-700 transition' }}">
                     Beranda
                 </a>
-                <a href="#tentang-kami" class="hover:text-[#2D6A4F] transition">
+                <a href="{{ route('home') }}#tentang-kami" class="hover:text-brand-700 transition">
                     Tentang Kami
                 </a>
 
                 <!-- Preline Dropdown: Layanan -->
                 <div class="hs-dropdown relative inline-flex [--trigger:hover]">
-                    <button id="hs-dropdown-layanan" type="button" class="hs-dropdown-toggle inline-flex items-center gap-x-1.5 hover:text-[#2D6A4F] transition font-medium focus:outline-hidden" aria-haspopup="menu" aria-expanded="false" aria-label="Dropdown Layanan">
+                    <button id="hs-dropdown-layanan" type="button" class="hs-dropdown-toggle inline-flex items-center gap-x-1.5 hover:text-brand-700 transition font-medium focus:outline-hidden {{ request()->routeIs('berita-kegiatan.*') ? 'text-brand-900 font-semibold border-b-2 border-brand-700 pb-0.5' : '' }}" aria-haspopup="menu" aria-expanded="false" aria-label="Dropdown Layanan">
                         <span>Layanan</span>
                         <svg class="hs-dropdown-open:rotate-180 size-3.5 transition" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="m6 9 6 6 6-6"/>
                         </svg>
                     </button>
 
-                    <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden min-w-48 bg-white shadow-xl rounded-2xl p-1.5 mt-2 z-50 border border-slate-100" role="menu" aria-orientation="vertical" aria-labelledby="hs-dropdown-layanan">
-                        <a class="flex items-center gap-x-2 py-2 px-3 rounded-xl text-xs font-medium text-slate-700 hover:bg-[#E4F1EB] hover:text-[#2D6A4F] transition" href="#paket-donasi">
+                    <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden min-w-48 mt-2 z-50 p-1.5 rounded-2xl
+                                before:absolute before:-top-[10px] before:left-0 before:h-[10px] before:w-full before:content-['']
+                                bg-white/85 backdrop-blur-xl backdrop-saturate-150
+                                border border-white/70 shadow-xl shadow-brand-900/10"
+                         role="menu" aria-orientation="vertical" aria-labelledby="hs-dropdown-layanan">
+                        <a class="flex items-center gap-x-2 py-2 px-3 rounded-xl text-xs font-medium text-brand-900/80 hover:bg-brand-50 hover:text-brand-800 transition" href="{{ route('home') }}#paket-donasi">
                             <span>Program Donasi Utama</span>
                         </a>
-                        <a class="flex items-center gap-x-2 py-2 px-3 rounded-xl text-xs font-medium text-slate-700 hover:bg-[#E4F1EB] hover:text-[#2D6A4F] transition" href="#paket-sedekah">
+                        <a class="flex items-center gap-x-2 py-2 px-3 rounded-xl text-xs font-medium text-brand-900/80 hover:bg-brand-50 hover:text-brand-800 transition" href="{{ route('home') }}#paket-sedekah">
                             <span>Paket Sedekah Kilat</span>
                         </a>
-                        <a class="flex items-center gap-x-2 py-2 px-3 rounded-xl text-xs font-medium text-slate-700 hover:bg-[#E4F1EB] hover:text-[#2D6A4F] transition" href="#transparansi">
+                        <a class="flex items-center gap-x-2 py-2 px-3 rounded-xl text-xs font-medium text-brand-900/80 hover:bg-brand-50 hover:text-brand-800 transition" href="{{ route('home') }}#transparansi">
                             <span>Laporan Transparansi</span>
                         </a>
-                        <a class="flex items-center gap-x-2 py-2 px-3 rounded-xl text-xs font-medium text-slate-700 hover:bg-[#E4F1EB] hover:text-[#2D6A4F] transition" href="#kabar-berita">
-                            <span>Kabar & Dokumentasi</span>
+                        <a class="flex items-center gap-x-2 py-2 px-3 rounded-xl text-xs font-medium text-brand-900/80 hover:bg-brand-50 hover:text-brand-800 transition {{ request()->routeIs('berita-kegiatan.*') ? 'bg-brand-50 text-brand-800' : '' }}" href="{{ route('berita-kegiatan.index') }}">
+                            <span>Berita &amp; Kegiatan</span>
                         </a>
                     </div>
                 </div>
@@ -82,17 +86,17 @@
 
             <!-- Right CTA Button (Desktop) & Hamburger (Mobile) -->
             <div class="flex items-center gap-2">
-                <a href="#paket-donasi" class="hidden sm:inline-flex py-2.5 px-6 items-center justify-center text-xs sm:text-sm font-semibold rounded-full border border-transparent bg-[#2D6A4F] text-white hover:bg-[#235843] focus:outline-hidden transition shadow-xs">
+                <a href="#paket-donasi" class="hidden sm:inline-flex py-2.5 px-6 items-center justify-center text-xs sm:text-sm font-semibold rounded-full border border-transparent bg-primary text-primary-foreground hover:bg-primary-hover focus:outline-hidden transition shadow-xs">
                     Donasi
                 </a>
 
                 <!-- Preline Collapse Toggle Button (Mobile/Tablet) -->
-                <button type="button" 
-                        class="hs-collapse-toggle md:hidden p-2 inline-flex justify-center items-center gap-x-2 rounded-full border border-slate-200 text-slate-700 hover:bg-slate-100 focus:outline-hidden pointer-events-auto" 
-                        id="hs-navbar-collapse" 
-                        aria-expanded="false" 
-                        aria-controls="hs-navbar-collapse-heading" 
-                        aria-label="Toggle navigation" 
+                <button type="button"
+                        class="hs-collapse-toggle md:hidden p-2 inline-flex justify-center items-center gap-x-2 rounded-full border border-white/70 text-brand-900 hover:bg-brand-50 focus:outline-hidden pointer-events-auto"
+                        id="hs-navbar-collapse"
+                        aria-expanded="false"
+                        aria-controls="hs-navbar-collapse-heading"
+                        aria-label="Toggle navigation"
                         data-hs-collapse="#hs-navbar-collapse-heading">
                     <svg class="hs-collapse-open:hidden size-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
@@ -106,24 +110,24 @@
 
         <!-- Mobile Menu Container (Collapse) -->
         <div id="hs-navbar-collapse-heading" class="hs-collapse hidden md:hidden overflow-hidden transition-all duration-300 max-w-7xl mx-auto mt-2 pointer-events-auto">
-            <div class="bg-white/95 backdrop-blur-md rounded-3xl border border-slate-200/80 p-4 shadow-xl flex flex-col gap-3 text-sm font-medium text-slate-700">
-                <a href="{{ route('home') }}" class="px-3 py-2 rounded-xl bg-slate-50 font-bold text-[#2D6A4F]">
+            <div class="bg-white/85 backdrop-blur-xl backdrop-saturate-150 rounded-3xl border border-white/70 p-4 shadow-xl shadow-brand-900/10 flex flex-col gap-3 text-sm font-medium text-brand-900/80">
+                <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'px-3 py-2 rounded-xl bg-brand-100 font-bold text-brand-800' : 'px-3 py-2 rounded-xl hover:bg-brand-50 transition' }}">
                     Beranda
                 </a>
-                <a href="#tentang-kami" class="px-3 py-2 rounded-xl hover:bg-slate-50 transition">
+                <a href="{{ route('home') }}#tentang-kami" class="px-3 py-2 rounded-xl hover:bg-brand-50 transition">
                     Tentang Kami
                 </a>
-                <a href="#paket-donasi" class="px-3 py-2 rounded-xl hover:bg-slate-50 transition">
+                <a href="{{ route('home') }}#paket-donasi" class="px-3 py-2 rounded-xl hover:bg-brand-50 transition">
                     Paket Donasi
                 </a>
-                <a href="#transparansi" class="px-3 py-2 rounded-xl hover:bg-slate-50 transition">
+                <a href="{{ route('home') }}#transparansi" class="px-3 py-2 rounded-xl hover:bg-brand-50 transition">
                     Laporan Transparansi
                 </a>
-                <a href="#kabar-berita" class="px-3 py-2 rounded-xl hover:bg-slate-50 transition">
-                    Kabar & Dokumentasi
+                <a href="{{ route('berita-kegiatan.index') }}" class="{{ request()->routeIs('berita-kegiatan.*') ? 'px-3 py-2 rounded-xl bg-brand-100 font-bold text-brand-800' : 'px-3 py-2 rounded-xl hover:bg-brand-50 transition' }}">
+                    Berita &amp; Kegiatan
                 </a>
-                <div class="pt-2 border-t border-slate-100 flex flex-col gap-2">
-                    <a href="#paket-donasi" class="py-2.5 px-4 text-center font-bold text-xs rounded-full bg-[#2D6A4F] text-white hover:bg-[#235843] transition shadow-xs">
+                <div class="pt-2 border-t border-brand-100 flex flex-col gap-2">
+                    <a href="{{ route('home') }}#paket-donasi" class="py-2.5 px-4 text-center font-bold text-xs rounded-full bg-primary text-primary-foreground hover:bg-primary-hover transition shadow-xs">
                         Donasi Sekarang
                     </a>
                 </div>
@@ -132,7 +136,7 @@
     </header>
 
     <!-- Top Wrapper with Rich Gradient Background (Envelops Hero for seamless gradation) -->
-    <div class="relative bg-gradient-to-b from-[#D8F4EB] via-[#EDF8F3] to-white overflow-hidden pt-20 sm:pt-24 lg:pt-28">
+    <div class="relative bg-gradient-to-b from-[#D8F4EB] via-[#EDF8F3] to-white overflow-hidden pt-16 sm:pt-20 lg:pt-22">
         
         <!-- Ambient Radial Glows (Mint di kiri atas, Warm Amber Sunshine di kanan atas) -->
         <div class="absolute -top-24 left-0 w-full sm:w-2/3 h-[600px] bg-gradient-to-br from-[#BFEFE0]/85 via-[#DCF6ED]/45 to-transparent pointer-events-none blur-3xl -z-10"></div>
@@ -146,7 +150,7 @@
     </div>
 
     <!-- Footer Publik -->
-    <footer id="tentang-kami" class="border-t border-slate-200 bg-white mt-20 pt-14 pb-12">
+    <footer id="tentang-kami" class="border-t border-slate-200 bg-white mt-14 sm:mt-18 pt-10 sm:pt-12 pb-10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 md:grid-cols-12 gap-8 lg:gap-12 items-start">
                 
@@ -224,7 +228,7 @@
             </div>
 
             <!-- Bottom Copyright -->
-            <div class="mt-12 pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-2">
+            <div class="mt-8 pt-5 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-2">
                 <p>2026 Yayasan Himatun Ayat Bandung</p>
                 <div class="flex items-center gap-4 text-slate-400">
                     <a href="/admin/dashboard" class="hover:text-slate-600 transition">Portal Admin</a>
