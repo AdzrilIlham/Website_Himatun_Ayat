@@ -16,5 +16,5 @@ Route::prefix('admin')->name('admin.')->group(function () {
     // Data Anak Asuh
     Route::get('/anak-asuh/export/excel', [AnakAsuhController::class, 'exportExcel'])->name('anak-asuh.export.excel');
     Route::get('/anak-asuh/export/pdf', [AnakAsuhController::class, 'exportPdf'])->name('anak-asuh.export.pdf');
-    Route::resource('/anak-asuh', AnakAsuhController::class)->except(['create', 'show', 'edit']);
+    Route::resource('/anak-asuh', AnakAsuhController::class)->except(['show', 'edit']);
 });

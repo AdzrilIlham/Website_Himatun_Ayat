@@ -118,6 +118,11 @@ class AnakAsuhController extends Controller
         ));
     }
 
+    public function create()
+    {
+        return view('admin.anak-asuh.create');
+    }
+
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
