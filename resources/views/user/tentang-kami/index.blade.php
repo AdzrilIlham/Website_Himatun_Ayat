@@ -6,11 +6,32 @@
     <!-- ====================================================================== -->
     <!-- 1. HERO SECTION: PROFIL LEMBAGA & LOGO RESMI                          -->
     <!-- ====================================================================== -->
-    <section class="relative pt-4 sm:pt-8 lg:pt-12 pb-14 sm:pb-20 lg:pb-24">
+    <section class="relative pt-4 sm:pt-8 lg:pt-12 pb-10 sm:pb-16 lg:pb-20">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-12 lg:gap-14 items-center">
                 
-                <!-- Kolom Teks (Kiri di Desktop) -->
+                <!-- Tampilan Mobile: Gambar mengayomi.png ditaruh di paling atas sebelum teks (Sesuai Permintaan User) -->
+                <div class="block lg:hidden w-full">
+                    <div class="relative rounded-3xl overflow-hidden shadow-xl border-4 border-white bg-slate-100 aspect-[4/3] group">
+                        <!-- Main Image -->
+                        <img src="{{ asset('images/Asset/mengayomi.png') }}" 
+                             alt="Mengayomi Anak Yatim dan Dhuafa" 
+                             class="w-full h-full object-cover">
+                        
+                        <!-- Soft Ambient Dark Green Gradient & Blur Overlay at Bottom (Sesuai Prototype Tentang Kami.png) -->
+                        <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#1C4E3D]/95 via-[#1C4E3D]/65 via-60% to-transparent backdrop-blur-[2px] p-4 sm:p-5 pt-12 flex flex-col justify-end items-start pointer-events-none">
+                            <span class="inline-block bg-[#F9BC38] text-slate-900 font-extrabold px-2.5 py-0.5 rounded-md text-[10px] sm:text-xs tracking-wide shadow-xs mb-1">
+                                SEJAK 2006
+                            </span>
+                            <span class="text-white font-bold text-sm sm:text-base tracking-tight drop-shadow-sm leading-snug">
+                                Mengayomi 1.450+ Anak Yatim &amp; Dhuafa
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kolom Teks: Hero Title & Description -->
                 <div class="lg:col-span-7 space-y-4 sm:space-y-6 text-left">
                     <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem] font-extrabold text-slate-900 leading-[1.15] tracking-tight">
                         Profil Lembaga &amp; Legalitas Hukum Resmi Yayasan Himmatun Ayat Bandung
@@ -21,15 +42,15 @@
                     </p>
                 </div>
 
-                <!-- Kolom Lambang / Logo Yayasan (Kanan di Desktop, Tengah di Tablet/Mobile) -->
-                <div class="lg:col-span-5 flex justify-center items-center relative">
+                <!-- Kolom Lambang / Logo Yayasan (Hanya Tampil di Desktop, di Mobile disembunyikan agar visual mengayomi.png lebih menonjol) -->
+                <div class="hidden lg:flex lg:col-span-5 justify-center items-center relative">
                     <!-- Warm Yellow & Mint Aura Behind the Logo -->
                     <div class="absolute inset-0 bg-gradient-to-tr from-[#B7E4C7]/40 via-[#FDE68A]/50 to-transparent rounded-full blur-3xl pointer-events-none -z-10 scale-110"></div>
                     
                     <div class="relative group">
                         <img src="{{ asset('images/Asset/logo_himmatun.png') }}" 
                              alt="Logo Resmi Yayasan Himmatun Ayat" 
-                             class="w-64 sm:w-80 lg:w-96 max-w-full h-auto object-contain drop-shadow-xl group-hover:scale-105 transition-transform duration-500">
+                             class="w-72 lg:w-96 max-w-full h-auto object-contain drop-shadow-xl group-hover:scale-105 transition-transform duration-500">
                     </div>
                 </div>
 
@@ -41,28 +62,25 @@
     <!-- ====================================================================== -->
     <!-- 2. SEJARAH SINGKAT & KOMITMEN                                          -->
     <!-- ====================================================================== -->
-    <section class="relative py-12 sm:py-16 lg:py-20 bg-white">
+    <section class="relative py-10 sm:py-14 lg:py-18 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-12 lg:gap-16 items-center">
                 
-                <!-- Kolom Kiri: Foto Komitmen & Badge Sejak 2006 -->
-                <div class="lg:col-span-6 relative">
-                    <div class="relative rounded-3xl overflow-hidden shadow-xl border-4 border-white bg-slate-100 aspect-[4/3] group">
+                <!-- Kolom Kiri: Foto Komitmen & Badge Sejak 2006 (Di Desktop tampil di sini, di Mobile sudah tampil di atas hero agar tidak duplikat) -->
+                <div class="hidden lg:block lg:col-span-6 relative">
+                    <div class="relative rounded-3xl overflow-hidden shadow-xl border-4 sm:border-[6px] border-white bg-slate-100 aspect-[4/3] group">
                         <!-- Main Image -->
-                        <img src="{{ asset('images/Asset/Mengayomi1.450+AnakYatim&Dhuafa.png') }}" 
+                        <img src="{{ asset('images/Asset/mengayomi.png') }}" 
                              alt="Mengayomi Anak Yatim dan Dhuafa" 
                              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                         
-                        <!-- Soft Ambient Glow on Image -->
-                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent pointer-events-none"></div>
-
-                        <!-- Floating Frosted Glass Badge at Bottom-Left -->
-                        <div class="absolute bottom-4 left-4 right-4 sm:right-auto bg-slate-950/75 backdrop-blur-md border border-white/20 rounded-2xl p-2.5 sm:p-3 flex items-center gap-2.5 text-white shadow-xl">
-                            <span class="bg-amber-400 text-slate-950 font-bold px-2.5 py-0.5 rounded-full text-2xs uppercase tracking-wide shrink-0">
+                        <!-- Soft Ambient Dark Green Gradient & Blur Overlay at Bottom (Sesuai Prototype Tentang Kami.png) -->
+                        <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#1C4E3D]/95 via-[#1C4E3D]/65 via-60% to-transparent backdrop-blur-[2px] p-5 sm:p-6 pt-14 flex flex-col justify-end items-start pointer-events-none">
+                            <span class="inline-block bg-[#F9BC38] text-slate-900 font-extrabold px-2.5 py-0.5 rounded-md text-[11px] sm:text-xs tracking-wide shadow-xs mb-1.5">
                                 SEJAK 2006
                             </span>
-                            <span class="text-xs sm:text-sm font-semibold tracking-wide drop-shadow-xs">
+                            <span class="text-white font-bold text-base sm:text-lg md:text-xl tracking-tight drop-shadow-sm leading-snug">
                                 Mengayomi 1.450+ Anak Yatim &amp; Dhuafa
                             </span>
                         </div>
@@ -134,46 +152,43 @@
             <!-- Two-Column Layout: Left (Visi Card) & Right (4 Misi Cards Grid) -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-stretch">
                 
-                <!-- Left: Visi Utama Big Card (Dark Green) -->
+                <!-- Left: Visi Utama Big Card (Sesuai Prototype Asli Tentang Kami.png - Tanpa garis divider horizontal, ilustrasi Pak Yusuf berdiri utuh di kanan bawah) -->
                 <div class="lg:col-span-5 flex">
-                    <div class="relative w-full rounded-3xl bg-brand-900 text-white p-6 sm:p-8 flex flex-col justify-between shadow-xl overflow-hidden border border-brand-800">
+                    <div class="relative w-full rounded-3xl bg-[#1C4E3D] text-white p-6 sm:p-8 lg:p-9 flex flex-col justify-between shadow-xl overflow-hidden border border-[#235845]">
                         
-                        <!-- Background Glow Accent -->
-                        <div class="absolute -top-20 -right-20 w-60 h-60 bg-brand-700/40 rounded-full blur-3xl pointer-events-none"></div>
-                        <div class="absolute -bottom-16 -left-16 w-52 h-52 bg-brand-500/20 rounded-full blur-3xl pointer-events-none"></div>
+                        <!-- Ambient Glow Accent -->
+                        <div class="absolute -top-16 -right-16 w-56 h-56 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none"></div>
 
-                        <!-- Top Content: Badge & Quote -->
-                        <div class="relative z-10">
-                            <span class="inline-block px-3 py-1 rounded-full text-2xs font-extrabold uppercase tracking-wider bg-brand-800/90 border border-brand-700 text-brand-200 shadow-2xs">
+                        <!-- Top Content: Badge, Quote & Paragraph (Lebar dibatasi agar teks tidak menutupi ilustrasi Pak Yusuf) -->
+                        <div class="relative z-10 max-w-[66%] sm:max-w-[68%]">
+                            <span class="inline-block px-3.5 py-1 rounded-full text-2xs font-extrabold uppercase tracking-wider bg-[#295A48] border border-emerald-500/30 text-emerald-200 shadow-2xs">
                                 VISI UTAMA
                             </span>
 
-                            <blockquote class="text-lg sm:text-xl md:text-2xl font-bold leading-snug text-white mt-5">
+                            <blockquote class="text-lg sm:text-xl lg:text-[1.4rem] font-bold leading-snug text-white mt-4 sm:mt-5 tracking-tight">
                                 “Menjadi lembaga filantropi dan pengasuhan anak yatim terdepan, amanah, profesional, dan berakhlak mulia di Jawa Barat.”
                             </blockquote>
 
-                            <p class="text-xs sm:text-[13px] text-brand-100/85 leading-relaxed mt-4 font-normal">
+                            <p class="text-xs sm:text-[13px] text-emerald-100/80 leading-relaxed mt-3 sm:mt-4 font-normal">
                                 Sebuah komitmen jangka panjang melahirkan generasi dhuafa yang bertransformasi dari penerima manfaat (<em>mustahik</em>) menjadi insan mandiri pemberi manfaat (<em>muzakki</em>).
                             </p>
                         </div>
 
-                        <!-- Bottom Content: Author & Avatar Illustration -->
-                        <div class="relative z-10 pt-8 mt-6 border-t border-brand-800/80 flex items-end justify-between gap-4">
-                            <div>
-                                <h4 class="text-base sm:text-lg font-bold text-white tracking-tight">
-                                    Pak Yusuf
-                                </h4>
-                                <p class="text-xs text-brand-300 font-medium mt-0.5">
-                                    Ketua Yayasan Himmatun Ayat Bandung
-                                </p>
-                            </div>
+                        <!-- Bottom Left: Pak Yusuf Name & Role (Tanpa garis pemisah border-t) -->
+                        <div class="relative z-10 max-w-[66%] sm:max-w-[68%] pt-8 sm:pt-10">
+                            <h4 class="text-base sm:text-lg font-bold text-white tracking-tight">
+                                Pak Yusuf
+                            </h4>
+                            <p class="text-xs text-emerald-200/85 font-medium mt-0.5">
+                                Ketua Yayasan Himmatun Ayat Bandung
+                            </p>
+                        </div>
 
-                            <!-- Pak Yusuf Illustration (Positioned on the bottom right) -->
-                            <div class="shrink-0 -mb-6 sm:-mb-8 -mr-2 sm:-mr-4">
-                                <img src="{{ asset('images/Asset/YusufHamdani.png') }}" 
-                                     alt="Pak Yusuf Hamdani" 
-                                     class="w-32 sm:w-40 h-auto object-contain drop-shadow-lg">
-                            </div>
+                        <!-- Pak Yusuf Illustration (Berdiri tegak di kanan bawah kartu) -->
+                        <div class="absolute bottom-0 right-0 w-[42%] sm:w-[40%] max-w-[210px] pointer-events-none z-0">
+                            <img src="{{ asset('images/Asset/YusufHamdani.png') }}" 
+                                 alt="Pak Yusuf Hamdani" 
+                                 class="w-full h-auto object-contain object-bottom drop-shadow-xl translate-y-1">
                         </div>
 
                     </div>
@@ -228,20 +243,21 @@
 
     <!-- ====================================================================== -->
     <!-- 4. TATA KELOLA & STRUKTUR ORGANISASI                                   -->
+    <!-- Menggunakan Shape-pengurus.png resmi, Icon-ketua.png, Icon-pengurus.png-->
     <!-- ====================================================================== -->
-    <section class="relative py-16 sm:py-20 lg:py-24 bg-brand-900 text-white overflow-hidden">
+    <section class="relative py-16 sm:py-20 lg:py-24 bg-[#1C4E3D] text-white overflow-hidden">
         
-        <!-- Subtle Islamic Geometric / Star Pattern Watermark in Background -->
-        <div class="absolute inset-0 opacity-5 pointer-events-none" style="background-image: radial-gradient(#ffffff 1.5px, transparent 1.5px); background-size: 24px 24px;"></div>
+        <!-- Watermark Pattern Crescent Moons (Sesuai Prototype Asli) -->
+        <div class="absolute inset-0 opacity-[0.06] pointer-events-none" style="background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cpath fill='%23ffffff' d='M40 18a22 22 0 1 0 0 44 20 20 0 1 1 0-44z'/%3E%3C/svg%3E&quot;); background-size: 80px 80px;"></div>
         
         <!-- Ambient Radial Glows -->
-        <div class="absolute top-0 right-1/4 w-96 h-96 bg-brand-700/30 rounded-full blur-3xl pointer-events-none"></div>
-        <div class="absolute bottom-0 left-1/4 w-96 h-96 bg-brand-600/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute top-0 right-1/4 w-96 h-96 bg-emerald-600/15 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute bottom-0 left-1/4 w-96 h-96 bg-emerald-700/15 rounded-full blur-3xl pointer-events-none"></div>
 
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             
             <!-- DESKTOP TOP ROW: Left Card, Center Title, Right Card (Sesuai Desain Tentang Kami.png) -->
-            <div class="hidden lg:grid lg:grid-cols-12 gap-8 items-center mb-14">
+            <div class="hidden lg:grid lg:grid-cols-12 gap-8 items-center mb-16">
                 
                 <!-- Left Card: Yusuf Hamdani (01) -->
                 <div class="lg:col-span-3">
@@ -265,7 +281,7 @@
                         Amanah Figur Profesional &amp; Syariah
                     </h2>
 
-                    <p class="text-sm text-brand-100/85 leading-relaxed max-w-lg mx-auto font-normal">
+                    <p class="text-sm text-emerald-100/85 leading-relaxed max-w-lg mx-auto font-normal">
                         Dikelola secara kolektif kolegial dengan pengawasan syariah ketat guna menjamin transparansi penyaluran dana umat dan kualitas pengasuhan.
                     </p>
                 </div>
@@ -294,13 +310,13 @@
                     Amanah Figur Profesional &amp; Syariah
                 </h2>
 
-                <p class="text-xs sm:text-sm text-brand-100/85 leading-relaxed font-normal">
+                <p class="text-xs sm:text-sm text-emerald-100/85 leading-relaxed font-normal">
                     Dikelola secara kolektif kolegial dengan pengawasan syariah ketat guna menjamin transparansi penyaluran dana umat dan kualitas pengasuhan.
                 </p>
             </div>
 
             <!-- BOTTOM GRID: 4 Pengurus Cards (Responsive: 1 col mobile, 2 col tablet, 4 col desktop) -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-6">
                 
                 <!-- Card 01: Yusuf Hamdani -->
                 <x-tentang-kami.pengurus-card 
@@ -381,7 +397,7 @@
                     footerText="Masa Berlaku: 20XX - 20XX"
                 />
 
-                <!-- Dokumen 2: Akta Notaris & Kemenkumham -->
+                <!-- Dokumen 2: Akta Notaris & SK Kemenkumham -->
                 <x-tentang-kami.dokumen-hukum-card 
                     icon="notary"
                     badgeText="KemenKumHam RI Sah"
