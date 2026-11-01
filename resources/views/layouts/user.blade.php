@@ -66,7 +66,8 @@
                     class="{{ request()->routeIs('home') ? 'text-brand-900 font-semibold border-b-2 border-brand-700 pb-0.5' : 'hover:text-brand-700 transition' }}">
                     Beranda
                 </a>
-                <a href="{{ route('tentang-kami') }}" class="hover:text-brand-700 transition">
+                <a href="{{ route('tentang-kami') }}"
+                                    class="{{ request()->routeIs('tentang-kami', 'profile') ? 'text-brand-900 font-semibold border-b-2 border-brand-700 pb-0.5' : 'hover:text-brand-700 transition' }}">
                     Tentang Kami
                 </a>
 
@@ -142,7 +143,8 @@
                     class="{{ request()->routeIs('home') ? 'px-3 py-2 rounded-xl bg-brand-100 font-bold text-brand-800' : 'px-3 py-2 rounded-xl hover:bg-brand-50 transition' }}">
                     Beranda
                 </a>
-                <a href="{{ route('tentang-kami') }}" class="px-3 py-2 rounded-xl hover:bg-brand-50 transition">
+                <a href="{{ route('tentang-kami') }}"
+                                    class="{{ request()->routeIs('tentang-kami', 'profile') ? 'px-3 py-2 rounded-xl bg-brand-100 font-bold text-brand-800' : 'px-3 py-2 rounded-xl hover:bg-brand-50 transition' }}">
                     Tentang Kami
                 </a>
                 <a href="{{ route('home') }}#paket-donasi" class="px-3 py-2 rounded-xl hover:bg-brand-50 transition">
