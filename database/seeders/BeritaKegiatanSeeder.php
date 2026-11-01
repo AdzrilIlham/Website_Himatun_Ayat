@@ -22,6 +22,22 @@ class BeritaKegiatanSeeder extends Seeder
                 'kategori' => 'Pendidikan',
                 'judul' => 'Penyaluran Perlengkapan Sekolah untuk 85 Anak Asuh',
                 'ringkasan' => 'Seragam baru, tas, sepatu, dan buku tulis menjadi penyemangat adik-adik menyambut tahun ajaran baru. Terima kasih telah menjadi bagian dari perjalanan belajar mereka.',
+                'konten' => <<<'HTML'
+                    <p class="lead">Menyambut tahun ajaran baru, Yayasan Himmatun Ayat Bandung menyalurkan perlengkapan sekolah untuk 85 anak asuh. Amanah para donatur hadir melalui kebutuhan sederhana yang berarti bagi perjalanan belajar adik-adik.</p>
+                    <p>Seragam baru, tas, sepatu, dan buku tulis menjadi bagian dari perlengkapan yang disalurkan. Kebutuhan ini menemani keseharian anak asuh di sekolah, sekaligus menjadi penyemangat untuk kembali belajar dan merawat cita-cita mereka.</p>
+                    <h2>Perlengkapan sederhana, semangat yang berarti</h2>
+                    <p>Bagi adik-adik, memulai tahun ajaran baru bukan hanya tentang kembali ke ruang kelas. Ada harapan untuk memahami pelajaran, bertemu teman, dan mencoba hal-hal baik yang baru. Perlengkapan sekolah yang memadai menjadi salah satu bekal untuk menjalani proses tersebut dengan lebih nyaman.</p>
+                    <p>Melalui penyaluran ini, yayasan berupaya mendampingi kebutuhan pendidikan anak asuh. Seragam dan sepatu digunakan untuk bersekolah, tas membawa keperluan belajar, sementara buku tulis menjadi tempat mencatat pelajaran dan latihan sehari-hari.</p>
+                    <div class="callout">
+                        <p class="callout-title">Terima kasih telah menjadi bagian dari perjalanan belajar mereka.</p>
+                        <p class="callout-text">Setiap dukungan adalah bentuk kepedulian bagi pendidikan adik-adik asuh.</p>
+                    </div>
+                    <h2>Melanjutkan amanah, mendampingi langkah belajar</h2>
+                    <p>Kebaikan ini tidak terlepas dari kepedulian para donatur yang menitipkan amanah melalui yayasan. Dukungan tersebut menjadi pengingat bahwa perjalanan pendidikan anak asuh dapat dijalani bersama, dengan perhatian pada kebutuhan mereka sehari-hari.</p>
+                    <p>Semoga perlengkapan sekolah ini bermanfaat dan menjadi penyemangat adik-adik dalam menuntut ilmu. Yayasan Himmatun Ayat Bandung mengucapkan terima kasih kepada semua pihak yang telah mendukung. Mari terus menemani langkah kecil mereka menuju masa depan yang lebih baik.</p>
+                    HTML,
+                'tags' => ['Pendidikan', 'Anak Asuh', 'Penyaluran Amanah'],
+                'keterangan_gambar' => 'Semangat belajar adik-adik asuh menjadi bagian dari perjalanan kebaikan bersama. • Dokumentasi Yayasan Himmatun Ayat Bandung',
                 'gambar' => 'WisudaKhotmilQuran.png',
                 'lokasi' => 'Bandung',
                 'tanggal' => '2025-10-11',

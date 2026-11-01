@@ -20,6 +20,8 @@ class BeritaKegiatan extends Model
         'ringkasan',
         'konten',
         'gambar',
+        'keterangan_gambar',
+        'tags',
         'lokasi',
         'tanggal',
         'unggulan',
@@ -33,6 +35,7 @@ class BeritaKegiatan extends Model
         return [
             'tanggal' => 'date',
             'unggulan' => 'boolean',
+            'tags' => 'array',
         ];
     }
 

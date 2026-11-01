@@ -12,6 +12,7 @@ use App\Http\Controllers\User\LandingPageController;
 
 Route::get('/', [LandingPageController::class, 'index'])->name('home');
 Route::get('/berita-kegiatan', [BeritaKegiatanController::class, 'index'])->name('berita-kegiatan.index');
+Route::get('/berita-kegiatan/{beritaKegiatan:slug}', [BeritaKegiatanController::class, 'show'])->name('berita-kegiatan.show');
 
 // Halaman preview design system (hanya lokal).
 if (app()->environment('local')) {

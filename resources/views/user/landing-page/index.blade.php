@@ -646,6 +646,7 @@
                         <span class="absolute top-2 left-2 bg-[#1E3A2F]/85 backdrop-blur-xs text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
                             Pendidikan
                         </span>
+                        <a href="{{ route('berita-kegiatan.show', 'penyaluran-perlengkapan-sekolah') }}" class="absolute inset-0" aria-label="Penyaluran Perlengkapan Sekolah"></a>
                     </div>
 
                     <!-- Meta: Date & Location -->
@@ -667,7 +668,7 @@
 
                     <!-- Title -->
                     <h4 class="font-bold text-xs sm:text-[13px] text-slate-900 mt-1.5 line-clamp-1">
-                        Penyaluran Perlengkapan Sekolah
+                        <a href="{{ route('berita-kegiatan.show', 'penyaluran-perlengkapan-sekolah') }}" class="transition hover:text-[#2D6A4F]">Penyaluran Perlengkapan Sekolah</a>
                     </h4>
 
                     <!-- Subtitle -->
@@ -678,10 +679,10 @@
 
                 <!-- Button -->
                 <div class="mt-3">
-                    <button type="button" class="w-full py-1.5 px-2.5 rounded-lg bg-[#E4F1EB] hover:bg-[#D4EAE0] text-slate-800 text-[11px] sm:text-xs font-bold inline-flex items-center justify-center gap-1.5 transition">
+                    <a href="{{ route('berita-kegiatan.show', 'penyaluran-perlengkapan-sekolah') }}" class="w-full py-1.5 px-2.5 rounded-lg bg-[#E4F1EB] hover:bg-[#D4EAE0] text-slate-800 text-[11px] sm:text-xs font-bold inline-flex items-center justify-center gap-1.5 transition">
                         <img src="{{ asset('images/User/lembaran.png') }}" alt="File" class="w-3 h-3 object-contain">
                         <span>Lihat Selengkapnya</span>
-                    </button>
+                    </a>
                 </div>
             </div>
 
@@ -697,6 +698,7 @@
                         <span class="absolute top-2 left-2 bg-[#1E3A2F]/85 backdrop-blur-xs text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
                             Tahfidz Quran
                         </span>
+                        <a href="{{ route('berita-kegiatan.show', 'wisuda-khotmil-quran-merayakan-ikhtiar-para-santri') }}" class="absolute inset-0" aria-label="Wisuda Khotmil Quran"></a>
                     </div>
 
                     <!-- Meta: Date & Location -->
@@ -718,7 +720,7 @@
 
                     <!-- Title -->
                     <h4 class="font-bold text-xs sm:text-[13px] text-slate-900 mt-1.5 line-clamp-1">
-                        Wisuda Khotmil Quran
+                        <a href="{{ route('berita-kegiatan.show', 'wisuda-khotmil-quran-merayakan-ikhtiar-para-santri') }}" class="transition hover:text-[#2D6A4F]">Wisuda Khotmil Quran</a>
                     </h4>
 
                     <!-- Subtitle -->
@@ -729,10 +731,10 @@
 
                 <!-- Button -->
                 <div class="mt-3">
-                    <button type="button" class="w-full py-1.5 px-2.5 rounded-lg bg-[#E4F1EB] hover:bg-[#D4EAE0] text-slate-800 text-[11px] sm:text-xs font-bold inline-flex items-center justify-center gap-1.5 transition">
+                    <a href="{{ route('berita-kegiatan.show', 'wisuda-khotmil-quran-merayakan-ikhtiar-para-santri') }}" class="w-full py-1.5 px-2.5 rounded-lg bg-[#E4F1EB] hover:bg-[#D4EAE0] text-slate-800 text-[11px] sm:text-xs font-bold inline-flex items-center justify-center gap-1.5 transition">
                         <img src="{{ asset('images/User/lembaran.png') }}" alt="File" class="w-3 h-3 object-contain">
                         <span>Lihat Selengkapnya</span>
-                    </button>
+                    </a>
                 </div>
             </div>
 
@@ -748,6 +750,7 @@
                         <span class="absolute top-2 left-2 bg-[#1E3A2F]/85 backdrop-blur-xs text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
                             Kegiatan Luar Ruangan
                         </span>
+                        <a href="{{ route('berita-kegiatan.show', 'keceriaan-anak-asuh-dalam-lomba-makan-kerupuk') }}" class="absolute inset-0" aria-label="Lomba Balap Makan Kerupuk"></a>
                     </div>
 
                     <!-- Meta: Date & Location -->
@@ -769,7 +772,7 @@
 
                     <!-- Title -->
                     <h4 class="font-bold text-xs sm:text-[13px] text-slate-900 mt-1.5 line-clamp-1">
-                        Lomba Balap Makan Kerupuk
+                        <a href="{{ route('berita-kegiatan.show', 'keceriaan-anak-asuh-dalam-lomba-makan-kerupuk') }}" class="transition hover:text-[#2D6A4F]">Lomba Balap Makan Kerupuk</a>
                     </h4>
 
                     <!-- Subtitle -->
@@ -780,10 +783,10 @@
 
                 <!-- Button -->
                 <div class="mt-3">
-                    <button type="button" class="w-full py-1.5 px-2.5 rounded-lg bg-[#E4F1EB] hover:bg-[#D4EAE0] text-slate-800 text-[11px] sm:text-xs font-bold inline-flex items-center justify-center gap-1.5 transition">
+                    <a href="{{ route('berita-kegiatan.show', 'keceriaan-anak-asuh-dalam-lomba-makan-kerupuk') }}" class="w-full py-1.5 px-2.5 rounded-lg bg-[#E4F1EB] hover:bg-[#D4EAE0] text-slate-800 text-[11px] sm:text-xs font-bold inline-flex items-center justify-center gap-1.5 transition">
                         <img src="{{ asset('images/User/lembaran.png') }}" alt="File" class="w-3 h-3 object-contain">
                         <span>Lihat Selengkapnya</span>
-                    </button>
+                    </a>
                 </div>
             </div>
 
@@ -799,6 +802,7 @@
                         <span class="absolute top-2 left-2 bg-[#1E3A2F]/85 backdrop-blur-xs text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
                             Tahfidz Quran
                         </span>
+                        <a href="{{ route('berita-kegiatan.show', 'wisuda-khotmil-quran-merayakan-ikhtiar-para-santri') }}" class="absolute inset-0" aria-label="Wisuda Khotmil Quran"></a>
                     </div>
 
                     <!-- Meta: Date & Location -->
@@ -820,7 +824,7 @@
 
                     <!-- Title -->
                     <h4 class="font-bold text-xs sm:text-[13px] text-slate-900 mt-1.5 line-clamp-1">
-                        Wisuda Khotmil Quran
+                        <a href="{{ route('berita-kegiatan.show', 'wisuda-khotmil-quran-merayakan-ikhtiar-para-santri') }}" class="transition hover:text-[#2D6A4F]">Wisuda Khotmil Quran</a>
                     </h4>
 
                     <!-- Subtitle -->
@@ -831,10 +835,10 @@
 
                 <!-- Button -->
                 <div class="mt-3">
-                    <button type="button" class="w-full py-1.5 px-2.5 rounded-lg bg-[#E4F1EB] hover:bg-[#D4EAE0] text-slate-800 text-[11px] sm:text-xs font-bold inline-flex items-center justify-center gap-1.5 transition">
+                    <a href="{{ route('berita-kegiatan.show', 'wisuda-khotmil-quran-merayakan-ikhtiar-para-santri') }}" class="w-full py-1.5 px-2.5 rounded-lg bg-[#E4F1EB] hover:bg-[#D4EAE0] text-slate-800 text-[11px] sm:text-xs font-bold inline-flex items-center justify-center gap-1.5 transition">
                         <img src="{{ asset('images/User/lembaran.png') }}" alt="File" class="w-3 h-3 object-contain">
                         <span>Lihat Selengkapnya</span>
-                    </button>
+                    </a>
                 </div>
             </div>
 
