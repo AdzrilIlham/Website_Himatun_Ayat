@@ -10,7 +10,7 @@ use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
-#[Layout('layouts.app')]
+#[Layout('layouts.user')]
 #[Title('Program Donasi & Kampanye Kebaikan - Yayasan Himatun Ayat Bandung')]
 class KampanyeDonasi extends Component
 {
