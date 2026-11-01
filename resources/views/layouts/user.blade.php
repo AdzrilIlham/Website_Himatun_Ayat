@@ -22,10 +22,10 @@
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
-        /* Skala 125% pada layar desktop/laptop agar pada zoom 100% ukurannya pas dan lega */
+
         @media (min-width: 1024px) {
             html {
-                font-size: 125%; /* 1rem = 20px (skala 125% dari 16px) */
+                font-size: 100%; 
             }
         }
     </style>
