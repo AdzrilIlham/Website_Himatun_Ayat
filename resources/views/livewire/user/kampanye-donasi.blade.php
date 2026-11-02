@@ -5,10 +5,9 @@
 
     <!-- Section 1: Hero, Formulir Donatur & Doa Harapan -->
     <section class="relative pt-6 pb-16 sm:pb-20">
-        <!-- Ambient background glow matching Design System Brand Pastel -->
-        <div class="absolute inset-0 -z-10 pointer-events-none overflow-hidden">
-            <div class="absolute -top-40 -left-40 w-96 h-96 rounded-full bg-brand-100/40 blur-3xl"></div>
-            <div class="absolute top-20 right-0 w-[500px] h-[500px] rounded-full bg-brand-50/70 blur-3xl"></div>
+        <!-- Full green gradient background seperti beranda -->
+        <div class="absolute inset-0 -z-10 pointer-events-none overflow-hidden bg-gradient-to-b from-[#D8F4EB] via-[#EDF8F3] to-white">
+            <div class="absolute -top-24 left-0 w-full sm:w-2/3 h-[600px] bg-gradient-to-br from-[#BFEFE0]/85 via-[#DCF6ED]/45 to-transparent blur-3xl"></div>
         </div>
 
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -16,7 +15,7 @@
 
                 <!-- Kolom Kiri: Formulir Donatur -->
                 <div class="lg:col-span-6 xl:col-span-6">
-                    <div class="bg-brand-50 border border-brand-200/80 rounded-[32px] p-6 sm:p-8 lg:p-9 shadow-xs relative">
+                    <div class="bg-white/95 backdrop-blur-sm border border-slate-200/80 rounded-[32px] p-6 sm:p-8 lg:p-9 shadow-lg relative">
                         <h2 class="text-2xl sm:text-[26px] font-bold text-foreground text-center mb-6 tracking-tight">
                             Formulir Donatur
                         </h2>
@@ -172,7 +171,7 @@
                     @endphp
 
                     <!-- Card Doa & Harapan Sesuai Mockup (Auto-rotating, No Manual Scroll) -->
-                    <div class="bg-brand-50 border border-brand-200/90 rounded-[32px] p-6 sm:p-7 shadow-2xs relative overflow-hidden"
+                    <div class="bg-white/95 backdrop-blur-sm border border-slate-200/80 rounded-[32px] p-6 sm:p-7 shadow-lg relative overflow-hidden"
                         x-data="{
                             currentGroup: 0,
                             totalGroups: {{ max(1, $doaChunks->count()) }},
@@ -228,7 +227,7 @@
                                     x-transition:leave-end="opacity-0 -translate-y-3"
                                     class="space-y-3.5 w-full">
                                     @foreach ($chunk as $doa)
-                                        <div class="bg-card rounded-2xl p-4 sm:p-4.5 shadow-2xs border border-brand-100 transition hover:shadow-xs">
+                                        <div class="bg-white rounded-2xl p-4 sm:p-4.5 shadow-2xs border border-slate-200/80 transition hover:shadow-xs">
                                             <div class="flex items-center gap-3">
                                                 <!-- Avatar Icon Bulat -->
                                                 <div class="w-9 h-9 rounded-full bg-brand-700 text-white flex items-center justify-center shrink-0">
@@ -269,7 +268,11 @@
     </section>
 
     <!-- Section 2: Hasil Donasi Yang Anda Berikan (Paket Kebaikan) -->
-    <section class="py-16 bg-card border-t border-border">
+    <section class="relative py-16">
+        <!-- Full green gradient background -->
+        <div class="absolute inset-0 -z-10 bg-gradient-to-b from-[#D8F4EB] via-[#EDF8F3] to-white overflow-hidden">
+            <div class="absolute -top-24 right-0 w-full sm:w-3/5 h-[600px] bg-gradient-to-bl from-[#BFEFE0]/60 via-[#DCF6ED]/30 to-transparent blur-3xl"></div>
+        </div>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <!-- Header Paket Kebaikan -->
             <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
@@ -309,28 +312,24 @@
                         'paket-makan-nutrisi-harian' => [
                             'badge' => 'Nutrisi',
                             'badge_icon' => 'cutlery',
-                            'is_featured' => false,
                             'nominal' => 25000,
                             'image' => asset('images/kampanye/nutrisi.svg'),
                         ],
                         'paket-alat-buku-tulis' => [
                             'badge' => 'Perlengkapan',
                             'badge_icon' => 'pencil',
-                            'is_featured' => false,
                             'nominal' => 100000,
                             'image' => asset('images/kampanye/alat-tulis.svg'),
                         ],
                         'paket-beasiswa-pendidikan-santri' => [
                             'badge' => 'Pendidikan',
                             'badge_icon' => 'cap',
-                            'is_featured' => true, // Featured card dengan brand-700
                             'nominal' => 250000,
                             'image' => asset('images/kampanye/beasiswa.svg'),
                         ],
                         'paket-khalafah-dakwah-tahfidz' => [
                             'badge' => 'Tahfidz Quran',
                             'badge_icon' => 'book',
-                            'is_featured' => false,
                             'nominal' => 500000,
                             'image' => asset('images/kampanye/tahfidz.svg'),
                         ],
@@ -342,19 +341,17 @@
                         $cfg = $packageConfigs[$item->slug] ?? [
                             'badge' => $item->kategori,
                             'badge_icon' => 'book',
-                            'is_featured' => ($index === 2),
                             'nominal' => 50000,
                             'image' => asset($item->banner_path ?: 'images/kampanye/nutrisi.svg'),
                         ];
-                        $isDark = $cfg['is_featured'];
                     @endphp
 
-                    <div class="relative rounded-[28px] p-5 sm:p-6 flex flex-col justify-between transition-all duration-200 hover:-translate-y-1 hover:shadow-lg {{ $isDark ? 'bg-brand-700 text-white shadow-md' : 'bg-brand-50 text-foreground border border-brand-200/70' }}">
+                    <div class="group relative rounded-[28px] p-5 sm:p-6 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 bg-white text-foreground border border-slate-200/80 shadow-sm hover:bg-brand-700 hover:text-white hover:border-brand-700 hover:shadow-xl cursor-pointer">
 
                         <div>
-                            <!-- Header Card: Badge Kategori Sesuai Token -->
+                            <!-- Header Card: Badge Kategori -->
                             <div class="flex items-center justify-between mb-4">
-                                <span class="badge {{ $isDark ? 'bg-white/15 text-brand-100 border border-white/20' : 'badge-success border border-brand-200' }}">
+                                <span class="badge badge-success border border-brand-200 group-hover:bg-white/15 group-hover:text-brand-100 group-hover:border-white/20 transition-colors duration-300">
                                     @if ($cfg['badge_icon'] === 'cutlery')
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
@@ -378,34 +375,34 @@
                             </div>
 
                             <!-- Gambar Paket -->
-                            <div class="rounded-2xl overflow-hidden aspect-4/3 mb-4 bg-white/60 flex items-center justify-center p-2 border border-border/40">
+                            <div class="rounded-2xl overflow-hidden aspect-4/3 mb-4 bg-slate-50 group-hover:bg-white/60 flex items-center justify-center p-2 border border-slate-200/40 transition-colors duration-300">
                                 <img src="{{ $cfg['image'] }}" alt="{{ $item->judul }}"
-                                    class="w-full h-full object-contain drop-shadow-xs transition transform hover:scale-105 duration-200" />
+                                    class="w-full h-full object-contain drop-shadow-xs transition transform group-hover:scale-105 duration-200" />
                             </div>
 
                             <!-- Judul & Deskripsi -->
-                            <h3 class="font-bold text-base sm:text-lg mb-1.5 leading-snug {{ $isDark ? 'text-white' : 'text-foreground' }}">
+                            <h3 class="font-bold text-base sm:text-lg mb-1.5 leading-snug text-foreground group-hover:text-white transition-colors duration-300">
                                 {{ $item->judul }}
                             </h3>
-                            <p class="text-xs leading-relaxed mb-4 {{ $isDark ? 'text-brand-100/90' : 'text-muted-foreground-1' }}">
+                            <p class="text-xs leading-relaxed mb-4 text-muted-foreground-1 group-hover:text-brand-100/90 transition-colors duration-300">
                                 {{ $item->deskripsi }}
                             </p>
                         </div>
 
                         <!-- Nominal & Tombol Pilih Donasi -->
-                        <div class="pt-4 border-t {{ $isDark ? 'border-white/15' : 'border-border' }}">
+                        <div class="pt-4 border-t border-border group-hover:border-white/15 transition-colors duration-300">
                             <div class="mb-3">
-                                <span class="block text-2xs font-medium {{ $isDark ? 'text-brand-200' : 'text-muted-foreground-1' }}">
+                                <span class="block text-2xs font-medium text-muted-foreground-1 group-hover:text-brand-200 transition-colors duration-300">
                                     Nominal Donasi:
                                 </span>
-                                <span class="text-lg font-extrabold tracking-tight tabular {{ $isDark ? 'text-white' : 'text-foreground' }}">
+                                <span class="text-lg font-extrabold tracking-tight tabular text-foreground group-hover:text-white transition-colors duration-300">
                                     Rp {{ number_format($cfg['nominal'], 0, ',', '.') }}
                                 </span>
                             </div>
 
                             <button type="button"
                                 wire:click="selectKampanye({{ $item->id }}, {{ $cfg['nominal'] }})"
-                                class="w-full py-3 px-4 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all duration-150 active:scale-95 {{ $isDark ? 'bg-white hover:bg-brand-50 text-brand-700 shadow-sm' : 'bg-brand-700 hover:bg-brand-800 text-white shadow-xs' }}">
+                                class="w-full py-3 px-4 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all duration-300 active:scale-95 bg-brand-700 hover:bg-brand-800 text-white shadow-xs group-hover:bg-white group-hover:text-brand-700 group-hover:hover:bg-brand-50">
                                 <span>Pilih Donasi</span>
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
@@ -428,7 +425,7 @@
     </section>
 
     <!-- Section 3: Call to Action Banner Media Sosial Sesuai Mockup -->
-    <section class="py-8 bg-card">
+    <section class="py-8 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="relative bg-brand-800 rounded-[24px] p-6 sm:p-8 lg:p-10 text-white shadow-md overflow-hidden">
                 <!-- Background subtle radial glow -->
