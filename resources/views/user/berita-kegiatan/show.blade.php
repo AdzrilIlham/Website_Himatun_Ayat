@@ -13,6 +13,46 @@
 
         <div class="relative mx-auto max-w-7xl px-4 pb-8 pt-5 sm:px-6 sm:pb-10 sm:pt-7 lg:px-8">
 
+            {{-- Breadcrumb --}}
+            <nav aria-label="Breadcrumb" class="mb-4 sm:mb-5">
+                <ol class="inline-flex max-w-full flex-wrap items-center gap-1 rounded-full border border-white/70 bg-white/65 px-2 py-1.5 text-2xs font-medium text-muted-foreground-1 shadow-2xs backdrop-blur sm:gap-1.5 sm:px-2.5 sm:text-xs">
+                    <li class="flex items-center">
+                        <a href="{{ route('home') }}"
+                           class="inline-flex items-center gap-1.5 rounded-full px-1.5 py-1 text-brand-800 transition hover:bg-brand-50 hover:text-brand-900 sm:px-2">
+                            <svg class="size-3.5 text-brand-700" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+                            </svg>
+                            <span>Beranda</span>
+                        </a>
+                    </li>
+
+                    <li aria-hidden="true" class="flex items-center">
+                        <svg class="size-3 text-brand-300" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                        </svg>
+                    </li>
+
+                    <li class="flex items-center">
+                        <a href="{{ route('berita-kegiatan.index') }}"
+                           class="rounded-full px-1.5 py-1 transition hover:bg-brand-50 hover:text-brand-900 sm:px-2">
+                            Berita &amp; Kegiatan
+                        </a>
+                    </li>
+
+                    <li aria-hidden="true" class="flex items-center">
+                        <svg class="size-3 text-brand-300" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                        </svg>
+                    </li>
+
+                    <li class="flex min-w-0 items-center" aria-current="page">
+                        <span class="max-w-[11rem] truncate rounded-full px-1.5 py-1 font-semibold text-brand-900 sm:max-w-xs sm:px-2 lg:max-w-md">
+                            {{ $article['title'] }}
+                        </span>
+                    </li>
+                </ol>
+            </nav>
+
             <div class="max-w-5xl">
                 <div class="flex flex-wrap items-center gap-2 sm:gap-3">
                     <span class="badge badge-success px-2.5 py-1 text-2xs sm:text-xs">{{ $article['type'] }}</span>
