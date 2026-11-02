@@ -379,7 +379,7 @@ class KampanyeDonasi extends Component
             ->take(12)
             ->get();
 
-        return view('livewire.user.kampanye-donasi', [
+        return view('user.kampanye-donasi.kampanye-donasi', [
             'kampanyeList' => $kampanyeList,
             'selectedKampanye' => $selectedKampanye,
             'recentDoa' => $recentDoa,
