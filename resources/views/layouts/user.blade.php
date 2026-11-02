@@ -13,6 +13,7 @@
 
     <!-- Scripts & Styles -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @livewireStyles
     <style>
         [x-cloak] { display: none !important; }
         .no-scrollbar::-webkit-scrollbar {
@@ -233,5 +234,6 @@
         </div>
     </footer>
 
+    @livewireScripts
 </body>
 </html>

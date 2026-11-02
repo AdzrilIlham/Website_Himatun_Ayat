@@ -1,5 +1,8 @@
     <!-- Section 1: Hero, Formulir Donatur & Doa Harapan -->
     <section class="relative pt-6 pb-16 sm:pb-20">
+        <!-- Ambient Radial Glows (Mint di kiri atas, Warm Amber Sunshine di kanan atas) sesuai beranda -->
+        <div class="absolute -top-24 left-0 w-full sm:w-2/3 h-[600px] bg-gradient-to-br from-[#BFEFE0]/85 via-[#DCF6ED]/45 to-transparent pointer-events-none blur-3xl -z-10"></div>
+        <div class="absolute -top-20 right-0 w-full sm:w-3/5 h-[650px] bg-gradient-to-bl from-[#FDE899]/70 via-[#FEF3C7]/40 to-transparent pointer-events-none blur-3xl -z-10"></div>
 
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
@@ -78,10 +81,10 @@
                                     <label class="form-label text-xs sm:text-sm font-semibold">
                                         Nama Lengkap Donatur <span class="text-danger">*</span>
                                     </label>
-                                    <input type="text" wire:model="namaDonatur"
+                                    <input type="text" wire:model.live.debounce.300ms="namaDonatur"
                                         {{ $isAnonim ? 'readonly' : '' }}
                                         placeholder="Masukan Teks"
-                                        class="form-input bg-white py-3 text-xs sm:text-sm {{ $isAnonim ? 'bg-slate-100 text-muted-foreground' : '' }}" />
+                                        class="form-input bg-white py-3 text-xs sm:text-sm {{ $isAnonim ? 'bg-slate-100 text-muted-foreground cursor-not-allowed' : '' }}" />
                                     @error('namaDonatur')
                                         <p class="form-error">{{ $message }}</p>
                                     @enderror
@@ -90,7 +93,7 @@
                                     <label class="form-label text-xs sm:text-sm font-semibold">
                                         No. Telepon / WA <span class="text-danger">*</span>
                                     </label>
-                                    <input type="tel" wire:model="noTelepon"
+                                    <input type="tel" wire:model.live.debounce.300ms="noTelepon"
                                         placeholder="Masukan Teks"
                                         class="form-input bg-white py-3 text-xs sm:text-sm" />
                                     @error('noTelepon')
@@ -104,7 +107,7 @@
                                 <label class="form-label text-xs sm:text-sm font-semibold">
                                     Alamat Email (Opsional)
                                 </label>
-                                <input type="email" wire:model="email"
+                                <input type="email" wire:model.live.debounce.300ms="email"
                                     placeholder="Masukan Teks"
                                     class="form-input bg-white py-3 text-xs sm:text-sm" />
                                 @error('email')
@@ -126,7 +129,7 @@
                                 <label class="form-label text-xs sm:text-sm font-semibold">
                                     Doa & Harapan Donatur
                                 </label>
-                                <textarea wire:model="doaHarapan" rows="3"
+                                <textarea wire:model.live.debounce.300ms="doaHarapan" rows="3"
                                     placeholder="Masukan Teks"
                                     class="form-input bg-white py-3 text-xs sm:text-sm resize-none"></textarea>
                                 @error('doaHarapan')
@@ -137,8 +140,17 @@
                             <!-- Submit Button -->
                             <div class="pt-2 text-center">
                                 <button type="submit"
+                                    wire:loading.attr="disabled"
+                                    wire:loading.class="opacity-70 cursor-wait"
                                     class="btn btn-primary rounded-full px-10 py-3.5 text-sm sm:text-base font-semibold shadow-md hover:shadow-lg w-full sm:w-auto">
-                                    Konfirmasi Donasi Anda
+                                    <span wire:loading.remove wire:target="confirmDonasi">Konfirmasi Donasi Anda</span>
+                                    <span wire:loading wire:target="confirmDonasi" class="inline-flex items-center gap-2">
+                                        <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        Memproses...
+                                    </span>
                                 </button>
                             </div>
                         </form>
@@ -158,7 +170,7 @@
                     </div>
 
                     @php
-                        $doaChunks = $recentDoa->chunk(2);
+                        $doaChunks = $recentDoa->chunk(3);
                     @endphp
 
                     <!-- Card Doa & Harapan Sesuai Mockup (Auto-rotating, No Manual Scroll) -->

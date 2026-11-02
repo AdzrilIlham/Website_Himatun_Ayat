@@ -3,7 +3,6 @@ import Alpine from 'alpinejs';
 
 window.HSStaticMethods = HSStaticMethods;
 window.HSSelect = HSSelect;
-window.Alpine = Alpine;
 
 // Fokus ke toggle Preline Select (elemen <select> aslinya tersembunyi),
 // dipakai validasi form Alpine agar fokus tetap mengarah ke kontrol yang terlihat.
@@ -51,10 +50,21 @@ window.syncPrelineSelect = (target) => {
 // secara dinamis (mis. hasil fetch / partial yang di-inject).
 const initPreline = () => HSStaticMethods.autoInit();
 
+// Jalankan Alpine dari bundle ini hanya jika halaman BUKAN halaman Livewire.
+// Halaman Livewire sudah membawa Alpine sendiri di bawah tendanya agar tidak terjadi tabrakan instance ganda.
+const startAlpineIfNoLivewire = () => {
+    if (!document.querySelector('[wire\\:id], [wire\\:snapshot]') && !window.Livewire && !window.Alpine) {
+        window.Alpine = Alpine;
+        Alpine.start();
+    }
+};
+
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initPreline);
+    document.addEventListener('DOMContentLoaded', () => {
+        initPreline();
+        startAlpineIfNoLivewire();
+    });
 } else {
     initPreline();
+    startAlpineIfNoLivewire();
 }
-
-Alpine.start();
