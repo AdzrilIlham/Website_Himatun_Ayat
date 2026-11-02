@@ -18,9 +18,9 @@ class KampanyeDonasi extends Component
 
     public ?int $selectedKampanyeId = null;
 
-    public int $selectedNominal = 50000;
+    public ?int $selectedNominal = null;
 
-    public ?int $customNominal = 50000;
+    public ?int $customNominal = null;
 
     public string $namaDonatur = '';
 
@@ -99,14 +99,26 @@ class KampanyeDonasi extends Component
 
     public function setNominal(int $amount): void
     {
-        $this->selectedNominal = $amount;
-        $this->customNominal = $amount;
+        if ($this->selectedNominal === $amount) {
+            $this->selectedNominal = null;
+            $this->customNominal = null;
+        } else {
+            $this->selectedNominal = $amount;
+            $this->customNominal = $amount;
+        }
     }
 
     public function updatedCustomNominal($val): void
     {
+        if ($val === null || $val === '') {
+            $this->selectedNominal = null;
+            $this->customNominal = null;
+
+            return;
+        }
+
         $intVal = (int) preg_replace('/[^0-9]/', '', (string) $val);
-        $this->selectedNominal = $intVal;
+        $this->selectedNominal = $intVal > 0 ? $intVal : null;
     }
 
     public function updatedIsAnonim($val): void
@@ -145,6 +157,7 @@ class KampanyeDonasi extends Component
         ], [
             'namaDonatur.required' => 'Mohon masukkan nama donatur atau centang Hamba Allah.',
             'noTelepon.required' => 'Nomor telepon/WhatsApp wajib diisi untuk konfirmasi.',
+            'selectedNominal.required' => 'Silakan pilih nominal donasi atau masukkan nominal lainnya.',
             'selectedNominal.min' => 'Minimal donasi adalah Rp 10.000.',
         ]);
 
@@ -250,8 +263,8 @@ class KampanyeDonasi extends Component
         $this->email = '';
         $this->isAnonim = false;
         $this->doaHarapan = '';
-        $this->selectedNominal = 50000;
-        $this->customNominal = 50000;
+        $this->selectedNominal = null;
+        $this->customNominal = null;
         $this->currentDonasi = null;
         $this->buktiTransfer = null;
         $this->paymentStep = 1;
@@ -262,7 +275,7 @@ class KampanyeDonasi extends Component
     public function getVirtualAccountDetailsProperty(): array
     {
         $id = $this->currentDonasi?->id ?? 1;
-        $nominal = $this->currentDonasi?->nominal ?? $this->selectedNominal;
+        $nominal = $this->currentDonasi?->nominal ?? ($this->selectedNominal ?? 0);
 
         return match ($this->metodePembayaran) {
             'Virrtual Account BNI', 'Virtual Account BNI' => [
@@ -348,7 +361,7 @@ class KampanyeDonasi extends Component
 
     public function getWhatsappLinkProperty(): string
     {
-        $nominal = number_format($this->currentDonasi?->nominal ?? $this->selectedNominal, 0, ',', '.');
+        $nominal = number_format($this->currentDonasi?->nominal ?? ($this->selectedNominal ?? 0), 0, ',', '.');
         $nama = $this->currentDonasi?->nama_donatur ?? ($this->isAnonim ? 'Hamba Allah' : ($this->namaDonatur ?: 'Donatur'));
         $kampanye = $this->currentDonasi?->kampanye?->judul ?? 'Program Donasi Umum';
         $pembayaranId = $this->paymentId ?: 'DNS-12345678-123';
