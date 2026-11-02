@@ -1,9 +1,5 @@
-﻿    <!-- Section 2: Hasil Donasi Yang Anda Berikan (Paket Kebaikan) -->
+    <!-- Section 2: Hasil Donasi Yang Anda Berikan (Paket Kebaikan) -->
     <section class="relative py-16">
-        <!-- Full green gradient background -->
-        <div class="absolute inset-0 -z-10 bg-gradient-to-b from-[#D8F4EB] via-[#EDF8F3] to-white overflow-hidden">
-            <div class="absolute -top-24 right-0 w-full sm:w-3/5 h-[600px] bg-gradient-to-bl from-[#BFEFE0]/60 via-[#DCF6ED]/30 to-transparent blur-3xl"></div>
-        </div>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <!-- Header Paket Kebaikan -->
             <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">

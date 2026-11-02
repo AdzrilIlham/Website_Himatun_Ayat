@@ -1,9 +1,5 @@
-﻿    <!-- Section 1: Hero, Formulir Donatur & Doa Harapan -->
+    <!-- Section 1: Hero, Formulir Donatur & Doa Harapan -->
     <section class="relative pt-6 pb-16 sm:pb-20">
-        <!-- Full green gradient background seperti beranda -->
-        <div class="absolute inset-0 -z-10 pointer-events-none overflow-hidden bg-gradient-to-b from-[#D8F4EB] via-[#EDF8F3] to-white">
-            <div class="absolute -top-24 left-0 w-full sm:w-2/3 h-[600px] bg-gradient-to-br from-[#BFEFE0]/85 via-[#DCF6ED]/45 to-transparent blur-3xl"></div>
-        </div>
 
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">

@@ -1,5 +1,5 @@
-﻿    <!-- Section 3: Call to Action Banner Media Sosial Sesuai Mockup -->
-    <section class="py-8 bg-white">
+    <!-- Section 3: Call to Action Banner Media Sosial Sesuai Mockup -->
+    <section class="py-8">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="relative bg-brand-800 rounded-[24px] p-6 sm:p-8 lg:p-10 text-white shadow-md overflow-hidden">
                 <!-- Background subtle radial glow -->
