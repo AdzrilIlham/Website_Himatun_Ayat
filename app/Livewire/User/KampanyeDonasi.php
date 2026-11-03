@@ -105,6 +105,7 @@ class KampanyeDonasi extends Component
         } else {
             $this->selectedNominal = $amount;
             $this->customNominal = $amount;
+            $this->resetValidation('selectedNominal');
         }
     }
 
@@ -119,15 +120,30 @@ class KampanyeDonasi extends Component
 
         $intVal = (int) preg_replace('/[^0-9]/', '', (string) $val);
         $this->selectedNominal = $intVal > 0 ? $intVal : null;
+
+        if ($this->selectedNominal >= 10000) {
+            $this->resetValidation('selectedNominal');
+        }
     }
 
     public function updatedIsAnonim($val): void
     {
         if ($val) {
             $this->namaDonatur = 'Hamba Allah';
+            $this->resetValidation('namaDonatur');
         } else {
             $this->namaDonatur = '';
         }
+    }
+
+    public function updatedNamaDonatur(): void
+    {
+        $this->resetValidation('namaDonatur');
+    }
+
+    public function updatedNoTelepon(): void
+    {
+        $this->resetValidation('noTelepon');
     }
 
     public function nextSlide(int $total): void

@@ -15,23 +15,81 @@
                         </h2>
 
                         <form wire:submit.prevent="confirmDonasi" class="space-y-5">
-                            <!-- Program Donasi Select -->
+                            <!-- Program Donasi Custom Select Dropdown (Sesuai Design System & UI Website) -->
                             <div>
                                 <label class="form-label text-xs sm:text-sm font-semibold">
                                     Program Donasi
                                 </label>
-                                <div class="relative">
-                                    <select wire:model.live="selectedKampanyeId"
-                                        class="form-input appearance-none bg-white py-3 pr-10 text-xs sm:text-sm font-medium">
-                                        <option value="">-- Donasi Umum / Semua Program --</option>
+                                @php
+                                    $activeKampanyeTitle = $selectedKampanyeId
+                                        ? ($kampanyeList->firstWhere('id', $selectedKampanyeId)?->judul ?? 'Donasi Umum')
+                                        : 'Donasi Umum';
+                                @endphp
+                                <div class="relative" x-data="{ open: false }" @click.outside="open = false" @keydown.escape.window="open = false">
+                                    <!-- Toggle Button -->
+                                    <button type="button"
+                                        @click="open = !open"
+                                        :aria-expanded="open"
+                                        :class="open ? 'border-brand-700 ring-2 ring-brand-700/20' : 'border-border hover:border-brand-300'"
+                                        class="form-input bg-white py-3 ps-4 pe-10 text-xs sm:text-sm font-medium text-left flex items-center justify-between cursor-pointer transition-all">
+                                        <span class="truncate {{ $selectedKampanyeId ? 'text-foreground font-semibold' : 'text-muted-foreground-1' }}">
+                                            {{ $activeKampanyeTitle }}
+                                        </span>
+                                        <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5">
+                                            <svg class="w-4 h-4 transition-transform duration-200"
+                                                :class="open ? 'rotate-180 text-brand-700' : 'text-muted-foreground'"
+                                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                            </svg>
+                                        </span>
+                                    </button>
+
+                                    <!-- Dropdown Options Menu -->
+                                    <div x-show="open"
+                                        x-cloak
+                                        x-transition:enter="transition ease-out duration-150"
+                                        x-transition:enter-start="opacity-0 scale-95 -translate-y-1"
+                                        x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                                        x-transition:leave="transition ease-in duration-100"
+                                        x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                                        x-transition:leave-end="opacity-0 scale-95 -translate-y-1"
+                                        class="absolute left-0 right-0 mt-2 z-50 w-full max-h-72 p-1.5 space-y-0.5 bg-white border border-slate-200/90 rounded-2xl shadow-xl overflow-hidden overflow-y-auto"
+                                        role="listbox">
+
+                                        <!-- Opsi Default: Donasi Umum / Semua Program -->
+                                        <button type="button"
+                                            wire:click="$set('selectedKampanyeId', null)"
+                                            @click="open = false"
+                                            class="py-2.5 px-3.5 w-full text-left text-xs sm:text-sm rounded-xl cursor-pointer flex items-center justify-between transition-colors {{ is_null($selectedKampanyeId) ? 'bg-brand-50 text-brand-700 font-semibold' : 'text-slate-700 font-medium hover:bg-brand-50/70 hover:text-brand-700' }}"
+                                            role="option"
+                                            aria-selected="{{ is_null($selectedKampanyeId) ? 'true' : 'false' }}">
+                                            <span class="truncate"> Donasi Umum </span>
+                                            @if (is_null($selectedKampanyeId))
+                                                <svg class="shrink-0 size-4 text-brand-700" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                                    <polyline points="20 6 9 17 4 12"/>
+                                                </svg>
+                                            @endif
+                                        </button>
+
+                                        <!-- Daftar Program Kampanye Aktif -->
                                         @foreach ($kampanyeList as $k)
-                                            <option value="{{ $k->id }}">{{ $k->judul }}</option>
+                                            @php
+                                                $isSelected = (int) $selectedKampanyeId === (int) $k->id;
+                                            @endphp
+                                            <button type="button"
+                                                wire:click="$set('selectedKampanyeId', {{ $k->id }})"
+                                                @click="open = false"
+                                                class="py-2.5 px-3.5 w-full text-left text-xs sm:text-sm rounded-xl cursor-pointer flex items-center justify-between transition-colors {{ $isSelected ? 'bg-brand-50 text-brand-700 font-semibold' : 'text-slate-700 font-medium hover:bg-brand-50/70 hover:text-brand-700' }}"
+                                                role="option"
+                                                aria-selected="{{ $isSelected ? 'true' : 'false' }}">
+                                                <span class="truncate">{{ $k->judul }}</span>
+                                                @if ($isSelected)
+                                                    <svg class="shrink-0 size-4 text-brand-700" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                                        <polyline points="20 6 9 17 4 12"/>
+                                                    </svg>
+                                                @endif
+                                            </button>
                                         @endforeach
-                                    </select>
-                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5 text-muted-foreground">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                        </svg>
                                     </div>
                                 </div>
                                 @error('selectedKampanyeId')
