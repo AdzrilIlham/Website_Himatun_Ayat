@@ -1,51 +1,62 @@
 @extends('layouts.user')
 
 @section('content')
-<div class="overflow-x-hidden">
+@php
+    $heroSlides = [
+        ['image' => 'images/User/WisudaKhotmilQuran.png', 'alt' => 'Santri belajar bersama di ruang kelas'],
+        ['image' => 'images/User/Paket SedekahKilat.png', 'alt' => 'Kegiatan makan bersama anak asuh'],
+        ['image' => 'images/User/Lomba Balap Makan Kerupuk.png', 'alt' => 'Anak asuh mengikuti lomba makan kerupuk'],
+        ['image' => 'images/User/Renovasi Ruang Belajar.png', 'alt' => 'Pembangunan ruang belajar asrama'],
+    ];
+@endphp
+<div class="overflow-x-hidden" data-landing-animations>
 
     <!-- ========================================== -->
     <!-- 1. HERO SECTION                            -->
     <!-- ========================================== -->
-    <section class="relative pt-2 sm:pt-4 lg:pt-6 pb-8 sm:pb-12 lg:pb-14">
+    <section class="relative pt-10 sm:pt-12 lg:pt-6 pb-8 sm:pb-12 lg:pb-14" data-animate-hero>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 lg:gap-10 items-center">
                 
                 <!-- Kolom Foto: Di Mobile Tampil Pertama (order-1), di Desktop Tampil di Kanan (lg:order-2) -->
-                <div class="order-1 lg:order-2 lg:col-span-5 relative flex justify-center">
+                <div class="order-1 lg:order-2 lg:col-span-5 relative flex justify-center" data-hero-media>
                     <div class="relative w-full max-w-lg sm:max-w-xl lg:max-w-none">
                         
                         <!-- Warm Yellow Sunshine Ambient Aura behind the photo stack (Sesuai Desain Landing Page.png) -->
                         <div class="absolute -bottom-8 -right-8 w-60 sm:w-80 h-60 sm:h-80 bg-gradient-to-tl from-[#FDE047]/85 via-[#FEF08A]/60 to-transparent rounded-full blur-3xl pointer-events-none -z-10"></div>
                         <div class="absolute -top-10 -right-6 w-52 sm:w-72 h-52 sm:h-72 bg-gradient-to-bl from-[#FACC15]/45 via-[#FEF08A]/40 to-transparent rounded-full blur-2xl pointer-events-none -z-10"></div>
 
-                        <!-- Layer Belakang 2 (Rotated 6 deg) -->
-                        <div class="hidden sm:block absolute inset-0 bg-white rounded-2xl sm:rounded-3xl border-2 border-slate-200/90 shadow-md rotate-6 transform translate-x-2.5 translate-y-2.5 -z-20 overflow-hidden">
-                            <div class="w-full h-full bg-[#1F4634]/10"></div>
-                        </div>
-                        
-                        <!-- Layer Belakang 1 (Rotated 3 deg) -->
-                        <div class="hidden sm:block absolute inset-0 bg-white rounded-2xl sm:rounded-3xl border-2 border-slate-200/90 shadow-lg rotate-3 transform translate-x-1.5 translate-y-1.5 -z-10 overflow-hidden">
-                            <div class="w-full h-full bg-[#1F4634]/5"></div>
-                        </div>
-                        
-                        <!-- Main Frame Depan -->
-                        <div class="relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl border-4 sm:border-[5px] border-white bg-slate-100 aspect-[4/3]">
-                            <img src="{{ asset('images/User/potopalingatas.png') }}" 
-                                 alt="Anak Asuh Belajar Ceria" 
-                                 class="w-full h-full object-cover">
-                            
-                            <!-- Soft subtle sunlit highlight over top-right of image -->
-                            <div class="absolute top-0 right-0 w-36 sm:w-48 h-36 sm:h-48 bg-gradient-to-bl from-[#FEF08A]/25 via-transparent to-transparent pointer-events-none"></div>
+                        <!-- Main Frame Depan + Animated Stacked Image Carousel -->
+                        <div class="relative aspect-[5/3]">
+                            <!-- Swiper.js cards effect menggantikan layer rotate-3/rotate-6 manual -->
+                            <div class="absolute inset-0">
+                                <div class="hero-image-swiper swiper w-full h-full">
+                                    <div class="swiper-wrapper">
+                                        @foreach ($heroSlides as $slide)
+                                            <div class="swiper-slide overflow-hidden rounded-2xl sm:rounded-3xl border-4 sm:border-[5px] border-white bg-white">
+                                                <div class="relative w-full h-full">
+                                                    <img src="{{ asset($slide['image']) }}"
+                                                         alt="{{ $slide['alt'] }}"
+                                                         class="w-full h-full object-cover">
 
-                            <!-- Gradient Fade Overlay di Bagian Bawah Foto (Sesuai Desain Asli Landing Page.png) -->
-                            <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#143D2B]/95 via-[#1E4D3B]/75 to-transparent p-3.5 sm:p-5 pt-10 sm:pt-12 text-white">
-                                <p class="text-[10px] sm:text-[11px] font-bold tracking-wider text-[#FCD34D] uppercase">
-                                    RUANG BELAJAR CERIA • ASRAMA BANDUNG
-                                </p>
-                                <p class="text-xs sm:text-[13px] font-medium text-white/95 mt-1 leading-snug">
-                                    "Menumbuhkan tunas generasi cerdas, mandiri, dan berakhlakul karimah."
-                                </p>
+                                                    <!-- Gradient Fade Overlay + Caption, ikut berputar bersama foto -->
+                                                    <div class="absolute inset-x-0 bottom-0 pointer-events-none bg-gradient-to-t from-[#143D2B]/95 via-[#1E4D3B]/75 to-transparent p-3.5 sm:p-5 pt-10 sm:pt-12 text-white opacity-0 transition-opacity duration-200 [.swiper-slide-active_&]:opacity-100">
+                                                        <p class="text-[10px] sm:text-[11px] font-bold tracking-wider text-[#FCD34D] uppercase">
+                                                            RUANG BELAJAR CERIA • ASRAMA BANDUNG
+                                                        </p>
+                                                        <p class="text-xs sm:text-[13px] font-medium text-white/95 mt-1 leading-snug">
+                                                            "Menumbuhkan tunas generasi cerdas, mandiri, dan berakhlakul karimah."
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
                             </div>
+
+                            <!-- Soft subtle sunlit highlight over top-right of image (opacity diturunkan agar tidak terlalu kuning) -->
+                            <div class="absolute top-0 right-0 w-36 sm:w-48 h-36 sm:h-48 bg-gradient-to-bl from-[#FEF08A]/12 via-transparent to-transparent pointer-events-none z-10"></div>
                         </div>
 
                     </div>
@@ -53,17 +64,17 @@
 
                 <!-- Kolom Teks: Di Mobile Tampil di Bawah Foto (order-2), di Desktop Tampil di Kiri (lg:order-1) -->
                 <div class="order-2 lg:order-1 lg:col-span-7 space-y-4 sm:space-y-5">
-                    <h1 class="text-2xl sm:text-4xl lg:text-[2.6rem] xl:text-[2.9rem] font-extrabold text-slate-800 leading-[1.16] tracking-tight">
+                    <h1 class="text-2xl sm:text-4xl lg:text-[2.6rem] xl:text-[2.9rem] font-extrabold text-slate-800 leading-[1.16] tracking-tight" data-hero-heading>
                         Bersama <span class="text-[#2D6A4F]">Mengukir</span><br>
                         <span class="text-[#2D6A4F]">Senyum</span> dan <span class="text-[#E5A800]">Masa Depan</span><br>
                         Anak Yatim dan Dhuafa
                     </h1>
 
-                    <p class="text-xs sm:text-sm lg:text-[15px] text-slate-600 leading-relaxed max-w-xl font-normal">
+                    <p class="text-xs sm:text-sm lg:text-[15px] text-slate-600 leading-relaxed max-w-xl font-normal" data-hero-description>
                         Membangun masa depan generasi yatim, piatu, dan dhuafa Kota Bandung berlandaskan tata kelola amanah, legitimasi negara yang transparan, serta pembinaan akhlak karimah yang berkesinambungan.
                     </p>
 
-                    <div class="pt-1">
+                    <div class="pt-1" data-hero-cta>
                         <a href="#paket-donasi" class="py-2.5 px-6 sm:py-3 sm:px-7 inline-flex items-center gap-x-2 text-xs sm:text-sm font-semibold rounded-full border border-transparent bg-[#2D6A4F] text-white hover:bg-[#235843] focus:outline-hidden transition shadow-sm shadow-emerald-900/15">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
@@ -82,7 +93,12 @@
     <!-- 2. RECENT DONATIONS TICKER / BADGES        -->
     <!-- ========================================== -->
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-1 sm:-mt-2 relative z-20">
-        <div class="flex items-center gap-2.5 sm:gap-3 overflow-x-auto no-scrollbar py-2 sm:justify-between">
+        <div class="flex items-center gap-2.5 sm:gap-3 overflow-x-auto no-scrollbar py-2 sm:justify-between"
+             data-animate-group="fade-up"
+             data-animate-distance="8"
+             data-animate-duration="0.5"
+             data-animate-stagger="0.07"
+             data-animate-start="top 88%">
             
             <!-- Donor 1 -->
             <div class="shrink-0 bg-white/95 backdrop-blur-sm border border-slate-200/80 rounded-xl py-1.5 px-3 flex items-center gap-2 shadow-2xs hover:shadow-xs transition">
@@ -137,7 +153,11 @@
     <!-- ========================================== -->
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 sm:mt-14">
         <!-- Dark Green Watermarked Container -->
-        <div class="relative rounded-2xl sm:rounded-3xl bg-[#235843] p-5 sm:p-7 lg:p-8 text-white overflow-hidden shadow-lg">
+        <div class="relative rounded-2xl sm:rounded-3xl bg-[#235843] p-5 sm:p-7 lg:p-8 text-white overflow-hidden shadow-lg"
+             data-animate="fade-up"
+             data-animate-start="top 82%"
+             data-animate-distance="26"
+             data-animate-duration="0.7">
             
             <!-- Islamic Crescent SVG Decorative Watermark Background -->
             <div class="absolute inset-0 pointer-events-none opacity-10 select-none">
@@ -155,7 +175,12 @@
             </div>
 
             <!-- 3 Columns Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5 relative z-10">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5 relative z-10"
+                 data-animate-group="fade-scale"
+                 data-animate-start="top 82%"
+                 data-animate-distance="18"
+                 data-animate-duration="0.6"
+                 data-animate-stagger="0.12">
                 
                 <!-- Card 1 -->
                 <div class="bg-[#E4F1EB] rounded-xl sm:rounded-2xl p-4 sm:p-5 text-slate-900 flex flex-col justify-between shadow-xs transition hover:translate-y-[-2px] duration-200">
@@ -243,7 +268,11 @@
     <section id="paket-donasi" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
         
         <!-- Header Section -->
-        <div class="space-y-1">
+        <div class="space-y-1"
+             data-animate-group="fade-up"
+             data-animate-distance="20"
+             data-animate-duration="0.7"
+             data-animate-stagger="0.09">
             <div class="inline-flex items-center gap-1.5 text-2xs sm:text-xs font-bold tracking-wider text-slate-700 uppercase">
                 <svg class="w-3.5 h-3.5 text-[#2D6A4F]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
@@ -259,10 +288,15 @@
         </div>
 
         <!-- 2 Columns Grid: Program Utama & Paket Sedekah Kilat -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-7 mt-6 sm:mt-7 items-stretch">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-7 mt-6 sm:mt-7 items-stretch"
+             data-animate-group="fade-up"
+             data-animate-start="top 82%"
+             data-animate-distance="24"
+             data-animate-duration="0.8"
+             data-animate-stagger="0.14">
             
             <!-- Kolom Kiri: Program Utama Card -->
-            <div class="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/90 p-4 sm:p-6 shadow-xs flex flex-col justify-between h-full">
+            <div class="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/90 p-4 sm:p-6 shadow-xs flex flex-col justify-between h-full" data-animate-item="slide-left" data-animate-distance="32">
                 <div>
                     <!-- Image Card with Tag -->
                     <div class="relative rounded-xl sm:rounded-2xl overflow-hidden aspect-[16/9] bg-slate-100">
@@ -340,7 +374,7 @@
             </div>
 
             <!-- Kolom Kanan: Paket Sedekah Kilat (Fixed Sizing Card) -->
-            <div id="paket-sedekah" class="flex flex-col justify-between h-full" x-data="{
+            <div id="paket-sedekah" class="flex flex-col justify-between h-full" data-animate-item="fade-up" data-animate-distance="20" x-data="{
                 activeSlide: 0,
                 slides: [
                     {
@@ -489,7 +523,12 @@
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center relative z-10">
                 
                 <!-- Sisi Kiri: Narasi Transparansi & Download Button -->
-                <div class="lg:col-span-5 space-y-3 sm:space-y-4">
+                <div class="lg:col-span-5 space-y-3 sm:space-y-4"
+                     data-animate-group="slide-left"
+                     data-animate-start="top 80%"
+                     data-animate-distance="24"
+                     data-animate-duration="0.7"
+                     data-animate-stagger="0.1">
                     <div class="inline-flex items-center gap-1.5 text-2xs sm:text-xs font-bold tracking-wider text-emerald-200 uppercase">
                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
@@ -515,7 +554,12 @@
 
                 <!-- Sisi Kanan: 3 White Stat Cards -->
                 <div class="lg:col-span-7">
-                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3.5">
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3.5"
+                         data-animate-group="fade-scale"
+                         data-animate-start="top 80%"
+                         data-animate-distance="16"
+                         data-animate-duration="0.6"
+                         data-animate-stagger="0.1">
                         
                         <!-- Card 1: Pendidikan & Santunan -->
                         <div class="bg-white rounded-xl sm:rounded-2xl p-3.5 sm:p-4 text-center flex flex-col items-center justify-center shadow-xs">
@@ -581,7 +625,11 @@
     }">
         
         <!-- Header -->
-        <div class="space-y-1">
+        <div class="space-y-1"
+             data-animate-group="fade-up"
+             data-animate-distance="20"
+             data-animate-duration="0.75"
+             data-animate-stagger="0.09">
             <div class="inline-flex items-center gap-1.5 text-2xs sm:text-xs font-bold tracking-wider text-slate-700 uppercase">
                 <svg class="w-3.5 h-3.5 text-[#2D6A4F]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5M6 7.5h3v3H6v-3z" />
@@ -599,7 +647,11 @@
         <!-- Filter Tabs & Link -->
         <div class="mt-5 flex flex-wrap items-center justify-between gap-3">
             <!-- Tabs (Interactive Filter) -->
-            <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+            <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1"
+                 data-animate-group="fade-in"
+                 data-animate-duration="0.45"
+                 data-animate-stagger="0.06"
+                 data-animate-start="top 86%">
                 <button type="button" 
                         @click="selectedCategory = 'all'" 
                         :class="selectedCategory === 'all' ? 'py-1.5 px-3.5 rounded-lg bg-[#2D6A4F] text-white text-xs font-semibold shadow-xs' : 'py-1.5 px-3.5 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-medium transition'">
@@ -623,7 +675,11 @@
             </div>
 
             <!-- View All Link -->
-            <a href="{{ route('berita-kegiatan.index') }}" class="text-xs font-bold text-slate-900 hover:text-[#2D6A4F] inline-flex items-center gap-1 transition">
+            <a href="{{ route('berita-kegiatan.index') }}" class="text-xs font-bold text-slate-900 hover:text-[#2D6A4F] inline-flex items-center gap-1 transition"
+               data-animate="fade-in"
+               data-animate-duration="0.5"
+               data-animate-delay="0.18"
+               data-animate-start="top 86%">
                 <span>Lihat Semua Kabar Berita</span>
                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
@@ -632,7 +688,12 @@
         </div>
 
         <!-- 4 News Cards Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5 mt-5">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5 mt-5"
+             data-animate-group="fade-scale"
+             data-animate-distance="20"
+             data-animate-duration="0.65"
+             data-animate-stagger="0.1"
+             data-animate-start="top 84%">
             
             <!-- News Card 1 -->
             <div x-show="selectedCategory === 'all' || selectedCategory === 'pendidikan'" 
@@ -850,7 +911,11 @@
     <!-- 7. INSTAGRAM LIVE STORY BANNER             -->
     <!-- ========================================== -->
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
-        <div class="relative rounded-xl sm:rounded-2xl bg-[#235843] p-5 sm:p-7 text-white flex flex-col md:flex-row items-start md:items-center justify-between gap-5 sm:gap-6 shadow-md overflow-hidden">
+        <div class="relative rounded-xl sm:rounded-2xl bg-[#235843] p-5 sm:p-7 text-white flex flex-col md:flex-row items-start md:items-center justify-between gap-5 sm:gap-6 shadow-md overflow-hidden"
+             data-animate-group="fade-up"
+             data-animate-distance="20"
+             data-animate-duration="0.7"
+             data-animate-stagger="0.14">
             
             <!-- Sisi Kiri -->
             <div class="space-y-1 sm:space-y-1.5 max-w-2xl relative z-10">
