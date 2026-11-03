@@ -38,13 +38,15 @@ class KampanyeDonasi extends Component
 
     public int $paymentStep = 1;
 
-    public bool $showAllPaymentMethods = false;
-
     public $buktiTransfer;
 
     public bool $showPaymentModal = false;
 
     public bool $showSuccessModal = false;
+
+    public bool $showFailedModal = false;
+
+    public ?int $paymentExpiresAt = null;
 
     public ?Donasi $currentDonasi = null;
 
@@ -52,28 +54,16 @@ class KampanyeDonasi extends Component
 
     public array $bankAccounts = [
         [
-            'bank' => 'BCA',
-            'no_rekening' => '777-089-2341',
-            'atas_nama' => 'Yayasan Himatun Ayat Bandung',
-            'badge' => 'Bank BCA',
-        ],
-        [
-            'bank' => 'Mandiri',
-            'no_rekening' => '130-00-1928374-1',
-            'atas_nama' => 'Yayasan Himatun Ayat Bandung',
-            'badge' => 'Bank Mandiri',
-        ],
-        [
-            'bank' => 'BSI',
-            'no_rekening' => '718-293-8475',
-            'atas_nama' => 'Yayasan Himatun Ayat Bandung',
-            'badge' => 'BSI Syariah',
-        ],
-        [
             'bank' => 'BRI',
             'no_rekening' => '0123-01-098765-53-0',
             'atas_nama' => 'Yayasan Himatun Ayat Bandung',
             'badge' => 'Bank BRI',
+        ],
+        [
+            'bank' => 'BCA',
+            'no_rekening' => '777-089-2341',
+            'atas_nama' => 'Yayasan Himatun Ayat Bandung',
+            'badge' => 'Bank BCA',
         ],
     ];
 
@@ -194,6 +184,8 @@ class KampanyeDonasi extends Component
         $this->currentDonasi = $donasi;
         $this->paymentId = 'DNS-'.str_pad((string) (12345000 + $donasi->id), 8, '0', STR_PAD_LEFT).'-'.str_pad((string) (($donasi->id * 37 + 123) % 900 + 100), 3, '0', STR_PAD_LEFT);
         $this->paymentStep = 1;
+        $this->paymentExpiresAt = now()->addSeconds(60)->timestamp;
+        $this->showFailedModal = false;
         $this->showPaymentModal = true;
     }
 
@@ -226,6 +218,40 @@ class KampanyeDonasi extends Component
     {
         $this->showPaymentModal = false;
         $this->paymentStep = 1;
+        $this->paymentExpiresAt = null;
+    }
+
+    public function expirePayment(): void
+    {
+        if (! $this->showPaymentModal) {
+            return;
+        }
+
+        if ($this->currentDonasi && $this->currentDonasi->status === 'pending') {
+            $this->currentDonasi->update([
+                'status' => 'rejected',
+            ]);
+        }
+
+        $this->showPaymentModal = false;
+        $this->showFailedModal = true;
+        $this->paymentStep = 1;
+        $this->paymentExpiresAt = null;
+        $this->reset(['buktiTransfer']);
+    }
+
+    public function closeFailedModal(): void
+    {
+        $this->showFailedModal = false;
+        $this->currentDonasi = null;
+        $this->buktiTransfer = null;
+        $this->paymentStep = 1;
+        $this->paymentExpiresAt = null;
+    }
+
+    public function updatedBuktiTransfer(): void
+    {
+        $this->resetValidation('buktiTransfer');
     }
 
     public function uploadBuktiTransfer(CloudflareR2Service $r2Service): void
@@ -233,7 +259,7 @@ class KampanyeDonasi extends Component
         $this->validate([
             'buktiTransfer' => 'required|image|max:5120', // Max 5MB
         ], [
-            'buktiTransfer.required' => 'Silakan pilih berkas bukti transfer (foto / screenshot).',
+            'buktiTransfer.required' => 'Wajib mengunggah foto atau screenshot bukti transfer untuk menyelesaikan pembayaran.',
             'buktiTransfer.image' => 'Berkas harus berupa gambar (JPG, PNG, atau WEBP).',
             'buktiTransfer.max' => 'Ukuran gambar maksimal 5MB.',
         ]);
@@ -260,12 +286,6 @@ class KampanyeDonasi extends Component
         }
     }
 
-    public function completeWithoutUpload(): void
-    {
-        $this->showPaymentModal = false;
-        $this->showSuccessModal = true;
-    }
-
     public function closeSuccessModal(): void
     {
         $this->showSuccessModal = false;
@@ -285,79 +305,35 @@ class KampanyeDonasi extends Component
         $this->buktiTransfer = null;
         $this->paymentStep = 1;
         $this->metodePembayaran = 'QRIS';
-        $this->showAllPaymentMethods = false;
     }
 
     public function getVirtualAccountDetailsProperty(): array
     {
-        $id = $this->currentDonasi?->id ?? 1;
         $nominal = $this->currentDonasi?->nominal ?? ($this->selectedNominal ?? 0);
 
         return match ($this->metodePembayaran) {
-            'Virrtual Account BNI', 'Virtual Account BNI' => [
-                'bank' => 'BNI',
-                'va_number' => '8808'.str_pad((string) (12340000 + $id), 8, '0', STR_PAD_LEFT),
+            'Transfer Bank BRI' => [
+                'bank' => 'Bank BRI',
+                'va_number' => '0123-01-098765-53-0',
                 'atas_nama' => 'Yayasan Himatun Ayat Bandung',
-                'type' => 'va',
+                'type' => 'transfer',
                 'cara_bayar' => [
-                    'Buka BNI Mobile Banking > Pembayaran > Virtual Account Billing.',
-                    'Masukkan nomor Virtual Account BNI di atas.',
-                    'Pastikan nominal sesuai (Rp '.number_format($nominal, 0, ',', '.').') lalu masukkan PIN.',
+                    'Buka aplikasi BRImo, m-Banking, atau ATM BRI.',
+                    'Pilih menu Transfer ke nomor rekening BRI di atas.',
+                    'Pastikan nominal sesuai (Rp '.number_format($nominal, 0, ',', '.').') lalu selesaikan transaksi.',
+                    'Unggah foto atau screenshot bukti transfer pada kolom di bawah ini.',
                 ],
             ],
-            'Virrtual Account MANDIRI', 'Virtual Account MANDIRI' => [
-                'bank' => 'Mandiri',
-                'va_number' => '8921'.str_pad((string) (12340000 + $id), 8, '0', STR_PAD_LEFT),
+            'Transfer Bank BCA' => [
+                'bank' => 'Bank BCA',
+                'va_number' => '777-089-2341',
                 'atas_nama' => 'Yayasan Himatun Ayat Bandung',
-                'type' => 'va',
+                'type' => 'transfer',
                 'cara_bayar' => [
-                    'Buka Livin\' by Mandiri > Bayar > Cari penyedia jasa Yayasan Himatun (8921).',
-                    'Masukkan nomor Virtual Account Mandiri di atas.',
-                    'Konfirmasi nominal dan selesaikan pembayaran.',
-                ],
-            ],
-            'Virtual Account BCA' => [
-                'bank' => 'BCA',
-                'va_number' => '1268'.str_pad((string) (12340000 + $id), 8, '0', STR_PAD_LEFT),
-                'atas_nama' => 'Yayasan Himatun Ayat Bandung',
-                'type' => 'va',
-                'cara_bayar' => [
-                    'Buka BCA Mobile > m-Transfer > BCA Virtual Account.',
-                    'Masukkan nomor Virtual Account BCA di atas.',
-                    'Konfirmasi nominal dan masukkan PIN m-BCA.',
-                ],
-            ],
-            'Virtual Account BRI' => [
-                'bank' => 'BRI',
-                'va_number' => '1028'.str_pad((string) (12340000 + $id), 8, '0', STR_PAD_LEFT),
-                'atas_nama' => 'Yayasan Himatun Ayat Bandung',
-                'type' => 'va',
-                'cara_bayar' => [
-                    'Buka BRImo > Tagihan > BRIVA.',
-                    'Masukkan nomor BRIVA di atas.',
-                    'Konfirmasi nominal dan masukkan PIN BRImo.',
-                ],
-            ],
-            'Virtual Account BSI' => [
-                'bank' => 'BSI',
-                'va_number' => '7182'.str_pad((string) (12340000 + $id), 8, '0', STR_PAD_LEFT),
-                'atas_nama' => 'Yayasan Himatun Ayat Bandung',
-                'type' => 'va',
-                'cara_bayar' => [
-                    'Buka BSI Mobile > Bayar > Institusi.',
-                    'Masukkan nomor Virtual Account BSI di atas.',
-                    'Periksa rincian donasi dan selesaikan transaksi.',
-                ],
-            ],
-            'Transfer Bank Manual' => [
-                'bank' => 'Transfer Manual',
-                'va_number' => null,
-                'atas_nama' => 'Yayasan Himatun Ayat Bandung',
-                'type' => 'manual',
-                'cara_bayar' => [
-                    'Pilih salah satu nomor rekening resmi yayasan di bawah.',
-                    'Transfer sesuai nominal donasi yang tertera.',
-                    'Unggah foto bukti transfer atau kirimkan via WhatsApp admin.',
+                    'Buka aplikasi BCA Mobile, myBCA, atau ATM BCA.',
+                    'Pilih menu m-Transfer / Transfer ke nomor rekening BCA di atas.',
+                    'Pastikan nominal sesuai (Rp '.number_format($nominal, 0, ',', '.').') lalu selesaikan transaksi.',
+                    'Unggah foto atau screenshot bukti transfer pada kolom di bawah ini.',
                 ],
             ],
             default => [
@@ -369,7 +345,7 @@ class KampanyeDonasi extends Component
                     'Buka aplikasi m-Banking atau e-Wallet favorit Anda.',
                     'Pilih menu QRIS / Scan.',
                     'Arahkan kamera ke kode QRIS di bawah.',
-                    'Konfirmasi nominal donasi dan selesaikan pembayaran.',
+                    'Konfirmasi nominal donasi, selesaikan pembayaran, lalu unggah bukti transfer di bawah ini.',
                 ],
             ],
         };

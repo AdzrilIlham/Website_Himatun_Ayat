@@ -126,7 +126,7 @@
                                     </div>
                                     <input type="number" wire:model.live.debounce.300ms="customNominal" min="10000" step="5000"
                                         placeholder="Nominal lainnya (contoh: 75000)"
-                                        class="form-input bg-white py-2.5 pl-11 pr-4 text-xs sm:text-sm font-semibold tabular" />
+                                        class="form-input bg-white py-2.5 pl-11 pr-4 text-xs sm:text-sm font-semibold tabular [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-inner-spin-button]:m-0" />
                                 </div>
                                 @error('selectedNominal')
                                     <p class="form-error">{{ $message }}</p>
@@ -140,9 +140,9 @@
                                         Nama Lengkap Donatur <span class="text-danger">*</span>
                                     </label>
                                     <input type="text" wire:model.live.debounce.300ms="namaDonatur"
-                                        {{ $isAnonim ? 'readonly' : '' }}
+                                        @readonly($isAnonim)
                                         placeholder="Masukan Teks"
-                                        class="form-input bg-white py-3 text-xs sm:text-sm {{ $isAnonim ? 'bg-slate-100 text-muted-foreground cursor-not-allowed' : '' }}" />
+                                        class="form-input py-3 text-xs sm:text-sm {{ $isAnonim ? '!bg-slate-100 !text-slate-600 !border-slate-200 cursor-not-allowed select-none' : 'bg-white text-foreground' }}" />
                                     @error('namaDonatur')
                                         <p class="form-error">{{ $message }}</p>
                                     @enderror
@@ -152,8 +152,9 @@
                                         No. Telepon / WA <span class="text-danger">*</span>
                                     </label>
                                     <input type="tel" wire:model.live.debounce.300ms="noTelepon"
+                                        autocomplete="off"
                                         placeholder="Masukan Teks"
-                                        class="form-input bg-white py-3 text-xs sm:text-sm" />
+                                        class="form-input bg-white py-3 text-xs sm:text-sm text-foreground" />
                                     @error('noTelepon')
                                         <p class="form-error">{{ $message }}</p>
                                     @enderror
@@ -198,17 +199,8 @@
                             <!-- Submit Button -->
                             <div class="pt-2 text-center">
                                 <button type="submit"
-                                    wire:loading.attr="disabled"
-                                    wire:loading.class="opacity-70 cursor-wait"
                                     class="btn btn-primary rounded-full px-10 py-3.5 text-sm sm:text-base font-semibold shadow-md hover:shadow-lg w-full sm:w-auto">
-                                    <span wire:loading.remove wire:target="confirmDonasi">Konfirmasi Donasi Anda</span>
-                                    <span wire:loading wire:target="confirmDonasi" class="inline-flex items-center gap-2">
-                                        <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                        </svg>
-                                        Memproses...
-                                    </span>
+                                    Konfirmasi Donasi Anda
                                 </button>
                             </div>
                         </form>

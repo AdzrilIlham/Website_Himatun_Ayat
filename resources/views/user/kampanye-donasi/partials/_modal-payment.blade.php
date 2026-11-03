@@ -1,14 +1,68 @@
-﻿    <!-- Modal Konfirmasi Donasi & Pembayaran Sesuai Mockup & Design System Tokens -->
+    <!-- Modal Konfirmasi Donasi & Pembayaran Sesuai Mockup & Design System Tokens -->
     @if ($showPaymentModal)
-        <div class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-xs transition-opacity animate-in fade-in overflow-y-auto">
-            <div class="bg-layer rounded-[28px] sm:rounded-[32px] max-w-lg w-full p-3.5 sm:p-5 shadow-2xl border border-border space-y-3 sm:space-y-3.5 my-auto max-h-[95vh] overflow-y-auto text-foreground">
+        <div wire:key="payment-modal-{{ $paymentId }}"
+            x-data="{
+                show: false,
+                expiresAt: {{ $paymentExpiresAt ?? (now()->addSeconds(60)->timestamp) }},
+                hh: '00',
+                mm: '01',
+                ss: '00',
+                expired: false,
+                intervalId: null,
+                init() {
+                    requestAnimationFrame(() => {
+                        this.show = true;
+                    });
+                    const pad = (n) => String(Math.max(0, n)).padStart(2, '0');
+                    const update = () => {
+                        const nowSec = Math.floor(Date.now() / 1000);
+                        const remaining = this.expiresAt - nowSec;
+                        if (remaining <= 0) {
+                            this.hh = '00';
+                            this.mm = '00';
+                            this.ss = '00';
+                            if (!this.expired) {
+                                this.expired = true;
+                                if (this.intervalId) clearInterval(this.intervalId);
+                                this.show = false;
+                                setTimeout(() => {
+                                    $wire.expirePayment();
+                                }, 280);
+                            }
+                            return;
+                        }
+                        const h = Math.floor(remaining / 3600);
+                        const m = Math.floor((remaining % 3600) / 60);
+                        const s = remaining % 60;
+                        this.hh = pad(h);
+                        this.mm = pad(m);
+                        this.ss = pad(s);
+                    };
+                    update();
+                    this.intervalId = setInterval(update, 1000);
+                },
+                closeModal() {
+                    if (this.intervalId) clearInterval(this.intervalId);
+                    this.show = false;
+                    setTimeout(() => {
+                        $wire.closePaymentModal();
+                    }, 250);
+                },
+                destroy() {
+                    if (this.intervalId) clearInterval(this.intervalId);
+                }
+            }"
+            :class="show ? 'opacity-100' : 'opacity-0'"
+            class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-xs transition-opacity duration-300 ease-out overflow-y-auto no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+            <div :class="show ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 translate-y-3'"
+                class="bg-layer rounded-[28px] sm:rounded-[32px] max-w-lg w-full p-3.5 sm:p-5 shadow-2xl border border-border space-y-3 sm:space-y-3.5 my-auto max-h-[95vh] overflow-y-auto no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden text-foreground transition-all duration-300 ease-out transform">
 
                 @if ($paymentStep === 1)
                     <!-- STEP 1: POP-UP SESUAI MOCKUP -->
 
                     <!-- Header Card: [X] Yayasan Himatun -->
                     <div class="bg-card rounded-2xl px-4 sm:px-5 py-3.5 sm:py-4 flex items-center gap-4 shadow-2xs border border-border/50">
-                        <button type="button" wire:click="closePaymentModal" class="text-danger hover:text-red-700 transition cursor-pointer p-0.5 flex items-center justify-center" aria-label="Tutup">
+                        <button type="button" @click="closeModal()" class="text-danger hover:text-red-700 transition cursor-pointer p-0.5 flex items-center justify-center" aria-label="Tutup">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
                             </svg>
@@ -39,34 +93,13 @@
                             </div>
                         </div>
 
-                        <!-- Countdown Timer Badges [00] : [50] : [35] -->
-                        <div class="flex items-center gap-1 shrink-0 font-mono text-xs sm:text-sm font-bold text-foreground"
-                            x-data="{
-                                timeLeft: 3035,
-                                hh: '00',
-                                mm: '50',
-                                ss: '35',
-                                init() {
-                                    const pad = (n) => String(n).padStart(2, '0');
-                                    const update = () => {
-                                        if (this.timeLeft <= 0) return;
-                                        const h = Math.floor(this.timeLeft / 3600);
-                                        const m = Math.floor((this.timeLeft % 3600) / 60);
-                                        const s = this.timeLeft % 60;
-                                        this.hh = pad(h);
-                                        this.mm = pad(m);
-                                        this.ss = pad(s);
-                                        this.timeLeft--;
-                                    };
-                                    update();
-                                    setInterval(update, 1000);
-                                }
-                            }">
+                        <!-- Countdown Timer Badges [00] : [01] : [00] -->
+                        <div class="flex items-center gap-1 shrink-0 font-mono text-xs sm:text-sm font-bold text-foreground">
                             <span class="inline-flex items-center justify-center min-w-[28px] sm:min-w-[32px] h-7 sm:h-8 px-1.5 rounded-md bg-brand-700 text-white" x-text="hh">00</span>
                             <span class="text-foreground font-bold">:</span>
-                            <span class="inline-flex items-center justify-center min-w-[28px] sm:min-w-[32px] h-7 sm:h-8 px-1.5 rounded-md bg-brand-700 text-white" x-text="mm">50</span>
+                            <span class="inline-flex items-center justify-center min-w-[28px] sm:min-w-[32px] h-7 sm:h-8 px-1.5 rounded-md bg-brand-700 text-white" x-text="mm">01</span>
                             <span class="text-foreground font-bold">:</span>
-                            <span class="inline-flex items-center justify-center min-w-[28px] sm:min-w-[32px] h-7 sm:h-8 px-1.5 rounded-md bg-brand-700 text-white" x-text="ss">35</span>
+                            <span class="inline-flex items-center justify-center min-w-[28px] sm:min-w-[32px] h-7 sm:h-8 px-1.5 rounded-md bg-brand-700 text-white" x-text="ss">00</span>
                         </div>
                     </div>
 
@@ -79,51 +112,20 @@
                         <div class="space-y-2.5">
                             <!-- QRIS -->
                             <button type="button" wire:click="selectMetodePembayaran('QRIS')"
-                                class="w-full py-3 sm:py-3.5 px-4 rounded-xl text-center text-xs sm:text-sm font-bold transition border {{ $metodePembayaran === 'QRIS' ? 'bg-brand-100 border-brand-700 text-brand-800 ring-2 ring-brand-700/25 shadow-xs' : 'bg-brand-50 hover:bg-brand-100 border-brand-200 text-brand-700' }}">
+                                class="w-full py-3 sm:py-3.5 px-4 rounded-xl text-center text-xs sm:text-sm font-bold transition border cursor-pointer {{ $metodePembayaran === 'QRIS' ? 'bg-brand-100 border-brand-700 text-brand-800 ring-2 ring-brand-700/25 shadow-xs' : 'bg-brand-50 hover:bg-brand-100 border-brand-200 text-brand-700' }}">
                                 QRIS
                             </button>
 
-                            <!-- Virrtual Account BNI -->
-                            <button type="button" wire:click="selectMetodePembayaran('Virrtual Account BNI')"
-                                class="w-full py-3 sm:py-3.5 px-4 rounded-xl text-center text-xs sm:text-sm font-bold transition border {{ $metodePembayaran === 'Virrtual Account BNI' ? 'bg-brand-100 border-brand-700 text-brand-800 ring-2 ring-brand-700/25 shadow-xs' : 'bg-brand-50 hover:bg-brand-100 border-brand-200 text-brand-700' }}">
-                                Virrtual Account BNI
+                            <!-- Transfer Bank BRI -->
+                            <button type="button" wire:click="selectMetodePembayaran('Transfer Bank BRI')"
+                                class="w-full py-3 sm:py-3.5 px-4 rounded-xl text-center text-xs sm:text-sm font-bold transition border cursor-pointer {{ $metodePembayaran === 'Transfer Bank BRI' ? 'bg-brand-100 border-brand-700 text-brand-800 ring-2 ring-brand-700/25 shadow-xs' : 'bg-brand-50 hover:bg-brand-100 border-brand-200 text-brand-700' }}">
+                                Transfer Bank BRI
                             </button>
 
-                            <!-- Virrtual Account MANDIRI -->
-                            <button type="button" wire:click="selectMetodePembayaran('Virrtual Account MANDIRI')"
-                                class="w-full py-3 sm:py-3.5 px-4 rounded-xl text-center text-xs sm:text-sm font-bold transition border {{ $metodePembayaran === 'Virrtual Account MANDIRI' ? 'bg-brand-100 border-brand-700 text-brand-800 ring-2 ring-brand-700/25 shadow-xs' : 'bg-brand-50 hover:bg-brand-100 border-brand-200 text-brand-700' }}">
-                                Virrtual Account MANDIRI
-                            </button>
-
-                            <!-- Extended payment options -->
-                            @if ($showAllPaymentMethods)
-                                <div class="space-y-2.5 pt-1 animate-in fade-in duration-200">
-                                    <button type="button" wire:click="selectMetodePembayaran('Virtual Account BCA')"
-                                        class="w-full py-3 sm:py-3.5 px-4 rounded-xl text-center text-xs sm:text-sm font-bold transition border {{ $metodePembayaran === 'Virtual Account BCA' ? 'bg-brand-100 border-brand-700 text-brand-800 ring-2 ring-brand-700/25 shadow-xs' : 'bg-brand-50 hover:bg-brand-100 border-brand-200 text-brand-700' }}">
-                                        Virtual Account BCA
-                                    </button>
-                                    <button type="button" wire:click="selectMetodePembayaran('Virtual Account BRI')"
-                                        class="w-full py-3 sm:py-3.5 px-4 rounded-xl text-center text-xs sm:text-sm font-bold transition border {{ $metodePembayaran === 'Virtual Account BRI' ? 'bg-brand-100 border-brand-700 text-brand-800 ring-2 ring-brand-700/25 shadow-xs' : 'bg-brand-50 hover:bg-brand-100 border-brand-200 text-brand-700' }}">
-                                        Virtual Account BRI
-                                    </button>
-                                    <button type="button" wire:click="selectMetodePembayaran('Virtual Account BSI')"
-                                        class="w-full py-3 sm:py-3.5 px-4 rounded-xl text-center text-xs sm:text-sm font-bold transition border {{ $metodePembayaran === 'Virtual Account BSI' ? 'bg-brand-100 border-brand-700 text-brand-800 ring-2 ring-brand-700/25 shadow-xs' : 'bg-brand-50 hover:bg-brand-100 border-brand-200 text-brand-700' }}">
-                                        Virtual Account BSI
-                                    </button>
-                                    <button type="button" wire:click="selectMetodePembayaran('Transfer Bank Manual')"
-                                        class="w-full py-3 sm:py-3.5 px-4 rounded-xl text-center text-xs sm:text-sm font-bold transition border {{ $metodePembayaran === 'Transfer Bank Manual' ? 'bg-brand-100 border-brand-700 text-brand-800 ring-2 ring-brand-700/25 shadow-xs' : 'bg-brand-50 hover:bg-brand-100 border-brand-200 text-brand-700' }}">
-                                        Transfer Bank Manual (BCA, Mandiri, BSI, BRI)
-                                    </button>
-                                </div>
-                            @endif
-                        </div>
-
-                        <!-- Toggle link: Lihat semua jenis pembayaran lainnya -> -->
-                        <div class="text-center pt-2">
-                            <button type="button" wire:click="$toggle('showAllPaymentMethods')"
-                                class="inline-flex items-center gap-1 text-xs sm:text-sm font-bold text-brand-700 hover:text-brand-800 hover:underline transition">
-                                <span>{{ $showAllPaymentMethods ? 'Sembunyikan jenis pembayaran lainnya' : 'Lihat semua jenis pembayaran lainnya' }}</span>
-                                <span class="text-base leading-none">&rarr;</span>
+                            <!-- Transfer Bank BCA -->
+                            <button type="button" wire:click="selectMetodePembayaran('Transfer Bank BCA')"
+                                class="w-full py-3 sm:py-3.5 px-4 rounded-xl text-center text-xs sm:text-sm font-bold transition border cursor-pointer {{ $metodePembayaran === 'Transfer Bank BCA' ? 'bg-brand-100 border-brand-700 text-brand-800 ring-2 ring-brand-700/25 shadow-xs' : 'bg-brand-50 hover:bg-brand-100 border-brand-200 text-brand-700' }}">
+                                Transfer Bank BCA
                             </button>
                         </div>
                     </div>
@@ -171,7 +173,7 @@
                         <h3 class="text-sm sm:text-base font-bold text-brand-900 text-center flex-1">
                             Instruksi Pembayaran
                         </h3>
-                        <button type="button" wire:click="closePaymentModal" class="text-danger hover:text-red-700 transition cursor-pointer p-0.5" aria-label="Tutup">
+                        <button type="button" @click="closeModal()" class="text-danger hover:text-red-700 transition cursor-pointer p-0.5" aria-label="Tutup">
                             <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
                             </svg>
@@ -181,14 +183,20 @@
                     <!-- Card ID & Timer Selesaikan Pembayaran -->
                     <div class="bg-card rounded-2xl p-4 sm:p-5 shadow-2xs border border-border/50 flex items-center justify-between gap-3">
                         <div>
-                            <div class="text-xs text-muted-foreground-1 font-medium">ID Pembayaran:</div>
-                            <div class="text-xs sm:text-sm font-bold text-foreground font-mono">{{ $paymentId }}</div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs text-muted-foreground-1 font-medium">ID Pembayaran:</span>
+                                <span class="badge badge-success">{{ $metodePembayaran }}</span>
+                            </div>
+                            <div class="text-xs sm:text-sm font-bold text-foreground font-mono mt-1">{{ $paymentId }}</div>
                         </div>
-                        <div class="text-right">
-                            <div class="text-xs text-muted-foreground-1 font-medium">Metode:</div>
-                            <span class="badge badge-success">
-                                {{ $metodePembayaran }}
-                            </span>
+
+                        <!-- Countdown Timer Badges [00] : [01] : [00] -->
+                        <div class="flex items-center gap-1 shrink-0 font-mono text-xs sm:text-sm font-bold text-foreground">
+                            <span class="inline-flex items-center justify-center min-w-[28px] sm:min-w-[32px] h-7 sm:h-8 px-1.5 rounded-md bg-brand-700 text-white" x-text="hh">00</span>
+                            <span class="text-foreground font-bold">:</span>
+                            <span class="inline-flex items-center justify-center min-w-[28px] sm:min-w-[32px] h-7 sm:h-8 px-1.5 rounded-md bg-brand-700 text-white" x-text="mm">01</span>
+                            <span class="text-foreground font-bold">:</span>
+                            <span class="inline-flex items-center justify-center min-w-[28px] sm:min-w-[32px] h-7 sm:h-8 px-1.5 rounded-md bg-brand-700 text-white" x-text="ss">00</span>
                         </div>
                     </div>
 
@@ -196,28 +204,28 @@
                     <div class="bg-card rounded-2xl p-4 sm:p-5 shadow-2xs border border-border/50 space-y-4">
                         @if ($this->virtualAccountDetails['type'] === 'qris')
                             <!-- Tampilan QRIS -->
-                            <div class="text-center space-y-3">
+                            <div class="text-center space-y-2.5">
                                 <div class="badge badge-success px-3 py-1">
                                     <span>QRIS Standar Nasional Bank Indonesia</span>
                                 </div>
 
-                                <div class="p-3 bg-white border border-border rounded-2xl inline-block shadow-xs">
-                                    <img src="{{ asset('images/qris-code.svg') }}" alt="QRIS Yayasan Himatun Ayat" class="w-52 h-52 mx-auto" />
-                                    <div class="text-2xs font-bold text-slate-700 mt-2">
+                                <div class="p-2.5 bg-white border border-border rounded-2xl inline-block shadow-xs">
+                                    <img src="{{ asset('images/qris-code.svg') }}" alt="QRIS Yayasan Himatun Ayat" class="w-40 h-40 mx-auto" />
+                                    <div class="text-2xs font-bold text-slate-700 mt-1.5">
                                         NMID: ID1024389201948 • Yayasan Himatun Ayat
                                     </div>
                                 </div>
 
-                                <div class="p-3 rounded-xl bg-brand-50 border border-brand-200">
+                                <div class="p-2.5 rounded-xl bg-brand-50 border border-brand-200">
                                     <div class="text-xs text-muted-foreground-1 font-medium">Total Nominal Donasi:</div>
-                                    <div class="text-lg font-extrabold text-brand-900 tabular">
+                                    <div class="text-base sm:text-lg font-extrabold text-brand-900 tabular">
                                         Rp{{ number_format($currentDonasi?->nominal ?? $selectedNominal, 0, ',', '.') }}
                                     </div>
                                 </div>
                             </div>
-                        @elseif ($this->virtualAccountDetails['type'] === 'va')
-                            <!-- Tampilan Virtual Account -->
-                            <div class="space-y-3" x-data="{ copiedVa: false }">
+                        @else
+                            <!-- Tampilan Transfer Bank BRI / BCA -->
+                            <div class="space-y-3" x-data="{ copiedRek: false }">
                                 <div class="flex items-center justify-between border-b border-border pb-2">
                                     <span class="text-xs font-semibold text-muted-foreground-1">Bank Tujuan:</span>
                                     <span class="badge badge-success">
@@ -226,16 +234,16 @@
                                 </div>
 
                                 <div class="p-4 rounded-xl bg-brand-50 border border-brand-200 space-y-1">
-                                    <div class="text-xs text-muted-foreground-1 font-medium">Nomor Virtual Account:</div>
+                                    <div class="text-xs text-muted-foreground-1 font-medium">Nomor Rekening Resmi:</div>
                                     <div class="flex items-center justify-between gap-2">
                                         <div class="text-base sm:text-lg font-mono font-bold text-brand-900 tracking-wider">
                                             {{ $this->virtualAccountDetails['va_number'] }}
                                         </div>
                                         <button type="button"
-                                            @click="navigator.clipboard.writeText('{{ $this->virtualAccountDetails['va_number'] }}'); copiedVa = true; setTimeout(() => copiedVa = false, 2000)"
+                                            @click="navigator.clipboard.writeText('{{ $this->virtualAccountDetails['va_number'] }}'); copiedRek = true; setTimeout(() => copiedRek = false, 2000)"
                                             class="btn btn-secondary btn-sm bg-white">
-                                            <span x-show="!copiedVa">Salin</span>
-                                            <span x-show="copiedVa" class="text-brand-700 font-bold">Tersalin!</span>
+                                            <span x-show="!copiedRek">Salin</span>
+                                            <span x-show="copiedRek" class="text-brand-700 font-bold">Tersalin!</span>
                                         </button>
                                     </div>
                                     <div class="text-2xs text-muted-foreground-1">
@@ -249,30 +257,6 @@
                                         Rp{{ number_format($currentDonasi?->nominal ?? $selectedNominal, 0, ',', '.') }}
                                     </span>
                                 </div>
-                            </div>
-                        @else
-                            <!-- Tampilan Rekening Transfer Manual -->
-                            <div class="space-y-2.5">
-                                <div class="text-xs font-bold text-foreground">Pilih Rekening Resmi Yayasan:</div>
-                                @foreach ($bankAccounts as $acc)
-                                    <div class="p-3 rounded-xl border border-border bg-layer flex items-center justify-between">
-                                        <div class="flex items-center gap-2.5">
-                                            <span class="badge badge-success">
-                                                {{ $acc['bank'] }}
-                                            </span>
-                                            <div>
-                                                <div class="font-mono font-bold text-xs text-foreground">{{ $acc['no_rekening'] }}</div>
-                                                <div class="text-2xs text-muted-foreground-1">a.n. {{ $acc['atas_nama'] }}</div>
-                                            </div>
-                                        </div>
-                                        <button type="button"
-                                            @click="navigator.clipboard.writeText('{{ $acc['no_rekening'] }}'); copiedBank = '{{ $acc['bank'] }}'; setTimeout(() => copiedBank = null, 2000)"
-                                            class="btn btn-secondary btn-sm bg-white">
-                                            <span x-show="copiedBank !== '{{ $acc['bank'] }}'">Salin</span>
-                                            <span x-show="copiedBank === '{{ $acc['bank'] }}'" class="text-brand-700 font-bold">Tersalin!</span>
-                                        </button>
-                                    </div>
-                                @endforeach
                             </div>
                         @endif
 
@@ -290,10 +274,10 @@
                     <!-- Card Form Upload Bukti Transfer & Konfirmasi -->
                     <div class="bg-card rounded-2xl p-4 sm:p-5 shadow-2xs border border-border/50 space-y-3.5">
                         <label class="form-label text-xs font-bold mb-0">
-                            Upload Bukti Transfer (Opsional / Dapat disusulkan):
+                            Upload Bukti Transfer <span class="text-danger">*</span>
                         </label>
 
-                        <div class="relative border-2 border-dashed border-brand-300 hover:border-brand-500 rounded-xl p-3.5 text-center bg-brand-50/50 transition">
+                        <div class="relative border-2 border-dashed {{ $errors->has('buktiTransfer') ? 'border-danger bg-red-50/40' : 'border-brand-300 hover:border-brand-500 bg-brand-50/50' }} rounded-xl p-3.5 text-center transition">
                             <input type="file" wire:model="buktiTransfer" accept="image/*"
                                 class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
                             <div class="space-y-1">
@@ -318,23 +302,11 @@
                         @enderror
 
                         <!-- Tombol Aksi Step 2 -->
-                        <div class="flex flex-col sm:flex-row gap-2 pt-1">
-                            @if ($buktiTransfer)
-                                <button type="button" wire:click="uploadBuktiTransfer"
-                                    class="btn btn-primary rounded-xl w-full py-3 text-xs sm:text-sm font-bold shadow-sm transition">
-                                    Kirim Bukti Pembayaran & Selesai
-                                </button>
-                            @else
-                                <button type="button" wire:click="completeWithoutUpload"
-                                    class="btn btn-primary rounded-xl w-full py-3 text-xs sm:text-sm font-bold shadow-sm transition">
-                                    Saya Sudah Bayar / Selesai
-                                </button>
-                            @endif
-
-                            <a href="{{ $this->whatsappLink }}" target="_blank"
-                                class="btn btn-secondary rounded-xl w-full py-3 text-brand-700 hover:text-brand-800 text-xs sm:text-sm font-bold text-center border-brand-200 transition">
-                                Konfirmasi via WhatsApp ↗
-                            </a>
+                        <div class="pt-1">
+                            <button type="button" wire:click="uploadBuktiTransfer"
+                                class="btn btn-primary rounded-xl w-full py-3 text-xs sm:text-sm font-bold shadow-sm transition cursor-pointer">
+                                Saya Sudah Bayar / Selesai
+                            </button>
                         </div>
                     </div>
 
