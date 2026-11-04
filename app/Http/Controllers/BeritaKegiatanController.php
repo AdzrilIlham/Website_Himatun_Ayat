@@ -77,6 +77,33 @@ class BeritaKegiatanController extends Controller
     }
 
     /**
+     * Simpan pengajuan kegiatan baru dari form publik kalender.
+     */
+    public function storePengajuan(Request $request)
+    {
+        $validated = $request->validate([
+            'nama_pemohon'     => 'required|string|max:255',
+            'nomor_whatsapp'   => 'required|string|max:50',
+            'tanggal'          => 'required|date',
+            'waktu'            => 'required|string|max:100',
+            'jenis_kegiatan'   => 'required|string|max:150',
+            'rencana_kegiatan' => 'required|string',
+        ]);
+
+        if (\Illuminate\Support\Facades\Schema::hasTable('pengajuan_kegiatans')) {
+            \App\Models\PengajuanKegiatan::create([
+                ...$validated,
+                'status' => 'menunggu',
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Pengajuan kegiatan berhasil disimpan.',
+        ]);
+    }
+
+    /**
      * Format satu berita/kegiatan agar siap dikonsumsi view & Alpine.
      *
      * @return array<string, mixed>

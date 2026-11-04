@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\KampanyeController;
 use App\Http\Controllers\Admin\KelolaDonasiController;
 use App\Http\Controllers\Admin\LaporanEksporController;
+use App\Http\Controllers\Admin\PengajuanKegiatanController;
 use App\Http\Controllers\BeritaKegiatanController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\User\LandingPageController;
@@ -13,6 +14,7 @@ use App\Http\Controllers\User\LandingPageController;
 Route::get('/', [LandingPageController::class, 'index'])->name('home');
 Route::get('/berita-kegiatan', [BeritaKegiatanController::class, 'index'])->name('berita-kegiatan.index');
 Route::get('/berita-kegiatan/{beritaKegiatan:slug}', [BeritaKegiatanController::class, 'show'])->name('berita-kegiatan.show');
+Route::post('/pengajuan-kegiatan/ajukan', [BeritaKegiatanController::class, 'storePengajuan'])->name('pengajuan-kegiatan.store');
 
 // Halaman preview design system (hanya lokal).
 if (app()->environment('local')) {
@@ -47,6 +49,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
     // CMS Berita
     Route::get('/cms-berita', [BeritaController::class, 'index'])->name('berita.index');
     Route::get('/cms-berita/create', [BeritaController::class, 'create'])->name('berita.create');
+
+    // Pengajuan Kegiatan
+    Route::get('/pengajuan-kegiatan', [PengajuanKegiatanController::class, 'index'])->name('pengajuan-kegiatan.index');
+    Route::post('/pengajuan-kegiatan/{pengajuan}/setujui', [PengajuanKegiatanController::class, 'setujui'])->name('pengajuan-kegiatan.setujui');
+    Route::post('/pengajuan-kegiatan/{pengajuan}/tolak', [PengajuanKegiatanController::class, 'tolak'])->name('pengajuan-kegiatan.tolak');
+    Route::put('/pengajuan-kegiatan/{pengajuan}', [PengajuanKegiatanController::class, 'update'])->name('pengajuan-kegiatan.update');
+    Route::delete('/pengajuan-kegiatan/{pengajuan}', [PengajuanKegiatanController::class, 'destroy'])->name('pengajuan-kegiatan.destroy');
 
     // Laporan & Ekspor (Redirect ke export dashboard agar tidak 404)
     Route::get('/laporan-ekspor', [DashboardController::class, 'index'])->name('laporan-ekspor');

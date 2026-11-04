@@ -115,6 +115,63 @@
         </div>
     </div>
 
+    @if(isset($pengajuanMenunggu) && $pengajuanMenunggu->isNotEmpty())
+        <!-- Widget Notifikasi Pengajuan Kunjungan / Agenda Baru -->
+        <div class="rounded-2xl border border-warning/40 bg-warning-soft/40 p-4 sm:p-5">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-warning/20">
+                <div class="flex items-center gap-2.5">
+                    <span class="flex size-8 shrink-0 items-center justify-center rounded-xl bg-warning text-white font-bold text-xs">
+                        {{ $pengajuanMenunggu->count() }}
+                    </span>
+                    <div>
+                        <h2 class="text-sm sm:text-base font-bold text-foreground leading-tight">Pengajuan Jadwal & Kunjungan Menunggu ACC</h2>
+                        <p class="text-xs text-muted-foreground-1">Ada calon donatur/komunitas yang mengajukan agenda kunjungan baru ke yayasan.</p>
+                    </div>
+                </div>
+                <a href="{{ route('admin.pengajuan-kegiatan.index', ['status' => 'menunggu']) }}"
+                   class="btn btn-secondary btn-sm rounded-full text-xs font-semibold self-start sm:self-auto">
+                    <span>Lihat Semua Pengajuan &rarr;</span>
+                </a>
+            </div>
+
+            <div class="mt-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                @foreach($pengajuanMenunggu->take(3) as $item)
+                    <div class="bg-card rounded-xl p-3 border border-border shadow-2xs flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between text-2xs text-muted-foreground-1 mb-1">
+                                <span class="font-semibold text-warning">{{ $item->jenis_kegiatan }}</span>
+                                <span class="tabular font-medium text-brand-900" title="{{ $item->created_at->format('d M Y, H:i') }} WIB">
+                                    Diajukan: {{ $item->created_at->diffForHumans() }}
+                                </span>
+                            </div>
+                            <p class="font-bold text-xs text-foreground truncate">{{ $item->nama_pemohon }}</p>
+                            <p class="text-[11px] text-muted-foreground-1 mt-0.5 line-clamp-1">Jadwal: {{ $item->tanggal->format('d M Y') }} ({{ $item->waktu }})</p>
+                        </div>
+                        <div class="mt-3 pt-2 border-t border-border flex items-center justify-between">
+                            <span class="text-2xs text-muted-foreground-1">{{ $item->waktu }}</span>
+                            @php
+                                $tglSudahAda = in_array($item->tanggal->toDateString(), $tanggalTerjadwal ?? []);
+                            @endphp
+                            @if($tglSudahAda)
+                                <span class="text-2xs font-semibold text-danger" title="Tanggal ini sudah terisi agenda lain">
+                                    Slot Penuh
+                                </span>
+                            @else
+                                <form method="POST" action="{{ route('admin.pengajuan-kegiatan.setujui', $item->id) }}"
+                                      onsubmit="return confirm('ACC pengajuan ini dan terbitkan di kalender?')">
+                                    @csrf
+                                    <button type="submit" class="text-2xs font-bold text-brand-700 hover:text-brand-800">
+                                        Setujui (ACC) &rarr;
+                                    </button>
+                                </form>
+                            @endif
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @endif
+
     <!-- Filter & Search Bar Section -->
     <div class="bg-transparent flex flex-col lg:flex-row lg:items-center justify-between gap-3">
         <!-- Search Input -->

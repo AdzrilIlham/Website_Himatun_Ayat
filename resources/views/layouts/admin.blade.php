@@ -101,6 +101,27 @@
                         <span>CMS Berita</span>
                     </a>
 
+                    <!-- Pengajuan Kegiatan -->
+                    <a href="{{ route('admin.pengajuan-kegiatan.index') }}" 
+                       class="flex items-center justify-between px-3.5 py-2.5 rounded-xl transition font-semibold {{ request()->is('admin/pengajuan-kegiatan*') ? 'bg-brand-700 text-white shadow-xs' : 'text-muted-foreground-2 hover:bg-muted hover:text-foreground' }}">
+                        <div class="flex items-center gap-3">
+                            <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 9v7.5" />
+                            </svg>
+                            <span>Pengajuan Kegiatan</span>
+                        </div>
+                        @php
+                            $pendingKegiatanCount = \Illuminate\Support\Facades\Schema::hasTable('pengajuan_kegiatans') 
+                                ? \App\Models\PengajuanKegiatan::where('status', 'menunggu')->count() 
+                                : 0;
+                        @endphp
+                        @if($pendingKegiatanCount > 0)
+                            <span class="inline-flex items-center justify-center px-2 py-0.5 text-2xs font-bold rounded-full {{ request()->is('admin/pengajuan-kegiatan*') ? 'bg-white text-brand-900' : 'bg-brand-100 text-brand-800' }}">
+                                {{ $pendingKegiatanCount }}
+                            </span>
+                        @endif
+                    </a>
+
                     <!-- Laporan & Ekspor -->
                     <a href="{{ route('admin.laporan-ekspor.index') }}" 
                        class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition font-semibold {{ request()->is('admin/laporan-ekspor*') ? 'bg-brand-700 text-white shadow-xs' : 'text-muted-foreground-2 hover:bg-muted hover:text-foreground' }}">

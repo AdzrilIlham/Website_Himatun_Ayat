@@ -29,10 +29,29 @@ class DashboardController extends Controller
         $counts = $this->laporanService->getCountByMetode($tanggal);
         $donasiPending = $this->laporanService->getPendingDonasi($search, $metode, $tanggal, 5);
 
+        $pengajuanMenunggu = collect();
+        $tanggalTerjadwal = [];
+        if (\Illuminate\Support\Facades\Schema::hasTable('pengajuan_kegiatans')) {
+            $pengajuanMenunggu = \App\Models\PengajuanKegiatan::query()
+                ->where('status', 'menunggu')
+                ->orderBy('tanggal')
+                ->take(5)
+                ->get();
+
+            $tanggalTerjadwal = \App\Models\BeritaKegiatan::query()
+                ->where('terjadwal_di_kalender', true)
+                ->pluck('tanggal')
+                ->map(fn($t) => is_string($t) ? $t : $t->toDateString())
+                ->unique()
+                ->toArray();
+        }
+
         return view('admin.dashboard', compact(
             'summary',
             'counts',
             'donasiPending',
+            'pengajuanMenunggu',
+            'tanggalTerjadwal',
             'search',
             'metode',
             'tanggal'
