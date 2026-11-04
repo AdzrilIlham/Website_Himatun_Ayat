@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\AgendaKegiatan;
 use App\Models\BeritaKegiatan;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 
 class BeritaKegiatanController extends Controller
 {
@@ -13,7 +14,17 @@ class BeritaKegiatanController extends Controller
      */
     public function index()
     {
-        $daftarBerita = BeritaKegiatan::query()->terbaru()->get();
+        $hasKalenderColumn = Schema::hasColumn('berita_kegiatans', 'terjadwal_di_kalender');
+
+        $beritaQuery = BeritaKegiatan::query()->terbaru();
+        if ($hasKalenderColumn) {
+            $beritaQuery->where('terjadwal_di_kalender', false);
+        }
+
+        $daftarBerita = $beritaQuery->get();
+        if ($daftarBerita->isEmpty()) {
+            $daftarBerita = BeritaKegiatan::query()->terbaru()->get();
+        }
 
         $featuredModel = $daftarBerita->firstWhere('unggulan', true) ?? $daftarBerita->first();
 
@@ -24,12 +35,45 @@ class BeritaKegiatanController extends Controller
             ->values()
             ->map(fn (BeritaKegiatan $berita) => $this->formatBerita($berita));
 
-        $events = AgendaKegiatan::query()
-            ->mendatang()
-            ->get()
-            ->map(fn (AgendaKegiatan $agenda) => $this->formatAgenda($agenda));
+        $startOfCurrentMonth = now()->startOfMonth()->toDateString();
 
-        return view('user.berita-kegiatan.index', compact('featured', 'articles', 'events'));
+        if ($hasKalenderColumn) {
+            // Hapus data jadwal kalender dari bulan-bulan sebelumnya
+            $deletedOldEvents = BeritaKegiatan::query()
+                ->where('terjadwal_di_kalender', true)
+                ->whereDate('tanggal', '<', $startOfCurrentMonth)
+                ->delete();
+
+            // Jika sebelumnya masih memakai data seeder bulan lama, sinkronkan ke bulan berjalan
+            if ($deletedOldEvents > 0 && ! BeritaKegiatan::query()->where('terjadwal_di_kalender', true)->whereDate('tanggal', '>=', $startOfCurrentMonth)->exists()) {
+                (new \Database\Seeders\BeritaKegiatanSeeder())->run();
+            }
+        }
+
+        $kalenderQuery = BeritaKegiatan::query()
+            ->where('tipe', 'kegiatan')
+            ->whereDate('tanggal', '>=', $startOfCurrentMonth);
+
+        if ($hasKalenderColumn) {
+            $kalenderQuery->where('terjadwal_di_kalender', true);
+        }
+
+        $kalenderModels = $kalenderQuery
+            ->orderBy('tanggal')
+            ->orderBy('id')
+            ->get();
+
+        $calendarEvents = $kalenderModels
+            ->map(fn (BeritaKegiatan $kegiatan) => $this->formatKalenderKegiatan($kegiatan))
+            ->values();
+
+        if ($calendarEvents->isEmpty()) {
+            $calendarEvents = collect($this->defaultKalenderKegiatan());
+        }
+
+        $events = $calendarEvents;
+
+        return view('user.berita-kegiatan.index', compact('featured', 'articles', 'events', 'calendarEvents'));
     }
 
     /**
@@ -108,20 +152,107 @@ class BeritaKegiatanController extends Controller
     }
 
     /**
-     * Format satu agenda kegiatan untuk kartu "Kegiatan Mendatang".
+     * Format satu kegiatan dari tabel berita_kegiatans untuk Kalender Kegiatan.
      *
      * @return array<string, mixed>
      */
-    private function formatAgenda(AgendaKegiatan $agenda): array
+    private function formatKalenderKegiatan(BeritaKegiatan $kegiatan): array
     {
+        $waktu = $kegiatan->waktu_teks;
+
+        if (blank($waktu) && ($kegiatan->waktu_mulai || $kegiatan->waktu_selesai)) {
+            $mulai = $kegiatan->waktu_mulai
+                ? substr(str_replace(':', '.', (string) $kegiatan->waktu_mulai), 0, 5)
+                : '';
+            $selesai = $kegiatan->waktu_selesai
+                ? substr(str_replace(':', '.', (string) $kegiatan->waktu_selesai), 0, 5)
+                : '';
+            $waktu = trim($mulai . ($mulai && $selesai ? '–' : '') . $selesai) . ' WIB';
+        }
+
+        $deskripsi = filled($kegiatan->ringkasan)
+            ? $kegiatan->ringkasan
+            : trim(strip_tags((string) $kegiatan->konten));
+
+        $badgeTitle = Str::contains($kegiatan->judul, ' & ')
+            ? trim(Str::before($kegiatan->judul, ' & '))
+            : Str::limit($kegiatan->judul, 18, '');
+
         return [
-            'day' => $agenda->tanggal->format('d'),
-            'month' => strtoupper($agenda->tanggal->locale('id')->translatedFormat('M Y')),
-            'badge' => $agenda->label,
-            'title' => $agenda->judul,
-            'time' => trim($agenda->tanggal->locale('id')->translatedFormat('l') . ', ' . $agenda->waktu, ', '),
-            'location' => $agenda->lokasi,
-            'description' => $agenda->deskripsi,
+            'id' => $kegiatan->id,
+            'date_iso' => $kegiatan->tanggal->toDateString(),
+            'day' => (int) $kegiatan->tanggal->format('j'),
+            'month' => (int) $kegiatan->tanggal->format('n') - 1,
+            'year' => (int) $kegiatan->tanggal->format('Y'),
+            'date_formatted' => $kegiatan->tanggal->locale('id')->translatedFormat('l, j F Y'),
+            'title' => $kegiatan->judul,
+            'badge_title' => $badgeTitle,
+            'organizer' => $kegiatan->penyelenggara ?: 'Pengurus Yayasan Himmatun Ayat Bandung',
+            'time' => $waktu ?: '09.00–12.00 WIB',
+            'location' => $kegiatan->lokasi ?: 'Asrama Cibiru, Bandung',
+            'description' => $deskripsi,
+            'category' => $kegiatan->kategori,
+        ];
+    }
+
+    /**
+     * Fallback data kalender pada bulan berjalan jika migrasi/seeder terbaru belum dijalankan.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function defaultKalenderKegiatan(): array
+    {
+        $currentMonth = now()->startOfMonth();
+        $date12 = $currentMonth->copy()->day(12);
+        $date19 = $currentMonth->copy()->day(19);
+        $date25 = $currentMonth->copy()->day(25);
+
+        return [
+            [
+                'id' => 101,
+                'date_iso' => $date12->toDateString(),
+                'day' => 12,
+                'month' => (int) $date12->format('n') - 1,
+                'year' => (int) $date12->format('Y'),
+                'date_formatted' => $date12->locale('id')->translatedFormat('l, j F Y'),
+                'title' => 'Khotmil Quran & Doa Bersama Santri',
+                'badge_title' => 'Khotmil Quran',
+                'organizer' => 'Pengurus Asrama & Pembimbing Tahfidz',
+                'time' => '08.00–11.00 WIB',
+                'location' => 'Asrama Cibiru, Bandung',
+                'description' => "Majelis khataman Al-Qur'an bulanan bersama seluruh santri asuh, pembimbing tahfidz, serta pembacaan doa keberkahan bagi para donatur dan muhsinin.",
+                'category' => 'Tahfidz Quran',
+            ],
+            [
+                'id' => 102,
+                'date_iso' => $date19->toDateString(),
+                'day' => 19,
+                'month' => (int) $date19->format('n') - 1,
+                'year' => (int) $date19->format('Y'),
+                'date_formatted' => $date19->locale('id')->translatedFormat('l, j F Y'),
+                'title' => 'Doa Bersama & Santunan Bulanan Santri',
+                'badge_title' => 'Doa Bersama',
+                'organizer' => 'HIMA RPL UPI Cibiru',
+                'time' => '13.30–15.00 WIB',
+                'location' => 'Asrama Cibiru, Bandung',
+                'description' => 'Silaturahmi berkah bersama seluruh anak asuh, pembacaan tahlil & istighotsah bersama, tausiyah santapan rohani, serta penyaluran santunan amanah donatur.',
+                'category' => 'Sosial',
+            ],
+            [
+                'id' => 103,
+                'date_iso' => $date25->toDateString(),
+                'day' => 25,
+                'month' => (int) $date25->format('n') - 1,
+                'year' => (int) $date25->format('Y'),
+                'date_formatted' => $date25->locale('id')->translatedFormat('l, j F Y'),
+                'title' => 'Kelas Relawan & Inspirasi Profesi',
+                'badge_title' => 'Kelas Relawan',
+                'organizer' => 'Komunitas Relawan Muda Bandung',
+                'time' => '09.00–12.00 WIB',
+                'location' => 'Ruang Belajar Cibiru, Bandung',
+                'description' => 'Berbagi cerita profesi, pendampingan belajar interaktif, dan sesi motivasi kreatif bersama kakak-kakak relawan untuk menumbuhkan cita-cita anak asuh.',
+                'category' => 'Pendidikan',
+            ],
         ];
     }
 

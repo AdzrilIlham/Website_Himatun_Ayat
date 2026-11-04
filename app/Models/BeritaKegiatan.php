@@ -23,8 +23,13 @@ class BeritaKegiatan extends Model
         'keterangan_gambar',
         'tags',
         'lokasi',
+        'penyelenggara',
         'tanggal',
+        'waktu_teks',
+        'waktu_mulai',
+        'waktu_selesai',
         'unggulan',
+        'terjadwal_di_kalender',
     ];
 
     /**
@@ -35,8 +40,21 @@ class BeritaKegiatan extends Model
         return [
             'tanggal' => 'date',
             'unggulan' => 'boolean',
+            'terjadwal_di_kalender' => 'boolean',
             'tags' => 'array',
         ];
+    }
+
+    /**
+     * Filter kegiatan aktif yang terjadwal di kalender.
+     */
+    public function scopeTerjadwalDiKalender(Builder $query): Builder
+    {
+        return $query
+            ->where('tipe', 'kegiatan')
+            ->where('terjadwal_di_kalender', true)
+            ->orderBy('tanggal')
+            ->orderBy('id');
     }
 
     /**

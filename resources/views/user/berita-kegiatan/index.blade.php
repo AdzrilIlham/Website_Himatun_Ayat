@@ -299,76 +299,807 @@
         </div>
     </section>
 
-    <!-- AGENDA KEGIATAN MENDATANG -->
-    <section class="mt-10 border-y border-brand-100 bg-brand-50 py-10 sm:mt-12 sm:py-14">
+    <!-- KALENDER KEGIATAN & PENGAJUAN JADWAL INTERAKTIF (KEGIATAN MENDATANG V.2) -->
+    <section id="kalender-kegiatan"
+             class="mt-10 border-y border-brand-100 bg-brand-50/70 py-10 sm:mt-12 sm:py-14"
+             x-data="kalenderKegiatanSection({{ Js::from($calendarEvents ?? $events) }})"
+             @keydown.escape.window="closeModal()">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            {{-- Header Section --}}
             <div class="max-w-3xl">
                 <div class="inline-flex items-center gap-1.5 text-2xs font-bold uppercase tracking-wider text-brand-800">
-                    <svg class="size-3.5 text-brand-700" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 9v7.5" />
+                    <svg class="size-3.5 text-brand-700" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
                     </svg>
-                    <span>Agenda Kebaikan</span>
+                    <span>AGENDA KEBAIKAN</span>
                 </div>
 
-                <h2 class="mt-1.5 text-xl sm:text-2xl font-extrabold tracking-tight text-brand-900">
-                    Kegiatan Mendatang
+                <h2 class="mt-1.5 text-xl sm:text-2xl lg:text-3xl font-extrabold tracking-tight text-brand-900">
+                    Kalender Kegiatan &amp; Pengajuan Jadwal
                 </h2>
                 <p class="mt-1.5 text-xs sm:text-sm leading-relaxed text-muted-foreground-1">
                     Mari hadir, berbagi, dan menjadi bagian dari kebahagiaan adik-adik asuh.
                 </p>
             </div>
 
-            <div class="mt-6 grid gap-4 sm:gap-5 md:grid-cols-2 lg:grid-cols-3">
-                @foreach ($events as $event)
-                    <article class="flex flex-col rounded-xl sm:rounded-2xl border border-border bg-card p-4 sm:p-5 shadow-2xs transition duration-200 hover:-translate-y-0.5 hover:shadow-md">
-                        <div class="flex items-start justify-between gap-3">
-                            <div class="rounded-xl bg-brand-100 px-2.5 py-1.5 text-center">
-                                <div class="text-xl sm:text-2xl font-extrabold leading-none text-brand-900">{{ $event['day'] }}</div>
-                                <div class="mt-1 text-[10px] font-bold uppercase tracking-wider text-brand-800">{{ $event['month'] }}</div>
-                            </div>
+            {{-- Layout Grid: Sisi Kiri (Kalender Utama) & Sisi Kanan (Panel Informasi & Panduan) --}}
+            <div class="mt-6 sm:mt-8 grid grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-7 items-start">
 
-                            @if ($event['badge'])
-                                <span class="rounded-full bg-brand-100 px-2.5 py-0.5 text-2xs font-semibold text-brand-800">
-                                    {{ $event['badge'] }}
-                                </span>
-                            @endif
-                        </div>
-
-                        <h3 class="mt-3.5 text-sm sm:text-base font-bold leading-snug text-brand-900">
-                            {{ $event['title'] }}
-                        </h3>
-
-                        <div class="mt-3 space-y-1.5 text-xs text-muted-foreground-1">
-                            <div class="flex items-center gap-2">
-                                <svg class="size-3.5 shrink-0 text-brand-600" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                {{-- SISI KIRI: Area Kalender Utama --}}
+                <div class="lg:col-span-8 rounded-2xl sm:rounded-3xl border border-border bg-card p-4 sm:p-6 lg:p-7 shadow-2xs">
+                    {{-- Kontrol Kalender --}}
+                    <div class="flex flex-wrap items-center justify-between gap-4 pb-5 border-b border-border-line-1">
+                        <div class="flex items-center gap-3 sm:gap-3.5">
+                            <div class="flex size-10 sm:size-11 shrink-0 items-center justify-center rounded-full bg-brand-700 text-white shadow-xs">
+                                <svg class="size-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 9v7.5m-9-3.75h.008v.008H12v-.008ZM12 15h.008v.008H12V15Zm0 2.25h.008v.008H12v-.008ZM9.75 15h.008v.008H9.75V15Zm0 2.25h.008v.008H9.75v-.008ZM7.5 15h.008v.008H7.5V15Zm0 2.25h.008v.008H7.5v-.008Zm6.75-4.5h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V15Zm0 2.25h.008v.008h-.008v-.008Zm2.25-4.5h.008v.008H16.5v-.008Zm0 2.25h.008v.008H16.5V15Z" />
                                 </svg>
-                                <span>{{ $event['time'] }}</span>
                             </div>
-                            <div class="flex items-center gap-2">
-                                <svg class="size-3.5 shrink-0 text-brand-600" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
-                                </svg>
-                                <span>{{ $event['location'] }}</span>
+                            <div>
+                                <h3 class="text-lg sm:text-xl font-extrabold tracking-tight text-brand-950" x-text="monthYearLabel"></h3>
+                                <p class="mt-0.5 flex flex-wrap items-center gap-1.5 text-2xs sm:text-xs text-muted-foreground-1">
+                                    <span class="tabular" x-text="scheduledCount + ' Agenda Terjadwal'"></span>
+                                    <span class="text-brand-600">•</span>
+                                    <span class="font-bold text-brand-700 tabular" x-text="availableCount + ' Slot Tersedia'"></span>
+                                </p>
                             </div>
                         </div>
 
-                        <p class="mt-3 text-xs leading-relaxed text-muted-foreground-1">
-                            {{ $event['description'] }}
+                        <div class="flex items-center gap-1.5 sm:gap-2">
+                            <button type="button"
+                                    @click="prevMonth()"
+                                    aria-label="Bulan Sebelumnya"
+                                    class="inline-flex size-8 sm:size-9 items-center justify-center rounded-full border border-border bg-card text-foreground transition hover:border-brand-300 hover:bg-brand-50 hover:text-brand-800 cursor-pointer">
+                                <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+                                </svg>
+                            </button>
+
+                            <button type="button"
+                                    @click="goToDefaultMonth()"
+                                    class="rounded-full border border-brand-200 bg-brand-50 px-3.5 sm:px-4 py-1.5 text-xs font-bold text-brand-800 transition hover:bg-brand-100 cursor-pointer">
+                                Bulan Ini
+                            </button>
+
+                            <button type="button"
+                                    @click="nextMonth()"
+                                    aria-label="Bulan Selanjutnya"
+                                    class="inline-flex size-8 sm:size-9 items-center justify-center rounded-full border border-border bg-card text-foreground transition hover:border-brand-300 hover:bg-brand-50 hover:text-brand-800 cursor-pointer">
+                                <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    {{-- Header Hari (Senin - Ahad) --}}
+                    <div class="mt-4 grid grid-cols-7 gap-1.5 sm:gap-2.5 text-center">
+                        <template x-for="(dayName, idx) in dayHeaders" :key="dayName">
+                            <div class="py-1.5 text-[10px] sm:text-2xs font-bold uppercase tracking-wider"
+                                 :class="idx === 6 ? 'text-danger' : 'text-muted-foreground-1'"
+                                 x-text="dayName"></div>
+                        </template>
+                    </div>
+
+                    {{-- Grid Tanggal (Senin - Ahad) --}}
+                    <div x-cloak class="mt-1 grid grid-cols-7 gap-1.5 sm:gap-2.5">
+                        <template x-for="cell in calendarCells" :key="cell.key">
+                            <div>
+                                {{-- Tanggal di luar bulan aktif (Redup / Disabled) --}}
+                                <template x-if="!cell.isCurrentMonth">
+                                    <div class="flex min-h-18 sm:min-h-22 flex-col justify-between rounded-xl sm:rounded-2xl bg-slate-50/70 p-2 sm:p-2.5 text-center select-none opacity-60">
+                                        <span class="text-2xs sm:text-xs font-semibold text-muted-foreground" x-text="cell.outsideLabel"></span>
+                                    </div>
+                                </template>
+
+                                {{-- Tanggal dengan status ADA KEGIATAN TERJADWAL --}}
+                                <template x-if="cell.isCurrentMonth && cell.event">
+                                    <button type="button"
+                                            @click="handleDateClick(cell)"
+                                            class="group relative flex min-h-18 sm:min-h-22 w-full flex-col justify-between rounded-xl sm:rounded-2xl p-2 sm:p-2.5 text-left transition duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-700"
+                                            :class="highlightedDateIso === cell.dateIso
+                                                ? 'bg-brand-700 text-white shadow-md ring-2 ring-brand-700 ring-offset-2'
+                                                : 'border-2 border-brand-400 bg-brand-50 text-brand-950 hover:bg-brand-100/80 hover:shadow-xs'">
+                                        <div class="flex w-full items-start justify-between">
+                                            <span class="text-xs sm:text-sm font-extrabold tabular leading-none"
+                                                  :class="highlightedDateIso === cell.dateIso ? 'text-white' : 'text-brand-950'"
+                                                  x-text="cell.day"></span>
+                                            <span class="size-2 sm:size-2.5 rounded-full shrink-0"
+                                                  :class="highlightedDateIso === cell.dateIso ? 'bg-amber-300' : 'bg-brand-700'"></span>
+                                        </div>
+
+                                        <div class="mt-2 w-full">
+                                            <span class="flex w-full items-center justify-center gap-1 truncate rounded-full px-1.5 py-0.5 text-[9px] sm:text-[10px] font-bold leading-tight shadow-2xs transition"
+                                                  :class="highlightedDateIso === cell.dateIso
+                                                      ? 'bg-white text-brand-900'
+                                                      : 'bg-brand-700 text-white group-hover:bg-brand-800'">
+                                                <svg class="hidden sm:inline size-2.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>
+                                                </svg>
+                                                <span class="truncate" x-text="cell.event.badge_title"></span>
+                                            </span>
+                                        </div>
+                                    </button>
+                                </template>
+
+                                {{-- Tanggal dengan status SLOT TERSEDIA / JADWAL TERBUKA --}}
+                                <template x-if="cell.isCurrentMonth && !cell.event">
+                                    <button type="button"
+                                            @click="handleDateClick(cell)"
+                                            class="group flex min-h-18 sm:min-h-22 w-full flex-col justify-between rounded-xl sm:rounded-2xl border border-slate-200/80 bg-white p-2 sm:p-2.5 text-left transition duration-150 hover:border-brand-300 hover:bg-brand-50/40 hover:shadow-2xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-700/40">
+                                        <div class="flex w-full items-start justify-between">
+                                            <span class="text-xs sm:text-sm font-bold tabular leading-none"
+                                                  :class="cell.isSunday ? 'text-danger' : 'text-brand-950'"
+                                                  x-text="cell.day"></span>
+                                            <span class="size-1.5 sm:size-2 rounded-full bg-slate-200 transition group-hover:bg-brand-400"></span>
+                                        </div>
+
+                                        <div class="mt-2 w-full">
+                                            <span class="block w-full truncate rounded-md border border-slate-100 bg-slate-50 px-1 py-0.5 text-center text-[9px] sm:text-[10px] font-medium text-muted-foreground transition group-hover:border-brand-200 group-hover:bg-brand-100/70 group-hover:text-brand-800">
+                                                Slot Tersedia
+                                            </span>
+                                        </div>
+                                    </button>
+                                </template>
+                            </div>
+                        </template>
+                    </div>
+
+                    {{-- Legenda di Bagian Bawah Kalender --}}
+                    <div class="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-border-line-1 pt-4">
+                        <div class="flex flex-wrap items-center gap-x-5 gap-y-2 text-2xs sm:text-xs text-muted-foreground-2">
+                            <span class="inline-flex items-center gap-2 font-medium text-brand-900">
+                                <span class="size-2.5 rounded-full bg-brand-700"></span>
+                                <span>Ada Kegiatan Terjadwal (Klik untuk rincian)</span>
+                            </span>
+                            <span class="inline-flex items-center gap-2">
+                                <span class="size-2.5 rounded-full border border-slate-300 bg-white"></span>
+                                <span>Slot Tersedia / Jadwal Terbuka (Klik untuk ajukan)</span>
+                            </span>
+                        </div>
+
+                        <div class="inline-flex items-center gap-1.5 rounded-full border border-brand-100 bg-brand-50 px-3 py-1 text-2xs font-bold text-brand-800">
+                            <svg class="size-3.5 text-brand-700" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 1.944A11.954 11.954 0 012.166 5C2.056 5.649 2 6.319 2 7c0 5.225 3.34 9.67 8 11.317C14.66 16.67 18 12.225 18 7c0-.682-.057-1.35-.166-2.001A11.954 11.954 0 0110 1.944zM13.707 8.707a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Pelayanan &amp; Respon Cepat 1x24 Jam</span>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- SISI KANAN: Panel Informasi & Panduan Interaktif --}}
+                <aside class="lg:col-span-4 flex flex-col gap-5 rounded-2xl sm:rounded-3xl border border-border bg-card p-5 sm:p-6 lg:p-7 shadow-2xs">
+                    {{-- Header Card --}}
+                    <div class="flex items-start gap-3.5">
+                        <div class="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-brand-100 text-brand-700">
+                            <svg class="size-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 9v7.5" />
+                            </svg>
+                        </div>
+                        <div>
+                            <span class="badge badge-success">Panduan Interaktif</span>
+                            <h3 class="mt-1.5 text-base sm:text-lg font-extrabold leading-snug text-brand-900">
+                                Eksplorasi Jadwal &amp; Kunjungan
+                            </h3>
+                        </div>
+                    </div>
+
+                    {{-- Pesan Panduan --}}
+                    <p class="rounded-2xl border border-brand-100 bg-brand-50/70 p-3.5 sm:p-4 text-xs sm:text-[13px] leading-relaxed text-muted-foreground-2">
+                        Pilih salah satu tanggal pada kalender untuk melihat rincian kegiatan yang sedang berlangsung, atau pilih tanggal kosong (<strong class="font-semibold text-brand-800">Slot Tersedia</strong>) untuk mengajukan rencana kunjungan dan kegiatan baru bersama adik-adik santri asuh.
+                    </p>
+
+                    {{-- Quick Steps / Poin Interaksi --}}
+                    <div class="space-y-3.5">
+                        <div class="flex items-start gap-3">
+                            <span class="flex size-6 shrink-0 items-center justify-center rounded-full bg-brand-700 text-2xs font-extrabold text-white">
+                                1
+                            </span>
+                            <div>
+                                <h4 class="text-xs sm:text-sm font-bold text-brand-900">
+                                    Klik Tanggal Berisi Agenda
+                                </h4>
+                                <p class="mt-0.5 text-xs leading-relaxed text-muted-foreground-1">
+                                    Untuk melihat detail waktu, pelaksana, dan rincian agenda yayasan.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-3">
+                            <span class="flex size-6 shrink-0 items-center justify-center rounded-full bg-brand-700 text-2xs font-extrabold text-white">
+                                2
+                            </span>
+                            <div>
+                                <h4 class="text-xs sm:text-sm font-bold text-brand-900">
+                                    Klik Slot Tersedia
+                                </h4>
+                                <p class="mt-0.5 text-xs leading-relaxed text-muted-foreground-1">
+                                    Untuk mengajukan jadwal kegiatan sosial, santunan, atau kolaborasi.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-3">
+                            <span class="flex size-6 shrink-0 items-center justify-center rounded-full bg-brand-700 text-2xs font-extrabold text-white">
+                                3
+                            </span>
+                            <div>
+                                <h4 class="text-xs sm:text-sm font-bold text-brand-900">
+                                    Konfirmasi WhatsApp
+                                </h4>
+                                <p class="mt-0.5 text-xs leading-relaxed text-muted-foreground-1">
+                                    Terhubung langsung dengan narahubung resmi yayasan secara instan.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Ringkasan Agenda Bulan Aktif di Panel Kanan --}}
+                    <div class="border-t border-border-line-1 pt-4">
+                        <p class="text-2xs font-bold uppercase tracking-wider text-muted-foreground-1">
+                            Agenda Terjadwal (<span x-text="monthYearLabel"></span>)
                         </p>
 
-                        <a href="#" class="mt-auto inline-flex items-center gap-1 pt-3.5 text-xs font-semibold text-brand-800 transition hover:text-brand-700">
-                            <span>Informasi Kegiatan</span>
-                            <svg class="size-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                        <div class="mt-2.5 space-y-2" x-show="currentMonthEvents.length > 0">
+                            <template x-for="ev in currentMonthEvents" :key="ev.id">
+                                <button type="button"
+                                        @click="openEventDetail(ev)"
+                                        class="flex w-full items-center justify-between gap-2.5 rounded-xl border border-brand-100 bg-brand-50/50 px-3 py-2 text-left transition hover:border-brand-300 hover:bg-brand-100/60 cursor-pointer">
+                                    <div class="flex items-center gap-2.5 min-w-0">
+                                        <span class="flex size-8 shrink-0 flex-col items-center justify-center rounded-lg bg-brand-700 text-white font-extrabold text-xs tabular"
+                                              x-text="ev.day"></span>
+                                        <div class="min-w-0">
+                                            <p class="truncate text-xs font-bold text-brand-900" x-text="ev.title"></p>
+                                            <p class="truncate text-[11px] text-muted-foreground-1" x-text="ev.time"></p>
+                                        </div>
+                                    </div>
+                                    <svg class="size-4 shrink-0 text-brand-700" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                                    </svg>
+                                </button>
+                            </template>
+                        </div>
+
+                        <p x-show="currentMonthEvents.length === 0" class="mt-2 text-xs text-muted-foreground-1">
+                            Belum ada agenda terjadwal di bulan ini. Seluruh tanggal terbuka untuk pengajuan kunjungan.
+                        </p>
+                    </div>
+                </aside>
+            </div>
+        </div>
+
+        {{-- =====================================================================
+             MODAL / POPUP INTERAKTIF KALENDER (FRAME 215, 216, 217, 218)
+             ===================================================================== --}}
+        <div x-show="modalState !== null"
+             x-cloak
+             class="fixed inset-0 z-80 flex items-center justify-center overflow-x-hidden overflow-y-auto p-4 sm:p-6"
+             role="dialog"
+             aria-modal="true">
+
+            {{-- Backdrop Overlay --}}
+            <div x-show="modalState !== null"
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0"
+                 x-transition:enter-end="opacity-100"
+                 x-transition:leave="transition ease-in duration-150"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0"
+                 @click="closeModal()"
+                 class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs"></div>
+
+            {{-- A. MODAL FRAME 215: Detail Kegiatan Terjadwal --}}
+            <div x-show="modalState === 'detail' && selectedEvent"
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0 scale-95 translate-y-2"
+                 x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                 x-transition:leave="transition ease-in duration-150"
+                 x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                 x-transition:leave-end="opacity-0 scale-95 translate-y-2"
+                 class="relative z-10 w-full max-w-md rounded-3xl border border-border bg-card p-6 sm:p-8 shadow-2xl">
+
+                <h3 class="text-xl sm:text-2xl font-extrabold leading-snug text-foreground"
+                    x-text="selectedEvent ? selectedEvent.title : ''"></h3>
+
+                {{-- Container Info Highlight --}}
+                <div class="mt-5 space-y-4 rounded-2xl bg-brand-100/60 border border-brand-200/70 p-4 sm:p-5">
+                    {{-- Penyelenggara Kegiatan --}}
+                    <div class="flex items-center gap-3.5">
+                        <div class="flex size-11 shrink-0 items-center justify-center rounded-xl bg-white text-brand-700 shadow-2xs">
+                            <svg class="size-6" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm-6 1a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Zm12 0a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Zm-6 1.5c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4Zm-6.5.25C3.47 14.18 1 15.17 1 17.5v2h1.5v-2c0-1.48 1.24-2.68 3-3.75Zm13 0c1.76 1.07 3 2.27 3 3.75v2H23v-2c0-2.33-2.47-3.32-4.5-3.75Z"/>
                             </svg>
-                        </a>
-                    </article>
-                @endforeach
+                        </div>
+                        <div class="min-w-0">
+                            <p class="text-xs font-medium text-muted-foreground-2">Penyelenggara Kegiatan</p>
+                            <p class="mt-0.5 text-sm font-bold text-foreground"
+                               x-text="selectedEvent ? selectedEvent.organizer : ''"></p>
+                        </div>
+                    </div>
+
+                    {{-- Waktu Pelaksanaan --}}
+                    <div class="flex items-center gap-3.5">
+                        <div class="flex size-11 shrink-0 items-center justify-center rounded-xl bg-white text-brand-700 shadow-2xs">
+                            <svg class="size-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                            </svg>
+                        </div>
+                        <div class="min-w-0">
+                            <p class="text-xs font-medium text-muted-foreground-2">Waktu Pelaksanaan</p>
+                            <p class="mt-0.5 text-sm font-bold text-foreground"
+                               x-text="selectedEvent ? selectedEvent.time : ''"></p>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Rincian Kegiatan --}}
+                <div class="mt-5">
+                    <p class="text-xs font-medium text-muted-foreground-2">Rincian Kegiatan</p>
+                    <p class="mt-1.5 text-sm font-bold leading-relaxed text-foreground/90"
+                       x-text="selectedEvent ? selectedEvent.description : ''"></p>
+                </div>
+
+                {{-- Tombol Tutup --}}
+                <div class="mt-6">
+                    <button type="button"
+                            @click="closeModal()"
+                            class="inline-flex items-center justify-center rounded-xl border border-brand-200 bg-brand-100/80 px-6 py-2 text-xs sm:text-sm font-bold text-brand-800 transition hover:bg-brand-200 cursor-pointer">
+                        Tutup
+                    </button>
+                </div>
+            </div>
+
+            {{-- B. MODAL FRAME 216: Formulir Ajukan Jadwal Kegiatan/Kunjungan Baru --}}
+            <div x-show="modalState === 'form'"
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0 scale-95 translate-y-2"
+                 x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                 x-transition:leave="transition ease-in duration-150"
+                 x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                 x-transition:leave-end="opacity-0 scale-95 translate-y-2"
+                 class="relative z-10 w-full max-w-lg rounded-3xl border border-border bg-card p-6 sm:p-8 shadow-2xl max-h-[92vh] overflow-y-auto">
+
+                <h3 class="text-xl sm:text-2xl font-extrabold leading-tight text-foreground">
+                    Ajukan Jadwal Kegiatan/<br>Kunjungan Baru
+                </h3>
+                <p class="mt-2.5 text-xs sm:text-sm leading-relaxed text-muted-foreground-1">
+                    Slot tanggal ini masih terbuka! Silakan lengkapi formulir singkat di bawah untuk mengajukan agenda bersama santri asuh.
+                </p>
+
+                <form @submit.prevent="submitFormToConfirm()" class="mt-5 space-y-4" novalidate>
+                    {{-- 1. Tanggal Terpilih (Readonly) --}}
+                    <div>
+                        <label for="form-tanggal-terpilih" class="block text-xs sm:text-sm font-bold text-foreground mb-1.5">
+                            Tanggal Terpilih
+                        </label>
+                        <input id="form-tanggal-terpilih"
+                               type="text"
+                               readonly
+                               :value="formData.tanggalLabel"
+                               class="w-full rounded-xl border border-brand-200 bg-brand-50/70 px-4 py-2.5 text-xs sm:text-sm font-semibold text-brand-900 focus:outline-none">
+                    </div>
+
+                    {{-- 2. Nama Pemohon/Komunitas/Lembaga --}}
+                    <div>
+                        <label for="form-nama-pemohon" class="block text-xs sm:text-sm font-bold text-foreground mb-1.5">
+                            Nama Pemohon/Komunitas/Lembaga
+                        </label>
+                        <input id="form-nama-pemohon"
+                               type="text"
+                               x-model="formData.namaPemohon"
+                               @input="formErrors.namaPemohon = ''"
+                               placeholder="Contoh: Komunitas Peduli / H. Ahmad Ramadhan"
+                               class="w-full rounded-xl border border-border bg-muted px-4 py-2.5 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:border-brand-700 focus:bg-card focus:ring-2 focus:ring-brand-700/20 focus:outline-none transition">
+                        <p x-show="formErrors.namaPemohon" x-text="formErrors.namaPemohon" class="form-error"></p>
+                    </div>
+
+                    {{-- 3. Nomor WhatsApp & 4. Waktu Pelaksanaan --}}
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <div>
+                            <label for="form-nomor-wa" class="block text-xs sm:text-sm font-bold text-foreground mb-1.5">
+                                Nomor WhatsApp
+                            </label>
+                            <input id="form-nomor-wa"
+                                   type="tel"
+                                   x-model="formData.nomorWhatsapp"
+                                   @input="formErrors.nomorWhatsapp = ''"
+                                   placeholder="0812-xxxx-xxxx"
+                                   class="w-full rounded-xl border border-border bg-muted px-4 py-2.5 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:border-brand-700 focus:bg-card focus:ring-2 focus:ring-brand-700/20 focus:outline-none transition">
+                            <p x-show="formErrors.nomorWhatsapp" x-text="formErrors.nomorWhatsapp" class="form-error"></p>
+                        </div>
+
+                        <div>
+                            <label for="form-waktu-pelaksanaan" class="block text-xs sm:text-sm font-bold text-foreground mb-1.5">
+                                Waktu Pelaksanaan
+                            </label>
+                            <input id="form-waktu-pelaksanaan"
+                                   type="text"
+                                   x-model="formData.waktuPelaksanaan"
+                                   @input="formErrors.waktuPelaksanaan = ''"
+                                   placeholder="Contoh: 09.30 - 12.00 WIB"
+                                   class="w-full rounded-xl border border-border bg-muted px-4 py-2.5 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:border-brand-700 focus:bg-card focus:ring-2 focus:ring-brand-700/20 focus:outline-none transition">
+                            <p x-show="formErrors.waktuPelaksanaan" x-text="formErrors.waktuPelaksanaan" class="form-error"></p>
+                        </div>
+                    </div>
+
+                    {{-- 5. Dropdown Jenis Kegiatan --}}
+                    <div>
+                        <label for="form-jenis-kegiatan" class="block text-xs sm:text-sm font-bold text-foreground mb-1.5">
+                            Jenis Kegiatan
+                        </label>
+                        <div class="relative sm:w-2/3">
+                            <select id="form-jenis-kegiatan"
+                                    x-model="formData.jenisKegiatan"
+                                    @change="formErrors.jenisKegiatan = ''"
+                                    class="w-full appearance-none rounded-xl border border-border bg-muted py-2.5 pl-4 pr-10 text-xs sm:text-sm text-foreground focus:border-brand-700 focus:bg-card focus:ring-2 focus:ring-brand-700/20 focus:outline-none transition cursor-pointer">
+                                <option value="">Pilih jenis kegiatan...</option>
+                                <template x-for="opsi in jenisKegiatanOptions" :key="opsi">
+                                    <option :value="opsi" x-text="opsi"></option>
+                                </template>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-3.5 flex items-center text-foreground">
+                                <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke-width="2.25" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                                </svg>
+                            </div>
+                        </div>
+                        <p x-show="formErrors.jenisKegiatan" x-text="formErrors.jenisKegiatan" class="form-error"></p>
+                    </div>
+
+                    {{-- 6. Rencana Kegiatan/Kebutuhan Fasilitas --}}
+                    <div>
+                        <label for="form-rencana-kegiatan" class="block text-xs sm:text-sm font-bold text-foreground mb-1.5">
+                            Rencana Kegiatan/Kebutuhan Fasilitas
+                        </label>
+                        <textarea id="form-rencana-kegiatan"
+                                  rows="3"
+                                  x-model="formData.rencanaKegiatan"
+                                  @input="formErrors.rencanaKegiatan = ''"
+                                  placeholder="Sampaikan ringkasan susunan agenda atau perlengkapan ruangan yang dibutuhkan..."
+                                  class="w-full rounded-xl border border-border bg-muted px-4 py-2.5 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:border-brand-700 focus:bg-card focus:ring-2 focus:ring-brand-700/20 focus:outline-none transition resize-none"></textarea>
+                        <p x-show="formErrors.rencanaKegiatan" x-text="formErrors.rencanaKegiatan" class="form-error"></p>
+                    </div>
+
+                    {{-- Tombol Aksi: Kirim & Batal --}}
+                    <div class="pt-2 flex items-center gap-3">
+                        <button type="submit"
+                                class="inline-flex min-w-28 items-center justify-center rounded-xl bg-brand-700 px-6 py-2.5 text-xs sm:text-sm font-bold text-white shadow-xs transition hover:bg-brand-800 cursor-pointer">
+                            Kirim
+                        </button>
+                        <button type="button"
+                                @click="closeModal()"
+                                class="inline-flex min-w-28 items-center justify-center rounded-xl border border-brand-200 bg-brand-100/80 px-6 py-2.5 text-xs sm:text-sm font-bold text-brand-800 transition hover:bg-brand-200 cursor-pointer">
+                            Batal
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            {{-- C. MODAL FRAME 217: Tahap 1 — Verifikasi Data --}}
+            <div x-show="modalState === 'confirm'"
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0 scale-95 translate-y-2"
+                 x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                 x-transition:leave="transition ease-in duration-150"
+                 x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                 x-transition:leave-end="opacity-0 scale-95 translate-y-2"
+                 class="relative z-10 w-full max-w-md rounded-3xl border border-border bg-card p-6 sm:p-8 shadow-2xl">
+
+                <h3 class="text-xl sm:text-2xl font-extrabold leading-snug text-foreground">
+                    Data yang anda masukkan sudah benar?
+                </h3>
+
+                <div class="mt-6 flex items-center justify-center gap-3.5">
+                    <button type="button"
+                            @click="confirmFormSubmission()"
+                            class="inline-flex min-w-28 items-center justify-center rounded-xl bg-brand-700 px-7 py-2.5 text-xs sm:text-sm font-bold text-white shadow-xs transition hover:bg-brand-800 cursor-pointer">
+                        Ya
+                    </button>
+                    <button type="button"
+                            @click="modalState = 'form'"
+                            class="inline-flex min-w-28 items-center justify-center rounded-xl border border-brand-200 bg-brand-100/80 px-7 py-2.5 text-xs sm:text-sm font-bold text-brand-800 transition hover:bg-brand-200 cursor-pointer">
+                        Tidak
+                    </button>
+                </div>
+            </div>
+
+            {{-- D. MODAL FRAME 218: Tahap 2 — Pengalihan Konfirmasi Lanjutan via WhatsApp --}}
+            <div x-show="modalState === 'whatsapp'"
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0 scale-95 translate-y-2"
+                 x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                 x-transition:leave="transition ease-in duration-150"
+                 x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                 x-transition:leave-end="opacity-0 scale-95 translate-y-2"
+                 class="relative z-10 w-full max-w-md rounded-3xl border border-border bg-card p-6 sm:p-8 shadow-2xl">
+
+                <h3 class="text-base sm:text-lg font-extrabold leading-snug text-foreground">
+                    Informasi Selanjutnya Silahkan Hubungi Narahubung dibawah
+                </h3>
+
+                <div class="mt-5">
+                    <a :href="whatsappUrl"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       @click="closeModal()"
+                       class="flex w-full items-center justify-center gap-2.5 rounded-full bg-brand-700 px-6 py-3.5 text-xs sm:text-sm font-bold text-white shadow-sm transition hover:bg-brand-800">
+                        <svg class="size-5 shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0012.04 2zm.01 1.67c2.2 0 4.26.86 5.82 2.41 1.56 1.56 2.41 3.63 2.41 5.83 0 4.54-3.7 8.24-8.24 8.24-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31c-.82-1.31-1.26-2.83-1.26-4.38 0-4.54 3.7-8.24 8.24-8.24zm4.52 11.66c-.25-.13-1.47-.72-1.7-.81-.23-.08-.39-.13-.56.13-.17.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.13-1.07-.39-2.03-1.25-.75-.67-1.26-1.5-1.41-1.75-.14-.25-.02-.39.11-.51.11-.11.25-.29.38-.44.13-.14.17-.25.25-.42.08-.17.04-.31-.02-.44-.06-.13-.56-1.35-.77-1.85-.2-.49-.41-.42-.56-.43h-.48c-.17 0-.44.06-.67.31-.23.25-.88.86-.88 2.1 0 1.24.9 2.44 1.03 2.61.13.17 1.77 2.7 4.29 3.79.6.26 1.07.41 1.43.53.6.19 1.15.16 1.58.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.15-1.18-.06-.11-.23-.17-.48-.29z"/>
+                        </svg>
+                        <span>Admin Himmatun Ayat Bandung</span>
+                    </a>
+                </div>
             </div>
         </div>
     </section>
+
+    <script>
+        function kalenderKegiatanSection(initialEvents) {
+            const monthNames = [
+                'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+            ];
+            const shortMonthNames = [
+                'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
+                'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'
+            ];
+            const fullDayNames = [
+                'Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'
+            ];
+
+            // Langsung buka ke bulan berjalan (Bulan Ini) dan abaikan data dari bulan sebelumnya
+            const now = new Date();
+            const defaultYear = now.getFullYear();
+            const defaultMonth = now.getMonth();
+            const defaultHighlightMm = String(defaultMonth + 1).padStart(2, '0');
+
+            const filteredInitialEvents = Array.isArray(initialEvents)
+                ? initialEvents.filter((e) => e.year > defaultYear || (e.year === defaultYear && e.month >= defaultMonth))
+                : [];
+
+            return {
+                events: filteredInitialEvents,
+                dayHeaders: ['SEN', 'SEL', 'RAB', 'KAM', 'JUM', 'SAB', 'AHD'],
+                activeYear: defaultYear,
+                activeMonth: defaultMonth,
+                defaultYear: defaultYear,
+                defaultMonth: defaultMonth,
+                highlightedDateIso: defaultYear + '-' + defaultHighlightMm + '-19',
+                modalState: null, // null | 'detail' | 'form' | 'confirm' | 'whatsapp'
+                selectedEvent: null,
+                adminPhone: '6281268765420',
+                jenisKegiatanOptions: [
+                    'Santunan & Bakti Sosial',
+                    'Buka Puasa Bersama (Bukber)',
+                    'Kunjungan / Silaturahmi Komunitas',
+                    'Edukasi / Pelatihan / Workshop',
+                    'Peringatan Hari Besar Islam (PHBI)',
+                    'Perlombaan / Fun Games',
+                    'Lainnya'
+                ],
+                formData: {
+                    tanggalIso: '',
+                    tanggalLabel: '',
+                    namaPemohon: '',
+                    nomorWhatsapp: '',
+                    waktuPelaksanaan: '',
+                    jenisKegiatan: '',
+                    rencanaKegiatan: ''
+                },
+                formErrors: {
+                    namaPemohon: '',
+                    nomorWhatsapp: '',
+                    waktuPelaksanaan: '',
+                    jenisKegiatan: '',
+                    rencanaKegiatan: ''
+                },
+
+                get monthYearLabel() {
+                    return monthNames[this.activeMonth] + ' ' + this.activeYear;
+                },
+
+                get currentMonthEvents() {
+                    return this.events.filter(
+                        (e) => e.year === this.activeYear && e.month === this.activeMonth
+                    );
+                },
+
+                get daysInActiveMonth() {
+                    return new Date(this.activeYear, this.activeMonth + 1, 0).getDate();
+                },
+
+                get scheduledCount() {
+                    const uniqueDates = new Set(this.currentMonthEvents.map((e) => e.date_iso));
+                    return uniqueDates.size;
+                },
+
+                get availableCount() {
+                    return Math.max(0, this.daysInActiveMonth - this.scheduledCount);
+                },
+
+                get calendarCells() {
+                    const cells = [];
+                    const year = this.activeYear;
+                    const month = this.activeMonth;
+
+                    const firstDayJs = new Date(year, month, 1).getDay(); // 0=Minggu .. 6=Sabtu
+                    const startOffset = (firstDayJs + 6) % 7; // 0=Senin .. 6=Ahad
+                    const daysInMonth = this.daysInActiveMonth;
+                    const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+                    // Tanggal dari bulan sebelumnya (redup/disabled)
+                    for (let i = startOffset - 1; i >= 0; i--) {
+                        const prevDay = daysInPrevMonth - i;
+                        cells.push({
+                            key: 'prev-' + year + '-' + month + '-' + prevDay,
+                            day: prevDay,
+                            outsideLabel: String(prevDay),
+                            isCurrentMonth: false,
+                            isSunday: false,
+                            dateIso: null,
+                            event: null
+                        });
+                    }
+
+                    // Tanggal di bulan aktif
+                    for (let day = 1; day <= daysInMonth; day++) {
+                        const mm = String(month + 1).padStart(2, '0');
+                        const dd = String(day).padStart(2, '0');
+                        const dateIso = year + '-' + mm + '-' + dd;
+                        const jsDate = new Date(year, month, day);
+                        const isSunday = jsDate.getDay() === 0;
+                        const matchedEvent = this.events.find((e) => e.date_iso === dateIso) || null;
+
+                        cells.push({
+                            key: 'cur-' + dateIso,
+                            day: day,
+                            outsideLabel: String(day),
+                            isCurrentMonth: true,
+                            isSunday: isSunday,
+                            dateIso: dateIso,
+                            dateFormatted: fullDayNames[jsDate.getDay()] + ', ' + day + ' ' + monthNames[month] + ' ' + year,
+                            dateShortFormatted: day + ' ' + monthNames[month] + ' ' + year,
+                            event: matchedEvent
+                        });
+                    }
+
+                    // Tanggal awal bulan berikutnya (minimal 1 sel atau genapkan baris)
+                    const totalSoFar = cells.length;
+                    const remainder = totalSoFar % 7;
+                    const trailingCount = remainder === 0 ? 0 : (7 - remainder);
+                    const nextMonthIdx = (month + 1) % 12;
+
+                    for (let n = 1; n <= trailingCount; n++) {
+                        cells.push({
+                            key: 'next-' + year + '-' + month + '-' + n,
+                            day: n,
+                            outsideLabel: n === 1 ? ('1 ' + shortMonthNames[nextMonthIdx]) : String(n),
+                            isCurrentMonth: false,
+                            isSunday: false,
+                            dateIso: null,
+                            event: null
+                        });
+                    }
+
+                    return cells;
+                },
+
+                get whatsappUrl() {
+                    const nama = this.formData.namaPemohon.trim() || '-';
+                    const jenis = this.formData.jenisKegiatan.trim() || '-';
+                    const tanggal = this.formData.tanggalLabel.trim() || '-';
+
+                    const message = 'Assalamualaikum wr. wb. / Halo Pengurus Yayasan Himmatun Ayat Bandung,\n\n'
+                        + 'Saya telah mengisi formulir pengajuan jadwal kegiatan melalui website resmi yayasan atas nama ' + nama
+                        + ' untuk rencana kegiatan ' + jenis
+                        + ' pada tanggal ' + tanggal + '.\n\n'
+                        + 'Pesan ini merupakan konfirmasi bahwa pengajuan telah kami kirimkan. Besar harapan kami dapat bersilaturahmi dan menjalin kerja sama kebaikan bersama adik-adik santri serta pengurus yayasan. \n\n'
+                        + 'Mohon arahan dan informasi terkait tindak lanjut serta perizinan selanjutnya. Terima kasih banyak.';
+
+                    return 'https://wa.me/' + this.adminPhone + '?text=' + encodeURIComponent(message);
+                },
+
+                prevMonth() {
+                    if (this.activeMonth === 0) {
+                        this.activeMonth = 11;
+                        this.activeYear--;
+                    } else {
+                        this.activeMonth--;
+                    }
+                },
+
+                nextMonth() {
+                    if (this.activeMonth === 11) {
+                        this.activeMonth = 0;
+                        this.activeYear++;
+                    } else {
+                        this.activeMonth++;
+                    }
+                },
+
+                goToDefaultMonth() {
+                    this.activeYear = this.defaultYear;
+                    this.activeMonth = this.defaultMonth;
+                },
+
+                handleDateClick(cell) {
+                    if (!cell.isCurrentMonth) return;
+
+                    if (cell.event) {
+                        this.openEventDetail(cell.event);
+                    } else {
+                        this.openSubmissionForm(cell);
+                    }
+                },
+
+                openEventDetail(eventObj) {
+                    this.highlightedDateIso = eventObj.date_iso;
+                    this.selectedEvent = eventObj;
+                    this.modalState = 'detail';
+                },
+
+                openSubmissionForm(cell) {
+                    this.resetErrors();
+                    this.formData.tanggalIso = cell.dateIso;
+                    this.formData.tanggalLabel = cell.dateFormatted;
+                    this.modalState = 'form';
+                },
+
+                resetErrors() {
+                    this.formErrors = {
+                        namaPemohon: '',
+                        nomorWhatsapp: '',
+                        waktuPelaksanaan: '',
+                        jenisKegiatan: '',
+                        rencanaKegiatan: ''
+                    };
+                },
+
+                validateForm() {
+                    this.resetErrors();
+                    let valid = true;
+
+                    if (!this.formData.namaPemohon.trim()) {
+                        this.formErrors.namaPemohon = 'Nama pemohon/komunitas/lembaga wajib diisi.';
+                        valid = false;
+                    }
+                    if (!this.formData.nomorWhatsapp.trim()) {
+                        this.formErrors.nomorWhatsapp = 'Nomor WhatsApp wajib diisi.';
+                        valid = false;
+                    }
+                    if (!this.formData.waktuPelaksanaan.trim()) {
+                        this.formErrors.waktuPelaksanaan = 'Waktu pelaksanaan wajib diisi.';
+                        valid = false;
+                    }
+                    if (!this.formData.jenisKegiatan.trim()) {
+                        this.formErrors.jenisKegiatan = 'Silakan pilih jenis kegiatan.';
+                        valid = false;
+                    }
+                    if (!this.formData.rencanaKegiatan.trim()) {
+                        this.formErrors.rencanaKegiatan = 'Rencana kegiatan atau kebutuhan fasilitas wajib diisi.';
+                        valid = false;
+                    }
+
+                    return valid;
+                },
+
+                submitFormToConfirm() {
+                    if (!this.validateForm()) {
+                        return;
+                    }
+                    this.modalState = 'confirm';
+                },
+
+                confirmFormSubmission() {
+                    this.modalState = 'whatsapp';
+                },
+
+                closeModal() {
+                    this.modalState = null;
+                }
+            };
+        }
+    </script>
 
     <!-- CTA MEDIA SOSIAL -->
     <section class="bg-white">
