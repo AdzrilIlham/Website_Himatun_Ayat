@@ -285,9 +285,6 @@
             <div
                 class="mt-8 pt-5 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-2">
                 <p>2026 Yayasan Himatun Ayat Bandung</p>
-                <div class="flex items-center gap-4 text-slate-400">
-                    <a href="/admin/dashboard" class="hover:text-slate-600 transition">Portal Admin</a>
-                </div>
             </div>
         </div>
     </footer>
