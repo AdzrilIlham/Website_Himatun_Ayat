@@ -31,7 +31,7 @@
         $totalSlides = max(1, $slides->count());
     @endphp
 
-    <section class="relative py-16"
+    <section class="relative pt-6 pb-12 sm:pt-8 sm:pb-14"
         x-data="{
             activeSlide: @entangle('activeSlide'),
             totalSlides: {{ $totalSlides }},

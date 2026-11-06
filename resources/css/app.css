@@ -242,6 +242,11 @@
         animation: doa-scroll-vertical var(--doa-scroll-duration, 35s) linear infinite;
         will-change: transform;
     }
+
+    /* Rapatkan jarak antara section terakhir halaman Kampanye Donasi dengan Footer */
+    div:has(#kampanye-page) + footer {
+        margin-top: 1.5rem !important;
+    }
 }
 
 @keyframes doa-scroll-vertical {

@@ -1,5 +1,5 @@
     <!-- Section 1: Hero, Formulir Donatur & Doa Harapan -->
-    <section class="relative pt-6 pb-16 sm:pb-20">
+    <section class="relative pt-8 sm:pt-10 pb-6 sm:pb-8">
         <!-- Ambient Radial Glows (Mint di kiri atas, Warm Amber Sunshine di kanan atas) sesuai beranda -->
         <div class="absolute -top-24 left-0 w-full sm:w-2/3 h-[600px] bg-gradient-to-br from-[#BFEFE0]/85 via-[#DCF6ED]/45 to-transparent pointer-events-none blur-3xl -z-10"></div>
         <div class="absolute -top-20 right-0 w-full sm:w-3/5 h-[650px] bg-gradient-to-bl from-[#FDE899]/70 via-[#FEF3C7]/40 to-transparent pointer-events-none blur-3xl -z-10"></div>
