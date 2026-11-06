@@ -243,6 +243,16 @@
         will-change: transform;
     }
 
+    /* Sembunyikan scrollbar bawaan browser dengan tetap mempertahankan fungsi scroll */
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+
+    .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
     /* Rapatkan jarak antara section terakhir halaman Kampanye Donasi dengan Footer */
     div:has(#kampanye-page) + footer {
         margin-top: 1.5rem !important;
