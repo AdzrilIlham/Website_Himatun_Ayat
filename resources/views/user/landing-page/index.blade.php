@@ -501,7 +501,119 @@
 
 
     <!-- ========================================== -->
-    <!-- 5. LAPORAN AUDIT & TRANSPARANSI            -->
+    <!-- 5. AJAKAN KOLABORASI KEGIATAN              -->
+    <!-- ========================================== -->
+    <section id="kolaborasi-kegiatan" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
+        <div class="relative rounded-2xl sm:rounded-3xl bg-[#F1F8F3] border border-[#DDEBE2] p-5 sm:p-7 lg:p-8 overflow-hidden shadow-xs"
+             data-animate="fade-up"
+             data-animate-start="top 82%"
+             data-animate-distance="26"
+             data-animate-duration="0.7">
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 lg:gap-10 items-start"
+                 data-animate-group="fade-up"
+                 data-animate-start="top 82%"
+                 data-animate-distance="22"
+                 data-animate-duration="0.75"
+                 data-animate-stagger="0.12">
+
+                <!-- Sisi Kiri: Narasi & Pilihan Kegiatan -->
+                <div class="lg:col-span-6 space-y-3 sm:space-y-4" data-animate-item="slide-left" data-animate-distance="28">
+                    <div class="inline-flex items-center rounded-full bg-[#DCEEE3] text-[#235843] text-[10px] sm:text-[11px] font-bold tracking-wider uppercase px-3 sm:px-4 py-1 sm:py-1.5">
+                        Kolaborasi Kebaikan
+                    </div>
+
+                    <h2 class="text-[1.7rem] sm:text-3xl lg:text-[2.15rem] font-extrabold text-[#143D2B] tracking-tight leading-[1.25]">
+                        Punya Rencana
+                        <span class="text-[#2D6A4F] bg-[linear-gradient(transparent_66%,#FDE68A_66%)] box-decoration-clone px-0.5">
+                            Berbagi Kebaikan?
+                        </span>
+                    </h2>
+
+                    <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                        Mari hadirkan kebahagiaan bersama adik-adik Himmatun Ayat.
+                    </p>
+
+                    <p class="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-xl">
+                        Ingin mengadakan buka puasa bersama, santunan, kunjungan, atau kegiatan sosial lainnya?
+                        Kami membuka kesempatan bagi individu, komunitas, dan instansi untuk berkolaborasi bersama yayasan.
+                    </p>
+
+                    <!-- Pilihan Bentuk Kegiatan -->
+                    <div class="flex flex-wrap gap-2 sm:gap-2.5 pt-1">
+                        <span class="inline-flex items-center gap-1.5 sm:gap-2 rounded-full bg-white border border-slate-200 px-3 sm:px-4 py-1.5 sm:py-2 text-[11px] sm:text-xs font-semibold text-slate-700 shadow-2xs">
+                            <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#2D6A4F] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 9v7.5" />
+                            </svg>
+                            <span>Buka Puasa Bersama</span>
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 sm:gap-2 rounded-full bg-white border border-slate-200 px-3 sm:px-4 py-1.5 sm:py-2 text-[11px] sm:text-xs font-semibold text-slate-700 shadow-2xs">
+                            <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#2D6A4F] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 11.25v8.25a1.5 1.5 0 01-1.5 1.5H4.5a1.5 1.5 0 01-1.5-1.5v-8.25M12 10.5v9.75m0-9.75a3.75 3.75 0 100-7.5 3.75 3.75 0 000 7.5zm8.25 0H3.75" />
+                            </svg>
+                            <span>Santunan &amp; Donasi</span>
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 sm:gap-2 rounded-full bg-white border border-slate-200 px-3 sm:px-4 py-1.5 sm:py-2 text-[11px] sm:text-xs font-semibold text-slate-700 shadow-2xs">
+                            <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#2D6A4F] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+                            </svg>
+                            <span>Kunjungan Panti</span>
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 sm:gap-2 rounded-full bg-white border border-slate-200 px-3 sm:px-4 py-1.5 sm:py-2 text-[11px] sm:text-xs font-semibold text-slate-700 shadow-2xs">
+                            <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#2D6A4F] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                            </svg>
+                            <span>Pendidikan &amp; Sosial</span>
+                        </span>
+                    </div>
+
+                    <!-- CTA Ajukan Kegiatan -->
+                    <div class="pt-2 sm:pt-3">
+                        <a href="https://wa.me/6283157371088?text={{ urlencode('Assalamualaikum, saya ingin mengajukan kegiatan kolaborasi bersama Yayasan Himatun Ayat Bandung. Berikut rencana kegiatan saya: ') }}"
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           class="py-3 px-6 sm:py-3.5 sm:px-8 inline-flex items-center justify-center gap-2 text-xs sm:text-sm font-bold rounded-full bg-[#2D6A4F] text-white hover:bg-[#235843] focus:outline-hidden transition shadow-sm shadow-emerald-900/15">
+                            <span>Ajukan Kegiatan Sekarang</span>
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                            </svg>
+                        </a>
+                        <p class="text-[10px] sm:text-[11px] text-slate-500 mt-2.5 leading-relaxed max-w-md">
+                            Sampaikan rencana kegiatanmu dan tim yayasan akan membantu meninjau pengajuan tersebut.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Sisi Kanan: Dokumentasi Kegiatan -->
+                <div class="lg:col-span-6 space-y-3 sm:space-y-4" data-animate-item="slide-right" data-animate-distance="28">
+
+                    <!-- Foto Utama + Caption Overlay -->
+                    <div class="group relative rounded-xl sm:rounded-2xl overflow-hidden aspect-[16/9] bg-slate-100 shadow-xs">
+                        <img src="{{ asset('images/User/WisudaKhotmilQuran.png') }}"
+                             alt="Dokumentasi kegiatan bersama adik-adik asuh"
+                             class="w-full h-full object-cover transition duration-500 group-hover:scale-[1.03]">
+                        <div class="absolute inset-0 pointer-events-none bg-gradient-to-t from-[#143D2B]/90 via-[#1E4D3B]/40 to-transparent"></div>
+                        <p class="absolute inset-x-0 bottom-0 p-3.5 sm:p-5 text-white text-xs sm:text-sm font-semibold leading-snug">
+                            Dokumentasi kegiatan bersama adik-adik asuh
+                        </p>
+                    </div>
+
+                    <!-- Foto Pendukung -->
+                    <div class="group relative rounded-xl sm:rounded-2xl overflow-hidden aspect-[16/6] bg-slate-100 shadow-xs">
+                        <img src="{{ asset('images/User/Renovasi Ruang Belajar.png') }}"
+                             alt="Pembangunan ruang belajar yayasan"
+                             class="w-full h-full object-cover transition duration-500 group-hover:scale-[1.03]">
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ========================================== -->
+    <!-- 6. LAPORAN AUDIT & TRANSPARANSI            -->
     <!-- ========================================== -->
     <section id="transparansi" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
         <!-- Deep Green Watermarked Container -->
@@ -618,7 +730,7 @@
 
 
     <!-- ========================================== -->
-    <!-- 6. KABAR & AKTIVITAS TERBARU YAYASAN       -->
+    <!-- 7. KABAR & AKTIVITAS TERBARU YAYASAN       -->
     <!-- ========================================== -->
     <section id="kabar-berita" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16" x-data="{
         selectedCategory: 'all'
@@ -908,7 +1020,7 @@
 
 
     <!-- ========================================== -->
-    <!-- 7. INSTAGRAM LIVE STORY BANNER             -->
+    <!-- 8. INSTAGRAM LIVE STORY BANNER             -->
     <!-- ========================================== -->
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
         <div class="relative rounded-xl sm:rounded-2xl bg-[#235843] p-5 sm:p-7 text-white flex flex-col md:flex-row items-start md:items-center justify-between gap-5 sm:gap-6 shadow-md overflow-hidden"
