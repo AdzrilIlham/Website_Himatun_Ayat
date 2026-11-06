@@ -220,25 +220,75 @@
                     </div>
 
                     @php
-                        $doaChunks = $recentDoa->chunk(3);
+                        $doaItems = $recentDoa->values();
+                        $doaCount = $doaItems->count();
+                        $visibleCount = 3;
+                        $canScrollDoa = $doaCount > $visibleCount;
+                        $displayDoaItems = $canScrollDoa
+                            ? $doaItems->concat($doaItems->take($visibleCount))
+                            : $doaItems;
                     @endphp
 
-                    <!-- Card Doa & Harapan Sesuai Mockup (Auto-rotating, No Manual Scroll) -->
+                    <!-- Card Doa & Harapan Sesuai Mockup (Smooth Auto-Scrolling Vertical Carousel) -->
                     <div class="bg-white/95 backdrop-blur-sm border border-slate-200/80 rounded-[32px] p-6 sm:p-7 shadow-lg relative overflow-hidden"
                         x-data="{
-                            currentGroup: 0,
-                            totalGroups: {{ max(1, $doaChunks->count()) }},
+                            currentIndex: 0,
+                            totalItems: {{ $doaCount }},
+                            canScroll: {{ $canScrollDoa ? 'true' : 'false' }},
                             paused: false,
+                            isTransitioning: true,
+                            offsetY: 0,
+                            viewportHeight: 310,
+                            intervalId: null,
                             init() {
-                                if (this.totalGroups > 1) {
-                                    setInterval(() => {
+                                this.$nextTick(() => {
+                                    this.updateMeasurements();
+                                });
+                                if (this.canScroll) {
+                                    this.intervalId = setInterval(() => {
                                         if (!this.paused) {
-                                            this.currentGroup = (this.currentGroup + 1) % this.totalGroups;
+                                            this.next();
                                         }
-                                    }, 4000);
+                                    }, 3200);
                                 }
+                            },
+                            updateMeasurements() {
+                                const track = this.$refs.doaTrack;
+                                if (!track || !track.children.length) return;
+                                const firstChild = track.children[this.currentIndex];
+                                if (!firstChild) return;
+                                this.offsetY = firstChild.offsetTop;
+
+                                const lastVisibleIdx = Math.min(this.currentIndex + 2, track.children.length - 1);
+                                const lastChild = track.children[lastVisibleIdx];
+                                if (lastChild) {
+                                    this.viewportHeight = (lastChild.offsetTop + lastChild.offsetHeight) - firstChild.offsetTop + 4;
+                                }
+                            },
+                            next() {
+                                if (!this.canScroll) return;
+                                this.isTransitioning = true;
+                                this.currentIndex++;
+                                this.updateMeasurements();
+
+                                if (this.currentIndex >= this.totalItems) {
+                                    setTimeout(() => {
+                                        this.isTransitioning = false;
+                                        this.currentIndex = 0;
+                                        this.updateMeasurements();
+                                    }, 700);
+                                }
+                            },
+                            goTo(idx) {
+                                this.isTransitioning = true;
+                                this.currentIndex = idx;
+                                this.updateMeasurements();
+                            },
+                            destroy() {
+                                if (this.intervalId) clearInterval(this.intervalId);
                             }
                         }"
+                        @resize.window.debounce.150ms="updateMeasurements()"
                         @mouseenter="paused = true"
                         @mouseleave="paused = false">
 
@@ -253,33 +303,30 @@
                                 </p>
                             </div>
 
-                            @if ($doaChunks->count() > 1)
-                                <!-- Live indicator & mini progress dots -->
+                            @if ($canScrollDoa)
+                                <!-- Mini progress dots -->
                                 <div class="flex items-center gap-1.5">
                                     <div class="flex items-center gap-1 ml-1">
-                                        @foreach ($doaChunks as $idx => $chunk)
-                                            <button type="button" @click="currentGroup = {{ $idx }}"
-                                                :class="currentGroup === {{ $idx }} ? 'bg-brand-700 w-3' : 'bg-brand-300 w-1.5'"
-                                                class="h-1.5 rounded-full transition-all duration-300"
-                                                aria-label="Doa slide {{ $idx + 1 }}"></button>
-                                        @endforeach
+                                        @for ($idx = 0; $idx < $doaCount; $idx++)
+                                            <button type="button" @click="goTo({{ $idx }})"
+                                                :class="(currentIndex % totalItems) === {{ $idx }} ? 'bg-brand-700 w-3' : 'bg-brand-300 w-1.5'"
+                                                class="h-1.5 rounded-full transition-all duration-300 cursor-pointer"
+                                                aria-label="Doa {{ $idx + 1 }}"></button>
+                                        @endfor
                                     </div>
                                 </div>
                             @endif
                         </div>
 
-                        <!-- Area Kartu Doa Otomatis Berganti (Tanpa Scrollbar Manual) -->
-                        <div class="relative min-h-[290px]">
-                            @forelse ($doaChunks as $groupIndex => $chunk)
-                                <div x-show="currentGroup === {{ $groupIndex }}"
-                                    x-transition:enter="transition ease-out duration-500"
-                                    x-transition:enter-start="opacity-0 translate-y-3"
-                                    x-transition:enter-end="opacity-100 translate-y-0"
-                                    x-transition:leave="transition ease-in duration-300 absolute inset-0"
-                                    x-transition:leave-start="opacity-100 translate-y-0"
-                                    x-transition:leave-end="opacity-0 -translate-y-3"
-                                    class="space-y-3.5 w-full">
-                                    @foreach ($chunk as $doa)
+                        <!-- Area Kartu Doa Otomatis Bergulir Halus (Smooth Vertical Scroll) -->
+                        @if ($doaCount > 0)
+                            <div class="relative overflow-hidden transition-[height] duration-500 ease-out px-0.5 -mx-0.5"
+                                :style="`height: ${viewportHeight}px`">
+                                <div x-ref="doaTrack"
+                                    :class="isTransitioning ? 'transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]' : 'transition-none'"
+                                    :style="`transform: translateY(-${offsetY}px)`"
+                                    class="space-y-3.5 w-full will-change-transform">
+                                    @foreach ($displayDoaItems as $doa)
                                         <div class="bg-white rounded-2xl p-4 sm:p-4.5 shadow-2xs border border-slate-200/80 transition hover:shadow-xs">
                                             <div class="flex items-center gap-3">
                                                 <!-- Avatar Icon Bulat -->
@@ -307,12 +354,12 @@
                                         </div>
                                     @endforeach
                                 </div>
-                            @empty
-                                <div class="bg-card rounded-2xl p-6 text-center text-muted-foreground text-xs">
-                                    Belum ada untaian doa. Jadilah donatur pertama yang mengirimkan doa!
-                                </div>
-                            @endforelse
-                        </div>
+                            </div>
+                        @else
+                            <div class="bg-card rounded-2xl p-6 text-center text-muted-foreground text-xs">
+                                Belum ada untaian doa. Jadilah donatur pertama yang mengirimkan doa!
+                            </div>
+                        @endif
                     </div>
                 </div>
 

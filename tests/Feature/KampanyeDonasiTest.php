@@ -73,22 +73,22 @@ class KampanyeDonasiTest extends TestCase
             ->assertSee('Selesaikan pembayaran anda')
             ->assertSee('ID Pembayaran:')
             ->assertSee('QRIS')
-            ->assertSee('Virrtual Account BNI')
-            ->assertSee('Virrtual Account MANDIRI')
+            ->assertSee('Transfer Bank BRI')
+            ->assertSee('Transfer Bank BCA')
             ->assertSee('Rincian Pembayaran')
             ->assertSee('Biaya Donasi')
             ->assertSee('Biaya Admin')
             ->assertSee('Bayar Sekarang');
 
-        // Select Virtual Account BNI
-        $test->call('selectMetodePembayaran', 'Virrtual Account BNI')
-            ->assertSet('metodePembayaran', 'Virrtual Account BNI');
+        // Select Transfer Bank BRI
+        $test->call('selectMetodePembayaran', 'Transfer Bank BRI')
+            ->assertSet('metodePembayaran', 'Transfer Bank BRI');
 
         // Click Bayar Sekarang -> Step 2
         $test->call('payNow')
             ->assertSet('paymentStep', 2)
             ->assertSee('Instruksi Pembayaran')
-            ->assertSee('Nomor Virtual Account:')
+            ->assertSee('Nomor Rekening Resmi:')
             ->assertSee('Kembali');
 
         // Back to step 1
@@ -98,5 +98,16 @@ class KampanyeDonasiTest extends TestCase
         // Close modal
         $test->call('closePaymentModal')
             ->assertSet('showPaymentModal', false);
+
+        $firstPaymentId = $test->get('paymentId');
+        $this->assertMatchesRegularExpression('/^DNS-\d{8}-\d{3}$/', $firstPaymentId);
+
+        // Second transaction generates a different payment ID
+        $test->call('confirmDonasi')
+            ->assertSet('showPaymentModal', true);
+
+        $secondPaymentId = $test->get('paymentId');
+        $this->assertMatchesRegularExpression('/^DNS-\d{8}-\d{3}$/', $secondPaymentId);
+        $this->assertNotSame($firstPaymentId, $secondPaymentId);
     }
 }

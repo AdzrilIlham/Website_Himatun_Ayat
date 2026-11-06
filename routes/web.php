@@ -7,12 +7,15 @@ use App\Http\Controllers\Admin\KampanyeController;
 use App\Http\Controllers\Admin\KelolaDonasiController;
 use App\Http\Controllers\Admin\LaporanEksporController;
 use App\Http\Controllers\BeritaKegiatanController;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\User\LandingPageController;
 use App\Http\Controllers\User\TentangKamiController;
+use App\Livewire\User\KampanyeDonasi;
+use Illuminate\Support\Facades\Route;
 
 // Halaman Publik
 Route::get('/', [LandingPageController::class, 'index'])->name('home');
+Route::get('/kampanye', KampanyeDonasi::class)->name('kampanye.index');
+Route::get('/donasi', KampanyeDonasi::class)->name('donasi.index');
 Route::get('/tentang-kami', [TentangKamiController::class, 'index'])->name('tentang-kami');
 Route::get('/profile', [TentangKamiController::class, 'index'])->name('profile');
 Route::get('/berita-kegiatan', [BeritaKegiatanController::class, 'index'])->name('berita-kegiatan.index');

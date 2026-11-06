@@ -34,7 +34,7 @@ class KampanyeDonasi extends Component
 
     public string $metodePembayaran = 'QRIS';
 
-    public string $paymentId = 'DNS-12345678-123';
+    public string $paymentId = '';
 
     public int $paymentStep = 1;
 
@@ -182,11 +182,22 @@ class KampanyeDonasi extends Component
         ]);
 
         $this->currentDonasi = $donasi;
-        $this->paymentId = 'DNS-'.str_pad((string) (12345000 + $donasi->id), 8, '0', STR_PAD_LEFT).'-'.str_pad((string) (($donasi->id * 37 + 123) % 900 + 100), 3, '0', STR_PAD_LEFT);
+        $this->paymentId = $this->generatePaymentId($donasi->id);
         $this->paymentStep = 1;
         $this->paymentExpiresAt = now()->addMinutes(5)->timestamp;
         $this->showFailedModal = false;
         $this->showPaymentModal = true;
+    }
+
+    protected function generatePaymentId(?int $donasiId = null): string
+    {
+        do {
+            $firstSegment = (string) random_int(10000000, 99999999);
+            $secondSegment = str_pad((string) random_int(100, 999), 3, '0', STR_PAD_LEFT);
+            $generated = "DNS-{$firstSegment}-{$secondSegment}";
+        } while ($generated === $this->paymentId);
+
+        return $generated;
     }
 
     public function selectMetodePembayaran(string $metode): void
