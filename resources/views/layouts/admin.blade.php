@@ -1,3 +1,17 @@
+@php
+    $moduleBreadcrumb = 'Dashboard';
+    if (request()->is('admin/anak-asuh*')) {
+        $moduleBreadcrumb = 'Data Anak Asuh';
+    } elseif (request()->is('admin/kelola-donasi*')) {
+        $moduleBreadcrumb = 'Kelola Donasi';
+    } elseif (request()->is('admin/kelola-kampanye*')) {
+        $moduleBreadcrumb = 'Kelola Kampanye';
+    } elseif (request()->is('admin/cms-berita*')) {
+        $moduleBreadcrumb = 'CMS Berita';
+    } elseif (request()->is('admin/laporan-ekspor*') || request()->is('admin/laporan*')) {
+        $moduleBreadcrumb = 'Laporan & Ekspor';
+    }
+@endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
@@ -5,7 +19,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ $title ?? 'Admin Panel - Himmatun Ayat Bandung' }}</title>
+    <title>@yield('title', ($title ?? ($moduleBreadcrumb . ' - Admin Panel Himmatun Ayat')))</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -135,27 +149,158 @@
 
         <!-- Main Workspace (Hanya main yang scroll secara mandiri) -->
         <div class="flex-1 flex flex-col h-screen overflow-hidden min-w-0">
-            <!-- Topbar Mobile & Tablet (Tombol Hamburger Menu) -->
-            <header class="lg:hidden h-16 border-b border-border bg-card px-4 sm:px-6 flex items-center justify-between shrink-0 z-30">
-                <button type="button" 
-                        data-hs-overlay="#admin-sidebar"
-                        aria-controls="admin-sidebar"
-                        class="p-2 -ml-2 rounded-xl text-muted-foreground-2 hover:text-foreground hover:bg-muted transition"
-                        aria-label="Buka menu">
-                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-                    </svg>
-                </button>
+            @php
+                $notifications = $notifications ?? app(\App\Services\LaporanService::class)->getNotifications(6);
+            @endphp
+            <!-- Global Topbar (Mobile, Tablet & Desktop) -->
+            <header class="h-16 border-b border-border bg-card px-4 sm:px-6 lg:px-8 flex items-center justify-between shrink-0 z-30"
+                    x-data="{ 
+                        unreadCount: {{ (int) ($notifications['unread_count'] ?? 0) }},
+                        markAllRead() {
+                            this.unreadCount = 0;
+                        }
+                    }">
+                <!-- Left: Hamburger (Mobile) + Breadcrumb / Title (Desktop) -->
+                <div class="flex items-center gap-3">
+                    <button type="button" 
+                            data-hs-overlay="#admin-sidebar"
+                            aria-controls="admin-sidebar"
+                            class="p-2 -ml-2 rounded-xl text-muted-foreground-2 hover:text-foreground hover:bg-muted transition lg:hidden"
+                            aria-label="Buka menu">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                        </svg>
+                    </button>
 
-                <div class="flex items-center gap-2">
-                    <img src="{{ asset('images/logo-himmatun-ayat.png') }}" 
-                         alt="Logo Himmatun Ayat" 
-                         class="w-8 h-8 object-contain shrink-0">
-                    <span class="font-bold text-sm text-foreground">Admin Panel</span>
+                    <div class="flex items-center gap-2 lg:hidden">
+                        <img src="{{ asset('images/logo-himmatun-ayat.png') }}" 
+                             alt="Logo Himmatun Ayat" 
+                             class="w-8 h-8 object-contain shrink-0">
+                        <span class="font-bold text-sm text-foreground">@yield('page-title', $breadcrumb ?? $moduleBreadcrumb)</span>
+                    </div>
+
+                    <!-- Desktop Breadcrumb Context -->
+                    <div class="hidden lg:flex items-center gap-2 text-xs font-medium text-muted-foreground">
+                        <span class="text-brand-800 font-semibold">Yayasan Himmatun Ayat</span>
+                        <svg class="w-3.5 h-3.5 text-muted-foreground/60" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                        </svg>
+                        <div class="inline-flex items-center gap-2 text-foreground font-bold">
+                            @yield('breadcrumb', $breadcrumb ?? $moduleBreadcrumb)
+                        </div>
+                    </div>
                 </div>
 
-                <div class="w-8 h-8 rounded-full bg-brand-700 flex items-center justify-center font-bold text-xs text-white">
-                    AD
+                <!-- Right Action Bar: Notification Bell + Quick Actions + Profile -->
+                <div class="flex items-center gap-2.5 sm:gap-3">
+                    <!-- Notification Bell Dropdown (Preline UI + Alpine.js) -->
+                    <div class="hs-dropdown relative inline-flex [--placement:bottom-right]">
+                        <button id="hs-header-notification-dropdown" 
+                                type="button" 
+                                class="hs-dropdown-toggle relative p-2 rounded-xl text-muted-foreground-2 hover:text-foreground hover:bg-muted focus:outline-hidden transition cursor-pointer"
+                                aria-haspopup="menu" 
+                                aria-expanded="false" 
+                                aria-controls="hs-header-notification-menu"
+                                aria-label="Buka notifikasi">
+                            <svg class="w-5 h-5 sm:w-5.5 sm:h-5.5" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+                            </svg>
+                            <!-- Badge Unread Counter (Alpine x-show) -->
+                            <span x-show="unreadCount > 0" 
+                                  x-text="unreadCount > 99 ? '99+' : unreadCount"
+                                  class="absolute top-1 right-1 flex items-center justify-center min-w-4.5 h-4.5 px-1 text-[10px] font-extrabold text-white bg-danger rounded-full ring-2 ring-card shadow-xs animate-pulse">
+                                {{ $notifications['unread_count'] ?? 0 }}
+                            </span>
+                        </button>
+
+                        <!-- Notification Dropdown Panel -->
+                        <div id="hs-header-notification-menu" 
+                             class="hs-dropdown-menu hs-dropdown-open:opacity-100 hidden mt-2 w-80 sm:w-96 max-w-[90vw] rounded-2xl border border-border bg-card p-0 opacity-0 shadow-xl transition-[opacity,margin] duration z-50 overflow-hidden" 
+                             role="menu" 
+                             aria-labelledby="hs-header-notification-dropdown">
+                            
+                            <!-- Header Dropdown -->
+                            <div class="p-3.5 sm:p-4 bg-muted/60 border-b border-border flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <h3 class="font-bold text-sm text-foreground">Pusat Notifikasi</h3>
+                                    <span x-show="unreadCount > 0" 
+                                          class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                                        <span x-text="unreadCount"></span> Baru
+                                    </span>
+                                </div>
+                                <button type="button" 
+                                        @click="markAllRead()"
+                                        x-show="unreadCount > 0"
+                                        class="text-2xs text-brand-700 hover:text-brand-900 font-semibold transition cursor-pointer">
+                                    Tandai Dibaca
+                                </button>
+                            </div>
+
+                            <!-- List of Notifications -->
+                            <div class="max-h-80 overflow-y-auto divide-y divide-border-line-1">
+                                @forelse($notifications['items'] ?? [] as $notif)
+                                    <a href="{{ $notif['url'] ?? '#' }}" 
+                                       class="p-3 sm:p-3.5 flex items-start gap-3 hover:bg-muted/70 transition block text-left">
+                                        <div class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5
+                                            @if(($notif['badge_color'] ?? '') === 'amber') bg-amber-50 text-amber-600 border border-amber-200
+                                            @elseif(($notif['badge_color'] ?? '') === 'emerald') bg-emerald-50 text-emerald-600 border border-emerald-200
+                                            @elseif(($notif['badge_color'] ?? '') === 'blue') bg-blue-50 text-blue-600 border border-blue-200
+                                            @else bg-purple-50 text-purple-600 border border-purple-200 @endif">
+                                            @if(($notif['icon'] ?? '') === 'wallet')
+                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a2.25 2.25 0 00-2.25-2.25H15a3 3 0 11-6 0H5.25A2.25 2.25 0 003 12m18 0v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6m18 0V9M3 12V9m18 0a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 9m18 0V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v3" />
+                                                </svg>
+                                            @elseif(($notif['icon'] ?? '') === 'heart')
+                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                                                </svg>
+                                            @elseif(($notif['icon'] ?? '') === 'user')
+                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                                                </svg>
+                                            @else
+                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5M6 7.5h3v3H6v-3z" />
+                                                </svg>
+                                            @endif
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <div class="flex items-center justify-between gap-1.5">
+                                                <p class="text-xs font-bold text-foreground truncate">{{ $notif['title'] }}</p>
+                                                <span class="text-[10px] text-muted-foreground shrink-0 font-medium">{{ $notif['time_ago'] }}</span>
+                                            </div>
+                                            <p class="text-xs text-muted-foreground-1 mt-0.5 line-clamp-2 leading-relaxed">{{ $notif['desc'] }}</p>
+                                        </div>
+                                    </a>
+                                @empty
+                                    <div class="p-6 text-center text-xs text-muted-foreground">
+                                        Tidak ada notifikasi baru saat ini.
+                                    </div>
+                                @endforelse
+                            </div>
+
+                            <!-- Footer Dropdown -->
+                            <div class="p-2.5 bg-muted/40 border-t border-border text-center">
+                                <a href="/admin/dashboard" class="text-xs font-bold text-brand-700 hover:text-brand-900 transition">
+                                    Lihat Semua di Dashboard &rarr;
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Divider -->
+                    <div class="h-6 w-px bg-border"></div>
+
+                    <!-- User Profile Quick Badge -->
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-full bg-brand-700 flex items-center justify-center font-bold text-xs text-white shadow-2xs">
+                            AD
+                        </div>
+                        <div class="hidden sm:block text-left">
+                            <p class="text-xs font-bold text-foreground leading-tight">Admin Yayasan</p>
+                            <p class="text-[10px] text-muted-foreground font-medium">Petugas Operasional</p>
+                        </div>
+                    </div>
                 </div>
             </header>
 

@@ -28,6 +28,10 @@ class DashboardController extends Controller
         $summary = $this->laporanService->getDashboardSummary();
         $counts = $this->laporanService->getCountByMetode($tanggal);
         $donasiPending = $this->laporanService->getPendingDonasi($search, $metode, $tanggal, 5);
+        $chartData = $this->laporanService->getDonasiChartData();
+        $distribusiData = $this->laporanService->getDonasiDistribusiData();
+        $recentActivities = $this->laporanService->getRecentActivities(6);
+        $notifications = $this->laporanService->getNotifications(6);
 
         return view('admin.dashboard', compact(
             'summary',
@@ -35,7 +39,11 @@ class DashboardController extends Controller
             'donasiPending',
             'search',
             'metode',
-            'tanggal'
+            'tanggal',
+            'chartData',
+            'distribusiData',
+            'recentActivities',
+            'notifications'
         ));
     }
 

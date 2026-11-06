@@ -1,5 +1,8 @@
 @extends('layouts.admin')
 
+@section('title', 'Dashboard - Admin Panel Himmatun Ayat')
+@section('breadcrumb', 'Dashboard')
+
 @section('content')
 <div class="space-y-4 pb-12" x-data="{ previewSrc: '', previewDonatur: '', previewNominal: '' }">
     <!-- Flash Notifications -->
@@ -115,7 +118,174 @@
         </div>
     </div>
 
-    <!-- Filter & Search Bar Section -->
+    <!-- ========================================================================= -->
+    <!-- BARIS 2: VISUALISASI ANALITIK (AREA CHART 8 COLS & DONUT CHART 4 COLS)     -->
+    <!-- ========================================================================= -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 pt-2">
+        <!-- 1. Area Chart: Tren Pertumbuhan Donasi (8 Kolom) -->
+        <div class="lg:col-span-8 bg-card rounded-2xl p-4 sm:p-6 border border-border shadow-2xs flex flex-col justify-between"
+             x-data="donationTrendChart(@js($chartData))">
+            <div>
+                <!-- Header Card & Preline UI Filter Dropdown -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-border-line-1">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-brand-600 animate-pulse"></span>
+                            <h2 class="text-base sm:text-lg font-bold text-foreground tracking-tight">Tren Pertumbuhan Donasi</h2>
+                        </div>
+                        <p class="text-xs text-muted-foreground-1 mt-0.5">Analisis realisasi akumulasi dana donasi dan jumlah partisipasi donatur</p>
+                    </div>
+
+                    <!-- Filter Rentang Waktu (Preline UI Dropdown + Alpine.js) -->
+                    <div class="hs-dropdown relative inline-flex [--placement:bottom-right]">
+                        <button id="hs-chart-period-dropdown" 
+                                type="button" 
+                                class="hs-dropdown-toggle inline-flex items-center gap-x-2 py-1.5 px-3 rounded-xl border border-border bg-surface hover:bg-surface-hover text-xs font-semibold text-foreground shadow-2xs transition focus:outline-hidden"
+                                aria-haspopup="menu" 
+                                aria-expanded="false" 
+                                aria-controls="hs-chart-period-menu">
+                            <svg class="w-3.5 h-3.5 text-muted-foreground-1" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.253M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                            </svg>
+                            <span x-text="activeMetrics.label">6 Bulan Terakhir</span>
+                            <svg class="w-3.5 h-3.5 text-muted-foreground transition" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                            </svg>
+                        </button>
+
+                        <div id="hs-chart-period-menu" 
+                             class="hs-dropdown-menu hs-dropdown-open:opacity-100 hidden mt-2 min-w-44 rounded-xl border border-border bg-card p-1.5 opacity-0 shadow-lg transition-[opacity,margin] duration z-30" 
+                             role="menu" 
+                             aria-labelledby="hs-chart-period-dropdown">
+                            <button type="button" 
+                                    @click="changePeriod('6m')" 
+                                    :class="currentPeriod === '6m' ? 'bg-brand-50 text-brand-800 font-bold' : 'text-foreground hover:bg-muted'"
+                                    class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs transition cursor-pointer">
+                                <span>6 Bulan Terakhir</span>
+                                <span x-show="currentPeriod === '6m'" class="text-brand-700">✓</span>
+                            </button>
+                            <button type="button" 
+                                    @click="changePeriod('30d')" 
+                                    :class="currentPeriod === '30d' ? 'bg-brand-50 text-brand-800 font-bold' : 'text-foreground hover:bg-muted'"
+                                    class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs transition cursor-pointer">
+                                <span>30 Hari Terakhir</span>
+                                <span x-show="currentPeriod === '30d'" class="text-brand-700">✓</span>
+                            </button>
+                            <button type="button" 
+                                    @click="changePeriod('1y')" 
+                                    :class="currentPeriod === '1y' ? 'bg-brand-50 text-brand-800 font-bold' : 'text-foreground hover:bg-muted'"
+                                    class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs transition cursor-pointer">
+                                <span>Tahun {{ now()->year }}</span>
+                                <span x-show="currentPeriod === '1y'" class="text-brand-700">✓</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Highlight Metrics Ribbon -->
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-3.5 pb-2">
+                    <div class="p-3 rounded-xl bg-muted/60 border border-border-line-1">
+                        <span class="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider block">Total Realisasi Periode Ini</span>
+                        <span class="text-lg sm:text-xl font-extrabold text-brand-900 dark:text-brand-200 block mt-0.5"
+                              x-text="'Rp' + new Intl.NumberFormat('id-ID').format(activeMetrics.total_nominal)">
+                            Rp{{ number_format($chartData['6m']['total_nominal'], 0, ',', '.') }}
+                        </span>
+                    </div>
+                    <div class="p-3 rounded-xl bg-muted/60 border border-border-line-1">
+                        <span class="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider block">Total Partisipasi</span>
+                        <div class="flex items-baseline gap-1 mt-0.5">
+                            <span class="text-lg sm:text-xl font-extrabold text-foreground"
+                                  x-text="activeMetrics.total_donatur">
+                                {{ $chartData['6m']['total_donatur'] }}
+                            </span>
+                            <span class="text-xs font-semibold text-muted-foreground">Donatur</span>
+                        </div>
+                    </div>
+                    <div class="col-span-2 sm:col-span-1 p-3 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/40">
+                        <span class="text-[11px] font-semibold text-emerald-800 dark:text-emerald-300 uppercase tracking-wider block">Status Penyaluran</span>
+                        <div class="flex items-center gap-1.5 mt-1 text-xs font-bold text-emerald-700 dark:text-emerald-400">
+                            <svg class="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                            </svg>
+                            <span>100% Tersalurkan Amanah</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chart Canvas Container -->
+                <div class="mt-2 min-h-[290px] relative">
+                    <div x-ref="chartContainer" class="w-full"></div>
+                </div>
+            </div>
+
+            <!-- Footer Keterangan Chart -->
+            <div class="pt-3 border-t border-border-line-1 flex items-center justify-between text-[11px] text-muted-foreground">
+                <span class="flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-brand-700"></span> Area hijau: Nominal dana donasi
+                    <span class="w-2 h-2 rounded-full bg-slate-400 ml-2"></span> Bar abu-abu: Jumlah donatur
+                </span>
+                <span class="font-medium text-muted-foreground-1 hidden sm:inline">Diperbarui otomatis dari transaksi terverifikasi</span>
+            </div>
+        </div>
+
+        <!-- 2. Donut Chart: Distribusi Kategori / Program Donasi (4 Kolom) -->
+        <div class="lg:col-span-4 bg-card rounded-2xl p-4 sm:p-6 border border-border shadow-2xs flex flex-col justify-between"
+             x-data="distributionDonutChart(@js($distribusiData))">
+            <div>
+                <!-- Header Donut Card -->
+                <div class="pb-3 border-b border-border-line-1">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-base sm:text-lg font-bold text-foreground tracking-tight">Sebaran Donasi</h2>
+                        <span class="text-2xs font-semibold px-2 py-0.5 rounded-full bg-brand-50 text-brand-800 border border-brand-200">
+                            Terverifikasi
+                        </span>
+                    </div>
+                    <p class="text-xs text-muted-foreground-1 mt-0.5">Proporsi penyaluran berdasarkan program kampanye</p>
+                </div>
+
+                <!-- Donut Chart Canvas Container -->
+                <div class="py-3 flex items-center justify-center min-h-[250px] w-full">
+                    <div x-ref="donutContainer" class="w-full flex items-center justify-center"></div>
+                </div>
+
+                <!-- Custom Informative Legend List -->
+                <div class="space-y-2 pt-2 border-t border-border-line-1">
+                    <template x-for="(label, idx) in distData.labels" :key="idx">
+                        <div class="flex items-center justify-between p-1.5 rounded-lg hover:bg-muted/60 transition text-xs">
+                            <div class="flex items-center gap-2 min-w-0 pr-2">
+                                <span class="w-2.5 h-2.5 rounded-full shrink-0" :style="'background-color: ' + distData.colors[idx]"></span>
+                                <span class="font-medium text-foreground truncate" x-text="label"></span>
+                            </div>
+                            <div class="flex items-center gap-2 shrink-0">
+                                <span class="font-bold text-slate-800 dark:text-slate-200 tabular-nums" 
+                                      x-text="'Rp' + (distData.series[idx] >= 1000000 ? (distData.series[idx] / 1000000).toFixed(1) + 'Jt' : new Intl.NumberFormat('id-ID').format(distData.series[idx]))">
+                                </span>
+                                <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-muted text-muted-foreground-2 tabular-nums"
+                                      x-text="distData.percentages[idx] + '%'">
+                                </span>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Total Akumulasi Bawah -->
+            <div class="pt-3.5 border-t border-border-line-1 flex items-center justify-between text-xs text-muted-foreground-1">
+                <span>Total Dana Binaan:</span>
+                <span class="font-extrabold text-foreground text-sm">
+                    Rp{{ number_format($distribusiData['total_nominal'], 0, ',', '.') }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- BARIS 3: DATA TRANSAKSI & MODUL AKTIVITAS TERBARU (8 COLS & 4 COLS)       -->
+    <!-- ========================================================================= -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 pt-2 items-start">
+        <!-- 1. Kolom Kiri: Tabel Antrian Validasi Donasi (8 Kolom) -->
+        <div class="lg:col-span-8 space-y-4">
+            <!-- Filter & Search Bar Section -->
     <div class="bg-transparent flex flex-col lg:flex-row lg:items-center justify-between gap-3">
         <!-- Search Input -->
         <form method="GET" action="{{ route('admin.dashboard') }}" class="flex-1 max-w-md">
@@ -202,30 +372,30 @@
         
         <!-- 1. Tampilan Tabel Khusus Desktop & Tablet (md ke atas) -->
         <div class="hidden md:block overflow-x-auto">
-            <table class="w-full text-left text-sm table-fixed min-w-[800px]">
+            <table class="w-full text-left text-sm table-fixed min-w-full">
                 <colgroup>
-                    <col class="w-[22%]">
+                    <col class="w-[24%]">
+                    <col class="w-[18%]">
+                    <col class="w-[18%]">
+                    <col class="w-[9%]">
+                    <col class="w-[16%]">
                     <col class="w-[15%]">
-                    <col class="w-[23%]">
-                    <col class="w-[13%]">
-                    <col class="w-[15%]">
-                    <col class="w-[12%]">
                 </colgroup>
                 <thead>
                     <tr class="border-b border-border-line-1 text-2xs font-bold text-muted-foreground uppercase tracking-wider">
-                        <th class="w-[22%] py-2.5 sm:py-3 px-4 sm:px-6 font-semibold text-left">DONATUR</th>
-                        <th class="w-[15%] py-2.5 sm:py-3 px-4 sm:px-6 font-semibold text-center">NOMINAL</th>
-                        <th class="w-[23%] py-2.5 sm:py-3 px-4 sm:px-6 font-semibold text-center">DOA/HARAPAN</th>
-                        <th class="w-[13%] py-2.5 sm:py-3 px-4 sm:px-6 font-semibold text-center">BUKTI TRANSFER</th>
-                        <th class="w-[15%] py-2.5 sm:py-3 px-4 sm:px-6 font-semibold text-center">STATUS</th>
-                        <th class="w-[12%] py-2.5 sm:py-3 px-4 sm:px-6 font-semibold text-center">AKSI VALIDASI</th>
+                        <th class="py-2.5 sm:py-3 px-3 font-semibold text-left">DONATUR</th>
+                        <th class="py-2.5 sm:py-3 px-2 font-semibold text-center whitespace-nowrap">NOMINAL</th>
+                        <th class="py-2.5 sm:py-3 px-2 font-semibold text-center">DOA/HARAPAN</th>
+                        <th class="py-2.5 sm:py-3 px-1.5 font-semibold text-center whitespace-nowrap">BUKTI</th>
+                        <th class="py-2.5 sm:py-3 px-1.5 font-semibold text-center whitespace-nowrap">STATUS</th>
+                        <th class="py-2.5 sm:py-3 px-2 font-semibold text-center whitespace-nowrap">AKSI</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-border-line-1">
                     @forelse($donasiPending as $donasi)
                         <tr class="hover:bg-muted/60 transition">
                             <!-- DONATUR (Rata Kiri) -->
-                            <td class="py-2.5 sm:py-3 px-4 sm:px-6 align-middle text-left">
+                            <td class="py-2.5 sm:py-3 px-3 align-middle text-left">
                                 <div class="flex flex-col items-start justify-center text-left max-w-full">
                                     <p class="font-bold text-foreground leading-tight text-left truncate max-w-full">{{ $donasi->nama_donatur }}</p>
                                     @if($donasi->no_whatsapp)
@@ -242,22 +412,22 @@
                                 </div>
                             </td>
 
-                            <!-- NOMINAL (Rata Tengah) -->
-                            <td class="py-2.5 sm:py-3 px-4 sm:px-6 align-middle text-center">
-                                <span class="font-extrabold text-sm sm:text-base text-brand-900 dark:text-brand-200 block text-center truncate">
+                            <!-- NOMINAL (Rata Tengah, tampil utuh tanpa terpotong) -->
+                            <td class="py-2.5 sm:py-3 px-2 align-middle text-center">
+                                <span class="font-extrabold text-sm text-brand-900 dark:text-brand-200 block text-center whitespace-nowrap tabular-nums">
                                     Rp{{ number_format($donasi->nominal, 0, ',', '.') }}
                                 </span>
                             </td>
 
                             <!-- DOA/HARAPAN (Rata Tengah) -->
-                            <td class="py-2.5 sm:py-3 px-4 sm:px-6 align-middle text-center">
+                            <td class="py-2.5 sm:py-3 px-2 align-middle text-center">
                                 <p class="text-xs text-muted-foreground-2 line-clamp-2 text-center mx-auto break-words">
                                     {{ $donasi->pesan_doa ?: '-' }}
                                 </p>
                             </td>
 
                             <!-- BUKTI TRANSFER THUMBNAIL (Rata Tengah & Buka Overlay Modal) -->
-                            <td class="py-2.5 sm:py-3 px-4 sm:px-6 align-middle text-center">
+                            <td class="py-2.5 sm:py-3 px-1.5 align-middle text-center">
                                 @php
                                     $proofUrl = $donasi->bukti_transfer_path ? asset($donasi->bukti_transfer_path) : null;
                                 @endphp
@@ -269,46 +439,46 @@
                                                 aria-controls="proof-preview-modal"
                                                 @click="previewSrc = '{{ $proofUrl }}'; previewDonatur = '{{ addslashes($donasi->nama_donatur) }}'; previewNominal = 'Rp{{ number_format($donasi->nominal, 0, ',', '.') }}'"
                                                 aria-label="Lihat bukti transfer {{ $donasi->nama_donatur }}"
-                                                class="group block w-9 h-12 rounded-lg overflow-hidden border border-border shadow-2xs hover:border-brand-600 transition bg-muted cursor-pointer">
+                                                class="group block w-8 h-10 rounded-lg overflow-hidden border border-border shadow-2xs hover:border-brand-600 transition bg-muted cursor-pointer">
                                             <img src="{{ $proofUrl }}" alt="Bukti Transfer" class="w-full h-full object-cover group-hover:scale-105 transition">
                                         </button>
                                     </div>
                                 @else
-                                    <span class="text-xs text-muted-foreground italic">Tidak ada foto</span>
+                                    <span class="text-xs text-muted-foreground italic">-</span>
                                 @endif
                             </td>
 
                             <!-- STATUS (Rata Tengah) -->
-                            <td class="py-2.5 sm:py-3 px-4 sm:px-6 align-middle text-center">
+                            <td class="py-2.5 sm:py-3 px-1.5 align-middle text-center">
                                 <div class="flex justify-center">
                                     @if($donasi->status === 'pending')
-                                        <span class="badge badge-warning gap-1.5">
-                                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                        <span class="badge badge-warning gap-1 text-[11px] py-0.5 px-2 whitespace-nowrap">
+                                            <svg class="w-3 h-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                                             </svg>
                                             <span>Menunggu Verifikasi</span>
                                         </span>
                                     @elseif($donasi->status === 'verified')
-                                        <span class="badge badge-success gap-1.5">
+                                        <span class="badge badge-success gap-1 text-[11px] py-0.5 px-2 whitespace-nowrap">
                                             ✓ Terverifikasi
                                         </span>
                                     @else
-                                        <span class="badge badge-danger gap-1.5">
+                                        <span class="badge badge-danger gap-1 text-[11px] py-0.5 px-2 whitespace-nowrap">
                                             ✕ Ditolak
                                         </span>
                                     @endif
                                 </div>
                             </td>
 
-                            <!-- AKSI VALIDASI (Rata Tengah) -->
-                            <td class="py-2.5 sm:py-3 px-4 sm:px-6 align-middle text-center">
+                            <!-- AKSI VALIDASI (Rata Tengah, tombol utuh tidak terpotong) -->
+                            <td class="py-2.5 sm:py-3 px-2 align-middle text-center">
                                 <div class="inline-flex items-center justify-center gap-1.5">
                                     <!-- Tombol Verif -->
                                     <form method="POST" action="{{ route('admin.donasi.verifikasi', $donasi->id) }}">
                                         @csrf
                                         <button type="submit" 
                                                 onclick="return confirm('Verifikasi donasi sebesar Rp{{ number_format($donasi->nominal, 0, ',', '.') }} dari {{ $donasi->nama_donatur }}?')"
-                                                class="px-3 py-1 rounded-lg text-xs font-semibold border border-success/40 bg-success-soft text-success hover:bg-success hover:text-white transition">
+                                                class="px-2.5 py-1 rounded-lg text-xs font-bold border border-success/40 bg-success-soft text-success hover:bg-success hover:text-white transition whitespace-nowrap cursor-pointer">
                                             Verif
                                         </button>
                                     </form>
@@ -318,7 +488,7 @@
                                         @csrf
                                         <button type="submit" 
                                                 onclick="return confirm('Tolak donasi ini?')"
-                                                class="px-3 py-1 rounded-lg text-xs font-semibold border border-danger/40 bg-danger-soft text-danger hover:bg-danger hover:text-white transition">
+                                                class="px-2.5 py-1 rounded-lg text-xs font-bold border border-danger/40 bg-danger-soft text-danger hover:bg-danger hover:text-white transition whitespace-nowrap cursor-pointer">
                                             Tolak
                                         </button>
                                     </form>
@@ -359,7 +529,7 @@
                                     <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
-                                    <span>Menunggu</span>
+                                    <span>Menunggu Verifikasi</span>
                                 </span>
                             @elseif($donasi->status === 'verified')
                                 <span class="badge badge-success gap-1">
@@ -500,6 +670,97 @@
             @endif
         </div>
     </div>
+    </div>
+
+        <!-- 2. Kolom Kanan: Card Aktivitas & Notifikasi Masuk (4 Kolom) -->
+        <div class="lg:col-span-4 bg-card rounded-2xl p-4 sm:p-5 border border-border shadow-2xs space-y-3.5">
+            <!-- Header Card Aktivitas -->
+            <div class="flex items-center justify-between pb-3 border-b border-border-line-1">
+                <div>
+                    <h2 class="text-base font-bold text-foreground tracking-tight">Aktivitas & Log Masuk</h2>
+                    <p class="text-xs text-muted-foreground-1 mt-0.5">Pemantauan lintas modul sistem yayasan</p>
+                </div>
+                <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-[11px] font-bold text-emerald-700 dark:text-emerald-400">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
+                    <span>Live</span>
+                </div>
+            </div>
+
+            <!-- List Aktivitas Terbaru -->
+            <div class="space-y-2.5">
+                @forelse($recentActivities as $activity)
+                    <a href="{{ $activity['url'] }}" 
+                       class="group p-3 rounded-xl border border-border-line-1 bg-muted/40 hover:bg-muted hover:border-brand-400 hover:shadow-2xs transition flex items-start gap-3 text-left block cursor-pointer">
+                        <!-- Icon Badge -->
+                        <div class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5 shadow-2xs
+                            @if($activity['badge_color'] === 'amber') bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300
+                            @elseif($activity['badge_color'] === 'emerald') bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300
+                            @elseif($activity['badge_color'] === 'blue') bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300
+                            @else bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 @endif">
+                            @if($activity['icon'] === 'wallet')
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a2.25 2.25 0 00-2.25-2.25H15a3 3 0 11-6 0H5.25A2.25 2.25 0 003 12m18 0v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6m18 0V9M3 12V9m18 0a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 9m18 0V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v3" />
+                                </svg>
+                            @elseif($activity['icon'] === 'heart')
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                                </svg>
+                            @elseif($activity['icon'] === 'user')
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                                </svg>
+                            @else
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5M6 7.5h3v3H6v-3z" />
+                                </svg>
+                            @endif
+                        </div>
+
+                        <!-- Content Info -->
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between gap-1.5">
+                                <span class="text-xs font-bold text-foreground group-hover:text-brand-700 transition truncate">{{ $activity['title'] }}</span>
+                                <span class="text-[10px] text-muted-foreground shrink-0 font-medium">{{ $activity['time_ago'] }}</span>
+                            </div>
+                            <p class="text-xs text-muted-foreground-1 mt-0.5 line-clamp-2 leading-relaxed">{{ $activity['desc'] }}</p>
+                            <div class="mt-1.5 flex items-center justify-between">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold
+                                    @if($activity['badge_color'] === 'amber') bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300
+                                    @elseif($activity['badge_color'] === 'emerald') bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300
+                                    @elseif($activity['badge_color'] === 'blue') bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300
+                                    @else bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300 @endif">
+                                    {{ $activity['badge'] }}
+                                </span>
+                                <span class="inline-flex items-center gap-1 text-[11px] font-bold text-brand-700 dark:text-brand-400 group-hover:text-brand-900 transition">
+                                    <span>Buka</span>
+                                    <svg class="w-3 h-3 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                                    </svg>
+                                </span>
+                            </div>
+                        </div>
+                    </a>
+                @empty
+                    <div class="py-8 text-center text-xs text-muted-foreground">
+                        Belum ada aktivitas tercatat hari ini.
+                    </div>
+                @endforelse
+            </div>
+
+            <!-- Footer Card: Action Links -->
+            <div class="pt-3 border-t border-border-line-1 flex items-center justify-between text-xs">
+                <a href="{{ route('admin.kelola-donasi.index') }}" class="font-bold text-brand-700 hover:text-brand-900 transition flex items-center gap-1">
+                    <span>Kelola Semua Donasi</span>
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                    </svg>
+                </a>
+                <a href="{{ route('admin.laporan-ekspor.index') }}" class="font-medium text-muted-foreground hover:text-foreground transition">
+                    Rekap Laporan
+                </a>
+            </div>
+        </div>
+    </div>
 
     <!-- Modal Preview Bukti Transfer (Preline Modal) -->
     <div id="proof-preview-modal"
@@ -550,8 +811,306 @@
     </div>
 </div>
 
-<!-- Auto-refresh Script: hanya me-refresh jika tab aktif dan pengguna tidak sedang mengetik/fokus -->
+<!-- Script Grafik ApexCharts & Auto-refresh -->
 <script>
+    function donationTrendChart(initialData) {
+        return {
+            chartData: initialData,
+            currentPeriod: '6m',
+            chartInstance: null,
+            get activeMetrics() {
+                return this.chartData[this.currentPeriod] || {
+                    label: '',
+                    categories: [],
+                    nominal: [],
+                    donatur: [],
+                    total_nominal: 0,
+                    total_donatur: 0
+                };
+            },
+            init() {
+                this.$nextTick(() => {
+                    const checkAndInit = () => {
+                        if (typeof ApexCharts !== 'undefined' && this.$refs.chartContainer) {
+                            this.renderChart();
+                        } else {
+                            setTimeout(checkAndInit, 50);
+                        }
+                    };
+                    checkAndInit();
+                });
+            },
+            changePeriod(period) {
+                this.currentPeriod = period;
+                const data = this.activeMetrics;
+                if (this.chartInstance) {
+                    this.chartInstance.updateOptions({
+                        xaxis: {
+                            categories: data.categories
+                        },
+                        series: [
+                            {
+                                name: 'Nominal Donasi (Rp)',
+                                type: 'area',
+                                data: (data.nominal || []).map(Number)
+                            },
+                            {
+                                name: 'Jumlah Donatur',
+                                type: 'column',
+                                data: (data.donatur || []).map(Number)
+                            }
+                        ]
+                    }, true, true);
+                }
+            },
+            renderChart() {
+                if (!this.$refs.chartContainer || typeof ApexCharts === 'undefined') return;
+
+                if (this.chartInstance) {
+                    try { this.chartInstance.destroy(); } catch (e) {}
+                }
+
+                const data = this.activeMetrics;
+                const options = {
+                    series: [
+                        {
+                            name: 'Nominal Donasi (Rp)',
+                            type: 'area',
+                            data: (data.nominal || []).map(Number)
+                        },
+                        {
+                            name: 'Jumlah Donatur',
+                            type: 'column',
+                            data: (data.donatur || []).map(Number)
+                        }
+                    ],
+                    chart: {
+                        height: 290,
+                        type: 'line',
+                        toolbar: { show: false },
+                        fontFamily: 'inherit',
+                        animations: {
+                            enabled: true,
+                            easing: 'easeinout',
+                            speed: 500
+                        }
+                    },
+                    stroke: {
+                        curve: 'smooth',
+                        width: [2.5, 0]
+                    },
+                    fill: {
+                        type: ['gradient', 'solid'],
+                        gradient: {
+                            shadeIntensity: 1,
+                            opacityFrom: 0.35,
+                            opacityTo: 0.05,
+                            stops: [0, 95, 100]
+                        }
+                    },
+                    colors: ['#16a34a', '#94a3b8'],
+                    plotOptions: {
+                        bar: {
+                            columnWidth: '22%',
+                            borderRadius: 4
+                        }
+                    },
+                    dataLabels: {
+                        enabled: false
+                    },
+                    xaxis: {
+                        categories: data.categories,
+                        axisBorder: { show: false },
+                        axisTicks: { show: false },
+                        labels: {
+                            style: {
+                                colors: '#475569',
+                                fontSize: '11px',
+                                fontWeight: 600
+                            }
+                        }
+                    },
+                    yaxis: [
+                        {
+                            seriesName: 'Nominal Donasi (Rp)',
+                            min: 0,
+                            title: { text: undefined },
+                            labels: {
+                                style: {
+                                    colors: '#475569',
+                                    fontSize: '11px',
+                                    fontWeight: 600
+                                },
+                                formatter: function (value) {
+                                    const val = Number(value);
+                                    if (val >= 1000000) {
+                                        return (val / 1000000).toFixed(0) + ' Jt';
+                                    } else if (val >= 1000) {
+                                        return (val / 1000).toFixed(0) + ' Rb';
+                                    }
+                                    return val;
+                                }
+                            }
+                        },
+                        {
+                            seriesName: 'Jumlah Donatur',
+                            opposite: true,
+                            min: 0,
+                            title: { text: undefined },
+                            labels: {
+                                style: {
+                                    colors: '#475569',
+                                    fontSize: '11px',
+                                    fontWeight: 600
+                                },
+                                formatter: function (value) {
+                                    return Math.round(Number(value)) + ' org';
+                                }
+                            }
+                        }
+                    ],
+                    grid: {
+                        borderColor: '#f1f5f9',
+                        strokeDashArray: 4,
+                        padding: {
+                            left: 10,
+                            right: 10
+                        }
+                    },
+                    legend: {
+                        show: false
+                    },
+                    tooltip: {
+                        shared: true,
+                        intersect: false,
+                        theme: 'light',
+                        y: {
+                            formatter: function (y, { seriesIndex }) {
+                                if (seriesIndex === 0) {
+                                    return 'Rp ' + new Intl.NumberFormat('id-ID').format(y);
+                                }
+                                return y + ' Donatur';
+                            }
+                        }
+                    }
+                };
+
+                this.chartInstance = new ApexCharts(this.$refs.chartContainer, options);
+                this.chartInstance.render();
+            }
+        };
+    }
+
+    function distributionDonutChart(initialDistData) {
+        return {
+            distData: initialDistData,
+            donutInstance: null,
+            init() {
+                this.$nextTick(() => {
+                    const checkAndInit = () => {
+                        if (typeof ApexCharts !== 'undefined' && this.$refs.donutContainer) {
+                            this.renderChart();
+                        } else {
+                            setTimeout(checkAndInit, 50);
+                        }
+                    };
+                    checkAndInit();
+                });
+            },
+            renderChart() {
+                if (!this.$refs.donutContainer || typeof ApexCharts === 'undefined') return;
+
+                if (this.donutInstance) {
+                    try { this.donutInstance.destroy(); } catch (e) {}
+                }
+
+                const options = {
+                    series: (this.distData.series || []).map(Number),
+                    labels: this.distData.labels || [],
+                    colors: this.distData.colors || ['#16a34a', '#2563eb', '#ea580c', '#eab308', '#8b5cf6'],
+                    chart: {
+                        type: 'donut',
+                        height: 250,
+                        width: '100%',
+                        fontFamily: 'inherit',
+                        animations: {
+                            enabled: true,
+                            easing: 'easeinout',
+                            speed: 500
+                        }
+                    },
+                    stroke: {
+                        width: 2,
+                        colors: ['#ffffff']
+                    },
+                    plotOptions: {
+                        pie: {
+                            donut: {
+                                size: '68%',
+                                labels: {
+                                    show: true,
+                                    name: {
+                                        show: true,
+                                        fontSize: '12px',
+                                        fontWeight: 600,
+                                        color: '#475569',
+                                        offsetY: -5
+                                    },
+                                    value: {
+                                        show: true,
+                                        fontSize: '15px',
+                                        fontWeight: 800,
+                                        color: '#0f172a',
+                                        offsetY: 4,
+                                        formatter: function (val) {
+                                            const num = Number(val);
+                                            if (num >= 1000000) {
+                                                return 'Rp' + (num / 1000000).toFixed(1) + 'Jt';
+                                            }
+                                            return 'Rp' + new Intl.NumberFormat('id-ID').format(num);
+                                        }
+                                    },
+                                    total: {
+                                        show: true,
+                                        label: 'Realisasi',
+                                        fontSize: '11px',
+                                        fontWeight: 600,
+                                        color: '#64748b',
+                                        formatter: (w) => {
+                                            const total = w.globals.seriesTotals.reduce((a, b) => a + b, 0);
+                                            if (total >= 1000000) {
+                                                return 'Rp' + (total / 1000000).toFixed(1) + 'Jt';
+                                            }
+                                            return 'Rp' + new Intl.NumberFormat('id-ID').format(total);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    dataLabels: {
+                        enabled: false
+                    },
+                    legend: {
+                        show: false
+                    },
+                    tooltip: {
+                        theme: 'light',
+                        y: {
+                            formatter: function (val) {
+                                return 'Rp ' + new Intl.NumberFormat('id-ID').format(val);
+                            }
+                        }
+                    }
+                };
+
+                this.donutInstance = new ApexCharts(this.$refs.donutContainer, options);
+                this.donutInstance.render();
+            }
+        };
+    }
+
+    // Auto-refresh Script: hanya me-refresh jika tab aktif dan pengguna tidak sedang mengetik/fokus
     setInterval(function() {
         if (document.visibilityState === 'visible') {
             const activeEl = document.activeElement;

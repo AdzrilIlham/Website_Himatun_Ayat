@@ -1,5 +1,8 @@
 @extends('layouts.admin')
 
+@section('title', 'CMS Berita - Admin Panel Himmatun Ayat')
+@section('breadcrumb', 'CMS Berita')
+
 @section('content')
 <div class="space-y-4 sm:space-y-5 pb-12 w-full max-w-full min-w-0" x-data="{
     searchQuery: '',
