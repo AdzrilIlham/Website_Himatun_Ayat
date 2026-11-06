@@ -73,21 +73,23 @@ class KampanyeDonasiTest extends TestCase
             ->assertSee('Selesaikan pembayaran anda')
             ->assertSee('ID Pembayaran:')
             ->assertSee('QRIS')
-            ->assertSee('Transfer Bank BRI')
-            ->assertSee('Transfer Bank BCA')
+            ->assertSee('Transfer Bank')
             ->assertSee('Rincian Pembayaran')
             ->assertSee('Biaya Donasi')
             ->assertSee('Biaya Admin')
             ->assertSee('Bayar Sekarang');
 
-        // Select Transfer Bank BRI
-        $test->call('selectMetodePembayaran', 'Transfer Bank BRI')
-            ->assertSet('metodePembayaran', 'Transfer Bank BRI');
+        // Select Transfer Bank
+        $test->call('selectMetodePembayaran', 'Transfer Bank')
+            ->assertSet('metodePembayaran', 'Transfer Bank');
 
         // Click Bayar Sekarang -> Step 2
         $test->call('payNow')
             ->assertSet('paymentStep', 2)
             ->assertSee('Instruksi Pembayaran')
+            ->assertSee('Bank BSI')
+            ->assertSee('721.919.9827')
+            ->assertSee('Yayasan Himatun Ayat Bandung')
             ->assertSee('Nomor Rekening Resmi:')
             ->assertSee('Kembali');
 

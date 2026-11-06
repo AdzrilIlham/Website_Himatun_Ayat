@@ -236,4 +236,19 @@
     .article-content .callout-text {
         @apply mt-1 text-xs leading-relaxed text-muted-foreground-1 sm:text-sm;
     }
+
+    /* Continuous Vertical Scroll untuk Kartu Doa & Harapan */
+    .doa-continuous-scroll {
+        animation: doa-scroll-vertical var(--doa-scroll-duration, 35s) linear infinite;
+        will-change: transform;
+    }
+}
+
+@keyframes doa-scroll-vertical {
+    0% {
+        transform: translate3d(0, 0, 0);
+    }
+    100% {
+        transform: translate3d(0, -50%, 0);
+    }
 }

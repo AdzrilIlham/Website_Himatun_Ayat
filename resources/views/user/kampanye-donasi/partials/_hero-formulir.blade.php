@@ -229,7 +229,7 @@
                             : $doaItems;
                     @endphp
 
-                    <!-- Card Doa & Harapan Sesuai Mockup (Smooth Auto-Scrolling Vertical Carousel) -->
+                    <!-- Card Doa & Harapan Sesuai Mockup (Smooth Auto-Scrolling Vertical Carousel, Tanpa Pagination Dots) -->
                     <div class="bg-white/95 backdrop-blur-sm border border-slate-200/80 rounded-[32px] p-6 sm:p-7 shadow-lg relative overflow-hidden"
                         x-data="{
                             currentIndex: 0,
@@ -279,11 +279,6 @@
                                     }, 700);
                                 }
                             },
-                            goTo(idx) {
-                                this.isTransitioning = true;
-                                this.currentIndex = idx;
-                                this.updateMeasurements();
-                            },
                             destroy() {
                                 if (this.intervalId) clearInterval(this.intervalId);
                             }
@@ -292,30 +287,14 @@
                         @mouseenter="paused = true"
                         @mouseleave="paused = false">
 
-                        <!-- Header Doa & Harapan -->
-                        <div class="flex items-center justify-between mb-5">
-                            <div>
-                                <h3 class="text-xl font-bold text-foreground tracking-tight">
-                                    Doa & Harapan
-                                </h3>
-                                <p class="text-xs text-muted-foreground-1 mt-0.5 font-medium">
-                                    Untaian kebaikan dari para donatur
-                                </p>
-                            </div>
-
-                            @if ($canScrollDoa)
-                                <!-- Mini progress dots -->
-                                <div class="flex items-center gap-1.5">
-                                    <div class="flex items-center gap-1 ml-1">
-                                        @for ($idx = 0; $idx < $doaCount; $idx++)
-                                            <button type="button" @click="goTo({{ $idx }})"
-                                                :class="(currentIndex % totalItems) === {{ $idx }} ? 'bg-brand-700 w-3' : 'bg-brand-300 w-1.5'"
-                                                class="h-1.5 rounded-full transition-all duration-300 cursor-pointer"
-                                                aria-label="Doa {{ $idx + 1 }}"></button>
-                                        @endfor
-                                    </div>
-                                </div>
-                            @endif
+                        <!-- Header Doa & Harapan (Tanpa Pagination Dots) -->
+                        <div class="mb-5">
+                            <h3 class="text-xl font-bold text-foreground tracking-tight">
+                                Doa & Harapan
+                            </h3>
+                            <p class="text-xs text-muted-foreground-1 mt-0.5 font-medium">
+                                Untaian kebaikan dari para donatur
+                            </p>
                         </div>
 
                         <!-- Area Kartu Doa Otomatis Bergulir Halus (Smooth Vertical Scroll) -->

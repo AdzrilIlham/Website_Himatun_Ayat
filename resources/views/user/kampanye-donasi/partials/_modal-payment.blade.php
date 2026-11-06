@@ -116,16 +116,10 @@
                                 QRIS
                             </button>
 
-                            <!-- Transfer Bank BRI -->
-                            <button type="button" wire:click="selectMetodePembayaran('Transfer Bank BRI')"
-                                class="w-full py-3 sm:py-3.5 px-4 rounded-xl text-center text-xs sm:text-sm font-bold transition border cursor-pointer {{ $metodePembayaran === 'Transfer Bank BRI' ? 'bg-brand-100 border-brand-700 text-brand-800 ring-2 ring-brand-700/25 shadow-xs' : 'bg-brand-50 hover:bg-brand-100 border-brand-200 text-brand-700' }}">
-                                Transfer Bank BRI
-                            </button>
-
-                            <!-- Transfer Bank BCA -->
-                            <button type="button" wire:click="selectMetodePembayaran('Transfer Bank BCA')"
-                                class="w-full py-3 sm:py-3.5 px-4 rounded-xl text-center text-xs sm:text-sm font-bold transition border cursor-pointer {{ $metodePembayaran === 'Transfer Bank BCA' ? 'bg-brand-100 border-brand-700 text-brand-800 ring-2 ring-brand-700/25 shadow-xs' : 'bg-brand-50 hover:bg-brand-100 border-brand-200 text-brand-700' }}">
-                                Transfer Bank BCA
+                            <!-- Transfer Bank -->
+                            <button type="button" wire:click="selectMetodePembayaran('Transfer Bank')"
+                                class="w-full py-3 sm:py-3.5 px-4 rounded-xl text-center text-xs sm:text-sm font-bold transition border cursor-pointer {{ $metodePembayaran === 'Transfer Bank' ? 'bg-brand-100 border-brand-700 text-brand-800 ring-2 ring-brand-700/25 shadow-xs' : 'bg-brand-50 hover:bg-brand-100 border-brand-200 text-brand-700' }}">
+                                Transfer Bank
                             </button>
                         </div>
                     </div>

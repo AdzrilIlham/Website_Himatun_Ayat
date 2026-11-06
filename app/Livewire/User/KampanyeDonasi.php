@@ -54,16 +54,10 @@ class KampanyeDonasi extends Component
 
     public array $bankAccounts = [
         [
-            'bank' => 'BRI',
-            'no_rekening' => '0123-01-098765-53-0',
+            'bank' => 'BSI',
+            'no_rekening' => '721.919.9827',
             'atas_nama' => 'Yayasan Himatun Ayat Bandung',
-            'badge' => 'Bank BRI',
-        ],
-        [
-            'bank' => 'BCA',
-            'no_rekening' => '777-089-2341',
-            'atas_nama' => 'Yayasan Himatun Ayat Bandung',
-            'badge' => 'Bank BCA',
+            'badge' => 'Bank BSI',
         ],
     ];
 
@@ -323,27 +317,15 @@ class KampanyeDonasi extends Component
         $nominal = $this->currentDonasi?->nominal ?? ($this->selectedNominal ?? 0);
 
         return match ($this->metodePembayaran) {
-            'Transfer Bank BRI' => [
-                'bank' => 'Bank BRI',
-                'va_number' => '0123-01-098765-53-0',
+            'Transfer Bank', 'Transfer Bank BSI' => [
+                'bank' => 'Bank BSI',
+                'va_number' => '721.919.9827',
                 'atas_nama' => 'Yayasan Himatun Ayat Bandung',
                 'type' => 'transfer',
                 'cara_bayar' => [
-                    'Buka aplikasi BRImo, m-Banking, atau ATM BRI.',
-                    'Pilih menu Transfer ke nomor rekening BRI di atas.',
-                    'Pastikan nominal sesuai (Rp '.number_format($nominal, 0, ',', '.').') lalu selesaikan transaksi.',
-                    'Unggah foto atau screenshot bukti transfer pada kolom di bawah ini.',
-                ],
-            ],
-            'Transfer Bank BCA' => [
-                'bank' => 'Bank BCA',
-                'va_number' => '777-089-2341',
-                'atas_nama' => 'Yayasan Himatun Ayat Bandung',
-                'type' => 'transfer',
-                'cara_bayar' => [
-                    'Buka aplikasi BCA Mobile, myBCA, atau ATM BCA.',
-                    'Pilih menu m-Transfer / Transfer ke nomor rekening BCA di atas.',
-                    'Pastikan nominal sesuai (Rp '.number_format($nominal, 0, ',', '.').') lalu selesaikan transaksi.',
+                    'Buka aplikasi BYOND by BSI, BSI Mobile, m-Banking bank lain, atau ATM.',
+                    'Pilih menu Transfer ke Bank BSI dengan nomor rekening 721.919.9827 di atas.',
+                    'Pastikan nominal sesuai (Rp '.number_format($nominal, 0, ',', '.').') atas nama Yayasan Himatun Ayat Bandung lalu selesaikan transaksi.',
                     'Unggah foto atau screenshot bukti transfer pada kolom di bawah ini.',
                 ],
             ],
@@ -389,7 +371,8 @@ class KampanyeDonasi extends Component
             ? $kampanyeList->firstWhere('id', $this->selectedKampanyeId)
             : $kampanyeList->first();
 
-        $recentDoa = Donasi::whereNotNull('pesan_doa')
+        $recentDoa = Donasi::where('status', 'verified')
+            ->whereNotNull('pesan_doa')
             ->where('pesan_doa', '!=', '')
             ->latest()
             ->take(12)
