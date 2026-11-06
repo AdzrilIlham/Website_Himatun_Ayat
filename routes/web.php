@@ -9,7 +9,8 @@ use App\Http\Controllers\Admin\KelolaDonasiController;
 use App\Http\Controllers\Admin\LaporanEksporController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', [DashboardController::class, 'index'])->name('home');
+// Root diarahkan ke dashboard terproteksi agar data donasi tidak pernah dirender untuk guest.
+Route::redirect('/', '/admin/dashboard')->name('home');
 Route::redirect('/login', '/admin/login');
 
 // ─── Route Auth (Publik, tidak butuh login) ───────────────────────────────────
