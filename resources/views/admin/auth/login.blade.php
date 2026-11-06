@@ -80,7 +80,7 @@
                             required
                             autofocus
                             autocomplete="email"
-                            placeholder="admin@himmatunayat.org"
+                            placeholder="Email"
                             class="w-full pl-10 pr-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-[#2D6A4F]/20 focus:border-[#2D6A4F] transition outline-none"
                         >
                     </div>
