@@ -3,9 +3,9 @@
         <div wire:key="payment-modal-{{ $paymentId }}"
             x-data="{
                 show: false,
-                expiresAt: {{ $paymentExpiresAt ?? (now()->addSeconds(60)->timestamp) }},
+                expiresAt: {{ $paymentExpiresAt ?? (now()->addMinutes(5)->timestamp) }},
                 hh: '00',
-                mm: '01',
+                mm: '05',
                 ss: '00',
                 expired: false,
                 intervalId: null,
@@ -93,11 +93,11 @@
                             </div>
                         </div>
 
-                        <!-- Countdown Timer Badges [00] : [01] : [00] -->
+                        <!-- Countdown Timer Badges [00] : [05] : [00] -->
                         <div class="flex items-center gap-1 shrink-0 font-mono text-xs sm:text-sm font-bold text-foreground">
                             <span class="inline-flex items-center justify-center min-w-[28px] sm:min-w-[32px] h-7 sm:h-8 px-1.5 rounded-md bg-brand-700 text-white" x-text="hh">00</span>
                             <span class="text-foreground font-bold">:</span>
-                            <span class="inline-flex items-center justify-center min-w-[28px] sm:min-w-[32px] h-7 sm:h-8 px-1.5 rounded-md bg-brand-700 text-white" x-text="mm">01</span>
+                            <span class="inline-flex items-center justify-center min-w-[28px] sm:min-w-[32px] h-7 sm:h-8 px-1.5 rounded-md bg-brand-700 text-white" x-text="mm">05</span>
                             <span class="text-foreground font-bold">:</span>
                             <span class="inline-flex items-center justify-center min-w-[28px] sm:min-w-[32px] h-7 sm:h-8 px-1.5 rounded-md bg-brand-700 text-white" x-text="ss">00</span>
                         </div>
@@ -190,11 +190,11 @@
                             <div class="text-xs sm:text-sm font-bold text-foreground font-mono mt-1">{{ $paymentId }}</div>
                         </div>
 
-                        <!-- Countdown Timer Badges [00] : [01] : [00] -->
+                        <!-- Countdown Timer Badges [00] : [05] : [00] -->
                         <div class="flex items-center gap-1 shrink-0 font-mono text-xs sm:text-sm font-bold text-foreground">
                             <span class="inline-flex items-center justify-center min-w-[28px] sm:min-w-[32px] h-7 sm:h-8 px-1.5 rounded-md bg-brand-700 text-white" x-text="hh">00</span>
                             <span class="text-foreground font-bold">:</span>
-                            <span class="inline-flex items-center justify-center min-w-[28px] sm:min-w-[32px] h-7 sm:h-8 px-1.5 rounded-md bg-brand-700 text-white" x-text="mm">01</span>
+                            <span class="inline-flex items-center justify-center min-w-[28px] sm:min-w-[32px] h-7 sm:h-8 px-1.5 rounded-md bg-brand-700 text-white" x-text="mm">05</span>
                             <span class="text-foreground font-bold">:</span>
                             <span class="inline-flex items-center justify-center min-w-[28px] sm:min-w-[32px] h-7 sm:h-8 px-1.5 rounded-md bg-brand-700 text-white" x-text="ss">00</span>
                         </div>

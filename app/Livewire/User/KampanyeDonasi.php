@@ -184,7 +184,7 @@ class KampanyeDonasi extends Component
         $this->currentDonasi = $donasi;
         $this->paymentId = 'DNS-'.str_pad((string) (12345000 + $donasi->id), 8, '0', STR_PAD_LEFT).'-'.str_pad((string) (($donasi->id * 37 + 123) % 900 + 100), 3, '0', STR_PAD_LEFT);
         $this->paymentStep = 1;
-        $this->paymentExpiresAt = now()->addSeconds(60)->timestamp;
+        $this->paymentExpiresAt = now()->addMinutes(5)->timestamp;
         $this->showFailedModal = false;
         $this->showPaymentModal = true;
     }
