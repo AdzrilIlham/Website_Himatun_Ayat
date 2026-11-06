@@ -85,11 +85,11 @@ class Kampanye extends Model
     public function getKategoriBadgeClassesAttribute(): string
     {
         return match ($this->kategori) {
-            'Dakwah & Syiar'      => 'bg-[#F3E8FF] text-[#7E22CE] border-purple-200',
-            'Gizi & Sembako'      => 'bg-[#FFEDD5] text-[#C2410C] border-orange-200',
-            'Kemanusiaan'         => 'bg-[#FFE4E6] text-[#BE123C] border-rose-200',
-            'Pendidikan & Tahfidz'=> 'bg-[#D1FAE5] text-[#047857] border-emerald-200',
-            default               => 'bg-slate-100 text-slate-700 border-slate-200',
+            'Dakwah & Syiar'      => 'bg-info-soft text-info border-info/30',
+            'Gizi & Sembako'      => 'bg-warning-soft text-warning border-warning/30',
+            'Kemanusiaan'         => 'bg-danger-soft text-danger border-danger/30',
+            'Pendidikan & Tahfidz'=> 'bg-brand-100 dark:bg-brand-900/50 text-brand-700 dark:text-brand-200 border-brand-200 dark:border-brand-800',
+            default               => 'bg-muted text-muted-foreground-2 border-border',
         };
     }
 }

@@ -1,6 +1,13 @@
 <?php
 
 use App\Http\Controllers\Admin\AnakAsuhController;
+use App\Http\Controllers\Admin\BeritaController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\KampanyeController;
+use App\Http\Controllers\Admin\KelolaDonasiController;
+use App\Http\Controllers\Admin\LaporanEksporController;
+use App\Http\Controllers\BeritaKegiatanController;
+use App\Http\Controllers\Admin\AnakAsuhController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\BeritaController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -8,20 +15,21 @@ use App\Http\Controllers\Admin\KampanyeController;
 use App\Http\Controllers\Admin\KelolaDonasiController;
 use App\Http\Controllers\Admin\LaporanEksporController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\User\LandingPageController;
+use App\Http\Controllers\User\TentangKamiController;
 
-// Root diarahkan ke dashboard terproteksi agar data donasi tidak pernah dirender untuk guest.
-Route::redirect('/', '/admin/dashboard')->name('home');
-Route::redirect('/login', '/admin/login');
+Route::get('/', [LandingPageController::class, 'index'])->name('home');
+Route::get('/tentang-kami', [TentangKamiController::class, 'index'])->name('tentang-kami');
+Route::get('/profile', [TentangKamiController::class, 'index'])->name('profile');
+Route::get('/berita-kegiatan', [BeritaKegiatanController::class, 'index'])->name('berita-kegiatan.index');
+Route::get('/berita-kegiatan/{beritaKegiatan:slug}', [BeritaKegiatanController::class, 'show'])->name('berita-kegiatan.show');
 
-// ─── Route Auth (Publik, tidak butuh login) ───────────────────────────────────
+// Halaman preview design system (hanya lokal).
+if (app()->environment('local')) {
+    Route::view('/design-system', 'design-system')->name('design-system');
+}
+
 Route::prefix('admin')->name('admin.')->group(function () {
-    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-    Route::post('/login', [AuthController::class, 'login']);
-    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-});
-
-// ─── Route Admin (Wajib login) ────────────────────────────────────────────────
-Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     // Dashboard Admin
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/donasi/{donasi}/verifikasi', [DashboardController::class, 'verifikasi'])->name('donasi.verifikasi');
@@ -50,6 +58,8 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     Route::get('/cms-berita', [BeritaController::class, 'index'])->name('berita.index');
     Route::get('/cms-berita/create', [BeritaController::class, 'create'])->name('berita.create');
 
+    // Laporan & Ekspor (Redirect ke export dashboard agar tidak 404)
+    Route::get('/laporan-ekspor', [DashboardController::class, 'index'])->name('laporan-ekspor');
     // Laporan & Ekspor
     Route::get('/laporan-ekspor', [LaporanEksporController::class, 'index'])->name('laporan-ekspor.index');
     Route::get('/laporan-ekspor/export/excel', [LaporanEksporController::class, 'exportExcel'])->name('laporan-ekspor.export.excel');

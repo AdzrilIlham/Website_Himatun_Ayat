@@ -115,3 +115,4 @@ class LaporanService
         return $query->latest()->get();
     }
 }
+

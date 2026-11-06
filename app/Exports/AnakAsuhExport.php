@@ -13,12 +13,22 @@ class AnakAsuhExport implements FromCollection, WithHeadings, WithMapping
     public function __construct(
         protected ?string $search = null,
         protected ?string $status = null,
-        protected ?string $pendidikan = null
+        protected ?string $pendidikan = null,
+        protected ?int $bulan = null,
+        protected ?int $tahun = null
     ) {}
 
     public function collection(): Enumerable
     {
         $query = AnakAsuh::query();
+
+        if ($this->bulan) {
+            $query->whereMonth('created_at', $this->bulan);
+        }
+
+        if ($this->tahun) {
+            $query->whereYear('created_at', $this->tahun);
+        }
 
         if ($this->search) {
             $query->where(function ($q) {

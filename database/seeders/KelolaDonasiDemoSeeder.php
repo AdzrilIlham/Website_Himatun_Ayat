@@ -17,7 +17,7 @@ class KelolaDonasiDemoSeeder extends Seeder
             ['email' => 'admin@himmatunayat.org'],
             [
                 'name'     => 'Admin Yayasan',
-                'password' => 'password123',
+                'password' => bcrypt('password'),
             ]
         );
 
