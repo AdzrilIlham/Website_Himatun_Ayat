@@ -569,9 +569,7 @@
 
                     <!-- CTA Ajukan Kegiatan -->
                     <div class="pt-2 sm:pt-3">
-                        <a href="https://wa.me/6283157371088?text={{ urlencode('Assalamualaikum, saya ingin mengajukan kegiatan kolaborasi bersama Yayasan Himatun Ayat Bandung. Berikut rencana kegiatan saya: ') }}"
-                           target="_blank"
-                           rel="noopener noreferrer"
+                        <a href="{{ route('berita-kegiatan.index') }}#kalender-kegiatan"
                            class="py-3 px-6 sm:py-3.5 sm:px-8 inline-flex items-center justify-center gap-2 text-xs sm:text-sm font-bold rounded-full bg-[#2D6A4F] text-white hover:bg-[#235843] focus:outline-hidden transition shadow-sm shadow-emerald-900/15">
                             <span>Ajukan Kegiatan Sekarang</span>
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
