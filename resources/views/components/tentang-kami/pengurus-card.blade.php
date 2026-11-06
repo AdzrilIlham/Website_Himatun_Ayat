@@ -19,7 +19,7 @@
 <div {{ $attributes->merge(['class' => 'group relative w-full max-w-[280px] sm:max-w-[310px] mx-auto flex flex-col items-center select-none']) }}>
     
     <!-- Avatar Image Container (Diletakkan di belakang bahu Shape-pengurus, masuk ke notch) -->
-    <div class="relative w-full flex justify-center -mb-[26%] sm:-mb-[27%] z-0 pointer-events-none">
+    <div class="relative w-full flex justify-center -mb-[26%] sm:-mb-[27%] z-0 pointer-events-none" data-tilt-layer="32">
         @if($image)
             <img src="{{ $image }}" 
                  alt="{{ $imageAlt ?: $name }}" 
@@ -35,28 +35,28 @@
     </div>
 
     <!-- Shape Card Container: z-10 agar bahu shape menutupi sisi avatar -->
-    <div class="relative w-full aspect-[310/176] z-10 drop-shadow-lg group-hover:-translate-y-1 transition-transform duration-300">
+    <div class="relative w-full aspect-[310/176] z-10 drop-shadow-lg group-hover:-translate-y-1 transition-transform duration-300" data-tilt-layer="14">
         <!-- PNG Shape Elemen Resmi Sesuai Desain UI -->
         <img src="{{ asset('images/Asset/Shape-pengurus.png') }}" 
              alt="" 
              class="absolute inset-0 w-full h-full object-fill select-none pointer-events-none">
 
         <!-- Nomor Pengurus di Bahu Kiri -->
-        <div class="absolute left-[7%] top-[12%] flex items-center justify-center">
+        <div class="absolute left-[7%] top-[12%] flex items-center justify-center" data-tilt-layer="24">
             <span class="text-xl sm:text-2xl font-extrabold text-[#1C4E3D] leading-none tracking-tight">
                 {{ $number }}
             </span>
         </div>
 
         <!-- Ikon Jabatan di Bahu Kanan -->
-        <div class="absolute right-[7%] top-[12%] flex items-center justify-center">
+        <div class="absolute right-[7%] top-[12%] flex items-center justify-center" data-tilt-layer="24">
             <img src="{{ $iconSrc }}" 
                  alt="Icon {{ $role }}" 
                  class="w-6 h-6 sm:w-7 sm:h-7 object-contain">
         </div>
 
         <!-- Nama & Jabatan Pengurus di Area Bawah Notch -->
-        <div class="absolute left-[7%] bottom-[14%] right-[7%] flex flex-col justify-end text-left">
+        <div class="absolute left-[7%] bottom-[14%] right-[7%] flex flex-col justify-end text-left" data-tilt-layer="20">
             <h4 class="text-base sm:text-lg lg:text-xl font-bold text-slate-900 tracking-tight leading-snug line-clamp-1">
                 {{ $name }}
             </h4>

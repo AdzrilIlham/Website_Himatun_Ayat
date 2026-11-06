@@ -9,7 +9,7 @@
 <div {{ $attributes->merge(['class' => 'group rounded-3xl bg-white border border-slate-200/80 shadow-2xs hover:shadow-md hover:border-emerald-300 transition-all duration-300 p-5 sm:p-6 flex flex-col justify-between']) }}>
     <div>
         <!-- Number Badge Sesuai UI Prototype -->
-        <span class="inline-block px-3 py-1 rounded-lg bg-[#E2ECE6] text-[#1C4E3D] font-bold text-xs tracking-tight">
+        <span class="inline-block px-3 py-1 rounded-lg bg-[#E2ECE6] text-[#1C4E3D] font-bold text-xs tracking-tight" data-tilt-layer="20">
             {{ $number }}
         </span>
 
@@ -26,7 +26,7 @@
 
     <!-- Bottom Tag Pill -->
     @if($tag)
-        <div class="mt-4 pt-2">
+        <div class="mt-4 pt-2" data-tilt-layer="16">
             <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-2xs font-semibold text-slate-700 bg-slate-50 border border-slate-200/80 group-hover:bg-[#E2ECE6]/70 group-hover:border-emerald-200 group-hover:text-[#1C4E3D] transition-colors duration-200 w-fit">
                 @if($icon === 'education' || $number === '01')
                     <!-- Graduation Cap Icon -->
