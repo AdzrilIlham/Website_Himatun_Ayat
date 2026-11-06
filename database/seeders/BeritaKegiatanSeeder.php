@@ -16,6 +16,21 @@ class BeritaKegiatanSeeder extends Seeder
      */
     public function run(): void
     {
+        $currentMonth = now()->startOfMonth();
+
+        // Hapus data kegiatan kalender yang berada di bulan-bulan sebelumnya
+        BeritaKegiatan::query()
+            ->where('terjadwal_di_kalender', true)
+            ->whereDate('tanggal', '<', $currentMonth->toDateString())
+            ->delete();
+
+        BeritaKegiatan::query()
+            ->whereIn('slug', [
+                Str::slug("Kajian Ahad & Khataman Al-Qur'an"),
+                Str::slug('Santunan & Bakti Sosial Akhir Bulan'),
+            ])
+            ->delete();
+
         $definitions = [
             [
                 'tipe' => 'berita',
@@ -282,6 +297,56 @@ class BeritaKegiatanSeeder extends Seeder
                 'lokasi' => 'Bandung',
                 'tanggal' => '2025-07-20',
                 'unggulan' => false,
+                'terjadwal_di_kalender' => false,
+            ],
+            // Data Kegiatan Terjadwal untuk Kalender Kegiatan & Pengajuan Jadwal (Bulan Ini)
+            [
+                'tipe' => 'kegiatan',
+                'kategori' => 'Tahfidz Quran',
+                'judul' => 'Khotmil Quran & Doa Bersama Santri',
+                'ringkasan' => "Majelis khataman Al-Qur'an bulanan bersama seluruh santri asuh, pembimbing tahfidz, serta pembacaan doa keberkahan bagi para donatur dan muhsinin.",
+                'konten' => "Majelis khataman Al-Qur'an bulanan bersama seluruh santri asuh, pembimbing tahfidz, serta pembacaan doa keberkahan bagi para donatur dan muhsinin.",
+                'gambar' => 'WisudaKhotmilQuran.png',
+                'lokasi' => 'Asrama Cibiru, Bandung',
+                'penyelenggara' => 'Pengurus Asrama & Pembimbing Tahfidz',
+                'tanggal' => $currentMonth->copy()->day(12)->toDateString(),
+                'waktu_teks' => '08.00–11.00 WIB',
+                'waktu_mulai' => '08:00:00',
+                'waktu_selesai' => '11:00:00',
+                'unggulan' => false,
+                'terjadwal_di_kalender' => true,
+            ],
+            [
+                'tipe' => 'kegiatan',
+                'kategori' => 'Sosial',
+                'judul' => 'Doa Bersama & Santunan Bulanan Santri',
+                'ringkasan' => 'Silaturahmi berkah bersama seluruh anak asuh, pembacaan tahlil & istighotsah bersama, tausiyah santapan rohani, serta penyaluran santunan amanah donatur.',
+                'konten' => 'Silaturahmi berkah bersama seluruh anak asuh, pembacaan tahlil & istighotsah bersama, tausiyah santapan rohani, serta penyaluran santunan amanah donatur.',
+                'gambar' => 'Paket SedekahKilat.png',
+                'lokasi' => 'Asrama Cibiru, Bandung',
+                'penyelenggara' => 'HIMA RPL UPI Cibiru',
+                'tanggal' => $currentMonth->copy()->day(19)->toDateString(),
+                'waktu_teks' => '13.30–15.00 WIB',
+                'waktu_mulai' => '13:30:00',
+                'waktu_selesai' => '15:00:00',
+                'unggulan' => false,
+                'terjadwal_di_kalender' => true,
+            ],
+            [
+                'tipe' => 'kegiatan',
+                'kategori' => 'Pendidikan',
+                'judul' => 'Kelas Relawan & Inspirasi Profesi',
+                'ringkasan' => 'Berbagi cerita profesi, pendampingan belajar interaktif, dan sesi motivasi kreatif bersama kakak-kakak relawan untuk menumbuhkan cita-cita anak asuh.',
+                'konten' => 'Berbagi cerita profesi, pendampingan belajar interaktif, dan sesi motivasi kreatif bersama kakak-kakak relawan untuk menumbuhkan cita-cita anak asuh.',
+                'gambar' => 'potopalingatas.png',
+                'lokasi' => 'Ruang Belajar Cibiru, Bandung',
+                'penyelenggara' => 'Komunitas Relawan Muda Bandung',
+                'tanggal' => $currentMonth->copy()->day(25)->toDateString(),
+                'waktu_teks' => '09.00–12.00 WIB',
+                'waktu_mulai' => '09:00:00',
+                'waktu_selesai' => '12:00:00',
+                'unggulan' => false,
+                'terjadwal_di_kalender' => true,
             ],
         ];
 
