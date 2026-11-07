@@ -252,29 +252,9 @@ Modal memakai overlay Preline, bukan `x-show`:
 
 ---
 
-## 6. Dark mode (opsional)
+## 6. Mode Gelap (Tidak Digunakan)
 
-Dark mode berbasis class, bukan media query. Aktifkan dengan menambah `class="dark"`
-pada `<html>`:
-
-```html
-<html class="dark">
-```
-
-Token dark sudah disiapkan di `theme.css`. Class `dark:` juga tersedia untuk utility,
-contoh `dark:bg-slate-900`.
-
-Untuk badge/pill yang memakai brand pastel, tambahkan pasangan dark-nya agar tetap
-kontras di kedua tema:
-
-```html
-<span class="bg-brand-100 dark:bg-brand-900/50 text-brand-700 dark:text-brand-200 border border-brand-200 dark:border-brand-800">
-    Pendidikan
-</span>
-```
-
-Pola yang sama dipakai untuk header tabel (`dark:bg-brand-900/40`) dan tombol
-sekunder brand (`dark:hover:bg-brand-800`).
+Aplikasi diputuskan menggunakan **Light Mode secara eksklusif** untuk menjaga konsistensi identitas brand institusi Yayasan Himmatun Ayat Bandung. Fitur toggle mode gelap tidak disediakan di antarmuka publik maupun panel admin.
 
 ---
 
