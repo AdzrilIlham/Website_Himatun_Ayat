@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Donasi;
 use App\Models\Kampanye;
+use App\Models\User;
 use Database\Seeders\DashboardDemoSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -16,6 +17,9 @@ class AdminDashboardTest extends TestCase
     {
         parent::setUp();
         $this->seed(DashboardDemoSeeder::class);
+
+        $admin = User::first();
+        $this->actingAs($admin);
     }
 
     public function test_dashboard_screen_can_be_rendered(): void

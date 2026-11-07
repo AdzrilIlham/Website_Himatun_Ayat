@@ -51,7 +51,7 @@ class DonasiExport implements FromCollection, WithHeadings, WithMapping
             if ($this->kategori === 'Transfer Bank') {
                 $query->where(function ($q) {
                     $q->where('metode_pembayaran', 'like', '%Transfer%')
-                      ->orWhere('metode_pembayaran', 'like', '%Bank%');
+                        ->orWhere('metode_pembayaran', 'like', '%Bank%');
                 });
             } elseif ($this->kategori === 'QRIS Manual') {
                 $query->where('metode_pembayaran', 'like', '%QRIS%');

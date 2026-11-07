@@ -4,6 +4,9 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
+use Laravel\Fortify\Features;
 use Tests\TestCase;
 
 class AdminAuthTest extends TestCase
@@ -14,11 +17,16 @@ class AdminAuthTest extends TestCase
     {
         parent::setUp();
 
-        User::create([
-            'name'     => 'Admin Yayasan',
-            'email'    => 'admin@himmatunayat.org',
-            'password' => 'password123',
+        $admin = User::create([
+            'name' => 'Admin Yayasan',
+            'email' => 'admin@himmatunayat.org',
+            'password' => Hash::make('password123'),
         ]);
+
+        $admin->forceFill([
+            'role' => 'admin',
+            'email_verified_at' => now(),
+        ])->save();
     }
 
     public function test_login_screen_can_be_rendered(): void
@@ -30,43 +38,65 @@ class AdminAuthTest extends TestCase
         $response->assertSee('Masuk ke Dashboard');
     }
 
-    public function test_admin_can_login_with_standard_credentials(): void
+    public function test_admin_without_two_factor_is_redirected_to_mandatory_two_factor_setup(): void
     {
         $response = $this->post('/admin/login', [
-            'email'    => 'admin@himmatunayat.org',
+            'email' => 'admin@himmatunayat.org',
             'password' => 'password123',
         ]);
 
         $this->assertAuthenticated();
-        $response->assertRedirect(route('admin.dashboard'));
+        // Since admin has not enrolled in TOTP yet, accessing dashboard redirects to 2FA setup
+        $dashboardResponse = $this->get(route('admin.dashboard'));
+        $dashboardResponse->assertRedirect(route('admin.two-factor-setup'));
     }
 
-    public function test_admin_can_login_with_domain_typo_variant(): void
+    public function test_admin_with_two_factor_is_challenged_with_totp(): void
     {
+        $admin = User::first();
+        $admin->forceFill([
+            'two_factor_secret' => encrypt('JBSWY3DPEHPK3PXP'),
+            'two_factor_confirmed_at' => now(),
+        ])->save();
+
         $response = $this->post('/admin/login', [
-            'email'    => 'admin@himatunayyat.org',
+            'email' => 'admin@himmatunayat.org',
             'password' => 'password123',
         ]);
 
-        $this->assertAuthenticated();
-        $response->assertRedirect(route('admin.dashboard'));
+        // Fortify redirects to two-factor-challenge before establishing authenticated session
+        $response->assertRedirect(route('two-factor.login'));
+        $this->assertGuest();
     }
 
-    public function test_admin_can_login_with_demo_password_fallback(): void
+    public function test_typo_domain_backdoor_is_prevented_and_fails_safely(): void
     {
+        // Vulnerability F-01 regression test: alternate typo domain MUST NOT authenticate
         $response = $this->post('/admin/login', [
-            'email'    => 'admin@himmatunayat.org',
+            'email' => 'admin@himatunayyat.org',
             'password' => 'password123',
         ]);
 
-        $this->assertAuthenticated();
-        $response->assertRedirect(route('admin.dashboard'));
+        $this->assertGuest();
+        $response->assertSessionHasErrors('email');
+    }
+
+    public function test_demo_password_fallback_backdoor_is_prevented(): void
+    {
+        // Vulnerability F-01 regression test: password demo cannot bypass authentication
+        $response = $this->post('/admin/login', [
+            'email' => 'admin@himmatunayat.org',
+            'password' => 'password',
+        ]);
+
+        $this->assertGuest();
+        $response->assertSessionHasErrors('email');
     }
 
     public function test_admin_cannot_login_with_invalid_password(): void
     {
         $response = $this->post('/admin/login', [
-            'email'    => 'admin@himmatunayat.org',
+            'email' => 'admin@himmatunayat.org',
             'password' => 'wrongpassword',
         ]);
 
@@ -81,7 +111,7 @@ class AdminAuthTest extends TestCase
         $response = $this->actingAs($user)->post('/admin/logout');
 
         $this->assertGuest();
-        $response->assertRedirect(route('admin.login'));
+        $response->assertRedirect('/admin/login');
     }
 
     public function test_login_route_redirects_to_admin_login(): void
@@ -89,5 +119,57 @@ class AdminAuthTest extends TestCase
         $response = $this->get('/login');
 
         $response->assertRedirect('/admin/login');
+    }
+
+    public function test_public_registration_is_disabled(): void
+    {
+        $this->assertFalse(Features::enabled(Features::registration()));
+
+        $response = $this->get('/register');
+        $response->assertStatus(404);
+
+        $postResponse = $this->post('/register', [
+            'name' => 'Attacker',
+            'email' => 'attacker@example.com',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+        ]);
+        $postResponse->assertStatus(404);
+    }
+
+    public function test_login_throttling_rate_limiting(): void
+    {
+        for ($i = 0; $i < 5; $i++) {
+            $this->post('/admin/login', [
+                'email' => 'admin@himmatunayat.org',
+                'password' => 'wrong-pass',
+            ]);
+        }
+
+        // 6th attempt must be throttled with HTTP 429 Too Many Requests
+        $response = $this->post('/admin/login', [
+            'email' => 'admin@himmatunayat.org',
+            'password' => 'wrong-pass',
+        ]);
+
+        $response->assertStatus(429);
+        $this->assertGuest();
+    }
+
+    public function test_password_reset_request_does_not_enumerate_users(): void
+    {
+        // Existing user
+        $responseExisting = $this->post('/admin/forgot-password', [
+            'email' => 'admin@himmatunayat.org',
+        ]);
+        $responseExisting->assertSessionHas('status');
+
+        // Non-existent user
+        $responseNonExistent = $this->post('/admin/forgot-password', [
+            'email' => 'nonexistent@example.com',
+        ]);
+        // Generic response prevents account enumeration: both return the same status message
+        $responseNonExistent->assertSessionHas('status');
+        $responseNonExistent->assertSessionDoesntHaveErrors();
     }
 }

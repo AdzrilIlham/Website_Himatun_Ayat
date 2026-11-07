@@ -2,12 +2,21 @@
 
 namespace Tests\Feature;
 
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class AdminLaporanEksporTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $admin = User::factory()->withTwoFactor()->create();
+        $this->actingAs($admin);
+    }
 
     /**
      * Test halaman Laporan & Ekspor dapat diakses dengan sukses.
@@ -84,7 +93,7 @@ class AdminLaporanEksporTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertJson([
-            'success'      => true,
+            'success' => true,
             'jenisLaporan' => 'Kelola Donasi',
         ]);
     }
@@ -98,7 +107,7 @@ class AdminLaporanEksporTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertJson([
-            'success'      => true,
+            'success' => true,
             'jenisLaporan' => 'Kelola Kampanye',
         ]);
     }

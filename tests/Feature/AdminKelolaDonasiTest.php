@@ -12,6 +12,14 @@ class AdminKelolaDonasiTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $admin = User::factory()->withTwoFactor()->create();
+        $this->actingAs($admin);
+    }
+
     public function test_can_access_kelola_donasi_page(): void
     {
         $response = $this->get('/admin/kelola-donasi');
@@ -28,24 +36,24 @@ class AdminKelolaDonasiTest extends TestCase
     public function test_can_search_and_sort_donasi(): void
     {
         $kampanye = Kampanye::first() ?? Kampanye::create([
-            'judul'          => 'Program Uji',
-            'slug'           => 'program-uji',
-            'kategori'       => 'Pendidikan',
-            'deskripsi'      => 'Deskripsi program uji untuk pengujian sistem',
-            'target_dana'    => 10000000,
+            'judul' => 'Program Uji',
+            'slug' => 'program-uji',
+            'kategori' => 'Pendidikan',
+            'deskripsi' => 'Deskripsi program uji untuk pengujian sistem',
+            'target_dana' => 10000000,
             'dana_terkumpul' => 5000000,
-            'status'         => 'aktif',
+            'status' => 'aktif',
         ]);
 
         Donasi::create([
-            'nama_donatur'      => 'Donatur Khusus Testing',
-            'email'             => 'khusus.testing@gmail.com',
-            'no_whatsapp'       => '+62 899-0000-1111',
-            'nominal'           => 9999000,
-            'kampanye_id'       => $kampanye->id,
+            'nama_donatur' => 'Donatur Khusus Testing',
+            'email' => 'khusus.testing@gmail.com',
+            'no_whatsapp' => '+62 899-0000-1111',
+            'nominal' => 9999000,
+            'kampanye_id' => $kampanye->id,
             'metode_pembayaran' => 'Transfer Bank (BSI)',
             'bukti_transfer_path' => 'images/receipt-placeholder.svg',
-            'status'            => 'verified',
+            'status' => 'verified',
         ]);
 
         $response = $this->get('/admin/kelola-donasi?search=Khusus+Testing');
@@ -57,36 +65,36 @@ class AdminKelolaDonasiTest extends TestCase
     public function test_can_store_new_donatur(): void
     {
         $response = $this->post('/admin/kelola-donasi', [
-            'nama_donatur'      => 'Bambang Baru',
-            'email'             => 'bambang.baru@example.com',
-            'no_whatsapp'       => '+62 812-9988-7766',
-            'nominal'           => 1500000,
+            'nama_donatur' => 'Bambang Baru',
+            'email' => 'bambang.baru@example.com',
+            'no_whatsapp' => '+62 812-9988-7766',
+            'nominal' => 1500000,
             'metode_pembayaran' => 'Transfer Bank (BSI)',
-            'status'            => 'verified',
+            'status' => 'verified',
         ]);
 
         $response->assertRedirect();
         $this->assertDatabaseHas('donasi', [
             'nama_donatur' => 'Bambang Baru',
-            'email'        => 'bambang.baru@example.com',
+            'email' => 'bambang.baru@example.com',
         ]);
     }
 
     public function test_can_terima_donasi(): void
     {
         $donasi = Donasi::create([
-            'nama_donatur'        => 'Donatur Pending',
-            'nominal'             => 200000,
-            'metode_pembayaran'   => 'QRIS Manual',
+            'nama_donatur' => 'Donatur Pending',
+            'nominal' => 200000,
+            'metode_pembayaran' => 'QRIS Manual',
             'bukti_transfer_path' => 'images/receipt-placeholder.svg',
-            'status'              => 'pending',
+            'status' => 'pending',
         ]);
 
         $response = $this->post("/admin/kelola-donasi/{$donasi->id}/terima");
         $response->assertRedirect();
 
         $this->assertDatabaseHas('donasi', [
-            'id'     => $donasi->id,
+            'id' => $donasi->id,
             'status' => 'verified',
         ]);
     }
@@ -94,11 +102,11 @@ class AdminKelolaDonasiTest extends TestCase
     public function test_can_delete_donasi(): void
     {
         $donasi = Donasi::create([
-            'nama_donatur'        => 'Donatur Dihapus',
-            'nominal'             => 100000,
-            'metode_pembayaran'   => 'QRIS Manual',
+            'nama_donatur' => 'Donatur Dihapus',
+            'nominal' => 100000,
+            'metode_pembayaran' => 'QRIS Manual',
             'bukti_transfer_path' => 'images/receipt-placeholder.svg',
-            'status'              => 'pending',
+            'status' => 'pending',
         ]);
 
         $response = $this->delete("/admin/kelola-donasi/{$donasi->id}");

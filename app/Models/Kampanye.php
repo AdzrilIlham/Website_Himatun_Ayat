@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -27,10 +26,10 @@ class Kampanye extends Model
     ];
 
     protected $casts = [
-        'target_dana'    => 'decimal:2',
+        'target_dana' => 'decimal:2',
         'dana_terkumpul' => 'decimal:2',
-        'tanggal_mulai'  => 'date',
-        'tenggat_waktu'  => 'date',
+        'tanggal_mulai' => 'date',
+        'tenggat_waktu' => 'date',
     ];
 
     public function donasi(): HasMany
@@ -44,6 +43,7 @@ class Kampanye extends Model
     public function getTotalTerkumpulAttribute(): float
     {
         $sumVerified = (float) $this->donasi()->where('status', 'verified')->sum('nominal');
+
         return $sumVerified > 0 ? $sumVerified : (float) $this->dana_terkumpul;
     }
 
@@ -69,11 +69,11 @@ class Kampanye extends Model
         $end = $this->tenggat_waktu;
 
         if ($start && $end) {
-            return $start->translatedFormat('d M Y') . ' - ' . $end->translatedFormat('d M Y');
+            return $start->translatedFormat('d M Y').' - '.$end->translatedFormat('d M Y');
         } elseif ($end) {
-            return 's.d. ' . $end->translatedFormat('d M Y');
+            return 's.d. '.$end->translatedFormat('d M Y');
         } elseif ($start) {
-            return 'Mulai ' . $start->translatedFormat('d M Y');
+            return 'Mulai '.$start->translatedFormat('d M Y');
         }
 
         return '-';
@@ -85,11 +85,11 @@ class Kampanye extends Model
     public function getKategoriBadgeClassesAttribute(): string
     {
         return match ($this->kategori) {
-            'Dakwah & Syiar'      => 'bg-info-soft text-info border-info/30',
-            'Gizi & Sembako'      => 'bg-warning-soft text-warning border-warning/30',
-            'Kemanusiaan'         => 'bg-danger-soft text-danger border-danger/30',
-            'Pendidikan & Tahfidz'=> 'bg-brand-100 dark:bg-brand-900/50 text-brand-700 dark:text-brand-200 border-brand-200 dark:border-brand-800',
-            default               => 'bg-muted text-muted-foreground-2 border-border',
+            'Dakwah & Syiar' => 'bg-info-soft text-info border-info/30',
+            'Gizi & Sembako' => 'bg-warning-soft text-warning border-warning/30',
+            'Kemanusiaan' => 'bg-danger-soft text-danger border-danger/30',
+            'Pendidikan & Tahfidz' => 'bg-brand-100 dark:bg-brand-900/50 text-brand-700 dark:text-brand-200 border-brand-200 dark:border-brand-800',
+            default => 'bg-muted text-muted-foreground-2 border-border',
         };
     }
 }

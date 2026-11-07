@@ -8,7 +8,6 @@ use App\Models\Kampanye;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class DashboardDemoSeeder extends Seeder
@@ -19,13 +18,18 @@ class DashboardDemoSeeder extends Seeder
     public function run(): void
     {
         // 1. Buat User Admin
-        User::firstOrCreate(
+        $admin = User::firstOrCreate(
             ['email' => 'admin@himmatunayat.org'],
             [
-                'name'     => 'Admin Yayasan',
+                'name' => 'Admin Yayasan',
                 'password' => bcrypt('password'),
+                'email_verified_at' => now(),
             ]
         );
+        $admin->forceFill([
+            'role' => 'admin',
+            'two_factor_confirmed_at' => now(),
+        ])->save();
 
         // 2. Buat 8 Kampanye Aktif (Sesuai Desain: 8 Program)
         $programs = [
@@ -44,13 +48,13 @@ class DashboardDemoSeeder extends Seeder
             $k = Kampanye::updateOrCreate(
                 ['slug' => Str::slug($prog['judul'])],
                 [
-                    'judul'          => $prog['judul'],
-                    'kategori'       => 'Pendidikan & Sosial',
-                    'deskripsi'      => 'Program binaan Yayasan Himatun Ayat Bandung untuk kemaslahatan santri binaan.',
-                    'target_dana'    => $prog['target'],
+                    'judul' => $prog['judul'],
+                    'kategori' => 'Pendidikan & Sosial',
+                    'deskripsi' => 'Program binaan Yayasan Himatun Ayat Bandung untuk kemaslahatan santri binaan.',
+                    'target_dana' => $prog['target'],
                     'dana_terkumpul' => $prog['terkumpul'],
-                    'status'         => 'aktif',
-                    'tenggat_waktu'  => now()->addMonths(6),
+                    'status' => 'aktif',
+                    'tenggat_waktu' => now()->addMonths(6),
                 ]
             );
             $kampanyeIds[] = $k->id;
@@ -119,15 +123,15 @@ class DashboardDemoSeeder extends Seeder
         foreach ($distributions as $dist) {
             for ($j = 0; $j < $dist['count']; $j++) {
                 $isMale = ($seedIndex % 2 === 0);
-                $first = $isMale 
-                    ? $maleFirst[($seedIndex + $j) % count($maleFirst)] 
+                $first = $isMale
+                    ? $maleFirst[($seedIndex + $j) % count($maleFirst)]
                     : $femaleFirst[($seedIndex + $j) % count($femaleFirst)];
-                
+
                 $hasMid = (($seedIndex + $j) % 3 !== 0);
                 $mid = $hasMid ? $middleNames[($seedIndex * 3 + $j) % count($middleNames)] : '';
                 $last = $lastNames[($seedIndex * 7 + $j) % count($lastNames)];
 
-                $fullName = trim($first . ($mid ? ' ' . $mid : '') . ' ' . $last);
+                $fullName = trim($first.($mid ? ' '.$mid : '').' '.$last);
                 $nickname = $first;
 
                 $age = rand($dist['min_age'], $dist['max_age']);
@@ -136,16 +140,16 @@ class DashboardDemoSeeder extends Seeder
                 $note = $sampleNotes[($seedIndex + $j) % count($sampleNotes)];
 
                 $records[] = [
-                    'nama_lengkap'        => $fullName,
-                    'nama_panggilan'      => $nickname,
-                    'jenis_kelamin'       => $isMale ? 'L' : 'P',
-                    'tanggal_lahir'       => $birthDate,
+                    'nama_lengkap' => $fullName,
+                    'nama_panggilan' => $nickname,
+                    'jenis_kelamin' => $isMale ? 'L' : 'P',
+                    'tanggal_lahir' => $birthDate,
                     'pendidikan_terakhir' => $dist['level'],
-                    'status_asuhan'       => 'Aktif',
-                    'foto_path'           => null,
-                    'keterangan'          => $note,
-                    'created_at'          => $joinedAt,
-                    'updated_at'          => $joinedAt,
+                    'status_asuhan' => 'Aktif',
+                    'foto_path' => null,
+                    'keterangan' => $note,
+                    'created_at' => $joinedAt,
+                    'updated_at' => $joinedAt,
                 ];
 
                 $seedIndex++;
@@ -158,40 +162,40 @@ class DashboardDemoSeeder extends Seeder
         // 3 Data Mockup Teratas dimasukkan paling akhir agar memiliki ID tertinggi (tampil di halaman 1 baris 1-3)
         $topMockupRecords = [
             [
-                'nama_lengkap'        => 'Rizky Firmansyah',
-                'nama_panggilan'      => 'Rizky',
-                'jenis_kelamin'       => 'L',
-                'tanggal_lahir'       => Carbon::now()->subYears(17)->subMonths(2)->format('Y-m-d'),
+                'nama_lengkap' => 'Rizky Firmansyah',
+                'nama_panggilan' => 'Rizky',
+                'jenis_kelamin' => 'L',
+                'tanggal_lahir' => Carbon::now()->subYears(17)->subMonths(2)->format('Y-m-d'),
                 'pendidikan_terakhir' => 'SMA',
-                'status_asuhan'       => 'Aktif',
-                'foto_path'           => null, // Inisial netral R
-                'keterangan'          => 'Santri teladan binaan tingkat SMA',
-                'created_at'          => Carbon::parse('2020-08-20 09:30:00'),
-                'updated_at'          => Carbon::parse('2020-08-20 09:30:00'),
+                'status_asuhan' => 'Aktif',
+                'foto_path' => null, // Inisial netral R
+                'keterangan' => 'Santri teladan binaan tingkat SMA',
+                'created_at' => Carbon::parse('2020-08-20 09:30:00'),
+                'updated_at' => Carbon::parse('2020-08-20 09:30:00'),
             ],
             [
-                'nama_lengkap'        => 'Siti Aisyah',
-                'nama_panggilan'      => 'Aisyah',
-                'jenis_kelamin'       => 'P',
-                'tanggal_lahir'       => Carbon::now()->subYears(14)->subMonths(4)->format('Y-m-d'),
+                'nama_lengkap' => 'Siti Aisyah',
+                'nama_panggilan' => 'Aisyah',
+                'jenis_kelamin' => 'P',
+                'tanggal_lahir' => Carbon::now()->subYears(14)->subMonths(4)->format('Y-m-d'),
                 'pendidikan_terakhir' => 'SMP',
-                'status_asuhan'       => 'Aktif',
-                'foto_path'           => 'images/avatars/avatar-girl.svg',
-                'keterangan'          => 'Santriwati berprestasi tahfidz Al-Qur\'an',
-                'created_at'          => Carbon::parse('2022-03-05 10:15:00'),
-                'updated_at'          => Carbon::parse('2022-03-05 10:15:00'),
+                'status_asuhan' => 'Aktif',
+                'foto_path' => 'images/avatars/avatar-girl.svg',
+                'keterangan' => 'Santriwati berprestasi tahfidz Al-Qur\'an',
+                'created_at' => Carbon::parse('2022-03-05 10:15:00'),
+                'updated_at' => Carbon::parse('2022-03-05 10:15:00'),
             ],
             [
-                'nama_lengkap'        => 'Ahmad Budi',
-                'nama_panggilan'      => 'Budi',
-                'jenis_kelamin'       => 'L',
-                'tanggal_lahir'       => Carbon::now()->subYears(10)->subMonths(5)->format('Y-m-d'),
+                'nama_lengkap' => 'Ahmad Budi',
+                'nama_panggilan' => 'Budi',
+                'jenis_kelamin' => 'L',
+                'tanggal_lahir' => Carbon::now()->subYears(10)->subMonths(5)->format('Y-m-d'),
                 'pendidikan_terakhir' => 'SD',
-                'status_asuhan'       => 'Aktif',
-                'foto_path'           => 'images/avatars/avatar-boy.svg',
-                'keterangan'          => 'Santri binaan asrama putra',
-                'created_at'          => Carbon::parse('2023-01-12 08:00:00'),
-                'updated_at'          => Carbon::parse('2023-01-12 08:00:00'),
+                'status_asuhan' => 'Aktif',
+                'foto_path' => 'images/avatars/avatar-boy.svg',
+                'keterangan' => 'Santri binaan asrama putra',
+                'created_at' => Carbon::parse('2023-01-12 08:00:00'),
+                'updated_at' => Carbon::parse('2023-01-12 08:00:00'),
             ],
         ];
 
@@ -222,16 +226,16 @@ class DashboardDemoSeeder extends Seeder
 
             foreach ($donaturContoh as $idx => $d) {
                 Donasi::create([
-                    'kampanye_id'         => $kampanyeIds[array_rand($kampanyeIds)],
-                    'nama_donatur'        => $d['nama'],
-                    'no_whatsapp'         => '+62 811-9876-' . rand(100, 999),
-                    'nominal'             => $d['nominal'],
-                    'metode_pembayaran'   => 'Transfer Bank (BSI)',
+                    'kampanye_id' => $kampanyeIds[array_rand($kampanyeIds)],
+                    'nama_donatur' => $d['nama'],
+                    'no_whatsapp' => '+62 811-9876-'.rand(100, 999),
+                    'nominal' => $d['nominal'],
+                    'metode_pembayaran' => 'Transfer Bank (BSI)',
                     'bukti_transfer_path' => 'images/receipt-placeholder.svg',
-                    'pesan_doa'           => $d['pesan'],
-                    'status'              => 'verified',
-                    'diverifikasi_pada'   => now(),
-                    'created_at'          => now()->subHours(($idx + 1) * 6),
+                    'pesan_doa' => $d['pesan'],
+                    'status' => 'verified',
+                    'diverifikasi_pada' => now(),
+                    'created_at' => now()->subHours(($idx + 1) * 6),
                 ]);
             }
         }
@@ -254,15 +258,15 @@ class DashboardDemoSeeder extends Seeder
 
         foreach ($pendingQris as $i => $item) {
             Donasi::create([
-                'kampanye_id'         => $kampanyeIds[$i % count($kampanyeIds)],
-                'nama_donatur'        => $item['nama'],
-                'no_whatsapp'         => $item['wa'],
-                'nominal'             => $item['nominal'],
-                'metode_pembayaran'   => 'QRIS Manual',
+                'kampanye_id' => $kampanyeIds[$i % count($kampanyeIds)],
+                'nama_donatur' => $item['nama'],
+                'no_whatsapp' => $item['wa'],
+                'nominal' => $item['nominal'],
+                'metode_pembayaran' => 'QRIS Manual',
                 'bukti_transfer_path' => $placeholderReceipt,
-                'pesan_doa'           => $item['doa'],
-                'status'              => 'pending',
-                'created_at'          => now()->subMinutes(120 - ($i * 5)),
+                'pesan_doa' => $item['doa'],
+                'status' => 'pending',
+                'created_at' => now()->subMinutes(120 - ($i * 5)),
             ]);
         }
 
@@ -284,15 +288,15 @@ class DashboardDemoSeeder extends Seeder
 
         foreach ($pendingBank as $i => $item) {
             Donasi::create([
-                'kampanye_id'         => $kampanyeIds[$i % count($kampanyeIds)],
-                'nama_donatur'        => $item['nama'],
-                'no_whatsapp'         => $item['wa'],
-                'nominal'             => $item['nominal'],
-                'metode_pembayaran'   => 'Transfer Bank',
+                'kampanye_id' => $kampanyeIds[$i % count($kampanyeIds)],
+                'nama_donatur' => $item['nama'],
+                'no_whatsapp' => $item['wa'],
+                'nominal' => $item['nominal'],
+                'metode_pembayaran' => 'Transfer Bank',
                 'bukti_transfer_path' => $placeholderReceipt,
-                'pesan_doa'           => $item['doa'],
-                'status'              => 'pending',
-                'created_at'          => now()->subMinutes(60 - ($i * 4)),
+                'pesan_doa' => $item['doa'],
+                'status' => 'pending',
+                'created_at' => now()->subMinutes(60 - ($i * 4)),
             ]);
         }
     }

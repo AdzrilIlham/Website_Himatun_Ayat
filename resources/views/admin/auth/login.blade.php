@@ -37,6 +37,16 @@
                 </div>
             </div>
 
+            <!-- Alert: Session Status -->
+            @if (session('status'))
+                <div class="mb-4 flex items-start gap-2.5 bg-emerald-50 border border-emerald-200 text-emerald-900 rounded-xl px-3.5 py-2.5 text-xs">
+                    <svg class="w-4 h-4 mt-0.5 shrink-0 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" />
+                    </svg>
+                    <span>{{ session('status') }}</span>
+                </div>
+            @endif
+
             <!-- Alert: Session Success -->
             @if (session('success'))
                 <div class="mb-4 flex items-start gap-2.5 bg-emerald-50 border border-emerald-200 text-emerald-900 rounded-xl px-3.5 py-2.5 text-xs">
@@ -58,7 +68,7 @@
             @endif
 
             <!-- Form Login -->
-            <form method="POST" action="{{ route('admin.login') }}" class="space-y-4">
+            <form method="POST" action="{{ route('login') }}" class="space-y-4">
                 @csrf
 
                 <!-- Email Input -->
@@ -125,17 +135,24 @@
                     </div>
                 </div>
 
-                <!-- Remember Me -->
-                <div class="flex items-center gap-2 pt-1 pb-1">
-                    <input
-                        type="checkbox"
-                        id="remember"
-                        name="remember"
-                        class="w-4 h-4 rounded border-slate-300 text-[#2D6A4F] focus:ring-[#2D6A4F] cursor-pointer"
-                    >
-                    <label for="remember" class="text-xs text-slate-600 font-normal select-none cursor-pointer">
-                        Ingat saya di perangkat ini
-                    </label>
+                <!-- Remember Me & Forgot Password -->
+                <div class="flex items-center justify-between pt-1 pb-1">
+                    <div class="flex items-center gap-2">
+                        <input
+                            type="checkbox"
+                            id="remember"
+                            name="remember"
+                            class="w-4 h-4 rounded border-slate-300 text-[#2D6A4F] focus:ring-[#2D6A4F] cursor-pointer"
+                        >
+                        <label for="remember" class="text-xs text-slate-600 font-normal select-none cursor-pointer">
+                            Ingat saya
+                        </label>
+                    </div>
+                    @if (Route::has('password.request'))
+                        <a href="{{ route('password.request') }}" class="text-xs font-semibold text-[#2D6A4F] hover:text-[#1b4332] hover:underline transition">
+                            Lupa password?
+                        </a>
+                    @endif
                 </div>
 
                 <!-- Submit Button -->

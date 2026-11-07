@@ -33,7 +33,7 @@ class AnakAsuh extends Model
 
     public function getUsiaFormattedAttribute(): string
     {
-        return $this->tanggal_lahir ? $this->tanggal_lahir->age . ' Tahun' : '-';
+        return $this->tanggal_lahir ? $this->tanggal_lahir->age.' Tahun' : '-';
     }
 
     public function getInisialAttribute(): string
@@ -42,6 +42,7 @@ class AnakAsuh extends Model
         if (empty($name)) {
             return 'A';
         }
+
         return strtoupper(mb_substr($name, 0, 1));
     }
 }

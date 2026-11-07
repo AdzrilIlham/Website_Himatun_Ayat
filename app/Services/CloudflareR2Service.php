@@ -14,7 +14,7 @@ class CloudflareR2Service
      */
     public function uploadPublic(UploadedFile $file, string $directory = 'berita'): string
     {
-        $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
+        $filename = Str::uuid().'.'.$file->getClientOriginalExtension();
 
         if (config('filesystems.disks.r2_public.key') && config('filesystems.disks.r2_public.secret')) {
             try {
@@ -28,6 +28,7 @@ class CloudflareR2Service
         }
 
         $path = $file->storeAs($directory, $filename, 'public');
+
         return $path ?: '';
     }
 
@@ -36,7 +37,7 @@ class CloudflareR2Service
      */
     public function uploadPrivate(UploadedFile $file, string $directory = 'bukti-transfer'): string
     {
-        $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
+        $filename = Str::uuid().'.'.$file->getClientOriginalExtension();
 
         if (config('filesystems.disks.r2_private.key') && config('filesystems.disks.r2_private.secret')) {
             try {
@@ -50,6 +51,7 @@ class CloudflareR2Service
         }
 
         $path = $file->storeAs($directory, $filename, 'local');
+
         return $path ?: '';
     }
 
@@ -95,6 +97,6 @@ class CloudflareR2Service
             return Storage::disk('public')->url($path);
         }
 
-        return asset('storage/' . $path);
+        return asset('storage/'.$path);
     }
 }

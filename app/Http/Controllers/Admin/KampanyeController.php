@@ -41,8 +41,8 @@ class KampanyeController extends Controller
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('judul', 'like', "%{$search}%")
-                  ->orWhere('kategori', 'like', "%{$search}%")
-                  ->orWhere('deskripsi', 'like', "%{$search}%");
+                    ->orWhere('kategori', 'like', "%{$search}%")
+                    ->orWhere('deskripsi', 'like', "%{$search}%");
             });
         }
 
@@ -60,7 +60,7 @@ class KampanyeController extends Controller
         } elseif ($sort === 'status') {
             // Urutkan status: aktif duluan, lalu draft, lalu selesai
             $query->orderByRaw("CASE WHEN status = 'aktif' THEN 1 WHEN status = 'draft' THEN 2 ELSE 3 END")
-                  ->latest('created_at');
+                ->latest('created_at');
         } else {
             $query->latest('created_at');
         }
@@ -84,11 +84,11 @@ class KampanyeController extends Controller
         $kabarPenyaluranCount = max(24, $totalBeritaPublished);
 
         $metrics = [
-            'total_aktif'          => $totalAktif,
-            'total_reguler'        => $totalReguler,
-            'total_mendesak'       => $totalMendesak,
-            'kabar_penyaluran'     => $kabarPenyaluranCount,
-            'mendekati_batas_waktu'=> $totalMendesak,
+            'total_aktif' => $totalAktif,
+            'total_reguler' => $totalReguler,
+            'total_mendesak' => $totalMendesak,
+            'kabar_penyaluran' => $kabarPenyaluranCount,
+            'mendekati_batas_waktu' => $totalMendesak,
         ];
 
         $kategoriList = self::KATEGORI_LIST;
@@ -110,6 +110,7 @@ class KampanyeController extends Controller
     public function create(): View
     {
         $kategoriList = self::KATEGORI_LIST;
+
         return view('admin.kelola-kampanye.create', compact('kategoriList'));
     }
 
@@ -119,22 +120,22 @@ class KampanyeController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'judul'          => 'required|string|max:255',
-            'kategori'       => 'required|string|max:100',
-            'deskripsi'      => 'required|string',
-            'target_dana'    => 'required|numeric|min:1000',
-            'tanggal_mulai'  => 'nullable|date',
-            'tenggat_waktu'  => 'nullable|date|after_or_equal:tanggal_mulai',
-            'status'         => 'required|in:aktif,draft,selesai',
-            'banner'         => 'nullable|image|max:5120',
+            'judul' => 'required|string|max:255',
+            'kategori' => 'required|string|max:100',
+            'deskripsi' => 'required|string',
+            'target_dana' => 'required|numeric|min:1000',
+            'tanggal_mulai' => 'nullable|date',
+            'tenggat_waktu' => 'nullable|date|after_or_equal:tanggal_mulai',
+            'status' => 'required|in:aktif,draft,selesai',
+            'banner' => 'nullable|image|max:5120',
         ], [
-            'judul.required'          => 'Judul kampanye wajib diisi.',
-            'kategori.required'       => 'Silakan pilih kategori kampanye.',
-            'deskripsi.required'      => 'Deskripsi kampanye wajib diisi.',
-            'target_dana.required'    => 'Target dana donasi wajib diisi.',
-            'target_dana.min'         => 'Target dana minimal Rp 1.000.',
+            'judul.required' => 'Judul kampanye wajib diisi.',
+            'kategori.required' => 'Silakan pilih kategori kampanye.',
+            'deskripsi.required' => 'Deskripsi kampanye wajib diisi.',
+            'target_dana.required' => 'Target dana donasi wajib diisi.',
+            'target_dana.min' => 'Target dana minimal Rp 1.000.',
             'tenggat_waktu.after_or_equal' => 'Tenggat waktu harus sama atau setelah tanggal mulai.',
-            'banner.image'            => 'File banner harus berupa gambar.',
+            'banner.image' => 'File banner harus berupa gambar.',
         ]);
 
         // Buat slug unik
@@ -167,6 +168,7 @@ class KampanyeController extends Controller
     public function edit(Kampanye $kampanye): View
     {
         $kategoriList = self::KATEGORI_LIST;
+
         return view('admin.kelola-kampanye.edit', compact('kampanye', 'kategoriList'));
     }
 
@@ -176,14 +178,14 @@ class KampanyeController extends Controller
     public function update(Request $request, Kampanye $kampanye): RedirectResponse
     {
         $validated = $request->validate([
-            'judul'          => 'required|string|max:255',
-            'kategori'       => 'required|string|max:100',
-            'deskripsi'      => 'required|string',
-            'target_dana'    => 'required|numeric|min:1000',
-            'tanggal_mulai'  => 'nullable|date',
-            'tenggat_waktu'  => 'nullable|date|after_or_equal:tanggal_mulai',
-            'status'         => 'required|in:aktif,draft,selesai',
-            'banner'         => 'nullable|image|max:5120',
+            'judul' => 'required|string|max:255',
+            'kategori' => 'required|string|max:100',
+            'deskripsi' => 'required|string',
+            'target_dana' => 'required|numeric|min:1000',
+            'tanggal_mulai' => 'nullable|date',
+            'tenggat_waktu' => 'nullable|date|after_or_equal:tanggal_mulai',
+            'status' => 'required|in:aktif,draft,selesai',
+            'banner' => 'nullable|image|max:5120',
         ]);
 
         if ($request->hasFile('banner')) {

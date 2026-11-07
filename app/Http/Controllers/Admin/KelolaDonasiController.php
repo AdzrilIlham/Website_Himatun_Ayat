@@ -19,7 +19,7 @@ class KelolaDonasiController extends Controller
     public function index(Request $request)
     {
         $search = $request->query('search');
-        $sort   = $request->query('sort', 'total_donasi');
+        $sort = $request->query('sort', 'total_donasi');
 
         // Query donasi
         $query = Donasi::with('kampanye');
@@ -27,11 +27,11 @@ class KelolaDonasiController extends Controller
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('nama_donatur', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('no_whatsapp', 'like', "%{$search}%")
-                  ->orWhereHas('kampanye', function ($kq) use ($search) {
-                      $kq->where('judul', 'like', "%{$search}%");
-                  });
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('no_whatsapp', 'like', "%{$search}%")
+                    ->orWhereHas('kampanye', function ($kq) use ($search) {
+                        $kq->where('judul', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -59,41 +59,41 @@ class KelolaDonasiController extends Controller
         $saldoKas = 154450000;
 
         $metrics = [
-            'total_zis'             => $totalZis,
-            'persen_bulan_lalu'     => 14.2,
-            'penyaluran_program'    => $penyaluranProgram,
-            'rasio_efektivitas'     => 91,
+            'total_zis' => $totalZis,
+            'persen_bulan_lalu' => 14.2,
+            'penyaluran_program' => $penyaluranProgram,
+            'rasio_efektivitas' => 91,
             'operasional_hak_milik' => $operasionalHakMilik,
-            'rasio_operasional'     => 7.3,
-            'saldo_kas'             => $saldoKas,
+            'rasio_operasional' => 7.3,
+            'saldo_kas' => $saldoKas,
         ];
 
         // Klaster Asnaf Breakdown (Consistent with screenshot)
         $asnaf = [
             'total_realisasi' => 284150000,
             'pendidikan' => [
-                'nama'    => 'Pendidikan & Beasiswa',
+                'nama' => 'Pendidikan & Beasiswa',
                 'nominal' => 136392000,
-                'persen'  => 48,
-                'color'   => '#1B4332',
+                'persen' => 48,
+                'color' => '#1B4332',
             ],
             'nutrisi' => [
-                'nama'    => 'Nutrisi & Permakanan',
+                'nama' => 'Nutrisi & Permakanan',
                 'nominal' => 76720500,
-                'persen'  => 27,
-                'color'   => '#74A892',
+                'persen' => 27,
+                'color' => '#74A892',
             ],
             'kesehatan' => [
-                'nama'    => 'Layanan Kesehatan',
+                'nama' => 'Layanan Kesehatan',
                 'nominal' => 45464000,
-                'persen'  => 16,
-                'color'   => '#E5B84B',
+                'persen' => 16,
+                'color' => '#E5B84B',
             ],
             'asrama' => [
-                'nama'    => 'Fasilitas Asrama',
+                'nama' => 'Fasilitas Asrama',
                 'nominal' => 25573500,
-                'persen'  => 9,
-                'color'   => '#94A3B8',
+                'persen' => 9,
+                'color' => '#94A3B8',
             ],
         ];
 
@@ -117,14 +117,14 @@ class KelolaDonasiController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'nama_donatur'      => 'required|string|max:255',
-            'email'             => 'nullable|email|max:255',
-            'no_whatsapp'       => 'nullable|string|max:50',
-            'kampanye_id'       => 'nullable|exists:kampanye,id',
-            'nominal'           => 'required|numeric|min:1000',
+            'nama_donatur' => 'required|string|max:255',
+            'email' => 'nullable|email|max:255',
+            'no_whatsapp' => 'nullable|string|max:50',
+            'kampanye_id' => 'nullable|exists:kampanye,id',
+            'nominal' => 'required|numeric|min:1000',
             'metode_pembayaran' => 'nullable|string|max:100',
-            'pesan_doa'         => 'nullable|string',
-            'status'            => 'nullable|in:pending,verified',
+            'pesan_doa' => 'nullable|string',
+            'status' => 'nullable|in:pending,verified',
         ]);
 
         $validated['metode_pembayaran'] = $validated['metode_pembayaran'] ?? 'Transfer Bank (BSI)';
@@ -139,7 +139,7 @@ class KelolaDonasiController extends Controller
         DB::transaction(function () use ($validated, $status) {
             $donasi = Donasi::create($validated);
 
-            if ($status === 'verified' && !empty($validated['kampanye_id'])) {
+            if ($status === 'verified' && ! empty($validated['kampanye_id'])) {
                 Kampanye::where('id', $validated['kampanye_id'])
                     ->increment('dana_terkumpul', (float) $validated['nominal']);
             }
@@ -156,7 +156,7 @@ class KelolaDonasiController extends Controller
         if ($donasi->status !== 'verified') {
             DB::transaction(function () use ($donasi) {
                 $donasi->update([
-                    'status'            => 'verified',
+                    'status' => 'verified',
                     'diverifikasi_pada' => now(),
                 ]);
 
@@ -194,7 +194,8 @@ class KelolaDonasiController extends Controller
      */
     public function export(Request $request)
     {
-        $filename = 'data-kelola-donasi-himmatun-ayat-' . now()->format('Ymd-His') . '.xlsx';
-        return Excel::download(new DonasiExport(), $filename);
+        $filename = 'data-kelola-donasi-himmatun-ayat-'.now()->format('Ymd-His').'.xlsx';
+
+        return Excel::download(new DonasiExport, $filename);
     }
 }
