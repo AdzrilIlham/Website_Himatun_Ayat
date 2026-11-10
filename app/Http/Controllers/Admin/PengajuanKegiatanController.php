@@ -25,7 +25,9 @@ class PengajuanKegiatanController extends Controller
         if (! $hasTable) {
             $daftarPengajuan = new \Illuminate\Pagination\LengthAwarePaginator([], 0, 10);
             $counts = ['total' => 0, 'menunggu' => 0, 'disetujui' => 0, 'ditolak' => 0];
-            return view('admin.pengajuan-kegiatan.index', compact('daftarPengajuan', 'counts', 'status', 'search'));
+            $bentrokMap = [];
+            $agendaTerjadwal = [];
+            return view('admin.pengajuan-kegiatan.index', compact('daftarPengajuan', 'counts', 'status', 'search', 'bentrokMap', 'agendaTerjadwal'));
         }
 
         $query = PengajuanKegiatan::query();
@@ -49,13 +51,34 @@ class PengajuanKegiatanController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        // Ambil daftar tanggal yang sudah terisi agenda di kalender
-        $tanggalTerjadwal = BeritaKegiatan::query()
+        // Ambil seluruh kegiatan yang sudah terjadwal di kalender untuk pengecekan jeda 1 jam
+        $semuaTerjadwal = BeritaKegiatan::query()
             ->where('terjadwal_di_kalender', true)
-            ->pluck('tanggal')
-            ->map(fn($t) => is_string($t) ? $t : $t->toDateString())
-            ->unique()
-            ->toArray();
+            ->orderBy('tanggal')
+            ->get(['id', 'judul', 'tanggal', 'waktu_teks']);
+
+        $agendaTerjadwal = $semuaTerjadwal->map(fn (BeritaKegiatan $ev) => [
+            'id'       => $ev->id,
+            'title'    => $ev->judul,
+            'date_iso' => is_string($ev->tanggal) ? substr($ev->tanggal, 0, 10) : $ev->tanggal->toDateString(),
+            'time'     => $ev->waktu_teks ?? '08.00 - 11.00 WIB',
+        ])->values()->all();
+
+        // Peta bentrok waktu (< 1 jam jeda) untuk setiap item pengajuan pada halaman aktif
+        $bentrokMap = [];
+        foreach ($daftarPengajuan as $item) {
+            $konflik = $this->findConflictingEvent(
+                $item->tanggal->toDateString(),
+                (string) $item->waktu,
+                $item->berita_kegiatan_id
+            );
+            if ($konflik) {
+                $bentrokMap[$item->id] = [
+                    'judul' => $konflik->judul,
+                    'waktu' => $konflik->waktu_teks ?? '-',
+                ];
+            }
+        }
 
         $counts = [
             'total'     => PengajuanKegiatan::count(),
@@ -64,7 +87,76 @@ class PengajuanKegiatanController extends Controller
             'ditolak'   => PengajuanKegiatan::where('status', 'ditolak')->count(),
         ];
 
-        return view('admin.pengajuan-kegiatan.index', compact('daftarPengajuan', 'counts', 'status', 'search', 'tanggalTerjadwal'));
+        return view('admin.pengajuan-kegiatan.index', compact(
+            'daftarPengajuan',
+            'counts',
+            'status',
+            'search',
+            'bentrokMap',
+            'agendaTerjadwal'
+        ));
+    }
+
+    /**
+     * Ekstrak rentang jam mulai dan selesai dalam bentuk desimal dari string waktu.
+     * Contoh: "08.00 - 11.00 WIB" -> ['start' => 8.0, 'end' => 11.0]
+     */
+    public static function parseTimeRange(?string $timeStr): ?array
+    {
+        if (! $timeStr) {
+            return null;
+        }
+
+        if (! preg_match('/(\d{1,2})[.:](\d{2})\s*(?:[-–—]|s\/d|sd)\s*(\d{1,2})[.:](\d{2})/iu', $timeStr, $m)) {
+            return null;
+        }
+
+        $start = ((int) $m[1]) + (((int) $m[2]) / 60);
+        $end   = ((int) $m[3]) + (((int) $m[4]) / 60);
+
+        if ($end <= $start) {
+            return null;
+        }
+
+        return ['start' => $start, 'end' => $end];
+    }
+
+    /**
+     * Cari kegiatan terjadwal di tanggal yang sama yang bentrok atau kurang dari jeda 1 jam.
+     */
+    protected function findConflictingEvent(string $tanggalIso, string $waktuBaru, ?int $excludeBeritaKegiatanId = null): ?BeritaKegiatan
+    {
+        $existingEvents = BeritaKegiatan::query()
+            ->where('terjadwal_di_kalender', true)
+            ->whereDate('tanggal', $tanggalIso)
+            ->where('id', '!=', $excludeBeritaKegiatanId ?? 0)
+            ->get();
+
+        if ($existingEvents->isEmpty()) {
+            return null;
+        }
+
+        $newRange = self::parseTimeRange($waktuBaru);
+
+        foreach ($existingEvents as $ev) {
+            $evRange = self::parseTimeRange($ev->waktu_teks);
+
+            // Apabila salah satu format jam tidak dapat dikenali, anggap bentrok demi keamanan jadwal
+            if (! $newRange || ! $evRange) {
+                return $ev;
+            }
+
+            // Syarat valid (minimal jeda 1 jam):
+            // Selesai kegiatan baru <= (Mulai kegiatan lama - 1 jam) ATAU Mulai kegiatan baru >= (Selesai kegiatan lama + 1 jam)
+            $finishesOneHourBefore = $newRange['end'] <= ($evRange['start'] - 1);
+            $startsOneHourAfter    = $newRange['start'] >= ($evRange['end'] + 1);
+
+            if (! $finishesOneHourBefore && ! $startsOneHourAfter) {
+                return $ev;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -72,15 +164,21 @@ class PengajuanKegiatanController extends Controller
      */
     public function setujui(Request $request, PengajuanKegiatan $pengajuan): RedirectResponse
     {
-        // Validasi: Cek apakah pada tanggal tersebut sudah ada kegiatan lain yang terjadwal di kalender
-        $bentrok = BeritaKegiatan::query()
-            ->where('terjadwal_di_kalender', true)
-            ->whereDate('tanggal', $pengajuan->tanggal->toDateString())
-            ->where('id', '!=', $pengajuan->berita_kegiatan_id ?? 0)
-            ->first();
+        // Validasi: Cek apakah pada tanggal tersebut ada kegiatan terjadwal yang bentrok atau jedanya < 1 jam
+        $bentrok = $this->findConflictingEvent(
+            $pengajuan->tanggal->toDateString(),
+            (string) $pengajuan->waktu,
+            $pengajuan->berita_kegiatan_id
+        );
 
         if ($bentrok) {
-            return back()->with('warning', 'Tidak dapat menyetujui (ACC). Tanggal ' . $pengajuan->tanggal->translatedFormat('d F Y') . ' sudah terisi oleh agenda "' . $bentrok->judul . '". Silakan tolak atau koordinasikan tanggal lain.');
+            return back()->with(
+                'warning',
+                'Tidak dapat menyetujui (ACC). Waktu "' . $pengajuan->waktu . '" pada tanggal '
+                . $pengajuan->tanggal->translatedFormat('d F Y')
+                . ' bentrok atau kurang dari jeda minimal 1 jam dengan agenda "' . $bentrok->judul
+                . '" (' . ($bentrok->waktu_teks ?? '-') . '). Silakan sesuaikan jam melalui tombol Edit atau tolak pengajuan.'
+            );
         }
 
         DB::transaction(function () use ($pengajuan) {
@@ -169,16 +267,27 @@ class PengajuanKegiatanController extends Controller
             'rencana_kegiatan' => 'required|string',
         ]);
 
-        // Jika statusnya disetujui, cek apakah perubahan tanggal bentrok dengan agenda lain
+        $parsedRange = self::parseTimeRange($validated['waktu']);
+        if (! $parsedRange) {
+            return back()->with('warning', 'Format waktu pelaksanaan tidak valid. Pastikan memilih Waktu Mulai dan Waktu Selesai yang sesuai (08.00 - 19.00 WIB).');
+        }
+
+        // Jika statusnya disetujui, cek apakah perubahan tanggal/waktu bentrok atau kurang dari jeda 1 jam dengan agenda lain
         if ($pengajuan->status === 'disetujui') {
-            $bentrok = BeritaKegiatan::query()
-                ->where('terjadwal_di_kalender', true)
-                ->whereDate('tanggal', $validated['tanggal'])
-                ->where('id', '!=', $pengajuan->berita_kegiatan_id ?? 0)
-                ->first();
+            $bentrok = $this->findConflictingEvent(
+                $validated['tanggal'],
+                $validated['waktu'],
+                $pengajuan->berita_kegiatan_id
+            );
 
             if ($bentrok) {
-                return back()->with('warning', 'Gagal mengubah jadwal. Tanggal ' . date('d F Y', strtotime($validated['tanggal'])) . ' sudah terisi oleh agenda "' . $bentrok->judul . '".');
+                return back()->with(
+                    'warning',
+                    'Gagal mengubah jadwal. Waktu "' . $validated['waktu'] . '" pada tanggal '
+                    . date('d F Y', strtotime($validated['tanggal']))
+                    . ' bentrok atau kurang dari jeda minimal 1 jam dengan agenda "' . $bentrok->judul
+                    . '" (' . ($bentrok->waktu_teks ?? '-') . ').'
+                );
             }
         }
 

@@ -1,28 +1,7 @@
 @extends('layouts.admin')
 
 @section('content')
-<div class="space-y-5 pb-12" x-data="{
-    detailModalOpen: false,
-    tolakModalOpen: false,
-    editModalOpen: false,
-    selected: {},
-    openDetail(item) {
-        this.selected = item;
-        this.detailModalOpen = true;
-    },
-    openEdit(item) {
-        this.selected = { ...item };
-        // Format tanggal ke YYYY-MM-DD untuk input date
-        if (this.selected.tanggal && this.selected.tanggal.includes('T')) {
-            this.selected.tanggal = this.selected.tanggal.split('T')[0];
-        }
-        this.editModalOpen = true;
-    },
-    openTolak(item) {
-        this.selected = item;
-        this.tolakModalOpen = true;
-    }
-}">
+<div class="space-y-5 pb-12" x-data="adminPengajuanPage({{ Js::from($agendaTerjadwal ?? []) }})">
     <!-- Flash Notifications -->
     @if(session('success'))
         <div class="alert alert-success justify-between">
@@ -170,14 +149,19 @@
                             </td>
                             <td class="py-3 px-4 whitespace-nowrap">
                                 @php
-                                    $tglStr = $item->tanggal->toDateString();
-                                    $sudahAdaJadwal = in_array($tglStr, $tanggalTerjadwal ?? []) && $item->status === 'menunggu';
+                                    $infoBentrok = $bentrokMap[$item->id] ?? null;
+                                    $sudahAdaJadwal = $infoBentrok !== null && $item->status === 'menunggu';
                                 @endphp
                                 @if($item->status === 'menunggu')
                                     @if($sudahAdaJadwal)
-                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-2xs font-semibold bg-danger-soft text-danger" title="Tanggal ini sudah memiliki agenda yang di-ACC">
-                                            Bentrok / Penuh
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-2xs font-semibold bg-danger-soft text-danger"
+                                              title="Bentrok / kurang dari jeda 1 jam dengan: {{ $infoBentrok['judul'] }} ({{ $infoBentrok['waktu'] }})">
+                                            Bentrok Jam (&lt; 1 Jam Jeda)
                                         </span>
+                                        <p class="mt-1 text-[10px] text-danger font-medium max-w-44 truncate"
+                                           title="{{ $infoBentrok['judul'] }} ({{ $infoBentrok['waktu'] }})">
+                                            Bentrok: {{ $infoBentrok['waktu'] }}
+                                        </p>
                                     @else
                                         <span class="badge badge-warning">Menunggu</span>
                                     @endif
@@ -215,12 +199,12 @@
 
                                     @if($item->status === 'menunggu')
                                         @if($sudahAdaJadwal)
-                                            <!-- Tombol ACC Disabled karena tanggal sudah terisi -->
+                                            <!-- Tombol ACC Disabled karena jam bentrok / jeda < 1 jam -->
                                             <button type="button"
                                                     disabled
                                                     class="btn btn-secondary btn-sm px-2.5 py-1.5 rounded-lg text-2xs opacity-40 cursor-not-allowed"
-                                                    title="Tidak bisa di-ACC karena tanggal ini sudah terisi agenda lain">
-                                                <span>Penuh</span>
+                                                    title="Tidak bisa di-ACC karena jam bentrok atau jeda kurang dari 1 jam dengan: {{ $infoBentrok['judul'] }} ({{ $infoBentrok['waktu'] }})">
+                                                <span>Bentrok</span>
                                             </button>
                                         @else
                                             <!-- Tombol Setujui (ACC) -->
@@ -372,10 +356,27 @@
             <div class="flex items-start justify-between border-b border-border pb-3">
                 <div>
                     <h3 class="text-lg font-extrabold text-foreground">Edit Data Pengajuan Kegiatan</h3>
-                    <p class="text-xs text-muted-foreground-1">Perbarui rincian waktu, pemohon, atau jadwal acara.</p>
+                    <p class="text-xs text-muted-foreground-1">Perbarui rincian waktu (08.00 – 19.00 WIB, wajib jeda 1 jam), pemohon, atau jadwal acara.</p>
                 </div>
                 <button type="button" @click="editModalOpen = false" class="text-muted-foreground hover:text-foreground text-xl">&times;</button>
             </div>
+
+            {{-- Info agenda lain di tanggal terpilih --}}
+            <template x-if="eventsOnEditDate.length > 0">
+                <div class="rounded-2xl border border-brand-200 bg-brand-50/80 p-3.5 text-xs">
+                    <p class="font-extrabold text-brand-900">Agenda Terjadwal Lain di Tanggal Ini (Wajib Jeda Minimal 1 Jam):</p>
+                    <ul class="mt-1.5 space-y-1 text-brand-800">
+                        <template x-for="(ev, idx) in eventsOnEditDate" :key="'admin-ev-' + (ev.id || idx)">
+                            <li class="flex items-center gap-2">
+                                <span class="size-1.5 rounded-full bg-brand-700 shrink-0"></span>
+                                <span class="font-bold" x-text="ev.time"></span>
+                                <span class="text-muted-foreground-1">—</span>
+                                <span class="truncate font-medium" x-text="ev.title"></span>
+                            </li>
+                        </template>
+                    </ul>
+                </div>
+            </template>
 
             <form :action="'/admin/pengajuan-kegiatan/' + selected.id" method="POST" class="space-y-4">
                 @csrf
@@ -392,28 +393,45 @@
                         <input type="text" name="nomor_whatsapp" x-model="selected.nomor_whatsapp" required class="form-input text-xs">
                     </div>
                     <div>
-                        <label class="form-label text-xs">Waktu Pelaksanaan <span class="text-danger">*</span></label>
-                        <input type="text" name="waktu" x-model="selected.waktu" required class="form-input text-xs" placeholder="Contoh: 09.30 - 12.00 WIB">
+                        <label class="form-label text-xs">Tanggal Pelaksanaan <span class="text-danger">*</span></label>
+                        <input type="date" name="tanggal" x-model="selected.tanggal" @change="onEditTanggalChange()" required class="form-input text-xs">
                     </div>
                 </div>
 
+                {{-- Waktu Mulai & Waktu Selesai (Dropdown 08.00 - 19.00 WIB per 1 Jam) --}}
+                <input type="hidden" name="waktu" :value="selected.waktu">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                        <label class="form-label text-xs">Tanggal Pelaksanaan <span class="text-danger">*</span></label>
-                        <input type="date" name="tanggal" x-model="selected.tanggal" required class="form-input text-xs">
-                    </div>
-                    <div>
-                        <label class="form-label text-xs">Jenis Kegiatan <span class="text-danger">*</span></label>
-                        <select name="jenis_kegiatan" x-model="selected.jenis_kegiatan" required class="form-input text-xs">
-                            <option value="Santunan & Bakti Sosial">Santunan & Bakti Sosial</option>
-                            <option value="Buka Puasa Bersama (Bukber)">Buka Puasa Bersama (Bukber)</option>
-                            <option value="Kunjungan / Silaturahmi Komunitas">Kunjungan / Silaturahmi Komunitas</option>
-                            <option value="Edukasi / Pelatihan / Workshop">Edukasi / Pelatihan / Workshop</option>
-                            <option value="Peringatan Hari Besar Islam (PHBI)">Peringatan Hari Besar Islam (PHBI)</option>
-                            <option value="Perlombaan / Fun Games">Perlombaan / Fun Games</option>
-                            <option value="Lainnya">Lainnya</option>
+                        <label class="form-label text-xs">Waktu Mulai <span class="text-danger">*</span></label>
+                        <select x-model="editWaktuMulai" @change="onEditWaktuMulaiChange()" required class="form-input text-xs cursor-pointer">
+                            <option value="">Pilih jam mulai...</option>
+                            <template x-for="jam in editWaktuMulaiOptions" :key="'edit-mulai-' + jam">
+                                <option :value="jam" x-text="jam + ' WIB'"></option>
+                            </template>
                         </select>
                     </div>
+                    <div>
+                        <label class="form-label text-xs">Waktu Selesai <span class="text-danger">*</span></label>
+                        <select x-model="editWaktuSelesai" @change="onEditWaktuSelesaiChange()" :disabled="!editWaktuMulai" required class="form-input text-xs cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+                            <option value="" x-text="editWaktuMulai ? 'Pilih jam selesai...' : 'Pilih jam mulai dahulu...'"></option>
+                            <template x-for="jam in editWaktuSelesaiOptions" :key="'edit-selesai-' + jam">
+                                <option :value="jam" x-text="jam + ' WIB'"></option>
+                            </template>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="form-label text-xs">Jenis Kegiatan <span class="text-danger">*</span></label>
+                    <select name="jenis_kegiatan" x-model="selected.jenis_kegiatan" required class="form-input text-xs">
+                        <option value="Santunan & Bakti Sosial">Santunan & Bakti Sosial</option>
+                        <option value="Buka Puasa Bersama (Bukber)">Buka Puasa Bersama (Bukber)</option>
+                        <option value="Kunjungan / Silaturahmi Komunitas">Kunjungan / Silaturahmi Komunitas</option>
+                        <option value="Edukasi / Pelatihan / Workshop">Edukasi / Pelatihan / Workshop</option>
+                        <option value="Peringatan Hari Besar Islam (PHBI)">Peringatan Hari Besar Islam (PHBI)</option>
+                        <option value="Perlombaan / Fun Games">Perlombaan / Fun Games</option>
+                        <option value="Lainnya">Lainnya</option>
+                    </select>
                 </div>
 
                 <div>
@@ -423,11 +441,161 @@
 
                 <div class="flex items-center justify-end gap-2 pt-2 border-t border-border">
                     <button type="button" @click="editModalOpen = false" class="btn btn-secondary btn-sm">Batal</button>
-                    <button type="submit" class="btn btn-primary btn-sm">Simpan Perubahan</button>
+                    <button type="submit" :disabled="!editWaktuMulai || !editWaktuSelesai" class="btn btn-primary btn-sm disabled:opacity-50 disabled:cursor-not-allowed">Simpan Perubahan</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+<script>
+    function adminPengajuanPage(scheduledEvents) {
+        return {
+            detailModalOpen: false,
+            tolakModalOpen: false,
+            editModalOpen: false,
+            selected: {},
+            scheduledEvents: Array.isArray(scheduledEvents) ? scheduledEvents : [],
+            jamOptions: [
+                '08.00', '09.00', '10.00', '11.00', '12.00', '13.00',
+                '14.00', '15.00', '16.00', '17.00', '18.00', '19.00'
+            ],
+            editWaktuMulai: '',
+            editWaktuSelesai: '',
+
+            parseTimeRange(timeStr) {
+                if (!timeStr || typeof timeStr !== 'string') {
+                    return null;
+                }
+                const match = timeStr.match(/(\d{1,2})[.:](\d{2})\s*[-–—]\s*(\d{1,2})[.:](\d{2})/);
+                if (!match) {
+                    return null;
+                }
+                const startH = parseInt(match[1], 10) + (parseInt(match[2], 10) / 60);
+                const endH = parseInt(match[3], 10) + (parseInt(match[4], 10) / 60);
+                return { start: startH, end: endH };
+            },
+
+            get eventsOnEditDate() {
+                if (!this.selected || !this.selected.tanggal) {
+                    return [];
+                }
+                const excludeId = this.selected.berita_kegiatan_id ? Number(this.selected.berita_kegiatan_id) : 0;
+                return this.scheduledEvents.filter(
+                    (ev) => ev.date_iso === this.selected.tanggal && Number(ev.id) !== excludeId
+                );
+            },
+
+            isEditTimeValid(startHour, endHour) {
+                if (isNaN(startHour) || isNaN(endHour) || endHour <= startHour) {
+                    return false;
+                }
+                const existing = this.eventsOnEditDate;
+                for (let i = 0; i < existing.length; i++) {
+                    const range = this.parseTimeRange(existing[i].time);
+                    if (!range) continue;
+                    const finishesBefore = endHour <= (range.start - 1);
+                    const startsAfter = startHour >= (range.end + 1);
+                    if (!finishesBefore && !startsAfter) {
+                        return false;
+                    }
+                }
+                return true;
+            },
+
+            get editWaktuMulaiOptions() {
+                return this.jamOptions.slice(0, -1).filter((jam) => {
+                    const h = parseInt(jam, 10);
+                    return this.isEditTimeValid(h, h + 1);
+                });
+            },
+
+            get editWaktuSelesaiOptions() {
+                if (!this.editWaktuMulai) {
+                    return [];
+                }
+                const mulaiH = parseInt(this.editWaktuMulai, 10);
+                return this.jamOptions.filter((jam) => {
+                    const selesaiH = parseInt(jam, 10);
+                    return selesaiH > mulaiH && this.isEditTimeValid(mulaiH, selesaiH);
+                });
+            },
+
+            syncSelectedWaktu() {
+                if (this.editWaktuMulai && this.editWaktuSelesai) {
+                    this.selected.waktu = this.editWaktuMulai + ' - ' + this.editWaktuSelesai + ' WIB';
+                } else {
+                    this.selected.waktu = '';
+                }
+            },
+
+            onEditTanggalChange() {
+                if (this.editWaktuMulai) {
+                    const mulaiH = parseInt(this.editWaktuMulai, 10);
+                    if (!this.isEditTimeValid(mulaiH, mulaiH + 1)) {
+                        this.editWaktuMulai = '';
+                        this.editWaktuSelesai = '';
+                    } else if (this.editWaktuSelesai) {
+                        const selesaiH = parseInt(this.editWaktuSelesai, 10);
+                        if (!this.isEditTimeValid(mulaiH, selesaiH)) {
+                            this.editWaktuSelesai = '';
+                        }
+                    }
+                }
+                this.syncSelectedWaktu();
+            },
+
+            onEditWaktuMulaiChange() {
+                if (this.editWaktuSelesai) {
+                    const mulaiH = parseInt(this.editWaktuMulai, 10);
+                    const selesaiH = parseInt(this.editWaktuSelesai, 10);
+                    if (!this.editWaktuMulai || selesaiH <= mulaiH || !this.isEditTimeValid(mulaiH, selesaiH)) {
+                        this.editWaktuSelesai = '';
+                    }
+                }
+                this.syncSelectedWaktu();
+            },
+
+            onEditWaktuSelesaiChange() {
+                this.syncSelectedWaktu();
+            },
+
+            openDetail(item) {
+                this.selected = item;
+                this.detailModalOpen = true;
+            },
+
+            openEdit(item) {
+                this.selected = { ...item };
+                if (this.selected.tanggal && this.selected.tanggal.includes('T')) {
+                    this.selected.tanggal = this.selected.tanggal.split('T')[0];
+                }
+
+                // Ekstrak jam mulai & selesai dari string waktu sebelumnya (dibulatkan ke jam 08.00 - 19.00)
+                const parsed = this.parseTimeRange(this.selected.waktu || '');
+                if (parsed) {
+                    const startInt = Math.min(18, Math.max(8, Math.floor(parsed.start)));
+                    const endInt = Math.min(19, Math.max(startInt + 1, Math.ceil(parsed.end)));
+                    const startStr = String(startInt).padStart(2, '0') + '.00';
+                    const endStr = String(endInt).padStart(2, '0') + '.00';
+
+                    this.editWaktuMulai = this.isEditTimeValid(startInt, startInt + 1) ? startStr : '';
+                    this.editWaktuSelesai = (this.editWaktuMulai && this.isEditTimeValid(startInt, endInt)) ? endStr : '';
+                } else {
+                    this.editWaktuMulai = '';
+                    this.editWaktuSelesai = '';
+                }
+
+                this.syncSelectedWaktu();
+                this.editModalOpen = true;
+            },
+
+            openTolak(item) {
+                this.selected = item;
+                this.tolakModalOpen = true;
+            }
+        };
+    }
+</script>
 @endsection
 
