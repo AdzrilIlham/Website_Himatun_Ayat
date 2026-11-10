@@ -2,9 +2,15 @@
 
 @section('content')
 
+<div data-page-animations>
+
     <!-- HERO — BERITA & KEGIATAN -->
     <section class="mx-auto max-w-7xl px-4 pt-4 sm:px-6 sm:pt-6 lg:px-8">
-        <div class="max-w-3xl">
+        <div class="max-w-3xl"
+             data-animate-group="fade-up"
+             data-animate-distance="20"
+             data-animate-duration="0.75"
+             data-animate-stagger="0.08">
             <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-brand-900">
                 Berita dan <span class="text-brand-700">Kegiatan</span>
             </h1>
@@ -15,7 +21,11 @@
         </div>
 
         @if ($featured)
-        <div class="mt-6 sm:mt-8">
+        <div class="mt-6 sm:mt-8"
+             data-animate-group="fade-up"
+             data-animate-distance="22"
+             data-animate-duration="0.8"
+             data-animate-stagger="0.12">
             <div class="inline-flex items-center gap-1.5 text-2xs font-bold uppercase tracking-wider text-brand-800">
                 <svg class="size-3.5 text-brand-700" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z" />
@@ -113,7 +123,11 @@
              }"
              x-init="$watch('searchQuery', () => currentPage = 1); $watch('selectedCategory', () => currentPage = 1); $watch('selectedSort', () => currentPage = 1)">
 
-            <div class="max-w-3xl">
+            <div class="max-w-3xl"
+                 data-animate-group="fade-up"
+                 data-animate-distance="20"
+                 data-animate-duration="0.75"
+                 data-animate-stagger="0.08">
                 <div class="inline-flex items-center gap-1.5 text-2xs font-bold uppercase tracking-wider text-brand-800">
                     <svg class="size-3.5 text-brand-700" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 0 1-2.25 2.25M16.5 7.5V18a2.25 2.25 0 0 0 2.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 0 0 2.25 2.25h13.5M6 7.5h3v3H6v-3Z" />
@@ -130,7 +144,11 @@
             </div>
 
             {{-- Filter & Pencarian --}}
-            <div class="mt-4 sm:mt-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div class="mt-4 sm:mt-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between"
+                 data-animate-group="fade-up"
+                 data-animate-distance="14"
+                 data-animate-duration="0.55"
+                 data-animate-stagger="0.08">
                 <div class="flex items-center gap-1.5 sm:gap-2 overflow-x-auto py-1 no-scrollbar">
                     <button type="button" @click="selectedCategory = 'semua'"
                             :class="selectedCategory === 'semua'
@@ -164,10 +182,14 @@
                 </div>
             </div>
 
-            <div class="mt-4 border-t border-border"></div>
+            <div class="mt-4 border-t border-border"
+                 data-animate="line-grow"
+                 data-animate-duration="0.7"></div>
 
             {{-- Info hasil & urutan --}}
-            <div class="mt-3.5 flex flex-wrap items-center justify-between gap-2 text-2xs text-muted-foreground-1">
+            <div class="mt-3.5 flex flex-wrap items-center justify-between gap-2 text-2xs text-muted-foreground-1"
+                 data-animate="fade-in"
+                 data-animate-duration="0.5">
                 <p>
                     Menampilkan
                     <span class="font-semibold text-brand-900" x-text="paginatedArticles.length"></span>
@@ -203,7 +225,13 @@
             </div>
 
             {{-- Grid berita --}}
-            <div x-cloak class="mt-4 sm:mt-5 grid grid-cols-1 gap-4 sm:gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <div x-cloak
+                 class="mt-4 sm:mt-5 grid grid-cols-1 gap-4 sm:gap-5 sm:grid-cols-2 lg:grid-cols-3"
+                 data-animate-dynamic="fade-scale"
+                 data-animate-distance="18"
+                 data-animate-duration="0.6"
+                 data-animate-stagger="0.07"
+                 data-animate-start="top 90%">
                 <template x-for="article in paginatedArticles" :key="article.id">
                     <article class="group flex flex-col rounded-xl sm:rounded-2xl border border-border bg-card p-3 shadow-2xs transition duration-200 hover:-translate-y-0.5 hover:shadow-md">
                         <a :href="article.url" class="block overflow-hidden rounded-lg sm:rounded-xl bg-surface">
@@ -268,7 +296,12 @@
             </div>
 
             {{-- Pagination --}}
-            <nav x-show="filteredArticles.length > 0" class="mt-8 flex flex-wrap items-center justify-center gap-2 text-xs font-semibold">
+            <nav x-show="filteredArticles.length > 0"
+                 class="mt-8 flex flex-wrap items-center justify-center gap-2 text-xs font-semibold"
+                 data-animate="fade-up"
+                 data-animate-distance="16"
+                 data-animate-duration="0.55"
+                 data-animate-start="top 92%">
                 <button type="button" @click="if (currentPage > 1) currentPage--"
                         :disabled="currentPage === 1"
                         class="inline-flex items-center gap-1 rounded-lg px-2.5 py-2 text-muted-foreground-1 transition hover:bg-brand-50 disabled:cursor-not-allowed disabled:opacity-40">
@@ -306,7 +339,11 @@
              @keydown.escape.window="closeModal()">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             {{-- Header Section --}}
-            <div class="max-w-3xl">
+            <div class="max-w-3xl"
+                 data-animate-group="fade-up"
+                 data-animate-distance="20"
+                 data-animate-duration="0.75"
+                 data-animate-stagger="0.08">
                 <div class="inline-flex items-center gap-1.5 text-2xs font-bold uppercase tracking-wider text-brand-800">
                     <svg class="size-3.5 text-brand-700" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
@@ -323,7 +360,12 @@
             </div>
 
             {{-- Layout Grid: Sisi Kiri (Kalender Utama) & Sisi Kanan (Panel Informasi & Panduan) --}}
-            <div class="mt-6 sm:mt-8 grid grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-7 items-start">
+            <div class="mt-6 sm:mt-8 grid grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-7 items-start"
+                 data-animate-group="fade-up"
+                 data-animate-distance="22"
+                 data-animate-duration="0.75"
+                 data-animate-stagger="0.12"
+                 data-animate-start="top 88%">
 
                 {{-- SISI KIRI: Area Kalender Utama --}}
                 <div class="lg:col-span-8 rounded-2xl sm:rounded-3xl border border-border bg-card p-4 sm:p-6 lg:p-7 shadow-2xs">
@@ -987,7 +1029,7 @@
                 selectedEvent: null,
                 selectedCell: null,
                 selectedDateEvents: [],
-                adminPhone: '6281268765420',
+                adminPhone: '6283157371088',
                 jenisKegiatanOptions: [
                     'Santunan & Bakti Sosial',
                     'Buka Puasa Bersama (Bukber)',
@@ -1413,7 +1455,11 @@
                 <div class="pointer-events-none absolute -right-16 -top-20 size-56 rounded-full border border-white/10"></div>
                 <div class="pointer-events-none absolute -bottom-16 right-1/4 size-40 rounded-full border border-white/10"></div>
 
-                <div class="relative flex flex-col gap-5 sm:gap-6 lg:flex-row lg:items-center lg:justify-between">
+                <div class="relative flex flex-col gap-5 sm:gap-6 lg:flex-row lg:items-center lg:justify-between"
+                     data-animate-group="fade-up"
+                     data-animate-distance="20"
+                     data-animate-duration="0.7"
+                     data-animate-stagger="0.12">
                     <div class="max-w-2xl">
                         <p class="text-2xs font-bold uppercase tracking-wider text-brand-200">Terhubung Bersama Kami</p>
                         <h2 class="mt-1.5 text-lg sm:text-xl lg:text-2xl font-bold leading-tight text-white">
@@ -1435,4 +1481,6 @@
             </div>
         </div>
     </section>
+
+</div>
 @endsection

@@ -1,5 +1,7 @@
 import HSStaticMethods, { HSSelect } from 'preline';
 import Alpine from 'alpinejs';
+import './hero-swiper';
+import './page-animations';
 
 window.HSStaticMethods = HSStaticMethods;
 window.HSSelect = HSSelect;
