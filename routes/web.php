@@ -10,8 +10,11 @@ use App\Http\Controllers\Admin\PengajuanKegiatanController;
 use App\Http\Controllers\BeritaKegiatanController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\User\LandingPageController;
+use App\Http\Controllers\User\TentangKamiController;
 
 Route::get('/', [LandingPageController::class, 'index'])->name('home');
+Route::get('/tentang-kami', [TentangKamiController::class, 'index'])->name('tentang-kami');
+Route::get('/profile', [TentangKamiController::class, 'index'])->name('profile');
 Route::get('/berita-kegiatan', [BeritaKegiatanController::class, 'index'])->name('berita-kegiatan.index');
 Route::get('/berita-kegiatan/{beritaKegiatan:slug}', [BeritaKegiatanController::class, 'show'])->name('berita-kegiatan.show');
 Route::post('/pengajuan-kegiatan/ajukan', [BeritaKegiatanController::class, 'storePengajuan'])->name('pengajuan-kegiatan.store');

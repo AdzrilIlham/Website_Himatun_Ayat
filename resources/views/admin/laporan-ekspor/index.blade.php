@@ -1,5 +1,8 @@
 @extends('layouts.admin')
 
+@section('title', 'Laporan & Ekspor - Admin Panel Himmatun Ayat')
+@section('breadcrumb', 'Laporan & Ekspor')
+
 @section('content')
 <!-- Initial JSON Data Container (W3C Standard JSON Script to avoid HTML attribute quote escaping issues) -->
 <script id="laporan-initial-data" type="application/json">

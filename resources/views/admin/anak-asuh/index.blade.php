@@ -1,5 +1,8 @@
 @extends('layouts.admin')
 
+@section('title', 'Data Anak Asuh - Admin Panel Himmatun Ayat')
+@section('breadcrumb', 'Data Anak Asuh')
+
 @section('content')
 <div class="space-y-5 pb-12 w-full max-w-full min-w-0" 
      x-data="{ 

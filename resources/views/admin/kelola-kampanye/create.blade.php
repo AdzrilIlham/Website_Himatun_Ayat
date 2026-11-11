@@ -1,5 +1,14 @@
 @extends('layouts.admin')
 
+@section('title', 'Buat Kampanye Baru - Admin Panel Himmatun Ayat')
+@section('breadcrumb')
+    <a href="{{ route('admin.kelola-kampanye.index') }}" class="font-medium text-muted-foreground hover:text-brand-800 transition">Kelola Kampanye</a>
+    <svg class="w-3.5 h-3.5 text-muted-foreground/60" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+    </svg>
+    <span class="text-foreground font-bold">Buat Kampanye Baru</span>
+@endsection
+
 @section('content')
 <div class="space-y-5 pb-16 w-full max-w-full min-w-0" 
      x-data="{

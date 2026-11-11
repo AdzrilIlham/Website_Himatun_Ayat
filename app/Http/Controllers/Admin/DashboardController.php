@@ -28,9 +28,14 @@ class DashboardController extends Controller
         $summary = $this->laporanService->getDashboardSummary();
         $counts = $this->laporanService->getCountByMetode($tanggal);
         $donasiPending = $this->laporanService->getPendingDonasi($search, $metode, $tanggal, 5);
+        $chartData = $this->laporanService->getDonasiChartData();
+        $distribusiData = $this->laporanService->getDonasiDistribusiData();
+        $recentActivities = $this->laporanService->getRecentActivities(6);
+        $notifications = $this->laporanService->getNotifications(6);
 
         $pengajuanMenunggu = collect();
         $tanggalTerjadwal = [];
+        $bentrokPengajuanIds = [];
         if (\Illuminate\Support\Facades\Schema::hasTable('pengajuan_kegiatans')) {
             $pengajuanMenunggu = \App\Models\PengajuanKegiatan::query()
                 ->where('status', 'menunggu')
@@ -38,12 +43,37 @@ class DashboardController extends Controller
                 ->take(5)
                 ->get();
 
-            $tanggalTerjadwal = \App\Models\BeritaKegiatan::query()
+            $semuaTerjadwal = \App\Models\BeritaKegiatan::query()
                 ->where('terjadwal_di_kalender', true)
+                ->get(['id', 'tanggal', 'waktu_teks']);
+
+            $tanggalTerjadwal = $semuaTerjadwal
                 ->pluck('tanggal')
                 ->map(fn($t) => is_string($t) ? $t : $t->toDateString())
                 ->unique()
                 ->toArray();
+
+            foreach ($pengajuanMenunggu as $item) {
+                $tglIso = $item->tanggal->toDateString();
+                $eventsOnDate = $semuaTerjadwal->filter(fn($ev) => (is_string($ev->tanggal) ? substr($ev->tanggal, 0, 10) : $ev->tanggal->toDateString()) === $tglIso);
+                if ($eventsOnDate->isEmpty()) {
+                    continue;
+                }
+                $newRange = PengajuanKegiatanController::parseTimeRange((string) $item->waktu);
+                foreach ($eventsOnDate as $ev) {
+                    $evRange = PengajuanKegiatanController::parseTimeRange($ev->waktu_teks);
+                    if (! $newRange || ! $evRange) {
+                        $bentrokPengajuanIds[] = $item->id;
+                        break;
+                    }
+                    $finishesBefore = $newRange['end'] <= ($evRange['start'] - 1);
+                    $startsAfter    = $newRange['start'] >= ($evRange['end'] + 1);
+                    if (! $finishesBefore && ! $startsAfter) {
+                        $bentrokPengajuanIds[] = $item->id;
+                        break;
+                    }
+                }
+            }
         }
 
         return view('admin.dashboard', compact(
@@ -52,9 +82,14 @@ class DashboardController extends Controller
             'donasiPending',
             'pengajuanMenunggu',
             'tanggalTerjadwal',
+            'bentrokPengajuanIds',
             'search',
             'metode',
-            'tanggal'
+            'tanggal',
+            'chartData',
+            'distribusiData',
+            'recentActivities',
+            'notifications'
         ));
     }
 

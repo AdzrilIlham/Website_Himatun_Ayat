@@ -236,6 +236,60 @@ class DashboardDemoSeeder extends Seeder
             }
         }
 
+        // 4b. Donasi Historis Terverifikasi (Jan - Okt 2026: Total Rp160.000.000)
+        // Memastikan grafik tren donasi tahunan (12 bulan) dan 6 bulan memiliki sebaran data riil yang representatif
+        $historicalVerifiedCount = Donasi::where('status', 'verified')
+            ->where('created_at', '<', now()->startOfMonth())
+            ->count();
+
+        if ($historicalVerifiedCount < 50) {
+            $renovasiId = $kampanyeIds[count($kampanyeIds) - 1] ?? $kampanyeIds[0];
+            $donasiRecords = [];
+
+            // Bulan 1 - 9 (Jan - Sep): masing-masing 4 transaksi x Rp3.200.000 = Rp12.800.000/bulan
+            for ($m = 1; $m <= 9; $m++) {
+                for ($k = 1; $k <= 4; $k++) {
+                    $dDate = Carbon::create(now()->year, $m, 5 + ($k * 5), 10, 0, 0);
+                    $donasiRecords[] = [
+                        'nama_donatur'        => 'Hendra Wijaya',
+                        'email'               => 'hendra.w@gmail.com',
+                        'no_whatsapp'         => '+62 816-5678-9012',
+                        'nominal'             => 3200000,
+                        'kampanye_id'         => $renovasiId,
+                        'metode_pembayaran'   => 'Transfer Bank (BSI)',
+                        'bukti_transfer_path' => 'images/receipt-placeholder.svg',
+                        'pesan_doa'           => 'Semoga berkah dan bermanfaat bagi seluruh anak asuh.',
+                        'status'              => 'verified',
+                        'diverifikasi_pada'   => $dDate,
+                        'created_at'          => $dDate,
+                        'updated_at'          => $dDate,
+                    ];
+                }
+            }
+
+            // Bulan 10 (Okt): 14 transaksi x Rp3.200.000 = Rp44.800.000 tersebar dalam 30 hari terakhir
+            $octDays = [8, 9, 13, 14, 18, 19, 23, 24, 28, 29, 30, 31, 31, 31];
+            foreach ($octDays as $day) {
+                $dDate = Carbon::create(now()->year, 10, $day, 11, 0, 0);
+                $donasiRecords[] = [
+                    'nama_donatur'        => 'Hendra Wijaya',
+                    'email'               => 'hendra.w@gmail.com',
+                    'no_whatsapp'         => '+62 816-5678-9012',
+                    'nominal'             => 3200000,
+                    'kampanye_id'         => $renovasiId,
+                    'metode_pembayaran'   => 'Transfer Bank (BSI)',
+                    'bukti_transfer_path' => 'images/receipt-placeholder.svg',
+                    'pesan_doa'           => 'Semoga berkah dan bermanfaat bagi seluruh anak asuh.',
+                    'status'              => 'verified',
+                    'diverifikasi_pada'   => $dDate,
+                    'created_at'          => $dDate,
+                    'updated_at'          => $dDate,
+                ];
+            }
+
+            Donasi::insert($donasiRecords);
+        }
+
         // 5. 18 Transaksi Pending Verifikasi (Sesuai Desain: 12 Transfer Bank, 6 QRIS Manual)
         // Bersihkan dulu pending sebelumnya jika ingin exact 18
         Donasi::where('status', 'pending')->delete();

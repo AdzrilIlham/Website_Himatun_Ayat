@@ -1,5 +1,8 @@
 @extends('layouts.admin')
 
+@section('title', 'Kelola Kampanye - Admin Panel Himmatun Ayat')
+@section('breadcrumb', 'Kelola Kampanye')
+
 @section('content')
 <div class="space-y-4 sm:space-y-5 pb-12 w-full max-w-full min-w-0">
     <!-- Flash Notifications -->
