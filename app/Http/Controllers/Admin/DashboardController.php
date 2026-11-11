@@ -36,10 +36,12 @@ class DashboardController extends Controller
         $pengajuanMenunggu = collect();
         $tanggalTerjadwal = [];
         $bentrokPengajuanIds = [];
+        \App\Models\PengajuanKegiatan::ensureTableExists();
         if (\Illuminate\Support\Facades\Schema::hasTable('pengajuan_kegiatans')) {
             $pengajuanMenunggu = \App\Models\PengajuanKegiatan::query()
                 ->where('status', 'menunggu')
-                ->orderBy('tanggal')
+                ->orderByDesc('created_at')
+                ->orderByDesc('id')
                 ->take(5)
                 ->get();
 

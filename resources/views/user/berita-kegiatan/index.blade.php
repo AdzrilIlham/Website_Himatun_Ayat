@@ -1431,13 +1431,16 @@
                 },
 
                 async confirmFormSubmission() {
+                    this.syncWaktuPelaksanaan();
                     try {
                         const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-                        await fetch('{{ route('pengajuan-kegiatan.store') }}', {
+                        const response = await fetch('{{ route('pengajuan-kegiatan.store') }}', {
                             method: 'POST',
+                            credentials: 'same-origin',
                             headers: {
                                 'Content-Type': 'application/json',
                                 'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest',
                                 'X-CSRF-TOKEN': token || ''
                             },
                             body: JSON.stringify({
@@ -1449,6 +1452,9 @@
                                 rencana_kegiatan: this.formData.rencanaKegiatan
                             })
                         });
+                        if (!response.ok) {
+                            console.error('Gagal menyimpan pengajuan (HTTP ' + response.status + '):', await response.text());
+                        }
                     } catch (e) {
                         console.error('Gagal menyimpan pengajuan ke database:', e);
                     }

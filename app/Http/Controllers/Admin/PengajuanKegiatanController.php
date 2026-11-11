@@ -20,6 +20,7 @@ class PengajuanKegiatanController extends Controller
         $status = $request->query('status', 'semua');
         $search = $request->query('search');
 
+        PengajuanKegiatan::ensureTableExists();
         $hasTable = \Illuminate\Support\Facades\Schema::hasTable('pengajuan_kegiatans');
 
         if (! $hasTable) {
@@ -47,7 +48,8 @@ class PengajuanKegiatanController extends Controller
 
         $daftarPengajuan = $query
             ->orderByRaw("FIELD(status, 'menunggu', 'disetujui', 'ditolak')")
-            ->orderByDesc('tanggal')
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
             ->paginate(10)
             ->withQueryString();
 

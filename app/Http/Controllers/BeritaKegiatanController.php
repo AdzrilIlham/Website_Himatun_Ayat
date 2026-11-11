@@ -90,15 +90,16 @@ class BeritaKegiatanController extends Controller
             'rencana_kegiatan' => 'required|string',
         ]);
 
-        if (\Illuminate\Support\Facades\Schema::hasTable('pengajuan_kegiatans')) {
-            \App\Models\PengajuanKegiatan::create([
-                ...$validated,
-                'status' => 'menunggu',
-            ]);
-        }
+        \App\Models\PengajuanKegiatan::ensureTableExists();
+
+        $pengajuan = \App\Models\PengajuanKegiatan::create([
+            ...$validated,
+            'status' => 'menunggu',
+        ]);
 
         return response()->json([
             'success' => true,
+            'id'      => $pengajuan->id,
             'message' => 'Pengajuan kegiatan berhasil disimpan.',
         ]);
     }
