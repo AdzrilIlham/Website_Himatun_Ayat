@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\AnakAsuh;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -13,6 +14,9 @@ class AdminAnakAsuhTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+
+        $admin = User::factory()->withTwoFactor()->create();
+        $this->actingAs($admin);
 
         // Seed some sample data for testing
         AnakAsuh::create([

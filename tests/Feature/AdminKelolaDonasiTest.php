@@ -11,6 +11,14 @@ class AdminKelolaDonasiTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $admin = User::factory()->withTwoFactor()->create();
+        $this->actingAs($admin);
+    }
+
     public function test_can_access_kelola_donasi_page(): void
     {
         $response = $this->get('/admin/kelola-donasi');

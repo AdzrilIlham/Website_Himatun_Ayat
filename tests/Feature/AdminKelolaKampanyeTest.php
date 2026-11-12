@@ -3,12 +3,21 @@
 namespace Tests\Feature;
 
 use App\Models\Kampanye;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class AdminKelolaKampanyeTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $admin = User::factory()->withTwoFactor()->create();
+        $this->actingAs($admin);
+    }
 
     public function test_can_access_kelola_kampanye_index_page(): void
     {

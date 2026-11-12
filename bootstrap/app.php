@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Middleware\ConvertRememberToChallenge;
+use App\Http\Middleware\EnforceIdleTimeout;
+use App\Http\Middleware\EnsureTwoFactorEnrolled;
+use App\Http\Middleware\EnsureUserIsAdmin;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -13,6 +17,14 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->trustProxies(at: '*');
+        $middleware->redirectGuestsTo(fn () => route('login'));
+
+        $middleware->alias([
+            'admin' => EnsureUserIsAdmin::class,
+            'mfa.enrolled' => EnsureTwoFactorEnrolled::class,
+            'idle.timeout' => EnforceIdleTimeout::class,
+            'remember.challenge' => ConvertRememberToChallenge::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

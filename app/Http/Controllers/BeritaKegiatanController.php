@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\BeritaKegiatan;
+use Database\Seeders\BeritaKegiatanSeeder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
@@ -46,7 +47,7 @@ class BeritaKegiatanController extends Controller
 
             // Jika sebelumnya masih memakai data seeder bulan lama, sinkronkan ke bulan berjalan
             if ($deletedOldEvents > 0 && ! BeritaKegiatan::query()->where('terjadwal_di_kalender', true)->whereDate('tanggal', '>=', $startOfCurrentMonth)->exists()) {
-                (new \Database\Seeders\BeritaKegiatanSeeder())->run();
+                (new BeritaKegiatanSeeder)->run();
             }
         }
 
@@ -93,7 +94,7 @@ class BeritaKegiatanController extends Controller
             'date_iso' => $berita->tanggal->toDateString(),
             'location' => $berita->lokasi,
             'image' => $berita->gambar
-                ? asset('images/User/' . $berita->gambar)
+                ? asset('images/User/'.$berita->gambar)
                 : asset('images/User/potopalingatas.png'),
             'url' => route('berita-kegiatan.show', $berita->slug),
         ];
@@ -167,7 +168,7 @@ class BeritaKegiatanController extends Controller
             $selesai = $kegiatan->waktu_selesai
                 ? substr(str_replace(':', '.', (string) $kegiatan->waktu_selesai), 0, 5)
                 : '';
-            $waktu = trim($mulai . ($mulai && $selesai ? '–' : '') . $selesai) . ' WIB';
+            $waktu = trim($mulai.($mulai && $selesai ? '–' : '').$selesai).' WIB';
         }
 
         $deskripsi = filled($kegiatan->ringkasan)
@@ -289,7 +290,7 @@ class BeritaKegiatanController extends Controller
         return view('user.berita-kegiatan.show', [
             'article' => $article,
             'related' => $related,
-            'title' => $beritaKegiatan->judul . ' — Yayasan Himmatun Ayat Bandung',
+            'title' => $beritaKegiatan->judul.' — Yayasan Himmatun Ayat Bandung',
         ]);
     }
 

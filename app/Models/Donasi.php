@@ -26,7 +26,7 @@ class Donasi extends Model
     ];
 
     protected $casts = [
-        'nominal'           => 'decimal:2',
+        'nominal' => 'decimal:2',
         'diverifikasi_pada' => 'datetime',
     ];
 

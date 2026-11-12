@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\BeritaKegiatan;
+use Database\Seeders\BeritaKegiatanSeeder;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -29,8 +31,8 @@ return new class extends Migration
             }
         });
 
-        if (\App\Models\BeritaKegiatan::query()->exists()) {
-            (new \Database\Seeders\BeritaKegiatanSeeder())->run();
+        if (BeritaKegiatan::query()->exists()) {
+            (new BeritaKegiatanSeeder)->run();
         }
     }
 

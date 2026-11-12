@@ -49,9 +49,6 @@
 
             <div class="flex items-center gap-2">
                 <span class="badge badge-success">v1.0</span>
-                <button type="button" class="btn btn-secondary btn-sm" x-data @click="document.documentElement.classList.toggle('dark')">
-                    Mode gelap
-                </button>
             </div>
         </div>
     </header>

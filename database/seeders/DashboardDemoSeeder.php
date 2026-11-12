@@ -18,13 +18,18 @@ class DashboardDemoSeeder extends Seeder
     public function run(): void
     {
         // 1. Buat User Admin
-        User::firstOrCreate(
+        $admin = User::firstOrCreate(
             ['email' => 'admin@himmatunayat.org'],
             [
                 'name' => 'Admin Yayasan',
                 'password' => bcrypt('password'),
+                'email_verified_at' => now(),
             ]
         );
+        $admin->forceFill([
+            'role' => 'admin',
+            'two_factor_confirmed_at' => now(),
+        ])->save();
 
         // 2. Buat 8 Kampanye Aktif (Sesuai Desain: 8 Program)
         $programs = [
@@ -250,18 +255,18 @@ class DashboardDemoSeeder extends Seeder
                 for ($k = 1; $k <= 4; $k++) {
                     $dDate = Carbon::create(now()->year, $m, 5 + ($k * 5), 10, 0, 0);
                     $donasiRecords[] = [
-                        'nama_donatur'        => 'Hendra Wijaya',
-                        'email'               => 'hendra.w@gmail.com',
-                        'no_whatsapp'         => '+62 816-5678-9012',
-                        'nominal'             => 3200000,
-                        'kampanye_id'         => $renovasiId,
-                        'metode_pembayaran'   => 'Transfer Bank (BSI)',
+                        'nama_donatur' => 'Hendra Wijaya',
+                        'email' => 'hendra.w@gmail.com',
+                        'no_whatsapp' => '+62 816-5678-9012',
+                        'nominal' => 3200000,
+                        'kampanye_id' => $renovasiId,
+                        'metode_pembayaran' => 'Transfer Bank (BSI)',
                         'bukti_transfer_path' => 'images/receipt-placeholder.svg',
-                        'pesan_doa'           => 'Semoga berkah dan bermanfaat bagi seluruh anak asuh.',
-                        'status'              => 'verified',
-                        'diverifikasi_pada'   => $dDate,
-                        'created_at'          => $dDate,
-                        'updated_at'          => $dDate,
+                        'pesan_doa' => 'Semoga berkah dan bermanfaat bagi seluruh anak asuh.',
+                        'status' => 'verified',
+                        'diverifikasi_pada' => $dDate,
+                        'created_at' => $dDate,
+                        'updated_at' => $dDate,
                     ];
                 }
             }
@@ -271,18 +276,18 @@ class DashboardDemoSeeder extends Seeder
             foreach ($octDays as $day) {
                 $dDate = Carbon::create(now()->year, 10, $day, 11, 0, 0);
                 $donasiRecords[] = [
-                    'nama_donatur'        => 'Hendra Wijaya',
-                    'email'               => 'hendra.w@gmail.com',
-                    'no_whatsapp'         => '+62 816-5678-9012',
-                    'nominal'             => 3200000,
-                    'kampanye_id'         => $renovasiId,
-                    'metode_pembayaran'   => 'Transfer Bank (BSI)',
+                    'nama_donatur' => 'Hendra Wijaya',
+                    'email' => 'hendra.w@gmail.com',
+                    'no_whatsapp' => '+62 816-5678-9012',
+                    'nominal' => 3200000,
+                    'kampanye_id' => $renovasiId,
+                    'metode_pembayaran' => 'Transfer Bank (BSI)',
                     'bukti_transfer_path' => 'images/receipt-placeholder.svg',
-                    'pesan_doa'           => 'Semoga berkah dan bermanfaat bagi seluruh anak asuh.',
-                    'status'              => 'verified',
-                    'diverifikasi_pada'   => $dDate,
-                    'created_at'          => $dDate,
-                    'updated_at'          => $dDate,
+                    'pesan_doa' => 'Semoga berkah dan bermanfaat bagi seluruh anak asuh.',
+                    'status' => 'verified',
+                    'diverifikasi_pada' => $dDate,
+                    'created_at' => $dDate,
+                    'updated_at' => $dDate,
                 ];
             }
 

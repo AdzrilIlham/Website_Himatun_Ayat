@@ -13,13 +13,18 @@ class KelolaDonasiDemoSeeder extends Seeder
     public function run(): void
     {
         // User Admin Yayasan
-        User::firstOrCreate(
+        $admin = User::firstOrCreate(
             ['email' => 'admin@himmatunayat.org'],
             [
                 'name' => 'Admin Yayasan',
                 'password' => bcrypt('password'),
+                'email_verified_at' => now(),
             ]
         );
+        $admin->forceFill([
+            'role' => 'admin',
+            'two_factor_confirmed_at' => now(),
+        ])->save();
 
         // Kampanye Renovasi (Persis seperti di Foto 1)
         $renovasi = Kampanye::firstOrCreate(

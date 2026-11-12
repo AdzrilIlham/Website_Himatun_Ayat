@@ -49,21 +49,18 @@ class DummyDataSeeder extends Seeder
 
     private function seedAdmin(): void
     {
-        User::updateOrCreate(
+        $admin = User::updateOrCreate(
             ['email' => 'admin@himmatunayat.org'],
             [
                 'name' => 'Admin Yayasan',
-                'password' => 'password',
+                'password' => 'password123',
+                'email_verified_at' => now(),
             ]
         );
-
-        User::updateOrCreate(
-            ['email' => 'operator@himmatunayat.org'],
-            [
-                'name' => 'Operator Yayasan',
-                'password' => 'password',
-            ]
-        );
+        $admin->forceFill([
+            'role' => 'admin',
+            'two_factor_confirmed_at' => now(),
+        ])->save();
     }
 
     /**

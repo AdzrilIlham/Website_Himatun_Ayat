@@ -2,10 +2,22 @@
 
 namespace Tests\Feature;
 
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class AdminCmsBeritaTest extends TestCase
 {
+    use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $admin = User::factory()->withTwoFactor()->create();
+        $this->actingAs($admin);
+    }
+
     /**
      * Test halaman index CMS Berita dapat diakses dengan sukses.
      */
