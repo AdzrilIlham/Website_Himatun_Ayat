@@ -63,12 +63,29 @@ class KampanyeDonasi extends Component
 
     public function mount(?int $kampanye_id = null): void
     {
-        if ($kampanye_id) {
-            $this->selectedKampanyeId = $kampanye_id;
-        } else {
-            $first = Kampanye::where('status', 'aktif')->first();
-            $this->selectedKampanyeId = $first?->id;
+        $programParam = $kampanye_id ?? request()->query('program') ?? request()->query('kampanye_id');
+
+        if ($programParam !== null && $programParam !== '') {
+            $matched = Kampanye::where('status', 'aktif')
+                ->where(function ($query) use ($programParam) {
+                    if (is_numeric($programParam)) {
+                        $query->where('id', (int) $programParam);
+                    } else {
+                        $query->where('slug', (string) $programParam)
+                            ->orWhere('judul', 'like', '%'.(string) $programParam.'%');
+                    }
+                })
+                ->first();
+
+            if ($matched) {
+                $this->selectedKampanyeId = $matched->id;
+
+                return;
+            }
         }
+
+        $first = Kampanye::where('status', 'aktif')->first();
+        $this->selectedKampanyeId = $first?->id;
     }
 
     public function selectKampanye(int $id, ?int $nominal = null): void

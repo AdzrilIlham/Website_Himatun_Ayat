@@ -113,10 +113,14 @@
 
             <!-- Right CTA Button (Desktop) & Hamburger (Mobile) -->
             <div class="flex items-center gap-2">
-                <a href="#paket-donasi"
-                    class="hidden sm:inline-flex py-2.5 px-6 items-center justify-center text-xs sm:text-sm font-semibold rounded-full border border-transparent bg-primary text-primary-foreground hover:bg-primary-hover focus:outline-hidden transition shadow-xs">
-                    Donasi
-                </a>
+                @if (request()->routeIs('kampanye.index', 'donasi.index'))
+                    <div class="hidden sm:block w-24" aria-hidden="true"></div>
+                @else
+                    <a href="{{ route('kampanye.index') }}"
+                        class="hidden sm:inline-flex py-2.5 px-6 items-center justify-center text-xs sm:text-sm font-semibold rounded-full border border-transparent bg-primary text-primary-foreground hover:bg-primary-hover focus:outline-hidden transition shadow-xs">
+                        Donasi
+                    </a>
+                @endif
 
                 <!-- Preline Collapse Toggle Button (Mobile/Tablet) -->
                 <button type="button"
@@ -159,12 +163,14 @@
                     class="{{ request()->routeIs('berita-kegiatan.*') ? 'px-3 py-2 rounded-xl bg-brand-100 font-bold text-brand-800' : 'px-3 py-2 rounded-xl hover:bg-brand-50 transition' }}">
                     Berita &amp; Kegiatan
                 </a>
-                <div class="pt-2 border-t border-brand-100 flex flex-col gap-2">
-                    <a href="{{ route('home') }}#paket-donasi"
-                        class="py-2.5 px-4 text-center font-bold text-xs rounded-full bg-primary text-primary-foreground hover:bg-primary-hover transition shadow-xs">
-                        Donasi Sekarang
-                    </a>
-                </div>
+                @unless (request()->routeIs('kampanye.index', 'donasi.index'))
+                    <div class="pt-2 border-t border-brand-100 flex flex-col gap-2">
+                        <a href="{{ route('kampanye.index') }}"
+                            class="py-2.5 px-4 text-center font-bold text-xs rounded-full bg-primary text-primary-foreground hover:bg-primary-hover transition shadow-xs">
+                            Donasi Sekarang
+                        </a>
+                    </div>
+                @endunless
             </div>
         </div>
     </header>
