@@ -435,7 +435,7 @@
                                 </template>
 
                                 {{-- Tanggal dengan status ADA KEGIATAN TERJADWAL --}}
-                                <template x-if="cell.isCurrentMonth && cell.event">
+                                <template x-if="cell.isCurrentMonth && cell.events && cell.events.length > 0">
                                     <button type="button"
                                             @click="handleDateClick(cell)"
                                             class="group relative flex min-h-18 sm:min-h-22 w-full flex-col justify-between rounded-xl sm:rounded-2xl p-2 sm:p-2.5 text-left transition duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-700"
@@ -446,11 +446,18 @@
                                             <span class="text-xs sm:text-sm font-extrabold tabular leading-none"
                                                   :class="highlightedDateIso === cell.dateIso ? 'text-white' : 'text-brand-950'"
                                                   x-text="cell.day"></span>
-                                            <span class="size-2 sm:size-2.5 rounded-full shrink-0"
-                                                  :class="highlightedDateIso === cell.dateIso ? 'bg-amber-300' : 'bg-brand-700'"></span>
+                                            <div class="flex items-center gap-1">
+                                                <template x-if="cell.events.length > 1">
+                                                    <span class="rounded-full px-1.5 py-0.5 text-[8px] sm:text-[9px] font-extrabold leading-none"
+                                                          :class="highlightedDateIso === cell.dateIso ? 'bg-amber-300 text-brand-950' : 'bg-brand-200 text-brand-900'"
+                                                          x-text="cell.events.length + ' Agenda'"></span>
+                                                </template>
+                                                <span class="size-2 sm:size-2.5 rounded-full shrink-0"
+                                                      :class="highlightedDateIso === cell.dateIso ? 'bg-amber-300' : 'bg-brand-700'"></span>
+                                            </div>
                                         </div>
 
-                                        <div class="mt-2 w-full">
+                                        <div class="mt-2 w-full space-y-1">
                                             <span class="flex w-full items-center justify-center gap-1 truncate rounded-full px-1.5 py-0.5 text-[9px] sm:text-[10px] font-bold leading-tight shadow-2xs transition"
                                                   :class="highlightedDateIso === cell.dateIso
                                                       ? 'bg-white text-brand-900'
@@ -460,12 +467,17 @@
                                                 </svg>
                                                 <span class="truncate" x-text="cell.event.badge_title"></span>
                                             </span>
+                                            <template x-if="cell.events.length > 1">
+                                                <span class="block w-full truncate text-center text-[8px] sm:text-[9px] font-bold leading-none"
+                                                      :class="highlightedDateIso === cell.dateIso ? 'text-brand-100' : 'text-brand-800'"
+                                                      x-text="'+' + (cell.events.length - 1) + ' kegiatan lainnya'"></span>
+                                            </template>
                                         </div>
                                     </button>
                                 </template>
 
                                 {{-- Tanggal dengan status SLOT TERSEDIA / JADWAL TERBUKA --}}
-                                <template x-if="cell.isCurrentMonth && !cell.event">
+                                <template x-if="cell.isCurrentMonth && (!cell.events || cell.events.length === 0)">
                                     <button type="button"
                                             @click="handleDateClick(cell)"
                                             class="group flex min-h-18 sm:min-h-22 w-full flex-col justify-between rounded-xl sm:rounded-2xl border border-slate-200/80 bg-white p-2 sm:p-2.5 text-left transition duration-150 hover:border-brand-300 hover:bg-brand-50/40 hover:shadow-2xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-700/40">
@@ -631,63 +643,109 @@
                  class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs"></div>
 
             {{-- A. MODAL FRAME 215: Detail Kegiatan Terjadwal --}}
-            <div x-show="modalState === 'detail' && selectedEvent"
+            <div x-show="modalState === 'detail' && selectedDateEvents.length > 0"
                  x-transition:enter="transition ease-out duration-200"
                  x-transition:enter-start="opacity-0 scale-95 translate-y-2"
                  x-transition:enter-end="opacity-100 scale-100 translate-y-0"
                  x-transition:leave="transition ease-in duration-150"
                  x-transition:leave-start="opacity-100 scale-100 translate-y-0"
                  x-transition:leave-end="opacity-0 scale-95 translate-y-2"
-                 class="relative z-10 w-full max-w-md rounded-3xl border border-border bg-card p-6 sm:p-8 shadow-2xl">
+                 class="relative z-10 w-full max-w-md rounded-3xl border border-border bg-card p-6 sm:p-8 shadow-2xl max-h-[92vh] overflow-y-auto">
 
-                <h3 class="text-xl sm:text-2xl font-extrabold leading-snug text-foreground"
-                    x-text="selectedEvent ? selectedEvent.title : ''"></h3>
-
-                {{-- Container Info Highlight --}}
-                <div class="mt-5 space-y-4 rounded-2xl bg-brand-100/60 border border-brand-200/70 p-4 sm:p-5">
-                    {{-- Penyelenggara Kegiatan --}}
-                    <div class="flex items-center gap-3.5">
-                        <div class="flex size-11 shrink-0 items-center justify-center rounded-xl bg-white text-brand-700 shadow-2xs">
-                            <svg class="size-6" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm-6 1a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Zm12 0a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Zm-6 1.5c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4Zm-6.5.25C3.47 14.18 1 15.17 1 17.5v2h1.5v-2c0-1.48 1.24-2.68 3-3.75Zm13 0c1.76 1.07 3 2.27 3 3.75v2H23v-2c0-2.33-2.47-3.32-4.5-3.75Z"/>
-                            </svg>
-                        </div>
-                        <div class="min-w-0">
-                            <p class="text-xs font-medium text-muted-foreground-2">Penyelenggara Kegiatan</p>
-                            <p class="mt-0.5 text-sm font-bold text-foreground"
-                               x-text="selectedEvent ? selectedEvent.organizer : ''"></p>
-                        </div>
+                {{-- Header apabila terdapat lebih dari 1 agenda di tanggal yang sama --}}
+                <template x-if="selectedDateEvents.length > 1">
+                    <div class="mb-4 flex items-center justify-between gap-2 rounded-xl border border-brand-200 bg-brand-50 px-3.5 py-2">
+                        <span class="text-xs font-extrabold text-brand-900"
+                              x-text="selectedDateEvents.length + ' Agenda Terjadwal di Tanggal Ini'"></span>
+                        <span class="text-2xs font-semibold text-brand-700"
+                              x-text="selectedCell ? selectedCell.dateShortFormatted : ''"></span>
                     </div>
+                </template>
 
-                    {{-- Waktu Pelaksanaan --}}
-                    <div class="flex items-center gap-3.5">
-                        <div class="flex size-11 shrink-0 items-center justify-center rounded-xl bg-white text-brand-700 shadow-2xs">
-                            <svg class="size-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                            </svg>
+                {{-- Daftar Kegiatan pada Tanggal Terpilih --}}
+                <div class="space-y-6">
+                    <template x-for="(evItem, idx) in selectedDateEvents" :key="evItem.id || idx">
+                        <div :class="idx > 0 ? 'border-t border-border-line-1 pt-5' : ''">
+                            <template x-if="selectedDateEvents.length > 1">
+                                <span class="mb-1.5 inline-flex items-center rounded-full bg-brand-700 px-2.5 py-0.5 text-[10px] font-bold text-white"
+                                      x-text="'Agenda #' + (idx + 1)"></span>
+                            </template>
+
+                            <h3 class="text-xl sm:text-2xl font-extrabold leading-snug text-foreground"
+                                x-text="evItem.title"></h3>
+
+                            {{-- Container Info Highlight --}}
+                            <div class="mt-4 space-y-4 rounded-2xl bg-brand-100/60 border border-brand-200/70 p-4 sm:p-5">
+                                {{-- Penyelenggara Kegiatan --}}
+                                <div class="flex items-center gap-3.5">
+                                    <div class="flex size-11 shrink-0 items-center justify-center rounded-xl bg-white text-brand-700 shadow-2xs">
+                                        <svg class="size-6" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M12 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm-6 1a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Zm12 0a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Zm-6 1.5c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4Zm-6.5.25C3.47 14.18 1 15.17 1 17.5v2h1.5v-2c0-1.48 1.24-2.68 3-3.75Zm13 0c1.76 1.07 3 2.27 3 3.75v2H23v-2c0-2.33-2.47-3.32-4.5-3.75Z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p class="text-xs font-medium text-muted-foreground-2">Penyelenggara Kegiatan</p>
+                                        <p class="mt-0.5 text-sm font-bold text-foreground"
+                                           x-text="evItem.organizer"></p>
+                                    </div>
+                                </div>
+
+                                {{-- Waktu Pelaksanaan --}}
+                                <div class="flex items-center gap-3.5">
+                                    <div class="flex size-11 shrink-0 items-center justify-center rounded-xl bg-white text-brand-700 shadow-2xs">
+                                        <svg class="size-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                        </svg>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p class="text-xs font-medium text-muted-foreground-2">Waktu Pelaksanaan</p>
+                                        <p class="mt-0.5 text-sm font-bold text-foreground"
+                                           x-text="evItem.time"></p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- Rincian Kegiatan --}}
+                            <div class="mt-4">
+                                <p class="text-xs font-medium text-muted-foreground-2">Rincian Kegiatan</p>
+                                <p class="mt-1.5 text-sm font-bold leading-relaxed text-foreground/90"
+                                   x-text="evItem.description"></p>
+                            </div>
                         </div>
-                        <div class="min-w-0">
-                            <p class="text-xs font-medium text-muted-foreground-2">Waktu Pelaksanaan</p>
-                            <p class="mt-0.5 text-sm font-bold text-foreground"
-                               x-text="selectedEvent ? selectedEvent.time : ''"></p>
-                        </div>
-                    </div>
+                    </template>
                 </div>
 
-                {{-- Rincian Kegiatan --}}
-                <div class="mt-5">
-                    <p class="text-xs font-medium text-muted-foreground-2">Rincian Kegiatan</p>
-                    <p class="mt-1.5 text-sm font-bold leading-relaxed text-foreground/90"
-                       x-text="selectedEvent ? selectedEvent.description : ''"></p>
-                </div>
+                {{-- Info & Tombol Aksi: Ajukan Kegiatan di Tanggal Ini / Tutup --}}
+                <div class="mt-6 border-t border-border-line-1 pt-5 space-y-3">
+                    <template x-if="selectedDateHasAvailableSlot">
+                        <div class="rounded-xl border border-brand-200 bg-brand-50/70 px-3.5 py-2.5 text-xs leading-relaxed text-brand-900">
+                            Masih tersedia slot jam kosong di tanggal ini (minimal <strong>jeda 1 jam</strong> dari kegiatan yang sudah terjadwal).
+                        </div>
+                    </template>
+                    <template x-if="!selectedDateHasAvailableSlot">
+                        <div class="rounded-xl border border-amber-200 bg-amber-50 px-3.5 py-2.5 text-xs font-medium leading-relaxed text-amber-900">
+                            Seluruh slot jam operasional (08.00 – 19.00 WIB) pada tanggal ini sudah penuh.
+                        </div>
+                    </template>
 
-                {{-- Tombol Tutup --}}
-                <div class="mt-6">
-                    <button type="button"
-                            @click="closeModal()"
-                            class="inline-flex items-center justify-center rounded-xl border border-brand-200 bg-brand-100/80 px-6 py-2 text-xs sm:text-sm font-bold text-brand-800 transition hover:bg-brand-200 cursor-pointer">
-                        Tutup
-                    </button>
+                    <div class="flex flex-wrap items-center gap-2.5">
+                        <template x-if="selectedDateHasAvailableSlot">
+                            <button type="button"
+                                    @click="openSubmissionFormFromDetail()"
+                                    class="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-brand-700 px-4 py-2.5 text-xs sm:text-sm font-bold text-white shadow-xs transition hover:bg-brand-800 cursor-pointer">
+                                <svg class="size-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2.25" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                                </svg>
+                                <span>Ajukan Kegiatan di Tanggal Ini</span>
+                            </button>
+                        </template>
+
+                        <button type="button"
+                                @click="closeModal()"
+                                class="inline-flex items-center justify-center rounded-xl border border-brand-200 bg-brand-100/80 px-6 py-2.5 text-xs sm:text-sm font-bold text-brand-800 transition hover:bg-brand-200 cursor-pointer">
+                            Tutup
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -707,6 +765,28 @@
                 <p class="mt-2.5 text-xs sm:text-sm leading-relaxed text-muted-foreground-1">
                     Slot tanggal ini masih terbuka! Silakan lengkapi formulir singkat di bawah untuk mengajukan agenda bersama santri asuh.
                 </p>
+
+                {{-- Info Jadwal Terisi pada Tanggal Ini (Jika sudah ada kegiatan di hari yang sama) --}}
+                <template x-if="selectedDateEvents.length > 0">
+                    <div class="mt-4 rounded-2xl border border-brand-200 bg-brand-50/80 p-3.5 sm:p-4">
+                        <p class="text-xs font-extrabold text-brand-900">
+                            Agenda Terjadwal di Tanggal Ini (Wajib Jeda Minimal 1 Jam):
+                        </p>
+                        <ul class="mt-1.5 space-y-1 text-xs text-brand-800">
+                            <template x-for="(ev, idx) in selectedDateEvents" :key="'form-ev-' + (ev.id || idx)">
+                                <li class="flex items-center gap-2">
+                                    <span class="size-1.5 rounded-full bg-brand-700 shrink-0"></span>
+                                    <span class="font-bold" x-text="ev.time"></span>
+                                    <span class="text-muted-foreground-1">—</span>
+                                    <span class="truncate font-medium" x-text="ev.title"></span>
+                                </li>
+                            </template>
+                        </ul>
+                        <p class="mt-2 text-[11px] leading-relaxed text-muted-foreground-2">
+                            Pilihan <strong>Waktu Mulai</strong> dan <strong>Waktu Selesai</strong> di bawah telah disesuaikan otomatis agar memiliki jeda minimal 1 jam dari kegiatan di atas.
+                        </p>
+                    </div>
+                </template>
 
                 <form @submit.prevent="submitFormToConfirm()" class="mt-5 space-y-4" novalidate>
                     {{-- 1. Tanggal Terpilih (Readonly) --}}
@@ -735,7 +815,7 @@
                         <p x-show="formErrors.namaPemohon" x-text="formErrors.namaPemohon" class="form-error"></p>
                     </div>
 
-                    {{-- 3. Nomor WhatsApp & 4. Waktu Pelaksanaan --}}
+                    {{-- 3. Nomor WhatsApp & 4. Jenis Kegiatan --}}
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div>
                             <label for="form-nomor-wa" class="block text-xs sm:text-sm font-bold text-foreground mb-1.5">
@@ -751,41 +831,79 @@
                         </div>
 
                         <div>
-                            <label for="form-waktu-pelaksanaan" class="block text-xs sm:text-sm font-bold text-foreground mb-1.5">
-                                Waktu Pelaksanaan
+                            <label for="form-jenis-kegiatan" class="block text-xs sm:text-sm font-bold text-foreground mb-1.5">
+                                Jenis Kegiatan
                             </label>
-                            <input id="form-waktu-pelaksanaan"
-                                   type="text"
-                                   x-model="formData.waktuPelaksanaan"
-                                   @input="formErrors.waktuPelaksanaan = ''"
-                                   placeholder="Contoh: 09.30 - 12.00 WIB"
-                                   class="w-full rounded-xl border border-border bg-muted px-4 py-2.5 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:border-brand-700 focus:bg-card focus:ring-2 focus:ring-brand-700/20 focus:outline-none transition">
-                            <p x-show="formErrors.waktuPelaksanaan" x-text="formErrors.waktuPelaksanaan" class="form-error"></p>
+                            <div class="relative">
+                                <select id="form-jenis-kegiatan"
+                                        x-model="formData.jenisKegiatan"
+                                        @change="formErrors.jenisKegiatan = ''"
+                                        class="w-full appearance-none rounded-xl border border-border bg-muted py-2.5 pl-4 pr-10 text-xs sm:text-sm text-foreground focus:border-brand-700 focus:bg-card focus:ring-2 focus:ring-brand-700/20 focus:outline-none transition cursor-pointer">
+                                    <option value="">Pilih jenis kegiatan...</option>
+                                    <template x-for="opsi in jenisKegiatanOptions" :key="opsi">
+                                        <option :value="opsi" x-text="opsi"></option>
+                                    </template>
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-3.5 flex items-center text-foreground">
+                                    <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke-width="2.25" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <p x-show="formErrors.jenisKegiatan" x-text="formErrors.jenisKegiatan" class="form-error"></p>
                         </div>
                     </div>
 
-                    {{-- 5. Dropdown Jenis Kegiatan --}}
+                    {{-- 5. Waktu Pelaksanaan (Dropdown Waktu Mulai & Waktu Selesai: 08.00 - 19.00 WIB) --}}
                     <div>
-                        <label for="form-jenis-kegiatan" class="block text-xs sm:text-sm font-bold text-foreground mb-1.5">
-                            Jenis Kegiatan
-                        </label>
-                        <div class="relative sm:w-2/3">
-                            <select id="form-jenis-kegiatan"
-                                    x-model="formData.jenisKegiatan"
-                                    @change="formErrors.jenisKegiatan = ''"
-                                    class="w-full appearance-none rounded-xl border border-border bg-muted py-2.5 pl-4 pr-10 text-xs sm:text-sm text-foreground focus:border-brand-700 focus:bg-card focus:ring-2 focus:ring-brand-700/20 focus:outline-none transition cursor-pointer">
-                                <option value="">Pilih jenis kegiatan...</option>
-                                <template x-for="opsi in jenisKegiatanOptions" :key="opsi">
-                                    <option :value="opsi" x-text="opsi"></option>
-                                </template>
-                            </select>
-                            <div class="pointer-events-none absolute inset-y-0 right-3.5 flex items-center text-foreground">
-                                <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke-width="2.25" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                                </svg>
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                            <div>
+                                <label for="form-waktu-mulai" class="block text-xs sm:text-sm font-bold text-foreground mb-1.5">
+                                    Waktu Mulai
+                                </label>
+                                <div class="relative">
+                                    <select id="form-waktu-mulai"
+                                            x-model="formData.waktuMulai"
+                                            @change="onWaktuMulaiChange()"
+                                            class="w-full appearance-none rounded-xl border border-border bg-muted py-2.5 pl-4 pr-10 text-xs sm:text-sm text-foreground focus:border-brand-700 focus:bg-card focus:ring-2 focus:ring-brand-700/20 focus:outline-none transition cursor-pointer">
+                                        <option value="">Pilih jam mulai...</option>
+                                        <template x-for="jam in waktuMulaiOptions" :key="'mulai-' + jam">
+                                            <option :value="jam" x-text="jam + ' WIB'"></option>
+                                        </template>
+                                    </select>
+                                    <div class="pointer-events-none absolute inset-y-0 right-3.5 flex items-center text-foreground">
+                                        <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke-width="2.25" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                <p x-show="formErrors.waktuMulai" x-text="formErrors.waktuMulai" class="form-error"></p>
+                            </div>
+
+                            <div>
+                                <label for="form-waktu-selesai" class="block text-xs sm:text-sm font-bold text-foreground mb-1.5">
+                                    Waktu Selesai
+                                </label>
+                                <div class="relative">
+                                    <select id="form-waktu-selesai"
+                                            x-model="formData.waktuSelesai"
+                                            @change="onWaktuSelesaiChange()"
+                                            :disabled="!formData.waktuMulai"
+                                            class="w-full appearance-none rounded-xl border border-border bg-muted py-2.5 pl-4 pr-10 text-xs sm:text-sm text-foreground focus:border-brand-700 focus:bg-card focus:ring-2 focus:ring-brand-700/20 focus:outline-none transition cursor-pointer disabled:cursor-not-allowed disabled:opacity-50">
+                                        <option value="" x-text="formData.waktuMulai ? 'Pilih jam selesai...' : 'Pilih jam mulai dahulu...'"></option>
+                                        <template x-for="jam in waktuSelesaiOptions" :key="'selesai-' + jam">
+                                            <option :value="jam" x-text="jam + ' WIB'"></option>
+                                        </template>
+                                    </select>
+                                    <div class="pointer-events-none absolute inset-y-0 right-3.5 flex items-center text-foreground">
+                                        <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke-width="2.25" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                <p x-show="formErrors.waktuSelesai" x-text="formErrors.waktuSelesai" class="form-error"></p>
                             </div>
                         </div>
-                        <p x-show="formErrors.jenisKegiatan" x-text="formErrors.jenisKegiatan" class="form-error"></p>
                     </div>
 
                     {{-- 6. Rencana Kegiatan/Kebutuhan Fasilitas --}}
@@ -909,6 +1027,8 @@
                 highlightedDateIso: defaultYear + '-' + defaultHighlightMm + '-19',
                 modalState: null, // null | 'detail' | 'form' | 'confirm' | 'whatsapp'
                 selectedEvent: null,
+                selectedCell: null,
+                selectedDateEvents: [],
                 adminPhone: '6283157371088',
                 jenisKegiatanOptions: [
                     'Santunan & Bakti Sosial',
@@ -919,11 +1039,17 @@
                     'Perlombaan / Fun Games',
                     'Lainnya'
                 ],
+                jamKegiatanOptions: [
+                    '08.00', '09.00', '10.00', '11.00', '12.00', '13.00',
+                    '14.00', '15.00', '16.00', '17.00', '18.00', '19.00'
+                ],
                 formData: {
                     tanggalIso: '',
                     tanggalLabel: '',
                     namaPemohon: '',
                     nomorWhatsapp: '',
+                    waktuMulai: '',
+                    waktuSelesai: '',
                     waktuPelaksanaan: '',
                     jenisKegiatan: '',
                     rencanaKegiatan: ''
@@ -931,9 +1057,99 @@
                 formErrors: {
                     namaPemohon: '',
                     nomorWhatsapp: '',
+                    waktuMulai: '',
+                    waktuSelesai: '',
                     waktuPelaksanaan: '',
                     jenisKegiatan: '',
                     rencanaKegiatan: ''
+                },
+
+                parseEventTimeRange(timeStr) {
+                    if (!timeStr || typeof timeStr !== 'string') {
+                        return null;
+                    }
+                    // Cocokkan format seperti "08.00–11.00 WIB", "13.30 - 15.00 WIB", atau "09:00-12:00"
+                    const match = timeStr.match(/(\d{1,2})[.:](\d{2})\s*[-–—]\s*(\d{1,2})[.:](\d{2})/);
+                    if (!match) {
+                        return null;
+                    }
+                    const startHour = parseInt(match[1], 10) + (parseInt(match[2], 10) / 60);
+                    const endHour = parseInt(match[3], 10) + (parseInt(match[4], 10) / 60);
+                    return { start: startHour, end: endHour };
+                },
+
+                getEventsForDate(dateIso) {
+                    if (!dateIso) {
+                        return [];
+                    }
+                    return this.events
+                        .filter((e) => e.date_iso === dateIso)
+                        .slice()
+                        .sort((a, b) => {
+                            const rangeA = this.parseEventTimeRange(a.time);
+                            const rangeB = this.parseEventTimeRange(b.time);
+                            const startA = rangeA ? rangeA.start : 0;
+                            const startB = rangeB ? rangeB.start : 0;
+                            return startA - startB;
+                        });
+                },
+
+                isTimeRangeValidForDate(startHour, endHour, dateIso) {
+                    if (isNaN(startHour) || isNaN(endHour) || endHour <= startHour) {
+                        return false;
+                    }
+                    if (!dateIso) {
+                        return true;
+                    }
+                    const existingEvents = this.getEventsForDate(dateIso);
+                    for (let i = 0; i < existingEvents.length; i++) {
+                        const range = this.parseEventTimeRange(existingEvents[i].time);
+                        if (!range) {
+                            continue;
+                        }
+                        // Syarat jeda minimal 1 jam (60 menit):
+                        // Kegiatan baru harus selesai <= (ev.start - 1) ATAU mulai >= (ev.end + 1)
+                        const finishesWithOneHourGapBefore = endHour <= (range.start - 1);
+                        const startsWithOneHourGapAfter = startHour >= (range.end + 1);
+                        if (!finishesWithOneHourGapBefore && !startsWithOneHourGapAfter) {
+                            return false;
+                        }
+                    }
+                    return true;
+                },
+
+                getAvailableStartHoursForDate(dateIso) {
+                    // Jam mulai maksimal 18.00 (karena kegiatan berakhir maksimal 19.00)
+                    const candidateStarts = this.jamKegiatanOptions.slice(0, -1);
+                    return candidateStarts.filter((jam) => {
+                        const startH = parseInt(jam, 10);
+                        return this.isTimeRangeValidForDate(startH, startH + 1, dateIso);
+                    });
+                },
+
+                get selectedDateHasAvailableSlot() {
+                    const dateIso = (this.selectedCell && this.selectedCell.dateIso)
+                        || (this.selectedEvent && this.selectedEvent.date_iso)
+                        || '';
+                    if (!dateIso) {
+                        return false;
+                    }
+                    return this.getAvailableStartHoursForDate(dateIso).length > 0;
+                },
+
+                get waktuMulaiOptions() {
+                    return this.getAvailableStartHoursForDate(this.formData.tanggalIso);
+                },
+
+                get waktuSelesaiOptions() {
+                    if (!this.formData.waktuMulai) {
+                        return [];
+                    }
+                    const mulaiHour = parseInt(this.formData.waktuMulai, 10);
+                    return this.jamKegiatanOptions.filter((jam) => {
+                        const selesaiHour = parseInt(jam, 10);
+                        return selesaiHour > mulaiHour && this.isTimeRangeValidForDate(mulaiHour, selesaiHour, this.formData.tanggalIso);
+                    });
                 },
 
                 get monthYearLabel() {
@@ -979,7 +1195,9 @@
                             isCurrentMonth: false,
                             isSunday: false,
                             dateIso: null,
-                            event: null
+                            event: null,
+                            events: [],
+                            hasAvailableSlot: false
                         });
                     }
 
@@ -990,7 +1208,8 @@
                         const dateIso = year + '-' + mm + '-' + dd;
                         const jsDate = new Date(year, month, day);
                         const isSunday = jsDate.getDay() === 0;
-                        const matchedEvent = this.events.find((e) => e.date_iso === dateIso) || null;
+                        const matchedEvents = this.getEventsForDate(dateIso);
+                        const matchedEvent = matchedEvents[0] || null;
 
                         cells.push({
                             key: 'cur-' + dateIso,
@@ -1001,7 +1220,9 @@
                             dateIso: dateIso,
                             dateFormatted: fullDayNames[jsDate.getDay()] + ', ' + day + ' ' + monthNames[month] + ' ' + year,
                             dateShortFormatted: day + ' ' + monthNames[month] + ' ' + year,
-                            event: matchedEvent
+                            event: matchedEvent,
+                            events: matchedEvents,
+                            hasAvailableSlot: this.getAvailableStartHoursForDate(dateIso).length > 0
                         });
                     }
 
@@ -1019,7 +1240,9 @@
                             isCurrentMonth: false,
                             isSunday: false,
                             dateIso: null,
-                            event: null
+                            event: null,
+                            events: [],
+                            hasAvailableSlot: false
                         });
                     }
 
@@ -1067,8 +1290,12 @@
                 handleDateClick(cell) {
                     if (!cell.isCurrentMonth) return;
 
-                    if (cell.event) {
-                        this.openEventDetail(cell.event);
+                    this.selectedCell = cell;
+                    if (cell.events && cell.events.length > 0) {
+                        this.highlightedDateIso = cell.dateIso;
+                        this.selectedEvent = cell.events[0];
+                        this.selectedDateEvents = cell.events;
+                        this.modalState = 'detail';
                     } else {
                         this.openSubmissionForm(cell);
                     }
@@ -1077,13 +1304,41 @@
                 openEventDetail(eventObj) {
                     this.highlightedDateIso = eventObj.date_iso;
                     this.selectedEvent = eventObj;
+                    const matchingCell = this.calendarCells.find((c) => c.isCurrentMonth && c.dateIso === eventObj.date_iso) || null;
+                    this.selectedCell = matchingCell;
+                    const allOnDate = this.getEventsForDate(eventObj.date_iso);
+                    this.selectedDateEvents = allOnDate.length > 0 ? allOnDate : [eventObj];
                     this.modalState = 'detail';
+                },
+
+                openSubmissionFormFromDetail() {
+                    if (this.selectedCell) {
+                        this.openSubmissionForm(this.selectedCell);
+                        return;
+                    }
+                    if (this.selectedEvent && this.selectedEvent.date_iso) {
+                        const parts = this.selectedEvent.date_iso.split('-');
+                        const y = parseInt(parts[0], 10);
+                        const m = parseInt(parts[1], 10) - 1;
+                        const d = parseInt(parts[2], 10);
+                        const jsDate = new Date(y, m, d);
+                        this.openSubmissionForm({
+                            dateIso: this.selectedEvent.date_iso,
+                            dateFormatted: fullDayNames[jsDate.getDay()] + ', ' + d + ' ' + monthNames[m] + ' ' + y,
+                            events: this.getEventsForDate(this.selectedEvent.date_iso)
+                        });
+                    }
                 },
 
                 openSubmissionForm(cell) {
                     this.resetErrors();
+                    this.selectedCell = cell;
+                    this.selectedDateEvents = (cell && cell.events) ? cell.events : this.getEventsForDate(cell.dateIso);
                     this.formData.tanggalIso = cell.dateIso;
                     this.formData.tanggalLabel = cell.dateFormatted;
+                    this.formData.waktuMulai = '';
+                    this.formData.waktuSelesai = '';
+                    this.formData.waktuPelaksanaan = '';
                     this.modalState = 'form';
                 },
 
@@ -1091,10 +1346,41 @@
                     this.formErrors = {
                         namaPemohon: '',
                         nomorWhatsapp: '',
+                        waktuMulai: '',
+                        waktuSelesai: '',
                         waktuPelaksanaan: '',
                         jenisKegiatan: '',
                         rencanaKegiatan: ''
                     };
+                },
+
+                onWaktuMulaiChange() {
+                    this.formErrors.waktuMulai = '';
+                    if (this.formData.waktuSelesai) {
+                        const mulaiHour = parseInt(this.formData.waktuMulai, 10);
+                        const selesaiHour = parseInt(this.formData.waktuSelesai, 10);
+                        if (
+                            !this.formData.waktuMulai ||
+                            selesaiHour <= mulaiHour ||
+                            !this.isTimeRangeValidForDate(mulaiHour, selesaiHour, this.formData.tanggalIso)
+                        ) {
+                            this.formData.waktuSelesai = '';
+                        }
+                    }
+                    this.syncWaktuPelaksanaan();
+                },
+
+                onWaktuSelesaiChange() {
+                    this.formErrors.waktuSelesai = '';
+                    this.syncWaktuPelaksanaan();
+                },
+
+                syncWaktuPelaksanaan() {
+                    if (this.formData.waktuMulai && this.formData.waktuSelesai) {
+                        this.formData.waktuPelaksanaan = this.formData.waktuMulai + ' - ' + this.formData.waktuSelesai + ' WIB';
+                    } else {
+                        this.formData.waktuPelaksanaan = '';
+                    }
                 },
 
                 validateForm() {
@@ -1109,10 +1395,26 @@
                         this.formErrors.nomorWhatsapp = 'Nomor WhatsApp wajib diisi.';
                         valid = false;
                     }
-                    if (!this.formData.waktuPelaksanaan.trim()) {
-                        this.formErrors.waktuPelaksanaan = 'Waktu pelaksanaan wajib diisi.';
+                    if (!this.formData.waktuMulai) {
+                        this.formErrors.waktuMulai = 'Waktu mulai wajib dipilih.';
                         valid = false;
                     }
+                    if (!this.formData.waktuSelesai) {
+                        this.formErrors.waktuSelesai = 'Waktu selesai wajib dipilih.';
+                        valid = false;
+                    } else if (this.formData.waktuMulai) {
+                        const mulaiHour = parseInt(this.formData.waktuMulai, 10);
+                        const selesaiHour = parseInt(this.formData.waktuSelesai, 10);
+                        if (selesaiHour <= mulaiHour) {
+                            this.formErrors.waktuSelesai = 'Waktu selesai harus setelah waktu mulai.';
+                            valid = false;
+                        } else if (!this.isTimeRangeValidForDate(mulaiHour, selesaiHour, this.formData.tanggalIso)) {
+                            this.formErrors.waktuSelesai = 'Rentang waktu harus memiliki jeda minimal 1 jam dari kegiatan lain di tanggal ini.';
+                            valid = false;
+                        }
+                    }
+                    this.syncWaktuPelaksanaan();
+
                     if (!this.formData.jenisKegiatan.trim()) {
                         this.formErrors.jenisKegiatan = 'Silakan pilih jenis kegiatan.';
                         valid = false;
