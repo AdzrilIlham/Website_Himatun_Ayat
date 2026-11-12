@@ -18,15 +18,15 @@ class LaporanService
     public function getDashboardSummary(): array
     {
         return [
-            'total_donasi_bulan_ini'     => (float) Donasi::where('status', 'verified')
+            'total_donasi_bulan_ini' => (float) Donasi::where('status', 'verified')
                 ->whereYear('created_at', now()->year)
                 ->whereMonth('created_at', now()->month)
                 ->sum('nominal'),
-            'total_anak_asuh_aktif'      => AnakAsuh::where('status_asuhan', 'Aktif')->count(),
-            'kampanye_aktif'             => Kampanye::where('status', 'aktif')->count(),
-            'total_donasi_pending'       => Donasi::where('status', 'pending')->count(),
+            'total_anak_asuh_aktif' => AnakAsuh::where('status_asuhan', 'Aktif')->count(),
+            'kampanye_aktif' => Kampanye::where('status', 'aktif')->count(),
+            'total_donasi_pending' => Donasi::where('status', 'pending')->count(),
             'total_donasi_terverifikasi' => (float) Donasi::where('status', 'verified')->sum('nominal'),
-            'total_transaksi_verified'   => Donasi::where('status', 'verified')->count(),
+            'total_transaksi_verified' => Donasi::where('status', 'verified')->count(),
         ];
     }
 
@@ -44,14 +44,14 @@ class LaporanService
         $all = (clone $base)->count();
         $transfer = (clone $base)->where(function ($q) {
             $q->where('metode_pembayaran', 'like', '%Transfer%')
-              ->orWhere('metode_pembayaran', 'like', '%Bank%');
+                ->orWhere('metode_pembayaran', 'like', '%Bank%');
         })->count();
         $qris = (clone $base)->where('metode_pembayaran', 'like', '%QRIS%')->count();
 
         return [
-            'semua'         => $all,
+            'semua' => $all,
             'transfer_bank' => $transfer,
-            'qris_manual'   => $qris,
+            'qris_manual' => $qris,
         ];
     }
 
@@ -74,7 +74,7 @@ class LaporanService
             if ($metode === 'transfer_bank') {
                 $query->where(function ($q) {
                     $q->where('metode_pembayaran', 'like', '%Transfer%')
-                      ->orWhere('metode_pembayaran', 'like', '%Bank%');
+                        ->orWhere('metode_pembayaran', 'like', '%Bank%');
                 });
             } elseif ($metode === 'qris_manual') {
                 $query->where('metode_pembayaran', 'like', '%QRIS%');
@@ -84,11 +84,11 @@ class LaporanService
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('id', 'like', "%{$search}%")
-                  ->orWhere('nama_donatur', 'like', "%{$search}%")
-                  ->orWhere('no_whatsapp', 'like', "%{$search}%")
-                  ->orWhereHas('kampanye', function ($kq) use ($search) {
-                      $kq->where('judul', 'like', "%{$search}%");
-                  });
+                    ->orWhere('nama_donatur', 'like', "%{$search}%")
+                    ->orWhere('no_whatsapp', 'like', "%{$search}%")
+                    ->orWhereHas('kampanye', function ($kq) use ($search) {
+                        $kq->where('judul', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -394,4 +394,3 @@ class LaporanService
         }
     }
 }
-

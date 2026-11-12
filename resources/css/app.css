@@ -44,6 +44,28 @@
     .tabular {
         font-variant-numeric: tabular-nums;
     }
+
+    /* Hilangkan panah spinner up/down pada input type=number */
+    input[type='number']::-webkit-outer-spin-button,
+    input[type='number']::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    input[type='number'] {
+        -moz-appearance: textfield;
+        appearance: textfield;
+    }
+
+    /* Netralkan latar belakang biru/abu otomatis browser akibat autofill */
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover,
+    input:-webkit-autofill:focus,
+    input:-webkit-autofill:active {
+        -webkit-box-shadow: 0 0 0 1000px white inset !important;
+        -webkit-text-fill-color: inherit !important;
+        transition: background-color 5000s ease-in-out 0s;
+    }
 }
 
 /* --------------------------------------------------------------------------
@@ -213,5 +235,35 @@
 
     .article-content .callout-text {
         @apply mt-1 text-xs leading-relaxed text-muted-foreground-1 sm:text-sm;
+    }
+
+    /* Continuous Vertical Scroll untuk Kartu Doa & Harapan */
+    .doa-continuous-scroll {
+        animation: doa-scroll-vertical var(--doa-scroll-duration, 35s) linear infinite;
+        will-change: transform;
+    }
+
+    /* Sembunyikan scrollbar bawaan browser dengan tetap mempertahankan fungsi scroll */
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+
+    .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    /* Rapatkan jarak antara section terakhir halaman Kampanye Donasi dengan Footer */
+    div:has(#kampanye-page) + footer {
+        margin-top: 1.5rem !important;
+    }
+}
+
+@keyframes doa-scroll-vertical {
+    0% {
+        transform: translate3d(0, 0, 0);
+    }
+    100% {
+        transform: translate3d(0, -50%, 0);
     }
 }

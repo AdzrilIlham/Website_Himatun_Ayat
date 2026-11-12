@@ -52,7 +52,7 @@ class DashboardController extends Controller
         if ($donasi->status !== 'verified') {
             DB::transaction(function () use ($donasi) {
                 $donasi->update([
-                    'status'            => 'verified',
+                    'status' => 'verified',
                     'diverifikasi_pada' => now(),
                 ]);
 
@@ -75,7 +75,7 @@ class DashboardController extends Controller
             }
 
             $donasi->update([
-                'status'            => 'rejected',
+                'status' => 'rejected',
                 'diverifikasi_pada' => now(),
             ]);
         });
@@ -86,8 +86,8 @@ class DashboardController extends Controller
     public function exportExcel(Request $request)
     {
         $startDate = $request->query('tanggal_awal');
-        $endDate   = $request->query('tanggal_akhir');
-        $filename  = 'rekap-donasi-himmatun-ayat-' . now()->format('Ymd-His') . '.xlsx';
+        $endDate = $request->query('tanggal_akhir');
+        $filename = 'rekap-donasi-himmatun-ayat-'.now()->format('Ymd-His').'.xlsx';
 
         return Excel::download(new DonasiExport($startDate, $endDate), $filename);
     }
@@ -95,13 +95,13 @@ class DashboardController extends Controller
     public function exportPdf(Request $request)
     {
         $startDate = $request->query('tanggal_awal');
-        $endDate   = $request->query('tanggal_akhir');
-        $donasi    = $this->laporanService->getLaporanDonasi($startDate, $endDate);
-        $summary   = $this->laporanService->getDashboardSummary();
+        $endDate = $request->query('tanggal_akhir');
+        $donasi = $this->laporanService->getLaporanDonasi($startDate, $endDate);
+        $summary = $this->laporanService->getDashboardSummary();
 
         $pdf = Pdf::loadView('admin.laporan.pdf', compact('donasi', 'summary', 'startDate', 'endDate'));
         $pdf->setPaper('a4', 'portrait');
 
-        return $pdf->download('laporan-donasi-himmatun-ayat-' . now()->format('Ymd-His') . '.pdf');
+        return $pdf->download('laporan-donasi-himmatun-ayat-'.now()->format('Ymd-His').'.pdf');
     }
 }

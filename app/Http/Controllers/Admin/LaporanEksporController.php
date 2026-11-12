@@ -10,8 +10,6 @@ use App\Models\AnakAsuh;
 use App\Models\Donasi;
 use App\Models\Kampanye;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Carbon\Carbon;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -87,15 +85,15 @@ class LaporanEksporController extends Controller
         // Jika request menginginkan JSON (AJAX)
         if ($request->ajax() || $request->wantsJson() || $request->query('json') == '1') {
             return response()->json([
-                'success'         => true,
-                'jenisLaporan'    => $jenisLaporan,
-                'bulan'           => $bulan,
-                'tahun'           => $tahun,
-                'kategori'        => $kategori,
-                'stats'           => $reportData['stats'],
-                'columns'         => $reportData['columns'],
-                'previewData'     => $reportData['previewData'],
-                'pagination'      => $reportData['pagination'],
+                'success' => true,
+                'jenisLaporan' => $jenisLaporan,
+                'bulan' => $bulan,
+                'tahun' => $tahun,
+                'kategori' => $kategori,
+                'stats' => $reportData['stats'],
+                'columns' => $reportData['columns'],
+                'previewData' => $reportData['previewData'],
+                'pagination' => $reportData['pagination'],
                 'kategoriOptions' => $kategoriOptions,
             ]);
         }
@@ -140,17 +138,20 @@ class LaporanEksporController extends Controller
         $timestamp = now()->format('Ymd-His');
 
         if ($jenisLaporan === 'Kelola Donasi') {
-            $filename = 'laporan-donasi-' . $timestamp . '.xlsx';
+            $filename = 'laporan-donasi-'.$timestamp.'.xlsx';
+
             return Excel::download(new DonasiExport(null, null, null, $bulanNum, $tahunNum, $kategori), $filename);
         }
 
         if ($jenisLaporan === 'Kelola Kampanye') {
-            $filename = 'laporan-kampanye-' . $timestamp . '.xlsx';
+            $filename = 'laporan-kampanye-'.$timestamp.'.xlsx';
+
             return Excel::download(new KampanyeExport($kategori, null, $bulanNum, $tahunNum), $filename);
         }
 
         // Default: Data Anak Asuh
-        $filename = 'laporan-anak-asuh-' . $timestamp . '.xlsx';
+        $filename = 'laporan-anak-asuh-'.$timestamp.'.xlsx';
+
         return Excel::download(new AnakAsuhExport(null, $kategori, null, $bulanNum, $tahunNum), $filename);
     }
 
@@ -179,8 +180,12 @@ class LaporanEksporController extends Controller
                 $query->where('status', 'verified');
             }
 
-            if ($bulanNum) $query->whereMonth('created_at', $bulanNum);
-            if ($tahunNum) $query->whereYear('created_at', $tahunNum);
+            if ($bulanNum) {
+                $query->whereMonth('created_at', $bulanNum);
+            }
+            if ($tahunNum) {
+                $query->whereYear('created_at', $tahunNum);
+            }
             if ($kategori === 'Transfer Bank') {
                 $query->where(function ($q) {
                     $q->where('metode_pembayaran', 'like', '%Transfer%')->orWhere('metode_pembayaran', 'like', '%Bank%');
@@ -192,7 +197,7 @@ class LaporanEksporController extends Controller
             $donasi = $query->latest('id')->get();
             $summary = [
                 'total_donasi_terverifikasi' => (float) $donasi->where('status', 'verified')->sum('nominal'),
-                'total_transaksi_verified'   => $donasi->where('status', 'verified')->count(),
+                'total_transaksi_verified' => $donasi->where('status', 'verified')->count(),
             ];
 
             $startDate = null;
@@ -201,14 +206,19 @@ class LaporanEksporController extends Controller
             $pdf = Pdf::loadView('admin.laporan.pdf', compact('donasi', 'summary', 'startDate', 'endDate'));
             $pdf->setPaper('a4', 'portrait');
 
-            $filename = 'laporan-donasi-' . $timestamp . '.pdf';
+            $filename = 'laporan-donasi-'.$timestamp.'.pdf';
+
             return $isInline ? $pdf->stream($filename) : $pdf->download($filename);
         }
 
         if ($jenisLaporan === 'Kelola Kampanye') {
             $query = Kampanye::query();
-            if ($bulanNum) $query->whereMonth('created_at', $bulanNum);
-            if ($tahunNum) $query->whereYear('created_at', $tahunNum);
+            if ($bulanNum) {
+                $query->whereMonth('created_at', $bulanNum);
+            }
+            if ($tahunNum) {
+                $query->whereYear('created_at', $tahunNum);
+            }
             if ($kategori && $kategori !== 'Semua Kategori') {
                 if (in_array(strtolower($kategori), ['aktif', 'selesai'])) {
                     $query->where('status', strtolower($kategori));
@@ -219,27 +229,32 @@ class LaporanEksporController extends Controller
 
             $kampanye = $query->latest('id')->get();
             $stats = [
-                'total'          => $kampanye->count(),
-                'terkumpul_raw'  => (float) $kampanye->sum('dana_terkumpul'),
-                'target_raw'     => (float) $kampanye->sum('target_dana'),
+                'total' => $kampanye->count(),
+                'terkumpul_raw' => (float) $kampanye->sum('dana_terkumpul'),
+                'target_raw' => (float) $kampanye->sum('target_dana'),
             ];
 
             $pdf = Pdf::loadView('admin.laporan.pdf-kampanye', compact('kampanye', 'stats', 'bulan', 'tahun', 'kategori'));
             $pdf->setPaper('a4', 'landscape');
 
-            $filename = 'laporan-kampanye-' . $timestamp . '.pdf';
+            $filename = 'laporan-kampanye-'.$timestamp.'.pdf';
+
             return $isInline ? $pdf->stream($filename) : $pdf->download($filename);
         }
 
         // Default: Data Anak Asuh
         $query = AnakAsuh::query();
-        if ($bulanNum) $query->whereMonth('created_at', $bulanNum);
-        if ($tahunNum) $query->whereYear('created_at', $tahunNum);
+        if ($bulanNum) {
+            $query->whereMonth('created_at', $bulanNum);
+        }
+        if ($tahunNum) {
+            $query->whereYear('created_at', $tahunNum);
+        }
         if ($kategori && $kategori !== 'Semua Kategori') {
             if (in_array($kategori, ['SD', 'SMP', 'SMA', 'Perguruan Tinggi'])) {
                 $query->where(function ($q) use ($kategori) {
                     $q->where('pendidikan_terakhir', $kategori)
-                      ->orWhere('pendidikan_terakhir', 'like', "%{$kategori}%");
+                        ->orWhere('pendidikan_terakhir', 'like', "%{$kategori}%");
                 });
             } else {
                 $query->where('status_asuhan', $kategori);
@@ -253,7 +268,8 @@ class LaporanEksporController extends Controller
         $pdf = Pdf::loadView('admin.anak-asuh.pdf', compact('anakAsuh', 'search', 'status'));
         $pdf->setPaper('a4', 'landscape');
 
-        $filename = 'laporan-anak-asuh-' . $timestamp . '.pdf';
+        $filename = 'laporan-anak-asuh-'.$timestamp.'.pdf';
+
         return $isInline ? $pdf->stream($filename) : $pdf->download($filename);
     }
 
@@ -293,37 +309,37 @@ class LaporanEksporController extends Controller
         // Jika database belum diisi data (misal saat fresh test), sediakan sample mockup yang konsisten dengan slicing
         if (AnakAsuh::count() === 0) {
             $stats = [
-                'total'                   => '128',
-                'aktif_pendidikan'        => '112',
+                'total' => '128',
+                'aktif_pendidikan' => '112',
                 'aktif_pendidikan_persen' => '87,5%',
-                'aktif_asrama'            => '98',
-                'aktif_asrama_persen'     => '76,6%',
-                'perlu_perhatian'         => '16',
-                'perlu_perhatian_persen'  => '12,5%',
+                'aktif_asrama' => '98',
+                'aktif_asrama_persen' => '76,6%',
+                'perlu_perhatian' => '16',
+                'perlu_perhatian_persen' => '12,5%',
                 'cards' => [
                     [
                         'title' => 'Total Anak Asuh',
                         'value' => '128',
-                        'sub'   => 'Data sesuai filter',
-                        'type'  => 'total',
+                        'sub' => 'Data sesuai filter',
+                        'type' => 'total',
                     ],
                     [
                         'title' => 'Aktif Pendidikan',
                         'value' => '112',
-                        'sub'   => '87,5% dari total',
-                        'type'  => 'pendidikan',
+                        'sub' => '87,5% dari total',
+                        'type' => 'pendidikan',
                     ],
                     [
                         'title' => 'Aktif di Asrama',
                         'value' => '98',
-                        'sub'   => '76,6% dari total',
-                        'type'  => 'asrama',
+                        'sub' => '76,6% dari total',
+                        'type' => 'asrama',
                     ],
                     [
                         'title' => 'Perlu Perhatian',
                         'value' => '16',
-                        'sub'   => '12,5% dari total',
-                        'type'  => 'perhatian',
+                        'sub' => '12,5% dari total',
+                        'type' => 'perhatian',
                     ],
                 ],
             ];
@@ -337,38 +353,42 @@ class LaporanEksporController extends Controller
             ];
 
             return [
-                'stats'       => $stats,
-                'columns'     => $columns,
+                'stats' => $stats,
+                'columns' => $columns,
                 'previewData' => $sampleRows,
-                'pagination'  => [
+                'pagination' => [
                     'current_page' => 1,
-                    'last_page'    => 26,
-                    'total'        => 128,
-                    'from'         => 1,
-                    'to'           => 5,
-                    'per_page'     => 5,
+                    'last_page' => 26,
+                    'total' => 128,
+                    'from' => 1,
+                    'to' => 5,
+                    'per_page' => 5,
                 ],
             ];
         }
 
         // Query database nyata
         $baseQuery = AnakAsuh::query();
-        if ($bulanNum) $baseQuery->whereMonth('created_at', $bulanNum);
-        if ($tahunNum) $baseQuery->whereYear('created_at', $tahunNum);
+        if ($bulanNum) {
+            $baseQuery->whereMonth('created_at', $bulanNum);
+        }
+        if ($tahunNum) {
+            $baseQuery->whereYear('created_at', $tahunNum);
+        }
 
         $filteredQuery = clone $baseQuery;
         if ($kategori && $kategori !== 'Semua Kategori') {
             if (in_array($kategori, ['SD', 'SMP', 'SMA', 'Perguruan Tinggi'])) {
                 $filteredQuery->where(function ($q) use ($kategori) {
                     $q->where('pendidikan_terakhir', $kategori)
-                      ->orWhere('pendidikan_terakhir', 'like', "%{$kategori}%");
+                        ->orWhere('pendidikan_terakhir', 'like', "%{$kategori}%");
                 });
             } elseif ($kategori === 'Pendidikan') {
                 $filteredQuery->whereNotNull('pendidikan_terakhir');
             } elseif (in_array($kategori, ['Yatim', 'Dhuafa', 'Tahfidz'])) {
                 $filteredQuery->where('keterangan', 'like', "%{$kategori}%");
             } elseif ($kategori === 'Asrama') {
-                $filteredQuery->where('keterangan', 'like', "%asrama%");
+                $filteredQuery->where('keterangan', 'like', '%asrama%');
             } else {
                 $filteredQuery->where('status_asuhan', $kategori);
             }
@@ -382,42 +402,42 @@ class LaporanEksporController extends Controller
         $aktifAsrama = (clone $filteredQuery)->where('status_asuhan', 'Aktif')->count();
         $perluPerhatian = (clone $filteredQuery)->where('status_asuhan', '!=', 'Aktif')->count();
 
-        $pendidikanPersen = $totalFiltered > 0 ? round(($aktifPendidikan / $totalFiltered) * 100, 1) . '%' : '0%';
-        $asramaPersen = $totalFiltered > 0 ? round(($aktifAsrama / $totalFiltered) * 100, 1) . '%' : '0%';
-        $perhatianPersen = $totalFiltered > 0 ? round(($perluPerhatian / $totalFiltered) * 100, 1) . '%' : '0%';
+        $pendidikanPersen = $totalFiltered > 0 ? round(($aktifPendidikan / $totalFiltered) * 100, 1).'%' : '0%';
+        $asramaPersen = $totalFiltered > 0 ? round(($aktifAsrama / $totalFiltered) * 100, 1).'%' : '0%';
+        $perhatianPersen = $totalFiltered > 0 ? round(($perluPerhatian / $totalFiltered) * 100, 1).'%' : '0%';
 
         $stats = [
-            'total'                   => (string) $totalFiltered,
-            'aktif_pendidikan'        => (string) $aktifPendidikan,
+            'total' => (string) $totalFiltered,
+            'aktif_pendidikan' => (string) $aktifPendidikan,
             'aktif_pendidikan_persen' => $pendidikanPersen,
-            'aktif_asrama'            => (string) $aktifAsrama,
-            'aktif_asrama_persen'     => $asramaPersen,
-            'perlu_perhatian'         => (string) $perluPerhatian,
-            'perlu_perhatian_persen'  => $perhatianPersen,
+            'aktif_asrama' => (string) $aktifAsrama,
+            'aktif_asrama_persen' => $asramaPersen,
+            'perlu_perhatian' => (string) $perluPerhatian,
+            'perlu_perhatian_persen' => $perhatianPersen,
             'cards' => [
                 [
                     'title' => 'Total Anak Asuh',
                     'value' => (string) $totalFiltered,
-                    'sub'   => 'Data sesuai filter',
-                    'type'  => 'total',
+                    'sub' => 'Data sesuai filter',
+                    'type' => 'total',
                 ],
                 [
                     'title' => 'Aktif Pendidikan',
                     'value' => (string) $aktifPendidikan,
-                    'sub'   => $pendidikanPersen . ' dari total',
-                    'type'  => 'pendidikan',
+                    'sub' => $pendidikanPersen.' dari total',
+                    'type' => 'pendidikan',
                 ],
                 [
                     'title' => 'Aktif di Asrama',
                     'value' => (string) $aktifAsrama,
-                    'sub'   => $asramaPersen . ' dari total',
-                    'type'  => 'asrama',
+                    'sub' => $asramaPersen.' dari total',
+                    'type' => 'asrama',
                 ],
                 [
                     'title' => 'Perlu Perhatian',
                     'value' => (string) $perluPerhatian,
-                    'sub'   => $perhatianPersen . ' dari total',
-                    'type'  => 'perhatian',
+                    'sub' => $perhatianPersen.' dari total',
+                    'type' => 'perhatian',
                 ],
             ],
         ];
@@ -436,33 +456,33 @@ class LaporanEksporController extends Controller
             }
 
             $previewRows[] = [
-                'no'       => sprintf('%03d', $offset + $index + 1),
-                'id_anak'  => 'AA-' . str_pad((string) $item->id, 4, '0', STR_PAD_LEFT),
-                'nama'     => $item->nama_lengkap,
+                'no' => sprintf('%03d', $offset + $index + 1),
+                'id_anak' => 'AA-'.str_pad((string) $item->id, 4, '0', STR_PAD_LEFT),
+                'nama' => $item->nama_lengkap,
                 'kategori' => $catLabel,
-                'status'   => $item->status_asuhan ?: 'Aktif',
-                'tanggal'  => $item->created_at ? $item->created_at->translatedFormat('d M Y') : '-',
-                'detail'   => [
+                'status' => $item->status_asuhan ?: 'Aktif',
+                'tanggal' => $item->created_at ? $item->created_at->translatedFormat('d M Y') : '-',
+                'detail' => [
                     'Nama Panggilan' => $item->nama_panggilan ?: '-',
-                    'Jenis Kelamin'  => $item->jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan',
-                    'Usia'           => $item->usia_formatted,
-                    'Pendidikan'     => $item->pendidikan_terakhir ?: '-',
-                    'Keterangan'     => $item->keterangan ?: '-',
+                    'Jenis Kelamin' => $item->jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan',
+                    'Usia' => $item->usia_formatted,
+                    'Pendidikan' => $item->pendidikan_terakhir ?: '-',
+                    'Keterangan' => $item->keterangan ?: '-',
                 ],
             ];
         }
 
         return [
-            'stats'       => $stats,
-            'columns'     => $columns,
+            'stats' => $stats,
+            'columns' => $columns,
             'previewData' => $previewRows,
-            'pagination'  => [
+            'pagination' => [
                 'current_page' => $paginator->currentPage(),
-                'last_page'    => max(1, $paginator->lastPage()),
-                'total'        => $paginator->total(),
-                'from'         => $paginator->firstItem() ?: 0,
-                'to'           => $paginator->lastItem() ?: 0,
-                'per_page'     => $perPage,
+                'last_page' => max(1, $paginator->lastPage()),
+                'total' => $paginator->total(),
+                'from' => $paginator->firstItem() ?: 0,
+                'to' => $paginator->lastItem() ?: 0,
+                'per_page' => $perPage,
             ],
         ];
     }
@@ -482,8 +502,12 @@ class LaporanEksporController extends Controller
         ];
 
         $query = Donasi::with('kampanye');
-        if ($bulanNum) $query->whereMonth('created_at', $bulanNum);
-        if ($tahunNum) $query->whereYear('created_at', $tahunNum);
+        if ($bulanNum) {
+            $query->whereMonth('created_at', $bulanNum);
+        }
+        if ($tahunNum) {
+            $query->whereYear('created_at', $tahunNum);
+        }
 
         if ($kategori && $kategori !== 'Semua Kategori') {
             if ($kategori === 'Transfer Bank') {
@@ -505,37 +529,37 @@ class LaporanEksporController extends Controller
         $totalPending = (clone $query)->where('status', 'pending')->count();
 
         $stats = [
-            'total'                   => 'Rp' . number_format($totalNominal, 0, ',', '.'),
-            'aktif_pendidikan'        => (string) $totalVerified . ' Transaksi',
+            'total' => 'Rp'.number_format($totalNominal, 0, ',', '.'),
+            'aktif_pendidikan' => (string) $totalVerified.' Transaksi',
             'aktif_pendidikan_persen' => 'Terverifikasi',
-            'aktif_asrama'            => (string) $totalPending . ' Menunggu',
-            'aktif_asrama_persen'     => 'Perlu Cek',
-            'perlu_perhatian'         => (string) $totalFiltered . ' Total',
-            'perlu_perhatian_persen'  => 'Semua Donasi',
+            'aktif_asrama' => (string) $totalPending.' Menunggu',
+            'aktif_asrama_persen' => 'Perlu Cek',
+            'perlu_perhatian' => (string) $totalFiltered.' Total',
+            'perlu_perhatian_persen' => 'Semua Donasi',
             'cards' => [
                 [
                     'title' => 'Penerimaan Donasi',
-                    'value' => 'Rp' . number_format($totalNominal, 0, ',', '.'),
-                    'sub'   => 'Donasi terverifikasi',
-                    'type'  => 'total',
+                    'value' => 'Rp'.number_format($totalNominal, 0, ',', '.'),
+                    'sub' => 'Donasi terverifikasi',
+                    'type' => 'total',
                 ],
                 [
                     'title' => 'Donasi Terverifikasi',
                     'value' => (string) $totalVerified,
-                    'sub'   => 'Transaksi berhasil',
-                    'type'  => 'pendidikan',
+                    'sub' => 'Transaksi berhasil',
+                    'type' => 'pendidikan',
                 ],
                 [
                     'title' => 'Donasi Pending',
                     'value' => (string) $totalPending,
-                    'sub'   => 'Menunggu verifikasi',
-                    'type'  => 'perhatian',
+                    'sub' => 'Menunggu verifikasi',
+                    'type' => 'perhatian',
                 ],
                 [
                     'title' => 'Total Transaksi',
                     'value' => (string) $totalFiltered,
-                    'sub'   => 'Sesuai filter pencarian',
-                    'type'  => 'asrama',
+                    'sub' => 'Sesuai filter pencarian',
+                    'type' => 'asrama',
                 ],
             ],
         ];
@@ -547,39 +571,39 @@ class LaporanEksporController extends Controller
         foreach ($paginator->items() as $index => $item) {
             $statusText = match ($item->status) {
                 'verified' => 'Aktif',
-                'pending'  => 'Perlu Pembaruan',
-                default    => 'Ditolak',
+                'pending' => 'Perlu Pembaruan',
+                default => 'Ditolak',
             };
 
             $previewRows[] = [
-                'no'       => sprintf('%03d', $offset + $index + 1),
-                'id_anak'  => 'DON-' . str_pad((string) $item->id, 4, '0', STR_PAD_LEFT),
-                'nama'     => $item->nama_donatur,
+                'no' => sprintf('%03d', $offset + $index + 1),
+                'id_anak' => 'DON-'.str_pad((string) $item->id, 4, '0', STR_PAD_LEFT),
+                'nama' => $item->nama_donatur,
                 'kategori' => $item->kampanye?->judul ?? 'Donasi Umum',
-                'status'   => $statusText,
-                'tanggal'  => 'Rp' . number_format($item->nominal, 0, ',', '.') . ' (' . ($item->created_at ? $item->created_at->format('d/m/y') : '-') . ')',
-                'detail'   => [
-                    'Nominal'           => 'Rp' . number_format($item->nominal, 0, ',', '.'),
+                'status' => $statusText,
+                'tanggal' => 'Rp'.number_format($item->nominal, 0, ',', '.').' ('.($item->created_at ? $item->created_at->format('d/m/y') : '-').')',
+                'detail' => [
+                    'Nominal' => 'Rp'.number_format($item->nominal, 0, ',', '.'),
                     'Metode Pembayaran' => $item->metode_pembayaran,
-                    'No WhatsApp'       => $item->no_whatsapp ?: '-',
-                    'Status'            => ucfirst($item->status),
-                    'Waktu Transaksi'   => $item->created_at ? $item->created_at->translatedFormat('d F Y H:i') : '-',
-                    'Pesan / Doa'       => $item->pesan_doa ?: '-',
+                    'No WhatsApp' => $item->no_whatsapp ?: '-',
+                    'Status' => ucfirst($item->status),
+                    'Waktu Transaksi' => $item->created_at ? $item->created_at->translatedFormat('d F Y H:i') : '-',
+                    'Pesan / Doa' => $item->pesan_doa ?: '-',
                 ],
             ];
         }
 
         return [
-            'stats'       => $stats,
-            'columns'     => $columns,
+            'stats' => $stats,
+            'columns' => $columns,
             'previewData' => $previewRows,
-            'pagination'  => [
+            'pagination' => [
                 'current_page' => $paginator->currentPage(),
-                'last_page'    => max(1, $paginator->lastPage()),
-                'total'        => $paginator->total(),
-                'from'         => $paginator->firstItem() ?: 0,
-                'to'           => $paginator->lastItem() ?: 0,
-                'per_page'     => $perPage,
+                'last_page' => max(1, $paginator->lastPage()),
+                'total' => $paginator->total(),
+                'from' => $paginator->firstItem() ?: 0,
+                'to' => $paginator->lastItem() ?: 0,
+                'per_page' => $perPage,
             ],
         ];
     }
@@ -599,8 +623,12 @@ class LaporanEksporController extends Controller
         ];
 
         $query = Kampanye::query();
-        if ($bulanNum) $query->whereMonth('created_at', $bulanNum);
-        if ($tahunNum) $query->whereYear('created_at', $tahunNum);
+        if ($bulanNum) {
+            $query->whereMonth('created_at', $bulanNum);
+        }
+        if ($tahunNum) {
+            $query->whereYear('created_at', $tahunNum);
+        }
 
         if ($kategori && $kategori !== 'Semua Kategori') {
             if (in_array(strtolower($kategori), ['aktif', 'selesai'])) {
@@ -614,40 +642,40 @@ class LaporanEksporController extends Controller
         $totalAktif = (clone $query)->where('status', 'aktif')->count();
         $totalTerkumpul = (float) (clone $query)->sum('dana_terkumpul');
         $totalTarget = (float) (clone $query)->sum('target_dana');
-        $avgPersen = $totalTarget > 0 ? round(($totalTerkumpul / $totalTarget) * 100, 1) . '%' : '0%';
+        $avgPersen = $totalTarget > 0 ? round(($totalTerkumpul / $totalTarget) * 100, 1).'%' : '0%';
 
         $stats = [
-            'total'                   => (string) $totalFiltered . ' Program',
-            'aktif_pendidikan'        => (string) $totalAktif . ' Aktif',
+            'total' => (string) $totalFiltered.' Program',
+            'aktif_pendidikan' => (string) $totalAktif.' Aktif',
             'aktif_pendidikan_persen' => 'Sedang Berjalan',
-            'aktif_asrama'            => 'Rp' . number_format($totalTerkumpul / 1000000, 1, ',', '.') . ' Jt',
-            'aktif_asrama_persen'     => 'Dana Terhimpun',
-            'perlu_perhatian'         => $avgPersen,
-            'perlu_perhatian_persen'  => 'Rerata Capaian',
+            'aktif_asrama' => 'Rp'.number_format($totalTerkumpul / 1000000, 1, ',', '.').' Jt',
+            'aktif_asrama_persen' => 'Dana Terhimpun',
+            'perlu_perhatian' => $avgPersen,
+            'perlu_perhatian_persen' => 'Rerata Capaian',
             'cards' => [
                 [
                     'title' => 'Total Kampanye',
                     'value' => (string) $totalFiltered,
-                    'sub'   => 'Program binaan yayasan',
-                    'type'  => 'total',
+                    'sub' => 'Program binaan yayasan',
+                    'type' => 'total',
                 ],
                 [
                     'title' => 'Kampanye Aktif',
                     'value' => (string) $totalAktif,
-                    'sub'   => 'Sedang menggalang dana',
-                    'type'  => 'pendidikan',
+                    'sub' => 'Sedang menggalang dana',
+                    'type' => 'pendidikan',
                 ],
                 [
                     'title' => 'Total Terkumpul',
-                    'value' => 'Rp' . number_format($totalTerkumpul, 0, ',', '.'),
-                    'sub'   => 'Akumulasi seluruh program',
-                    'type'  => 'asrama',
+                    'value' => 'Rp'.number_format($totalTerkumpul, 0, ',', '.'),
+                    'sub' => 'Akumulasi seluruh program',
+                    'type' => 'asrama',
                 ],
                 [
                     'title' => 'Target Tercapai',
                     'value' => $avgPersen,
-                    'sub'   => 'Rata-rata keberhasilan',
-                    'type'  => 'perhatian',
+                    'sub' => 'Rata-rata keberhasilan',
+                    'type' => 'perhatian',
                 ],
             ],
         ];
@@ -658,33 +686,33 @@ class LaporanEksporController extends Controller
 
         foreach ($paginator->items() as $index => $item) {
             $previewRows[] = [
-                'no'       => sprintf('%03d', $offset + $index + 1),
-                'id_anak'  => 'KMP-' . str_pad((string) $item->id, 4, '0', STR_PAD_LEFT),
-                'nama'     => $item->judul,
+                'no' => sprintf('%03d', $offset + $index + 1),
+                'id_anak' => 'KMP-'.str_pad((string) $item->id, 4, '0', STR_PAD_LEFT),
+                'nama' => $item->judul,
                 'kategori' => $item->kategori ?: 'Sosial',
-                'status'   => $item->status === 'aktif' ? 'Aktif' : 'Selesai',
-                'tanggal'  => 'Rp' . number_format($item->dana_terkumpul, 0, ',', '.') . ' / ' . number_format($item->target_dana, 0, ',', '.'),
-                'detail'   => [
-                    'Target Dana'    => 'Rp' . number_format($item->target_dana, 0, ',', '.'),
-                    'Dana Terkumpul' => 'Rp' . number_format($item->dana_terkumpul, 0, ',', '.'),
-                    'Persentase'     => $item->persentase_tercapai . '%',
-                    'Periode'        => $item->periode_text,
-                    'Status'         => ucfirst($item->status),
+                'status' => $item->status === 'aktif' ? 'Aktif' : 'Selesai',
+                'tanggal' => 'Rp'.number_format($item->dana_terkumpul, 0, ',', '.').' / '.number_format($item->target_dana, 0, ',', '.'),
+                'detail' => [
+                    'Target Dana' => 'Rp'.number_format($item->target_dana, 0, ',', '.'),
+                    'Dana Terkumpul' => 'Rp'.number_format($item->dana_terkumpul, 0, ',', '.'),
+                    'Persentase' => $item->persentase_tercapai.'%',
+                    'Periode' => $item->periode_text,
+                    'Status' => ucfirst($item->status),
                 ],
             ];
         }
 
         return [
-            'stats'       => $stats,
-            'columns'     => $columns,
+            'stats' => $stats,
+            'columns' => $columns,
             'previewData' => $previewRows,
-            'pagination'  => [
+            'pagination' => [
                 'current_page' => $paginator->currentPage(),
-                'last_page'    => max(1, $paginator->lastPage()),
-                'total'        => $paginator->total(),
-                'from'         => $paginator->firstItem() ?: 0,
-                'to'           => $paginator->lastItem() ?: 0,
-                'per_page'     => $perPage,
+                'last_page' => max(1, $paginator->lastPage()),
+                'total' => $paginator->total(),
+                'from' => $paginator->firstItem() ?: 0,
+                'to' => $paginator->lastItem() ?: 0,
+                'per_page' => $perPage,
             ],
         ];
     }
@@ -699,18 +727,18 @@ class LaporanEksporController extends Controller
         }
 
         $bulanMap = [
-            'Januari'   => 1,
-            'Februari'  => 2,
-            'Maret'     => 3,
-            'April'     => 4,
-            'Mei'       => 5,
-            'Juni'      => 6,
-            'Juli'      => 7,
-            'Agustus'   => 8,
+            'Januari' => 1,
+            'Februari' => 2,
+            'Maret' => 3,
+            'April' => 4,
+            'Mei' => 5,
+            'Juni' => 6,
+            'Juli' => 7,
+            'Agustus' => 8,
             'September' => 9,
-            'Oktober'   => 10,
-            'November'  => 11,
-            'Desember'  => 12,
+            'Oktober' => 10,
+            'November' => 11,
+            'Desember' => 12,
         ];
 
         return $bulanMap[$bulan] ?? null;
@@ -721,7 +749,7 @@ class LaporanEksporController extends Controller
      */
     protected function parseTahun(?string $tahun): ?int
     {
-        if (empty($tahun) || $tahun === 'Semua Tahun' || !is_numeric($tahun)) {
+        if (empty($tahun) || $tahun === 'Semua Tahun' || ! is_numeric($tahun)) {
             return null;
         }
 

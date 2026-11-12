@@ -84,7 +84,7 @@ class AdminLaporanEksporTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertJson([
-            'success'      => true,
+            'success' => true,
             'jenisLaporan' => 'Kelola Donasi',
         ]);
     }
@@ -98,7 +98,7 @@ class AdminLaporanEksporTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertJson([
-            'success'      => true,
+            'success' => true,
             'jenisLaporan' => 'Kelola Kampanye',
         ]);
     }

@@ -33,7 +33,7 @@ class AnakAsuhExport implements FromCollection, WithHeadings, WithMapping
         if ($this->search) {
             $query->where(function ($q) {
                 $q->where('nama_lengkap', 'like', "%{$this->search}%")
-                  ->orWhere('nama_panggilan', 'like', "%{$this->search}%");
+                    ->orWhere('nama_panggilan', 'like', "%{$this->search}%");
             });
         }
 
@@ -41,7 +41,7 @@ class AnakAsuhExport implements FromCollection, WithHeadings, WithMapping
             if (in_array($this->status, ['SD', 'SMP', 'SMA', 'Perguruan Tinggi'])) {
                 $query->where(function ($q) {
                     $q->where('pendidikan_terakhir', $this->status)
-                      ->orWhere('pendidikan_terakhir', 'like', "%{$this->status}%");
+                        ->orWhere('pendidikan_terakhir', 'like', "%{$this->status}%");
                 });
             } else {
                 $query->where('status_asuhan', $this->status);

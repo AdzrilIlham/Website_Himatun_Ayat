@@ -75,7 +75,7 @@
                     </p>
 
                     <div class="pt-1" data-hero-cta>
-                        <a href="#paket-donasi" class="py-2.5 px-6 sm:py-3 sm:px-7 inline-flex items-center gap-x-2 text-xs sm:text-sm font-semibold rounded-full border border-transparent bg-[#2D6A4F] text-white hover:bg-[#235843] focus:outline-hidden transition shadow-sm shadow-emerald-900/15">
+                        <a href="{{ route('kampanye.index') }}" class="py-2.5 px-6 sm:py-3 sm:px-7 inline-flex items-center gap-x-2 text-xs sm:text-sm font-semibold rounded-full border border-transparent bg-[#2D6A4F] text-white hover:bg-[#235843] focus:outline-hidden transition shadow-sm shadow-emerald-900/15">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
                             </svg>
@@ -364,7 +364,7 @@
 
                 <!-- CTA Button -->
                 <div class="mt-5 sm:mt-6 flex justify-center">
-                    <a href="#paket-donasi" class="py-2.5 px-6 sm:py-3 sm:px-8 inline-flex items-center justify-center gap-x-2 text-xs sm:text-sm font-semibold rounded-full border border-transparent bg-[#2D6A4F] text-white hover:bg-[#235843] focus:outline-hidden transition shadow-xs w-full sm:w-auto">
+                    <a href="{{ route('kampanye.index', ['program' => 'wakaf-pembangunan-sarana-belajar']) }}" class="py-2.5 px-6 sm:py-3 sm:px-8 inline-flex items-center justify-center gap-x-2 text-xs sm:text-sm font-semibold rounded-full border border-transparent bg-[#2D6A4F] text-white hover:bg-[#235843] focus:outline-hidden transition shadow-xs w-full sm:w-auto">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
                         </svg>
@@ -381,19 +381,22 @@
                         title: 'Paket Nutrisi & Pangan Bergizi Anak',
                         image: '{{ asset('images/User/Paket SedekahKilat.png') }}',
                         donatur: '215 Donatur',
-                        desc: 'Penyediaan pasokan susu formula, madu, telur, dan sembako berkualitas untuk 120 santri asrama dan...'
+                        desc: 'Penyediaan pasokan susu formula, madu, telur, dan sembako berkualitas untuk 120 santri asrama dan...',
+                        url: '{{ route('kampanye.index', ['program' => 'paket-sembako-keluarga-dhuafa']) }}'
                     },
                     {
                         title: 'Paket Beasiswa Pendidikan Yatim',
                         image: '{{ asset('images/User/WisudaKhotmillQuran.png') }}',
                         donatur: '184 Donatur',
-                        desc: 'Dukungan perlengkapan sekolah, seragam baru, tas, dan SPP santri yatim dhuafa berprestasi asrama.'
+                        desc: 'Dukungan perlengkapan sekolah, seragam baru, tas, dan SPP santri yatim dhuafa berprestasi asrama.',
+                        url: '{{ route('kampanye.index', ['program' => 'program-beasiswa-pendidikan-tahfidz']) }}'
                     },
                     {
                         title: 'Paket Fasilitas Tahfidz & Quran',
                         image: '{{ asset('images/User/potopalingatas.png') }}',
                         donatur: '342 Donatur',
-                        desc: 'Fasilitas mushaf hafalan Quran, sarana meja asrama, dan bimbingan tahfidz intensif berkelanjutan.'
+                        desc: 'Fasilitas mushaf hafalan Quran, sarana meja asrama, dan bimbingan tahfidz intensif berkelanjutan.',
+                        url: '{{ route('kampanye.index', ['program' => 'dakwah-kajian-rutin-ahad-pagi']) }}'
                     }
                 ],
                 next() {
@@ -475,7 +478,7 @@
 
                     <!-- CTA Button -->
                     <div class="mt-5 sm:mt-6 flex justify-center">
-                        <a href="#paket-sedekah" class="py-2.5 px-6 sm:py-3 sm:px-8 inline-flex items-center justify-center gap-x-2 text-xs sm:text-sm font-semibold rounded-full border border-transparent bg-[#2D6A4F] text-white hover:bg-[#235843] focus:outline-hidden transition shadow-xs w-full sm:w-auto">
+                        <a :href="slides[activeSlide].url" href="{{ route('kampanye.index', ['program' => 'paket-sembako-keluarga-dhuafa']) }}" class="py-2.5 px-6 sm:py-3 sm:px-8 inline-flex items-center justify-center gap-x-2 text-xs sm:text-sm font-semibold rounded-full border border-transparent bg-[#2D6A4F] text-white hover:bg-[#235843] focus:outline-hidden transition shadow-xs w-full sm:w-auto">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
                             </svg>

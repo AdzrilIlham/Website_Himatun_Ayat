@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('kampanye', function (Blueprint $table) {
-            if (!Schema::hasColumn('kampanye', 'tanggal_mulai')) {
+            if (! Schema::hasColumn('kampanye', 'tanggal_mulai')) {
                 $table->date('tanggal_mulai')->nullable()->after('dana_terkumpul');
             }
             $table->string('status', 20)->default('aktif')->change();
