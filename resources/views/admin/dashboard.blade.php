@@ -178,6 +178,13 @@
                                 <span>Tahun {{ now()->year }}</span>
                                 <span x-show="currentPeriod === '1y'" class="text-brand-700">✓</span>
                             </button>
+                            <button type="button" 
+                                    @click="changePeriod('prev_1y')" 
+                                    :class="currentPeriod === 'prev_1y' ? 'bg-brand-50 text-brand-800 font-bold' : 'text-foreground hover:bg-muted'"
+                                    class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs transition cursor-pointer">
+                                <span>Tahun {{ now()->year - 1 }}</span>
+                                <span x-show="currentPeriod === 'prev_1y'" class="text-brand-700">✓</span>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -307,36 +314,50 @@
             </div>
         </form>
 
-        <!-- Method Chips & Date Filter -->
+        <!-- Method Chips & Date / Year Filter -->
         <div class="flex flex-wrap items-center gap-2">
             <!-- Chip: Semua -->
-            <a href="{{ route('admin.dashboard', array_merge(request()->only(['search', 'tanggal']), ['metode' => 'all'])) }}"
+            <a href="{{ route('admin.dashboard', array_merge(request()->only(['search', 'tanggal', 'tahun']), ['metode' => 'all'])) }}"
                class="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition {{ $metode === 'all' || !$metode ? 'bg-brand-700 text-white shadow-2xs' : 'bg-surface text-muted-foreground-2 hover:bg-surface-hover' }}">
                 Semua ({{ $counts['semua'] }})
             </a>
 
             <!-- Chip: Transfer Bank -->
-            <a href="{{ route('admin.dashboard', array_merge(request()->only(['search', 'tanggal']), ['metode' => 'transfer_bank'])) }}"
+            <a href="{{ route('admin.dashboard', array_merge(request()->only(['search', 'tanggal', 'tahun']), ['metode' => 'transfer_bank'])) }}"
                class="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition {{ $metode === 'transfer_bank' ? 'bg-brand-700 text-white shadow-2xs' : 'bg-surface text-muted-foreground-2 hover:bg-surface-hover' }}">
                 Transfer Bank ({{ $counts['transfer_bank'] }})
             </a>
 
             <!-- Chip: QRIS Manual -->
-            <a href="{{ route('admin.dashboard', array_merge(request()->only(['search', 'tanggal']), ['metode' => 'qris_manual'])) }}"
+            <a href="{{ route('admin.dashboard', array_merge(request()->only(['search', 'tanggal', 'tahun']), ['metode' => 'qris_manual'])) }}"
                class="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition {{ $metode === 'qris_manual' ? 'bg-brand-700 text-white shadow-2xs' : 'bg-surface text-muted-foreground-2 hover:bg-surface-hover' }}">
                 QRIS Manual ({{ $counts['qris_manual'] }})
             </a>
 
-            <!-- Date Filter Picker (Functional) -->
-            <form method="GET" action="{{ route('admin.dashboard') }}" class="inline-flex items-center">
+            <!-- Year & Date Filter Picker (Functional) -->
+            <form method="GET" action="{{ route('admin.dashboard') }}" class="inline-flex items-center gap-1.5">
                 <input type="hidden" name="search" value="{{ $search }}">
                 <input type="hidden" name="metode" value="{{ $metode }}">
+                
+                <!-- Filter Tahun -->
                 <div class="relative inline-flex items-center">
-                    <label for="tanggal_filter" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-surface text-muted-foreground-2 hover:bg-surface-hover cursor-pointer transition">
+                    <select name="tahun" 
+                            onchange="this.form.submit()" 
+                            class="px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-surface border border-border/60 text-muted-foreground-2 hover:bg-surface-hover cursor-pointer transition focus:outline-hidden">
+                        <option value="" @selected(!$tahun || $tahun === 'all')>Semua Tahun</option>
+                        @foreach([now()->year, now()->year - 1, now()->year - 2] as $yr)
+                            <option value="{{ $yr }}" @selected($tahun == $yr)>Tahun {{ $yr }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- Filter Tanggal Spesifik -->
+                <div class="relative inline-flex items-center">
+                    <label for="tanggal_filter" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-surface border border-border/60 text-muted-foreground-2 hover:bg-surface-hover cursor-pointer transition">
                         <svg class="w-3.5 h-3.5 text-muted-foreground-1" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.253M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
                         </svg>
-                        <span>{{ $tanggal ? 'Tanggal: ' . \Carbon\Carbon::parse($tanggal)->translatedFormat('d M Y') : 'Semua Tanggal' }}</span>
+                        <span>{{ $tanggal ? 'Tanggal: ' . \Carbon\Carbon::parse($tanggal)->translatedFormat('d M Y') : 'Pilih Tanggal' }}</span>
                     </label>
                     <input type="date" 
                            id="tanggal_filter" 
@@ -345,10 +366,10 @@
                            onchange="this.form.submit()" 
                            class="absolute inset-0 opacity-0 cursor-pointer w-full">
                 </div>
-                @if($tanggal)
+                @if($tanggal || $tahun)
                     <a href="{{ route('admin.dashboard', request()->only(['search', 'metode'])) }}" 
-                       title="Hapus filter tanggal" 
-                       class="ml-1 text-muted-foreground hover:text-muted-foreground-2 text-xs px-1.5 py-1">
+                       title="Reset filter tanggal dan tahun" 
+                       class="ml-0.5 text-muted-foreground hover:text-danger text-xs px-1.5 py-1 font-bold">
                         &times;
                     </a>
                 @endif

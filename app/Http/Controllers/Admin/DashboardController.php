@@ -24,10 +24,11 @@ class DashboardController extends Controller
         $search = $request->query('search');
         $metode = $request->query('metode', 'all');
         $tanggal = $request->query('tanggal');
+        $tahun = $request->query('tahun');
 
         $summary = $this->laporanService->getDashboardSummary();
-        $counts = $this->laporanService->getCountByMetode($tanggal);
-        $donasiPending = $this->laporanService->getPendingDonasi($search, $metode, $tanggal, 5);
+        $counts = $this->laporanService->getCountByMetode($tanggal, $tahun);
+        $donasiPending = $this->laporanService->getPendingDonasi($search, $metode, $tanggal, 5, $tahun);
         $chartData = $this->laporanService->getDonasiChartData();
         $distribusiData = $this->laporanService->getDonasiDistribusiData();
         $recentActivities = $this->laporanService->getRecentActivities(6);
@@ -40,6 +41,7 @@ class DashboardController extends Controller
             'search',
             'metode',
             'tanggal',
+            'tahun',
             'chartData',
             'distribusiData',
             'recentActivities',

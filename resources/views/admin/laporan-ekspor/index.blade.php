@@ -26,8 +26,7 @@
 </script>
 
 <div class="space-y-4 sm:space-y-5 pb-16 w-full max-w-full min-w-0"
-     x-data="laporanEksporApp()"
-     x-init="init()">
+     x-data="laporanEksporApp()">
 
     <!-- Header Page: Title, Subtitle & Action Button -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -457,7 +456,7 @@
 
                 <!-- Iframe Viewer PDF Asli -->
                 <div class="relative w-full h-[580px] sm:h-[680px] rounded-xl border border-border overflow-hidden bg-muted shadow-inner">
-                    <iframe :src="getPreviewPdfUrl()"
+                    <iframe :src="previewMode === 'pdf' ? getPreviewPdfUrl() : ''"
                             class="w-full h-full border-0 rounded-xl"
                             title="Preview Dokumen PDF">
                     </iframe>
@@ -811,6 +810,8 @@ function laporanEksporApp() {
         tahun: initData.tahun || 'Semua Tahun',
         kategori: initData.kategori || 'Semua Kategori',
         previewLoading: false,
+        initialized: false,
+        previewAbortController: null,
         selectedDetailItem: null,
         showToast: false,
         toastMessage: '',
@@ -851,6 +852,11 @@ function laporanEksporApp() {
 
             // Tombol detail dirender Alpine (x-for), daftarkan ulang toggle overlay Preline.
             this.refreshOverlayToggles();
+
+            // Tandai inisialisasi selesai agar event change bawaan Preline saat startup tidak memicu preview berulang
+            this.$nextTick(() => {
+                this.initialized = true;
+            });
         },
 
         refreshOverlayToggles() {
@@ -921,6 +927,7 @@ function laporanEksporApp() {
         },
 
         handleJenisChange() {
+            if (!this.initialized) return;
             this.kategori = 'Semua Kategori';
             this.syncKategoriDropdown();
             this.syncPrelineSelects();
@@ -928,6 +935,7 @@ function laporanEksporApp() {
         },
 
         handleFilterChange() {
+            if (!this.initialized) return;
             this.triggerPreview(1);
         },
 
@@ -942,6 +950,10 @@ function laporanEksporApp() {
         },
 
         async triggerPreview(page = 1) {
+            if (this.previewAbortController) {
+                this.previewAbortController.abort();
+            }
+            this.previewAbortController = new AbortController();
             this.previewLoading = true;
             try {
                 const params = new URLSearchParams({
@@ -955,6 +967,7 @@ function laporanEksporApp() {
 
                 const targetUrl = (this.routes.index || '/admin/laporan-ekspor') + '?' + params.toString();
                 const res = await fetch(targetUrl, {
+                    signal: this.previewAbortController.signal,
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest',
                         'Accept': 'application/json'
@@ -979,6 +992,7 @@ function laporanEksporApp() {
                     this.refreshOverlayToggles();
                 }
             } catch (err) {
+                if (err.name === 'AbortError') return;
                 console.error('Gagal memuat preview data laporan:', err);
                 this.showToastNotification('Gagal memuat preview data laporan. Periksa koneksi Anda.');
             } finally {

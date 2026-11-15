@@ -57,6 +57,15 @@ class AdminDashboardTest extends TestCase
         $response->assertDontSee('dr. Agus Prasetyo');
     }
 
+    public function test_filter_by_tahun_works(): void
+    {
+        $response = $this->get('/admin/dashboard?tahun=2026');
+
+        $response->assertStatus(200);
+        $response->assertViewHas('tahun', '2026');
+        $response->assertViewHas('chartData');
+    }
+
     public function test_verifikasi_donasi_updates_status_and_kampanye(): void
     {
         $kampanye = Kampanye::first();

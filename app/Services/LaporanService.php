@@ -8,6 +8,7 @@ use App\Models\Donasi;
 use App\Models\Kampanye;
 use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 class LaporanService
@@ -33,12 +34,14 @@ class LaporanService
     /**
      * Get counts for filter tabs in dashboard.
      */
-    public function getCountByMetode(?string $tanggal = null): array
+    public function getCountByMetode(?string $tanggal = null, ?string $tahun = null): array
     {
         $base = Donasi::where('status', 'pending');
 
         if ($tanggal) {
             $base->whereDate('created_at', Carbon::parse($tanggal));
+        } elseif ($tahun && $tahun !== 'all' && is_numeric($tahun)) {
+            $base->whereYear('created_at', (int) $tahun);
         }
 
         $all = (clone $base)->count();
@@ -62,12 +65,15 @@ class LaporanService
         ?string $search = null,
         ?string $metode = null,
         ?string $tanggal = null,
-        int $perPage = 5
+        int $perPage = 5,
+        ?string $tahun = null
     ): LengthAwarePaginator {
         $query = Donasi::with('kampanye')->where('status', 'pending');
 
         if ($tanggal) {
             $query->whereDate('created_at', Carbon::parse($tanggal));
+        } elseif ($tahun && $tahun !== 'all' && is_numeric($tahun)) {
+            $query->whereYear('created_at', (int) $tahun);
         }
 
         if ($metode && $metode !== 'all') {
@@ -152,7 +158,7 @@ class LaporanService
             $startDate = Carbon::now()->subDays($startDays)->startOfDay();
             $endDate = Carbon::now()->subDays($endDays)->endOfDay();
 
-            $categories30d[] = $startDate->translatedFormat('d M') . ' - ' . $endDate->translatedFormat('d M');
+            $categories30d[] = $startDate->translatedFormat('d M').' - '.$endDate->translatedFormat('d M');
 
             $stats = Donasi::where('status', 'verified')
                 ->whereBetween('created_at', [$startDate, $endDate])
@@ -183,30 +189,58 @@ class LaporanService
             $donatur1y[] = (int) ($stats->total_donatur ?? 0);
         }
 
+        // 4. Data Tahun Sebelumnya (12 Bulan)
+        $prevYear = $currentYear - 1;
+        $categoriesPrev = [];
+        $nominalPrev = [];
+        $donaturPrev = [];
+
+        for ($m = 1; $m <= 12; $m++) {
+            $date = Carbon::createFromDate($prevYear, $m, 1);
+            $categoriesPrev[] = $date->translatedFormat('M');
+
+            $stats = Donasi::where('status', 'verified')
+                ->whereYear('created_at', $prevYear)
+                ->whereMonth('created_at', $m)
+                ->selectRaw('COALESCE(SUM(nominal), 0) as total_nominal, COUNT(*) as total_donatur')
+                ->first();
+
+            $nominalPrev[] = (float) ($stats->total_nominal ?? 0);
+            $donaturPrev[] = (int) ($stats->total_donatur ?? 0);
+        }
+
         return [
             '6m' => [
-                'label'         => '6 Bulan Terakhir',
-                'categories'    => $categories6m,
-                'nominal'       => $nominal6m,
-                'donatur'       => $donatur6m,
+                'label' => '6 Bulan Terakhir',
+                'categories' => $categories6m,
+                'nominal' => $nominal6m,
+                'donatur' => $donatur6m,
                 'total_nominal' => array_sum($nominal6m),
                 'total_donatur' => array_sum($donatur6m),
             ],
             '30d' => [
-                'label'         => '30 Hari Terakhir',
-                'categories'    => $categories30d,
-                'nominal'       => $nominal30d,
-                'donatur'       => $donatur30d,
+                'label' => '30 Hari Terakhir',
+                'categories' => $categories30d,
+                'nominal' => $nominal30d,
+                'donatur' => $donatur30d,
                 'total_nominal' => array_sum($nominal30d),
                 'total_donatur' => array_sum($donatur30d),
             ],
             '1y' => [
-                'label'         => 'Tahun ' . $currentYear,
-                'categories'    => $categories1y,
-                'nominal'       => $nominal1y,
-                'donatur'       => $donatur1y,
+                'label' => 'Tahun '.$currentYear,
+                'categories' => $categories1y,
+                'nominal' => $nominal1y,
+                'donatur' => $donatur1y,
                 'total_nominal' => array_sum($nominal1y),
                 'total_donatur' => array_sum($donatur1y),
+            ],
+            'prev_1y' => [
+                'label' => 'Tahun '.$prevYear,
+                'categories' => $categoriesPrev,
+                'nominal' => $nominalPrev,
+                'donatur' => $donaturPrev,
+                'total_nominal' => array_sum($nominalPrev),
+                'total_donatur' => array_sum($donaturPrev),
             ],
         ];
     }
@@ -261,12 +295,12 @@ class LaporanService
         }
 
         return [
-            'labels'        => $labels,
-            'series'        => $series,
-            'percentages'   => $percentages,
-            'colors'        => array_slice($colors, 0, count($series)),
+            'labels' => $labels,
+            'series' => $series,
+            'percentages' => $percentages,
+            'colors' => array_slice($colors, 0, count($series)),
             'total_nominal' => (float) $programs->sum('total_nominal'),
-            'total_donasi'  => (int) $programs->sum('total_donasi'),
+            'total_donasi' => (int) $programs->sum('total_donasi'),
         ];
     }
 
@@ -279,7 +313,7 @@ class LaporanService
             $activities = [];
 
             // 1. Donasi Pending yang Butuh Verifikasi
-            if (\Illuminate\Support\Facades\Schema::hasTable('donasi')) {
+            if (Schema::hasTable('donasi')) {
                 $pendingDonations = Donasi::with('kampanye')
                     ->where('status', 'pending')
                     ->latest('id')
@@ -288,16 +322,16 @@ class LaporanService
 
                 foreach ($pendingDonations as $d) {
                     $activities[] = [
-                        'id'          => 'donasi-' . $d->id,
-                        'type'        => 'donasi',
-                        'title'       => 'Donasi Baru Masuk',
-                        'desc'        => 'Rp' . number_format($d->nominal, 0, ',', '.') . ' dari ' . $d->nama_donatur . ' (' . $d->metode_pembayaran . ')',
-                        'badge'       => 'Perlu Verifikasi',
+                        'id' => 'donasi-'.$d->id,
+                        'type' => 'donasi',
+                        'title' => 'Donasi Baru Masuk',
+                        'desc' => 'Rp'.number_format($d->nominal, 0, ',', '.').' dari '.$d->nama_donatur.' ('.$d->metode_pembayaran.')',
+                        'badge' => 'Perlu Verifikasi',
                         'badge_color' => 'amber',
-                        'icon'        => 'wallet',
-                        'time_ago'    => $d->created_at ? $d->created_at->diffForHumans() : 'Baru saja',
-                        'timestamp'   => $d->created_at ? $d->created_at->timestamp : 0,
-                        'url'         => route('admin.kelola-donasi.index', ['search' => $d->nama_donatur]),
+                        'icon' => 'wallet',
+                        'time_ago' => $d->created_at ? $d->created_at->diffForHumans() : 'Baru saja',
+                        'timestamp' => $d->created_at ? $d->created_at->timestamp : 0,
+                        'url' => route('admin.kelola-donasi.index', ['search' => $d->nama_donatur]),
                     ];
                 }
 
@@ -310,60 +344,60 @@ class LaporanService
 
                 foreach ($prayers as $d) {
                     $activities[] = [
-                        'id'          => 'doa-' . $d->id,
-                        'type'        => 'pesan',
-                        'title'       => 'Pesan & Doa Donatur',
-                        'desc'        => '“' . Str::limit($d->pesan_doa, 65) . '” — ' . $d->nama_donatur,
-                        'badge'       => 'Doa Santri',
+                        'id' => 'doa-'.$d->id,
+                        'type' => 'pesan',
+                        'title' => 'Pesan & Doa Donatur',
+                        'desc' => '“'.Str::limit($d->pesan_doa, 65).'” — '.$d->nama_donatur,
+                        'badge' => 'Doa Santri',
                         'badge_color' => 'emerald',
-                        'icon'        => 'heart',
-                        'time_ago'    => $d->created_at ? $d->created_at->diffForHumans() : 'Baru saja',
-                        'timestamp'   => $d->created_at ? $d->created_at->timestamp : 0,
-                        'url'         => route('admin.kelola-donasi.index', ['search' => $d->nama_donatur]),
+                        'icon' => 'heart',
+                        'time_ago' => $d->created_at ? $d->created_at->diffForHumans() : 'Baru saja',
+                        'timestamp' => $d->created_at ? $d->created_at->timestamp : 0,
+                        'url' => route('admin.kelola-donasi.index', ['search' => $d->nama_donatur]),
                     ];
                 }
             }
 
             // 3. Aktivitas Data Anak Asuh
-            if (\Illuminate\Support\Facades\Schema::hasTable('anak_asuh')) {
+            if (Schema::hasTable('anak_asuh')) {
                 $latestAnakAsuh = AnakAsuh::latest('updated_at')->take(2)->get();
                 foreach ($latestAnakAsuh as $a) {
                     $activities[] = [
-                        'id'          => 'anak-' . $a->id,
-                        'type'        => 'konten',
-                        'title'       => 'Data Anak Asuh',
-                        'desc'        => 'Pembaruan data santri binaan jenjang ' . $a->pendidikan_terakhir,
-                        'badge'       => 'Anak Asuh',
+                        'id' => 'anak-'.$a->id,
+                        'type' => 'konten',
+                        'title' => 'Data Anak Asuh',
+                        'desc' => 'Pembaruan data santri binaan jenjang '.$a->pendidikan_terakhir,
+                        'badge' => 'Anak Asuh',
                         'badge_color' => 'blue',
-                        'icon'        => 'user',
-                        'time_ago'    => $a->updated_at ? $a->updated_at->diffForHumans() : 'Baru saja',
-                        'timestamp'   => $a->updated_at ? $a->updated_at->timestamp : 0,
-                        'url'         => route('admin.anak-asuh.index'),
+                        'icon' => 'user',
+                        'time_ago' => $a->updated_at ? $a->updated_at->diffForHumans() : 'Baru saja',
+                        'timestamp' => $a->updated_at ? $a->updated_at->timestamp : 0,
+                        'url' => route('admin.anak-asuh.index'),
                     ];
                 }
             }
 
             // 4. Aktivitas CMS Berita
-            if (\Illuminate\Support\Facades\Schema::hasTable('berita')) {
+            if (Schema::hasTable('berita')) {
                 $latestBerita = Berita::latest('updated_at')->take(2)->get();
                 foreach ($latestBerita as $b) {
                     $activities[] = [
-                        'id'          => 'berita-' . $b->id,
-                        'type'        => 'konten',
-                        'title'       => 'Aktivitas Berita',
-                        'desc'        => 'Artikel: ' . Str::limit($b->judul, 45) . ' (' . ($b->status ?? 'Draft') . ')',
-                        'badge'       => 'CMS Berita',
+                        'id' => 'berita-'.$b->id,
+                        'type' => 'konten',
+                        'title' => 'Aktivitas Berita',
+                        'desc' => 'Artikel: '.Str::limit($b->judul, 45).' ('.($b->status ?? 'Draft').')',
+                        'badge' => 'CMS Berita',
                         'badge_color' => 'purple',
-                        'icon'        => 'newspaper',
-                        'time_ago'    => $b->updated_at ? $b->updated_at->diffForHumans() : 'Baru saja',
-                        'timestamp'   => $b->updated_at ? $b->updated_at->timestamp : 0,
-                        'url'         => route('admin.berita.index'),
+                        'icon' => 'newspaper',
+                        'time_ago' => $b->updated_at ? $b->updated_at->diffForHumans() : 'Baru saja',
+                        'timestamp' => $b->updated_at ? $b->updated_at->timestamp : 0,
+                        'url' => route('admin.berita.index'),
                     ];
                 }
             }
 
             // Urutkan berdasarkan timestamp terbaru
-            usort($activities, fn($a, $b) => $b['timestamp'] <=> $a['timestamp']);
+            usort($activities, fn ($a, $b) => $b['timestamp'] <=> $a['timestamp']);
 
             return array_slice($activities, 0, $limit);
         } catch (\Throwable $e) {
@@ -378,18 +412,18 @@ class LaporanService
     {
         try {
             $activities = $this->getRecentActivities($limit);
-            $unreadCount = \Illuminate\Support\Facades\Schema::hasTable('donasi') 
-                ? Donasi::where('status', 'pending')->count() 
+            $unreadCount = Schema::hasTable('donasi')
+                ? Donasi::where('status', 'pending')->count()
                 : 0;
 
             return [
                 'unread_count' => $unreadCount,
-                'items'        => $activities,
+                'items' => $activities,
             ];
         } catch (\Throwable $e) {
             return [
                 'unread_count' => 0,
-                'items'        => [],
+                'items' => [],
             ];
         }
     }
