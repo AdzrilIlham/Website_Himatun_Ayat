@@ -6,7 +6,6 @@ import './page-animations';
 
 window.HSStaticMethods = HSStaticMethods;
 window.HSSelect = HSSelect;
-window.Alpine = Alpine;
 window.ApexCharts = ApexCharts;
 
 // Fokus ke toggle Preline Select (elemen <select> aslinya tersembunyi),
