@@ -1,0 +1,123 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: himatun-app
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8000}:8000"
+    volumes:
+      - .:/var/www/html
+      - vendor:/var/www/html/vendor
+    environment:
+      VIEW_COMPILED_PATH: /tmp/laravel-views
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USERNAME: ${DB_USERNAME:-root}
+      DB_PASSWORD: ${DB_PASSWORD:-root}
+      MAIL_MAILER: smtp
+      MAIL_HOST: mailpit
+      MAIL_PORT: 1025
+      PHP_CLI_SERVER_WORKERS: 4
+    depends_on:
+      mysql:
+        condition: service_healthy
+      mailpit:
+        condition: service_started
+    networks:
+      - himatun-network
+
+  vite:
+    image: node:22-bookworm-slim
+    container_name: himatun-vite
+    working_dir: /var/www/html
+    restart: unless-stopped
+    ports:
+      - "${VITE_PORT:-5173}:5173"
+    volumes:
+      - .:/var/www/html
+      - node_modules:/var/www/html/node_modules
+    environment:
+      VITE_PORT: 5173
+      VITE_HMR_HOST: ${VITE_HMR_HOST:-localhost}
+      VITE_USE_POLLING: ${VITE_USE_POLLING:-true}
+      CHOKIDAR_USEPOLLING: "true"
+    command:
+      - sh
+      - -c
+      - |
+        LOCK_HASH=$$(sha1sum package-lock.json | cut -d ' ' -f1)
+        if [ ! -f node_modules/.bin/vite ] || [ "$$(cat node_modules/.lock-hash 2>/dev/null)" != "$$LOCK_HASH" ]; then
+          echo "[vite] package-lock.json changed or node_modules missing, installing NPM dependencies..."
+          npm install --ignore-scripts --no-save --no-audit --no-fund
+          echo "$$LOCK_HASH" > node_modules/.lock-hash
+        fi
+        exec npm run dev -- --host 0.0.0.0 --port 5173
+    depends_on:
+      app:
+        condition: service_started
+    networks:
+      - himatun-network
+
+  mysql:
+    image: mysql:8.0
+    container_name: himatun-mysql
+    restart: unless-stopped
+    ports:
+      - "${FORWARD_DB_PORT:-3306}:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root}
+      MYSQL_DATABASE: ${DB_DATABASE:-website_himattun}
+      MYSQL_ROOT_HOST: "%"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p\"$${MYSQL_ROOT_PASSWORD}\""]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 15s
+    networks:
+      - himatun-network
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: himatun-phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "${FORWARD_PHPMYADMIN_PORT:-8080}:80"
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: ${DB_USERNAME:-root}
+      PMA_PASSWORD: ${DB_PASSWORD:-root}
+      UPLOAD_LIMIT: 64M
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - himatun-network
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: himatun-mailpit
+    restart: unless-stopped
+    ports:
+      - "${FORWARD_MAILPIT_PORT:-1025}:1025"
+      - "${FORWARD_MAILPIT_DASHBOARD_PORT:-8025}:8025"
+    networks:
+      - himatun-network
+
+networks:
+  himatun-network:
+    driver: bridge
+
+volumes:
+  mysql_data:
+    driver: local
+  vendor:
+    driver: local
+  node_modules:
+    driver: local

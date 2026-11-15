@@ -157,6 +157,80 @@ production (Branch rilis stabil / live server)
 
 ## Panduan Instalasi & Menjalankan Proyek
 
+### Opsi A: Panduan Menjalankan dengan Docker (Rekomendasi Multi-Device)
+
+Dengan konfigurasi Docker ini, siapa pun di **Windows, macOS, atau Linux** bisa langsung menjalankan proyek tanpa perlu menginstal PHP, Composer, Node.js, atau MySQL secara manual di perangkat masing-masing.
+
+#### 1. Prasyarat
+- **Docker Desktop** (Windows / macOS) atau **Docker Engine + Docker Compose v2** (Linux).
+
+#### 2. Kloning & Jalankan Container
+```bash
+git clone https://github.com/AdzrilIlham/Website_Himattun.git
+cd Website_Himattun
+git checkout develop
+docker compose up -d --build
+```
+Pada saat pertama kali dijalankan, container `app` dan `vite` akan otomatis melakukan **Full Auto-Setup**:
+1. Menyalin `.env.example` ke `.env` (jika belum ada).
+2. Menginstal dependency PHP (`composer install`) dan dependency frontend (`npm install` pada volume `node_modules` khusus container). Keduanya otomatis diinstal ulang setiap kali `composer.lock` / `package-lock.json` berubah (misalnya setelah `git pull`), cukup jalankan `docker compose restart app vite`.
+3. Men-generate `APP_KEY` (jika masih kosong) dan membuat symlink `public/storage`.
+4. Menunggu MySQL 8.0 siap, membuat database aplikasi (sesuai `DB_DATABASE` di `.env`) dan database `testing` jika belum ada, menjalankan `php artisan migrate --force`, lalu `php artisan db:seed --force` jika tabel `users` masih kosong.
+5. Menyalakan Laravel development server (`:8000`) dan Vite HMR (`:5173`).
+
+> Tunggu beberapa saat pada boot pertama hingga proses instalasi dependency, migrasi, dan seeding selesai. Pantau progresnya dengan `docker compose logs -f app vite`.
+
+#### 3. Akses Layanan & Port Default
+
+| Layanan | URL / Alamat Akses | Variabel Port Opsional (`.env`) | Keterangan |
+| :--- | :--- | :--- | :--- |
+| **Aplikasi Web (Laravel)** | `http://localhost:8000` | `APP_PORT=8000` | Portal publik & panel admin |
+| **Vite Dev Server (HMR)** | `http://localhost:5173` | `VITE_PORT=5173` | Hot Module Replacement aset CSS/JS |
+| **phpMyAdmin** | `http://localhost:8080` | `FORWARD_PHPMYADMIN_PORT=8080` | Antarmuka manajemen database MySQL |
+| **Mailpit Dashboard** | `http://localhost:8025` | `FORWARD_MAILPIT_DASHBOARD_PORT=8025` | Penangkap email lokal (verifikasi/OTP) |
+| **MySQL 8.0** | `127.0.0.1:3306` | `FORWARD_DB_PORT=3306` | Koneksi dari aplikasi SQL client di host |
+
+#### 4. Perintah Operasional Docker Sehari-hari
+```bash
+# Melihat log container secara real-time
+docker compose logs -f
+
+# Menjalankan perintah Artisan di dalam container app
+docker compose exec app php artisan migrate
+docker compose exec app php artisan migrate:fresh --seed
+
+# Menjalankan test (memakai database terpisah `testing`, data development tidak ikut terhapus)
+docker compose exec app php artisan test --compact
+
+# Menginstal package Composer atau NPM baru
+docker compose exec app composer require nama/package
+docker compose exec vite npm install nama-package
+
+# Menghentikan seluruh container (data MySQL tetap tersimpan)
+docker compose down
+
+# Menghentikan container dan menghapus volume database + node_modules container (reset total)
+docker compose down -v
+```
+
+#### 5. Solusi Jika Ada Port Bentrok (Misal XAMPP / Laragon)
+Jika port `3306`, `8000`, `8080`, `8025`, atau `5173` sudah dipakai aplikasi lain di perangkat Anda, ubah port mapping di file `.env` tanpa perlu mengedit `compose.yaml`:
+```env
+APP_PORT=8001
+FORWARD_DB_PORT=3307
+FORWARD_PHPMYADMIN_PORT=8081
+FORWARD_MAILPIT_DASHBOARD_PORT=8026
+```
+Lalu jalankan ulang `docker compose up -d`.
+
+#### 6. Tips Performa di Windows
+- Folder `vendor` dan `node_modules` di dalam container disimpan di Docker volume (bukan folder proyek di host) supaya akses file PHP/Node cepat. Setelah `composer require` / `npm install` di container, jalankan juga perintah yang sama di host jika IDE butuh autocomplete paket baru.
+- Untuk performa paling maksimal, simpan proyek di filesystem WSL2 (misal `\\wsl$\Ubuntu\home\<user>\Website_Himattun`) lalu jalankan `docker compose up -d` dari terminal Ubuntu. Akses file dari drive Windows (`C:\` / `D:\`) ke container jauh lebih lambat.
+
+---
+
+### Opsi B: Instalasi Manual (Tanpa Docker)
+
 ### 1. Kloning Repositori
 ```bash
 git clone https://github.com/AdzrilIlham/Website_Himattun.git
