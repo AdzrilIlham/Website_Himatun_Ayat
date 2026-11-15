@@ -10,20 +10,20 @@
 
 @php
     // Sesuai UI Prototype:
-    // Nomor 01 (Ketua Yayasan) menggunakan Icon-ketua.png
-    // Pengurus lainnya (02, 03, 04) menggunakan Icon-pengurus.png
-    $isKetua = ($number === '01' || $icon === 'leader' || str_contains(strtolower($role), 'ketua'));
-    $iconSrc = $isKetua ? asset('images/Asset/Icon-ketua.png') : asset('images/Asset/Icon-pengurus.png');
+    // Pimpinan (Ketua, Pembina, Pengawas) menggunakan Icon-ketua.png
+    // Pengurus & Departemen lainnya menggunakan Icon-pengurus.png
+    $isLeader = ($icon === 'leader' || str_contains(strtolower($role), 'ketua') || str_contains(strtolower($role), 'pembina') || str_contains(strtolower($role), 'pengawas'));
+    $iconSrc = $isLeader ? asset('images/Asset/Icon-ketua.png') : asset('images/Asset/Icon-pengurus.png');
 @endphp
 
-<div {{ $attributes->merge(['class' => 'group relative w-full max-w-[280px] sm:max-w-[310px] mx-auto flex flex-col items-center select-none']) }}>
+<div {{ $attributes->merge(['class' => 'group relative w-full max-w-[280px] sm:max-w-[310px] mx-auto flex flex-col items-center select-none cursor-pointer']) }}>
     
     <!-- Avatar Image Container (Diletakkan di belakang bahu Shape-pengurus, masuk ke notch) -->
-    <div class="relative w-full flex justify-center -mb-[26%] sm:-mb-[27%] z-0 pointer-events-none">
+    <div class="relative w-full flex justify-center -mb-[26%] sm:-mb-[27%] z-0">
         @if($image)
             <img src="{{ $image }}" 
                  alt="{{ $imageAlt ?: $name }}" 
-                 class="h-44 sm:h-52 md:h-56 w-auto object-contain drop-shadow-md group-hover:scale-105 transition-transform duration-300">
+                 class="h-44 sm:h-52 md:h-56 w-auto object-contain drop-shadow-md group-hover:scale-105 group-hover:-translate-y-1.5 group-hover:drop-shadow-xl transition-all duration-300 ease-out">
         @else
             <!-- Placeholder Silhouette -->
             <div class="w-24 h-24 rounded-full bg-emerald-200 flex items-center justify-center text-emerald-800">
@@ -35,7 +35,7 @@
     </div>
 
     <!-- Shape Card Container: z-10 agar bahu shape menutupi sisi avatar -->
-    <div class="relative w-full aspect-[310/176] z-10 drop-shadow-lg group-hover:-translate-y-1 transition-transform duration-300">
+    <div class="relative w-full aspect-[310/176] z-10 drop-shadow-lg">
         <!-- PNG Shape Elemen Resmi Sesuai Desain UI -->
         <img src="{{ asset('images/Asset/Shape-pengurus.png') }}" 
              alt="" 
@@ -56,11 +56,11 @@
         </div>
 
         <!-- Nama & Jabatan Pengurus di Area Bawah Notch -->
-        <div class="absolute left-[7%] bottom-[14%] right-[7%] flex flex-col justify-end text-left">
-            <h4 class="text-base sm:text-lg lg:text-xl font-bold text-slate-900 tracking-tight leading-snug line-clamp-1">
+        <div class="absolute left-[7%] bottom-[13%] right-[7%] flex flex-col justify-end text-left">
+            <h4 class="text-xs sm:text-sm md:text-[15px] font-bold text-slate-900 tracking-tight leading-tight truncate" title="{{ $name }}">
                 {{ $name }}
             </h4>
-            <p class="text-xs sm:text-sm font-medium text-slate-600 mt-0.5 leading-none">
+            <p class="text-[10px] sm:text-xs font-semibold text-emerald-800 uppercase tracking-wider mt-0.5 leading-none truncate" title="{{ $role }}">
                 {{ $role }}
             </p>
         </div>

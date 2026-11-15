@@ -15,13 +15,32 @@
     $uniqueId = $modalId ?: 'modal-dokumen-' . md5($title . $nomor);
 @endphp
 
-<div {{ $attributes->merge(['class' => 'group rounded-3xl bg-white border border-slate-200/90 shadow-2xs hover:shadow-lg hover:border-brand-300 transition-all duration-300 p-5 sm:p-6 flex flex-col justify-between']) }}>
+<div {{ $attributes->merge(['class' => 'group relative rounded-3xl bg-white border border-slate-200/90 shadow-2xs hover:shadow-xl hover:border-brand-400 transition-all duration-300 p-5 sm:p-6 flex flex-col justify-between overflow-hidden cursor-pointer select-none']) }}>
     
-    <div>
+    <!-- 3D Hologram Security Seal Watermark (Stempel Keabsahan Hukum) -->
+    <div class="absolute -right-8 -bottom-8 w-44 h-44 opacity-[0.05] group-hover:opacity-[0.14] text-brand-800 pointer-events-none transition-opacity duration-500">
+        <svg viewBox="0 0 120 120" fill="none" stroke="currentColor" class="w-full h-full animate-[spin_90s_linear_infinite]">
+            <circle cx="60" cy="60" r="54" stroke-width="1.5" stroke-dasharray="3 3"/>
+            <circle cx="60" cy="60" r="48" stroke-width="1.5"/>
+            <circle cx="60" cy="60" r="38" stroke-width="1" stroke-dasharray="6 3"/>
+            <polygon points="60,28 63,38 73,38 65,44 68,54 60,48 52,54 55,44 47,38 57,38" fill="currentColor" opacity="0.35"/>
+            <path id="seal-path-{{ $uniqueId }}" d="M22 60 A38 38 0 1 1 98 60 A38 38 0 1 1 22 60" fill="none"/>
+            <text font-size="7.2" font-weight="bold" fill="currentColor" letter-spacing="1.8">
+                <textPath href="#seal-path-{{ $uniqueId }}" startOffset="50%" text-anchor="middle">
+                    • YAYASAN HIMMATUN AYAT • RESMI TERDAFTAR •
+                </textPath>
+            </text>
+        </svg>
+    </div>
+
+    <!-- Ambient Gold Shimmer on Top Corner -->
+    <div class="absolute -top-12 -left-12 w-28 h-28 bg-gradient-to-br from-[#FDE68A]/30 to-transparent rounded-full blur-xl pointer-events-none"></div>
+
+    <div class="relative z-10">
         <!-- Card Header: Icon & Verification Badge -->
         <div class="flex items-start justify-between gap-3">
             <!-- Icon Box -->
-            <div class="w-10 h-10 rounded-xl bg-brand-50 border border-brand-100 flex items-center justify-center text-brand-700 shrink-0 group-hover:bg-brand-100 transition-colors duration-200">
+            <div class="w-10 h-10 rounded-xl bg-brand-50 border border-brand-100 flex items-center justify-center text-brand-700 shrink-0 group-hover:bg-brand-100 group-hover:scale-105 transition-all duration-300 shadow-2xs">
                 @if($icon === 'shield')
                     <!-- Shield Icon -->
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
@@ -47,35 +66,39 @@
 
             <!-- Status Badge -->
             @if($badgeVariant === 'success')
-                <span class="inline-flex items-center px-3 py-1 rounded-full text-2xs font-semibold bg-brand-700 text-white shadow-2xs">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-2xs font-semibold bg-brand-700 text-white shadow-xs">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse"></span>
                     {{ $badgeText }}
                 </span>
             @else
-                <span class="inline-flex items-center px-3 py-1 rounded-full text-2xs font-semibold bg-brand-100/90 border border-brand-200 text-brand-900 shadow-2xs">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-2xs font-semibold bg-brand-100/90 border border-brand-200 text-brand-900 shadow-2xs">
+                    <span class="w-1.5 h-1.5 rounded-full bg-brand-600"></span>
                     {{ $badgeText }}
                 </span>
             @endif
         </div>
 
         <!-- Title & Registration Number -->
-        <h3 class="text-base sm:text-lg font-bold text-slate-900 group-hover:text-brand-900 transition-colors duration-200 mt-4 leading-snug">
-            {{ $title }}
-        </h3>
+        <div>
+            <h3 class="text-base sm:text-lg font-bold text-slate-900 group-hover:text-brand-900 transition-colors duration-200 mt-4 leading-snug">
+                {{ $title }}
+            </h3>
 
-        @if($nomor)
-            <p class="text-xs font-mono font-medium text-slate-500 mt-1">
-                {{ $nomor }}
+            @if($nomor)
+                <p class="text-xs font-mono font-medium text-slate-500 mt-1">
+                    {{ $nomor }}
+                </p>
+            @endif
+
+            <!-- Description -->
+            <p class="text-xs sm:text-[13px] text-slate-600 leading-relaxed mt-2.5 font-normal">
+                {{ $deskripsi }}
             </p>
-        @endif
-
-        <!-- Description -->
-        <p class="text-xs sm:text-[13px] text-slate-600 leading-relaxed mt-2.5 font-normal">
-            {{ $deskripsi }}
-        </p>
+        </div>
 
         <!-- Document Image / Thumbnail Preview -->
         @if($image)
-            <div class="mt-4 relative rounded-2xl overflow-hidden border border-slate-200/90 bg-slate-50 aspect-[16/7] group/thumb">
+            <div class="mt-4 relative rounded-2xl overflow-hidden border border-slate-200/90 bg-slate-50 aspect-[16/7] group/thumb shadow-xs">
                 <img src="{{ $image }}" 
                      alt="{{ $imageAlt }}" 
                      class="w-full h-full object-cover group-hover/thumb:scale-105 transition-transform duration-300">
@@ -86,11 +109,13 @@
                         aria-haspopup="dialog"
                         aria-expanded="false"
                         aria-controls="{{ $uniqueId }}"
-                        class="absolute inset-0 bg-slate-950/20 backdrop-blur-2xs opacity-0 group-hover/thumb:opacity-100 transition-opacity duration-200 flex items-center justify-center text-white gap-1.5 text-xs font-semibold">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607ZM10.5 7.5v6m3-3h-6" />
-                    </svg>
-                    <span>Lihat Dokumen</span>
+                        class="absolute inset-0 bg-slate-950/25 backdrop-blur-[2px] opacity-0 group-hover/thumb:opacity-100 transition-opacity duration-200 flex items-center justify-center text-white gap-2 text-xs font-semibold">
+                    <span class="inline-flex items-center gap-1.5 bg-white/25 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/40 shadow-sm transform group-hover/thumb:scale-105 transition-transform duration-200">
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607ZM10.5 7.5v6m3-3h-6" />
+                        </svg>
+                        <span>Lihat Dokumen</span>
+                    </span>
                 </button>
             </div>
         @endif
@@ -98,7 +123,7 @@
 
     <!-- Card Footer -->
     @if($footerText)
-        <div class="border-t border-slate-100 mt-5 pt-3.5 text-center">
+        <div class="border-t border-slate-100 mt-5 pt-3.5 text-center relative z-10">
             <p class="text-xs font-medium text-slate-500 tracking-wide">
                 {{ $footerText }}
             </p>

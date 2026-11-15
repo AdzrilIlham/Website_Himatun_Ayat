@@ -242,17 +242,50 @@ function entranceVars(type, { distance, duration, delay = 0 }) {
         case 'fade-scale':
             return {
                 autoAlpha: 0,
-                y: Math.round(distance * 0.65),
-                scale: 0.97,
+                y: Math.round(distance * 0.6),
+                scale: 0.95,
                 duration,
                 delay,
             };
         case 'slide-left':
-            return { autoAlpha: 0, x: -distance, duration, delay };
+            return { autoAlpha: 0, x: -distance, y: Math.round(distance * 0.25), duration, delay };
         case 'slide-right':
-            return { autoAlpha: 0, x: distance, duration, delay };
+            return { autoAlpha: 0, x: distance, y: Math.round(distance * 0.25), duration, delay };
         case 'line-grow':
             return { scaleX: 0, transformOrigin: 'left center', duration, delay };
+        case 'fade-up-3d':
+        case 'flip-up-3d':
+            return {
+                autoAlpha: 0,
+                y: Math.round(distance * 0.8),
+                scale: 0.95,
+                duration: duration * 1.05,
+                delay,
+            };
+        case 'tilt-left-3d':
+            return {
+                autoAlpha: 0,
+                x: -distance,
+                y: Math.round(distance * 0.25),
+                duration,
+                delay,
+            };
+        case 'tilt-right-3d':
+            return {
+                autoAlpha: 0,
+                x: distance,
+                y: Math.round(distance * 0.25),
+                duration,
+                delay,
+            };
+        case 'zoom-in-3d':
+            return {
+                autoAlpha: 0,
+                scale: 0.93,
+                y: Math.round(distance * 0.4),
+                duration,
+                delay,
+            };
         case 'fade-up':
         default:
             return { autoAlpha: 0, y: distance, duration, delay };
@@ -285,6 +318,9 @@ function createTransitionLock() {
             locked.forEach((el) => el.style.removeProperty('transition'));
             locked.clear();
         },
+        isLocked(el) {
+            return locked.has(el);
+        },
     };
 }
 
@@ -293,11 +329,11 @@ function createTransitionLock() {
  * ScrollTrigger) agar urutan heading -> deskripsi -> CTA -> foto terasa menyatu.
  */
 function initHero(hero, { isMobile, lock }) {
-    const heading = hero.querySelector('[data-hero-heading]');
-    const description = hero.querySelector('[data-hero-description]');
-    const cta = hero.querySelector('[data-hero-cta]');
-    const media = hero.querySelector('[data-hero-media]');
-    const elements = [heading, description, cta, media].filter(Boolean);
+    const headings = Array.from(hero.querySelectorAll('[data-hero-heading]'));
+    const descriptions = Array.from(hero.querySelectorAll('[data-hero-description]'));
+    const ctas = Array.from(hero.querySelectorAll('[data-hero-cta]'));
+    const mediaElements = Array.from(hero.querySelectorAll('[data-hero-media]'));
+    const elements = [...headings, ...descriptions, ...ctas, ...mediaElements];
 
     if (!elements.length) return;
 
@@ -309,9 +345,9 @@ function initHero(hero, { isMobile, lock }) {
         onComplete: () => elements.forEach((el) => lock.release(el)),
     });
 
-    if (heading) {
+    if (headings.length) {
         timeline.from(
-            heading,
+            headings,
             {
                 autoAlpha: 0,
                 y: isMobile ? 20 : 28,
@@ -322,9 +358,9 @@ function initHero(hero, { isMobile, lock }) {
         );
     }
 
-    if (description) {
+    if (descriptions.length) {
         timeline.from(
-            description,
+            descriptions,
             {
                 autoAlpha: 0,
                 y: isMobile ? 16 : 22,
@@ -335,9 +371,9 @@ function initHero(hero, { isMobile, lock }) {
         );
     }
 
-    if (cta) {
+    if (ctas.length) {
         timeline.from(
-            cta,
+            ctas,
             {
                 autoAlpha: 0,
                 y: isMobile ? 14 : 18,
@@ -348,15 +384,15 @@ function initHero(hero, { isMobile, lock }) {
         );
     }
 
-    if (media) {
+    if (mediaElements.length) {
         timeline.from(
-            media,
+            mediaElements,
             {
                 autoAlpha: 0,
                 y: isMobile ? 18 : 24,
-                scale: 0.98,
+                scale: 0.96,
                 duration: isMobile ? 0.8 : 1,
-                // Transform dibersihkan agar tidak ada sisa scale pada ancestor Swiper.
+                // Transform dibersihkan agar tidak ada sisa scale pada ancestor Swiper / child 3D.
                 clearProps: 'transform',
             },
             '-=0.45'
@@ -552,6 +588,291 @@ function initDynamicReveals(root, { isMobile, lock }) {
     };
 }
 
+/**
+ * 3D Interactive Card Tilt System powered by GSAP.
+ * Menggerakkan kartu dalam ruang 3D (rotationX, rotationY, scale) mengikuti koordinat kursor,
+ * dengan depth layers (translateZ multi-lapis) dan efek pantulan cahaya (specular glare sheen).
+ */
+function init3DCardTilt(root, { isMobile, lock }) {
+    if (isMobile) return () => {};
+
+    const cards = Array.from(root.querySelectorAll('[data-tilt-3d]'));
+    if (!cards.length) return () => {};
+
+    const cleanups = [];
+
+    cards.forEach((card) => {
+        const maxTilt = numberFrom(card, 'tiltMax', 12);
+        const perspective = numberFrom(card, 'tiltPerspective', 1000);
+        const scaleOnHover = numberFrom(card, 'tiltScale', 1.02);
+        const layers = Array.from(card.querySelectorAll('[data-tilt-layer]'));
+
+        card.style.transformStyle = 'preserve-3d';
+        card.style.transformPerspective = `${perspective}px`;
+
+        let glareEl = null;
+        if (card.hasAttribute('data-tilt-glare')) {
+            glareEl = document.createElement('div');
+            glareEl.className =
+                'pointer-events-none absolute inset-0 rounded-[inherit] overflow-hidden z-20 transition-opacity duration-300 opacity-0';
+
+            const glareSheen = document.createElement('div');
+            glareSheen.className =
+                'w-[180%] h-[180%] absolute -top-[40%] -left-[40%] rounded-full pointer-events-none';
+            glareSheen.style.background =
+                'radial-gradient(circle at center, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.05) 45%, transparent 70%)';
+
+            glareEl.appendChild(glareSheen);
+            card.appendChild(glareEl);
+        }
+
+        let isHovered = false;
+        let bounds = null;
+
+        const onPointerEnter = () => {
+            if (lock?.isLocked(card)) return;
+            isHovered = true;
+            bounds = card.getBoundingClientRect();
+            card.style.transition = 'none';
+            layers.forEach((layer) => (layer.style.transition = 'none'));
+            if (glareEl) glareEl.style.opacity = '1';
+        };
+
+        const onPointerMove = (e) => {
+            if (!isHovered) return;
+            if (!bounds) bounds = card.getBoundingClientRect();
+
+            const x = e.clientX - bounds.left;
+            const y = e.clientY - bounds.top;
+
+            const px = x / bounds.width - 0.5;
+            const py = y / bounds.height - 0.5;
+
+            const rotY = px * (maxTilt * 2);
+            const rotX = -py * (maxTilt * 2);
+
+            gsap.to(card, {
+                rotationY: rotY,
+                rotationX: rotX,
+                scale: scaleOnHover,
+                duration: 0.35,
+                ease: 'power2.out',
+                overwrite: 'auto',
+            });
+
+            layers.forEach((layer) => {
+                const depth = numberFrom(layer, 'tiltLayer', 20);
+                const layerX = px * (depth * 0.7);
+                const layerY = py * (depth * 0.7);
+
+                gsap.to(layer, {
+                    x: layerX,
+                    y: layerY,
+                    z: depth,
+                    duration: 0.35,
+                    ease: 'power2.out',
+                    overwrite: 'auto',
+                });
+            });
+
+            if (glareEl) {
+                const sheen = glareEl.firstElementChild;
+                if (sheen) {
+                    gsap.to(sheen, {
+                        xPercent: -px * 70,
+                        yPercent: -py * 70,
+                        duration: 0.35,
+                        ease: 'power2.out',
+                        overwrite: 'auto',
+                    });
+                }
+            }
+        };
+
+        const onPointerLeave = () => {
+            isHovered = false;
+            bounds = null;
+
+            gsap.to(card, {
+                rotationY: 0,
+                rotationX: 0,
+                scale: 1,
+                duration: 0.65,
+                ease: 'power3.out',
+                overwrite: 'auto',
+                onComplete: () => {
+                    card.style.removeProperty('transition');
+                },
+            });
+
+            layers.forEach((layer) => {
+                gsap.to(layer, {
+                    x: 0,
+                    y: 0,
+                    z: 0,
+                    duration: 0.65,
+                    ease: 'power3.out',
+                    overwrite: 'auto',
+                    onComplete: () => {
+                        layer.style.removeProperty('transition');
+                    },
+                });
+            });
+
+            if (glareEl) glareEl.style.opacity = '0';
+        };
+
+        const onScrollOrResize = () => {
+            bounds = null;
+        };
+
+        card.addEventListener('pointerenter', onPointerEnter);
+        card.addEventListener('pointermove', onPointerMove);
+        card.addEventListener('pointerleave', onPointerLeave);
+        window.addEventListener('scroll', onScrollOrResize, { passive: true });
+        window.addEventListener('resize', onScrollOrResize, { passive: true });
+
+        cleanups.push(() => {
+            card.removeEventListener('pointerenter', onPointerEnter);
+            card.removeEventListener('pointermove', onPointerMove);
+            card.removeEventListener('pointerleave', onPointerLeave);
+            window.removeEventListener('scroll', onScrollOrResize);
+            window.removeEventListener('resize', onScrollOrResize);
+            if (glareEl && glareEl.parentNode) glareEl.remove();
+            gsap.killTweensOf(card);
+            layers.forEach((l) => gsap.killTweensOf(l));
+        });
+    });
+
+    return () => cleanups.forEach((fn) => fn());
+}
+
+/**
+ * 3D Ambient Floating Motion
+ * Memberikan animasi bernapas/melayang 3D terus-menerus pada elemen (mis. logo yayasan).
+ */
+function init3DFloating(root, { isMobile }) {
+    if (isMobile) return () => {};
+
+    const elements = Array.from(root.querySelectorAll('[data-3d-float]'));
+    if (!elements.length) return () => {};
+
+    const cleanups = [];
+
+    elements.forEach((el) => {
+        const distance = numberFrom(el, 'floatDistance', 12);
+        const duration = numberFrom(el, 'floatDuration', 3.8);
+        const rotY = numberFrom(el, 'floatRotateY', 7);
+        const rotX = numberFrom(el, 'floatRotateX', -5);
+
+        const tween = gsap.to(el, {
+            y: -distance,
+            rotationY: rotY,
+            rotationX: rotX,
+            rotationZ: 1.5,
+            duration,
+            ease: 'sine.inOut',
+            repeat: -1,
+            yoyo: true,
+            transformPerspective: 1000,
+        });
+
+        cleanups.push(() => tween.kill());
+    });
+
+    return () => cleanups.forEach((fn) => fn());
+}
+
+/**
+ * 3D Interactive Parallax Hero
+ * Menggerakkan objek 3D di hero saat kursor bergerak di seluruh wadah hero.
+ */
+function init3DHeroParallax(root, { isMobile }) {
+    if (isMobile) return () => {};
+
+    const containers = Array.from(root.querySelectorAll('[data-3d-hero-container]'));
+    if (!containers.length) return () => {};
+
+    const cleanups = [];
+
+    containers.forEach((container) => {
+        const target = container.querySelector('[data-3d-hero-target]') || container;
+        const aura = container.querySelector('[data-3d-hero-aura]');
+
+        let bounds = null;
+
+        const onPointerMove = (e) => {
+            if (!bounds) bounds = container.getBoundingClientRect();
+            const px = (e.clientX - bounds.left) / bounds.width - 0.5;
+            const py = (e.clientY - bounds.top) / bounds.height - 0.5;
+
+            gsap.to(target, {
+                rotationY: px * 16,
+                rotationX: -py * 12,
+                x: px * 14,
+                y: py * 14,
+                transformPerspective: 1000,
+                duration: 0.45,
+                ease: 'power2.out',
+                overwrite: 'auto',
+            });
+
+            if (aura) {
+                gsap.to(aura, {
+                    x: -px * 24,
+                    y: -py * 24,
+                    scale: 1.05,
+                    duration: 0.65,
+                    ease: 'power2.out',
+                    overwrite: 'auto',
+                });
+            }
+        };
+
+        const onPointerLeave = () => {
+            bounds = null;
+            gsap.to(target, {
+                rotationY: 0,
+                rotationX: 0,
+                x: 0,
+                y: 0,
+                duration: 0.8,
+                ease: 'power3.out',
+                overwrite: 'auto',
+            });
+
+            if (aura) {
+                gsap.to(aura, {
+                    x: 0,
+                    y: 0,
+                    scale: 1,
+                    duration: 0.8,
+                    ease: 'power3.out',
+                    overwrite: 'auto',
+                });
+            }
+        };
+
+        const onResize = () => {
+            bounds = null;
+        };
+
+        container.addEventListener('pointermove', onPointerMove);
+        container.addEventListener('pointerleave', onPointerLeave);
+        window.addEventListener('resize', onResize, { passive: true });
+
+        cleanups.push(() => {
+            container.removeEventListener('pointermove', onPointerMove);
+            container.removeEventListener('pointerleave', onPointerLeave);
+            window.removeEventListener('resize', onResize);
+            gsap.killTweensOf(target);
+            if (aura) gsap.killTweensOf(aura);
+        });
+    });
+
+    return () => cleanups.forEach((fn) => fn());
+}
+
 export function initPageAnimations() {
     if (initialized) return;
 
@@ -597,6 +918,15 @@ export function initPageAnimations() {
 
                 const cleanup = initDynamicReveals(root, options);
                 if (typeof cleanup === 'function') cleanups.push(cleanup);
+
+                const cleanupTilt = init3DCardTilt(root, options);
+                if (typeof cleanupTilt === 'function') cleanups.push(cleanupTilt);
+
+                const cleanupFloat = init3DFloating(root, options);
+                if (typeof cleanupFloat === 'function') cleanups.push(cleanupFloat);
+
+                const cleanupHero3D = init3DHeroParallax(root, options);
+                if (typeof cleanupHero3D === 'function') cleanups.push(cleanupHero3D);
             });
 
             return () => {
