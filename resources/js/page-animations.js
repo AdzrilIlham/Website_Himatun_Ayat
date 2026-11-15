@@ -242,45 +242,31 @@ function entranceVars(type, { distance, duration, delay = 0 }) {
         case 'fade-scale':
             return {
                 autoAlpha: 0,
-                y: Math.round(distance * 0.65),
-                scale: 0.97,
+                y: Math.round(distance * 0.6),
+                scale: 0.95,
                 duration,
                 delay,
             };
         case 'slide-left':
-            return { autoAlpha: 0, x: -distance, duration, delay };
+            return { autoAlpha: 0, x: -distance, y: Math.round(distance * 0.25), duration, delay };
         case 'slide-right':
-            return { autoAlpha: 0, x: distance, duration, delay };
+            return { autoAlpha: 0, x: distance, y: Math.round(distance * 0.25), duration, delay };
         case 'line-grow':
             return { scaleX: 0, transformOrigin: 'left center', duration, delay };
         case 'fade-up-3d':
-            return {
-                autoAlpha: 0,
-                y: Math.round(distance * 1.25),
-                rotationX: 18,
-                transformPerspective: 1000,
-                transformOrigin: '50% 100%',
-                duration,
-                delay,
-            };
         case 'flip-up-3d':
             return {
                 autoAlpha: 0,
                 y: Math.round(distance * 0.8),
-                rotationX: 25,
-                scale: 0.92,
-                transformPerspective: 1200,
-                transformOrigin: 'center bottom',
-                duration: duration * 1.1,
+                scale: 0.95,
+                duration: duration * 1.05,
                 delay,
             };
         case 'tilt-left-3d':
             return {
                 autoAlpha: 0,
                 x: -distance,
-                rotationY: 16,
-                transformPerspective: 1000,
-                transformOrigin: 'left center',
+                y: Math.round(distance * 0.25),
                 duration,
                 delay,
             };
@@ -288,19 +274,15 @@ function entranceVars(type, { distance, duration, delay = 0 }) {
             return {
                 autoAlpha: 0,
                 x: distance,
-                rotationY: -16,
-                transformPerspective: 1000,
-                transformOrigin: 'right center',
+                y: Math.round(distance * 0.25),
                 duration,
                 delay,
             };
         case 'zoom-in-3d':
             return {
                 autoAlpha: 0,
-                scale: 0.88,
-                rotationX: 15,
-                transformPerspective: 1000,
-                transformOrigin: 'center center',
+                scale: 0.93,
+                y: Math.round(distance * 0.4),
                 duration,
                 delay,
             };
@@ -347,11 +329,11 @@ function createTransitionLock() {
  * ScrollTrigger) agar urutan heading -> deskripsi -> CTA -> foto terasa menyatu.
  */
 function initHero(hero, { isMobile, lock }) {
-    const heading = hero.querySelector('[data-hero-heading]');
-    const description = hero.querySelector('[data-hero-description]');
-    const cta = hero.querySelector('[data-hero-cta]');
-    const media = hero.querySelector('[data-hero-media]');
-    const elements = [heading, description, cta, media].filter(Boolean);
+    const headings = Array.from(hero.querySelectorAll('[data-hero-heading]'));
+    const descriptions = Array.from(hero.querySelectorAll('[data-hero-description]'));
+    const ctas = Array.from(hero.querySelectorAll('[data-hero-cta]'));
+    const mediaElements = Array.from(hero.querySelectorAll('[data-hero-media]'));
+    const elements = [...headings, ...descriptions, ...ctas, ...mediaElements];
 
     if (!elements.length) return;
 
@@ -363,9 +345,9 @@ function initHero(hero, { isMobile, lock }) {
         onComplete: () => elements.forEach((el) => lock.release(el)),
     });
 
-    if (heading) {
+    if (headings.length) {
         timeline.from(
-            heading,
+            headings,
             {
                 autoAlpha: 0,
                 y: isMobile ? 20 : 28,
@@ -376,9 +358,9 @@ function initHero(hero, { isMobile, lock }) {
         );
     }
 
-    if (description) {
+    if (descriptions.length) {
         timeline.from(
-            description,
+            descriptions,
             {
                 autoAlpha: 0,
                 y: isMobile ? 16 : 22,
@@ -389,9 +371,9 @@ function initHero(hero, { isMobile, lock }) {
         );
     }
 
-    if (cta) {
+    if (ctas.length) {
         timeline.from(
-            cta,
+            ctas,
             {
                 autoAlpha: 0,
                 y: isMobile ? 14 : 18,
@@ -402,15 +384,15 @@ function initHero(hero, { isMobile, lock }) {
         );
     }
 
-    if (media) {
+    if (mediaElements.length) {
         timeline.from(
-            media,
+            mediaElements,
             {
                 autoAlpha: 0,
                 y: isMobile ? 18 : 24,
-                scale: 0.98,
+                scale: 0.96,
                 duration: isMobile ? 0.8 : 1,
-                // Transform dibersihkan agar tidak ada sisa scale pada ancestor Swiper.
+                // Transform dibersihkan agar tidak ada sisa scale pada ancestor Swiper / child 3D.
                 clearProps: 'transform',
             },
             '-=0.45'
