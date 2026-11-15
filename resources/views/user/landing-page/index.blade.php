@@ -8,6 +8,14 @@
         ['image' => 'images/User/Lomba Balap Makan Kerupuk.png', 'alt' => 'Anak asuh mengikuti lomba makan kerupuk'],
         ['image' => 'images/User/Renovasi Ruang Belajar.png', 'alt' => 'Pembangunan ruang belajar asrama'],
     ];
+
+    // Sementara data statis; nanti diisi donasi yang sudah di-acc admin.
+    $recentDonors = [
+        ['name' => 'Hamba Allah', 'amount' => 'Rp50.000,00', 'time' => '2 menit lalu'],
+        ['name' => 'Febriansyah Nugraha', 'amount' => 'Rp70.000,00', 'time' => '15 menit lalu'],
+        ['name' => 'Muhammad Ihsan Ansori', 'amount' => 'Rp10.000,00', 'time' => '22 menit lalu'],
+        ['name' => 'Adzril Ilham', 'amount' => 'Rp5.000,00', 'time' => '27 menit lalu'],
+    ];
 @endphp
 <div class="overflow-x-hidden" data-landing-animations>
 
@@ -93,57 +101,35 @@
     <!-- 2. RECENT DONATIONS TICKER / BADGES        -->
     <!-- ========================================== -->
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-1 sm:-mt-2 relative z-20">
-        <div class="flex items-center gap-2.5 sm:gap-3 overflow-x-auto no-scrollbar py-2 sm:justify-between"
-             data-animate-group="fade-up"
+        <div class="relative py-2"
+             data-animate="fade-up"
              data-animate-distance="8"
              data-animate-duration="0.5"
-             data-animate-stagger="0.07"
              data-animate-start="top 88%">
-            
-            <!-- Donor 1 -->
-            <div class="shrink-0 bg-white/95 backdrop-blur-sm border border-slate-200/80 rounded-xl py-1.5 px-3 flex items-center gap-2 shadow-2xs hover:shadow-xs transition">
-                <div class="w-7 h-7 rounded-full bg-[#E4F1EB] flex items-center justify-center shrink-0 overflow-hidden">
-                    <img src="{{ asset('images/User/profil.png') }}" alt="Avatar" class="w-3.5 h-3.5 object-contain">
-                </div>
-                <div>
-                    <p class="font-bold text-[11px] sm:text-xs text-slate-800 leading-tight">Hamba Allah</p>
-                    <p class="text-[10px] sm:text-[11px] text-slate-500 font-medium">Donasi Rp50.000,00 • 2 menit lalu</p>
+
+            <!-- Ticker berjalan: dua set badge identik agar loop tidak terlihat putus -->
+            <div class="donor-marquee-viewport no-scrollbar [mask-image:linear-gradient(to_right,transparent,black_4%,black_96%,transparent)]">
+                <div class="donor-marquee-track flex w-max items-center">
+                    @foreach ([0, 1] as $pass)
+                        <div class="flex items-center gap-2.5 pr-2.5 sm:gap-3 sm:pr-3"
+                             @if ($pass === 1) aria-hidden="true" @endif>
+                            @foreach ($recentDonors as $donor)
+                                <div class="shrink-0 bg-white/95 backdrop-blur-sm border border-slate-200/80 rounded-xl py-1.5 px-3 flex items-center gap-2 shadow-2xs hover:shadow-xs transition">
+                                    <div class="w-7 h-7 rounded-full bg-[#E4F1EB] flex items-center justify-center shrink-0 overflow-hidden">
+                                        <img src="{{ asset('images/User/profil.png') }}" alt="Avatar" class="w-3.5 h-3.5 object-contain">
+                                    </div>
+                                    <div>
+                                        <p class="font-bold text-[11px] sm:text-xs text-slate-800 leading-tight whitespace-nowrap">{{ $donor['name'] }}</p>
+                                        <p class="text-[10px] sm:text-[11px] text-slate-500 font-medium whitespace-nowrap">
+                                            Donasi {{ $donor['amount'] }} • {{ $donor['time'] }}
+                                        </p>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endforeach
                 </div>
             </div>
-
-            <!-- Donor 2 -->
-            <div class="shrink-0 bg-white/95 backdrop-blur-sm border border-slate-200/80 rounded-xl py-1.5 px-3 flex items-center gap-2 shadow-2xs hover:shadow-xs transition">
-                <div class="w-7 h-7 rounded-full bg-[#E4F1EB] flex items-center justify-center shrink-0 overflow-hidden">
-                    <img src="{{ asset('images/User/profil.png') }}" alt="Avatar" class="w-3.5 h-3.5 object-contain">
-                </div>
-                <div>
-                    <p class="font-bold text-[11px] sm:text-xs text-slate-800 leading-tight">Febriansyah Nugraha</p>
-                    <p class="text-[10px] sm:text-[11px] text-slate-500 font-medium">Donasi Rp70.000,00 • 15 menit lalu</p>
-                </div>
-            </div>
-
-            <!-- Donor 3 -->
-            <div class="shrink-0 bg-white/95 backdrop-blur-sm border border-slate-200/80 rounded-xl py-1.5 px-3 flex items-center gap-2 shadow-2xs hover:shadow-xs transition">
-                <div class="w-7 h-7 rounded-full bg-[#E4F1EB] flex items-center justify-center shrink-0 overflow-hidden">
-                    <img src="{{ asset('images/User/profil.png') }}" alt="Avatar" class="w-3.5 h-3.5 object-contain">
-                </div>
-                <div>
-                    <p class="font-bold text-[11px] sm:text-xs text-slate-800 leading-tight">Muhammad Ihsan Ansori</p>
-                    <p class="text-[10px] sm:text-[11px] text-slate-500 font-medium">Donasi Rp10.000,00 • 22 menit lalu</p>
-                </div>
-            </div>
-
-            <!-- Donor 4 -->
-            <div class="shrink-0 bg-white/95 backdrop-blur-sm border border-slate-200/80 rounded-xl py-1.5 px-3 flex items-center gap-2 shadow-2xs hover:shadow-xs transition">
-                <div class="w-7 h-7 rounded-full bg-[#E4F1EB] flex items-center justify-center shrink-0 overflow-hidden">
-                    <img src="{{ asset('images/User/profil.png') }}" alt="Avatar" class="w-3.5 h-3.5 object-contain">
-                </div>
-                <div>
-                    <p class="font-bold text-[11px] sm:text-xs text-slate-800 leading-tight">Adzril Ilham</p>
-                    <p class="text-[10px] sm:text-[11px] text-slate-500 font-medium">Donasi Rp5.000,00 • 27 menit lalu</p>
-                </div>
-            </div>
-
         </div>
     </section>
 

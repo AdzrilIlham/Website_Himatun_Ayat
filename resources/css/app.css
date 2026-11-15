@@ -253,6 +253,34 @@
         scrollbar-width: none;
     }
 
+    /* Ticker donasi terbaru di landing page.
+       Dua set badge identik digeser sejauh -50% agar putaran terlihat tanpa jeda. */
+    .donor-marquee-viewport {
+        overflow: hidden;
+    }
+
+    .donor-marquee-track {
+        animation: donor-marquee-scroll var(--donor-marquee-duration, 34s) linear infinite;
+        will-change: transform;
+    }
+
+    /* Beri kesempatan membaca nominal saat kursor berhenti di atas ticker. */
+    .donor-marquee-track:hover,
+    .donor-marquee-track:focus-within {
+        animation-play-state: paused;
+    }
+
+    /* Preferensi gerak dikurangi: ticker diam, badge bisa digeser manual. */
+    @media (prefers-reduced-motion: reduce) {
+        .donor-marquee-track {
+            animation: none;
+        }
+
+        .donor-marquee-viewport {
+            overflow-x: auto;
+        }
+    }
+
     /* Rapatkan jarak antara section terakhir halaman Kampanye Donasi dengan Footer */
     div:has(#kampanye-page) + footer {
         margin-top: 1.5rem !important;
@@ -265,6 +293,16 @@
     }
     100% {
         transform: translate3d(0, -50%, 0);
+    }
+}
+
+/* Satu set badge donor = setengah lebar track, jadi -50% menghasilkan loop mulus. */
+@keyframes donor-marquee-scroll {
+    from {
+        transform: translate3d(0, 0, 0);
+    }
+    to {
+        transform: translate3d(-50%, 0, 0);
     }
 }
 
