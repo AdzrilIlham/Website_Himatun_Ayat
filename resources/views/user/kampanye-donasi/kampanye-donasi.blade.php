@@ -1,4 +1,4 @@
-<div id="kampanye-page" class="relative overflow-x-hidden" x-data="{ copiedBank: null }">
+<div id="kampanye-page" class="relative overflow-x-hidden" x-data="{ copiedBank: null }" data-page-animations>
 
     <!-- Scroll target helper -->
     <div id="formulir-donatur" class="scroll-mt-28"></div>

@@ -8,7 +8,10 @@
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
 
                 <!-- Kolom Kiri: Formulir Donatur -->
-                <div class="lg:col-span-6 xl:col-span-6">
+                <div class="lg:col-span-6 xl:col-span-6"
+                     data-animate="fade-up"
+                     data-animate-distance="26"
+                     data-animate-duration="0.8">
                     <div class="bg-white/95 backdrop-blur-sm border border-slate-200/80 rounded-[32px] p-6 sm:p-8 lg:p-9 shadow-lg relative">
                         <h2 class="text-2xl sm:text-[26px] font-bold text-foreground text-center mb-6 tracking-tight">
                             Formulir Donatur
@@ -208,7 +211,11 @@
                 </div>
 
                 <!-- Kolom Kanan: Donasi Anda Membantu Kami & Doa Harapan -->
-                <div class="lg:col-span-6 xl:col-span-6 space-y-8">
+                <div class="lg:col-span-6 xl:col-span-6 space-y-8"
+                     data-animate-group="fade-up"
+                     data-animate-distance="22"
+                     data-animate-duration="0.75"
+                     data-animate-stagger="0.15">
                     <!-- Heading & Intro Text Sesuai Mockup -->
                     <div>
                         <h1 class="text-3xl sm:text-4xl lg:text-[46px] font-extrabold text-foreground leading-[1.18] tracking-tight">

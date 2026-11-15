@@ -60,7 +60,11 @@
         }">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <!-- Header Paket Kebaikan -->
-            <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
+            <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10"
+                 data-animate-group="fade-up"
+                 data-animate-distance="18"
+                 data-animate-duration="0.7"
+                 data-animate-stagger="0.1">
                 <div>
                     <h2 class="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
                         Hasil Donasi Yang Anda Berikan
@@ -97,7 +101,11 @@
                     :style="`transform: translateX(-${activeSlide * 100}%)`">
 
                     @foreach ($slides as $slideIndex => $slideItems)
-                        <div class="w-full shrink-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 px-1">
+                        <div class="w-full shrink-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 px-1"
+                            data-animate-group="fade-up"
+                            data-animate-distance="20"
+                            data-animate-duration="0.7"
+                            data-animate-stagger="0.1">
                             @foreach ($slideItems as $item)
                                 @php
                                     $cfg = $packageConfigs[$item->slug] ?? [
@@ -182,7 +190,9 @@
 
             <!-- Dots Pagination Indikator Carousel Sesuai Mockup -->
             @if ($totalSlides > 1)
-                <div class="flex items-center justify-center gap-2 mt-10">
+                <div class="flex items-center justify-center gap-2 mt-10"
+                     data-animate="fade-in"
+                     data-animate-duration="0.5">
                     @for ($i = 0; $i < $totalSlides; $i++)
                         <button type="button"
                             @click="goTo({{ $i }})"

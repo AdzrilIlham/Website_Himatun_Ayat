@@ -5,7 +5,11 @@
                 <!-- Background subtle radial glow -->
                 <div class="absolute -right-20 -bottom-20 w-80 h-80 rounded-full bg-brand-500/20 blur-2xl pointer-events-none"></div>
 
-                <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6"
+                     data-animate-group="fade-up"
+                     data-animate-distance="20"
+                     data-animate-duration="0.75"
+                     data-animate-stagger="0.12">
                     <!-- Teks Kiri -->
                     <div class="space-y-2 max-w-3xl">
                         <div class="flex items-center gap-2 text-xs font-bold text-brand-200 tracking-wider">

@@ -1,7 +1,7 @@
 @extends('layouts.user')
 
 @section('content')
-<div class="overflow-x-hidden">
+<div class="overflow-x-hidden" data-page-animations>
 
     <!-- ====================================================================== -->
     <!-- 1. HERO SECTION: PROFIL LEMBAGA & LOGO RESMI                          -->
@@ -12,7 +12,9 @@
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-12 lg:gap-14 items-center">
                 
                 <!-- Tampilan Mobile: Gambar mengayomi.png ditaruh di paling atas sebelum teks (Sesuai Permintaan User) -->
-                <div class="block lg:hidden w-full">
+                <div class="block lg:hidden w-full"
+                     data-animate="fade-scale"
+                     data-animate-duration="0.8">
                     <div class="relative rounded-3xl overflow-hidden shadow-xl border-4 border-white bg-slate-100 aspect-[4/3] group">
                         <!-- Main Image -->
                         <img src="{{ asset('images/Asset/mengayomi.png') }}" 
@@ -32,7 +34,11 @@
                 </div>
 
                 <!-- Kolom Teks: Hero Title & Description -->
-                <div class="lg:col-span-7 space-y-4 sm:space-y-6 text-left">
+                <div class="lg:col-span-7 space-y-4 sm:space-y-6 text-left"
+                     data-animate-group="fade-up"
+                     data-animate-distance="22"
+                     data-animate-duration="0.8"
+                     data-animate-stagger="0.12">
                     <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem] font-extrabold text-slate-900 leading-[1.15] tracking-tight">
                         Profil Lembaga &amp; Legalitas Hukum Resmi Yayasan Himmatun Ayat Bandung
                     </h1>
@@ -43,7 +49,9 @@
                 </div>
 
                 <!-- Kolom Lambang / Logo Yayasan (Hanya Tampil di Desktop, di Mobile disembunyikan agar visual mengayomi.png lebih menonjol) -->
-                <div class="hidden lg:flex lg:col-span-5 justify-center items-center relative">
+                <div class="hidden lg:flex lg:col-span-5 justify-center items-center relative"
+                     data-animate="fade-in"
+                     data-animate-duration="0.9">
                     <!-- Warm Yellow & Mint Aura Behind the Logo -->
                     <div class="absolute inset-0 bg-gradient-to-tr from-[#B7E4C7]/40 via-[#FDE68A]/50 to-transparent rounded-full blur-3xl pointer-events-none -z-10 scale-110"></div>
                     
@@ -68,7 +76,9 @@
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-12 lg:gap-16 items-center">
                 
                 <!-- Kolom Kiri: Foto Komitmen & Badge Sejak 2006 (Di Desktop tampil di sini, di Mobile sudah tampil di atas hero agar tidak duplikat) -->
-                <div class="hidden lg:block lg:col-span-6 relative">
+                <div class="hidden lg:block lg:col-span-6 relative"
+                     data-animate="fade-scale"
+                     data-animate-distance="20">
                     <div class="relative rounded-3xl overflow-hidden shadow-xl border-4 sm:border-[6px] border-white bg-slate-100 aspect-[4/3] group">
                         <!-- Main Image -->
                         <img src="{{ asset('images/Asset/mengayomi.png') }}" 
@@ -88,7 +98,11 @@
                 </div>
 
                 <!-- Kolom Kanan: Uraian Sejarah & 2 Metric Cards -->
-                <div class="lg:col-span-6 space-y-4 sm:space-y-6">
+                <div class="lg:col-span-6 space-y-4 sm:space-y-6"
+                     data-animate-group="fade-up"
+                     data-animate-distance="18"
+                     data-animate-duration="0.7"
+                     data-animate-stagger="0.1">
                     <!-- Badge Section -->
                     <x-tentang-kami.section-badge icon="history">
                         SEJARAH SINGKAT &amp; KOMITMEN
@@ -135,7 +149,11 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             
             <!-- Section Header (Centered) -->
-            <div class="text-center max-w-3xl mx-auto mb-10 sm:mb-14 space-y-3">
+            <div class="text-center max-w-3xl mx-auto mb-10 sm:mb-14 space-y-3"
+                 data-animate-group="fade-up"
+                 data-animate-distance="18"
+                 data-animate-duration="0.7"
+                 data-animate-stagger="0.09">
                 <x-tentang-kami.section-badge icon="direction">
                     ARAH &amp; LANDASAN GERAK
                 </x-tentang-kami.section-badge>
@@ -153,7 +171,10 @@
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-stretch">
                 
                 <!-- Left: Visi Utama Big Card (Sesuai Prototype Asli Tentang Kami.png - Tanpa garis divider horizontal, ilustrasi Pak Yusuf berdiri utuh di kanan bawah) -->
-                <div class="lg:col-span-5 flex">
+                <div class="lg:col-span-5 flex"
+                     data-animate="fade-up"
+                     data-animate-distance="24"
+                     data-animate-duration="0.8">
                     <div class="relative w-full rounded-3xl bg-[#1C4E3D] text-white p-6 sm:p-8 lg:p-9 flex flex-col justify-between shadow-xl overflow-hidden border border-[#235845]">
                         
                         <!-- Ambient Glow Accent -->
@@ -195,7 +216,11 @@
                 </div>
 
                 <!-- Right: 4 Misi Cards Grid (2x2) -->
-                <div class="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+                <div class="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5"
+                     data-animate-group="fade-up"
+                     data-animate-distance="20"
+                     data-animate-duration="0.7"
+                     data-animate-stagger="0.12">
                     
                     <!-- Misi 01 -->
                     <x-tentang-kami.misi-card 
@@ -257,7 +282,11 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             
             <!-- DESKTOP TOP ROW: Left Card, Center Title, Right Card (Sesuai Desain Tentang Kami.png) -->
-            <div class="hidden lg:grid lg:grid-cols-12 gap-8 items-center mb-16">
+            <div class="hidden lg:grid lg:grid-cols-12 gap-8 items-center mb-16"
+                 data-animate-group="fade-up"
+                 data-animate-distance="20"
+                 data-animate-duration="0.75"
+                 data-animate-stagger="0.14">
                 
                 <!-- Left Card: Yusuf Hamdani (01) -->
                 <div class="lg:col-span-3">
@@ -301,7 +330,11 @@
             </div>
 
             <!-- TABLET & MOBILE HEADER (Tampil di atas grid pada layar < lg) -->
-            <div class="lg:hidden text-center max-w-2xl mx-auto mb-10 space-y-3">
+            <div class="lg:hidden text-center max-w-2xl mx-auto mb-10 space-y-3"
+                 data-animate-group="fade-up"
+                 data-animate-distance="18"
+                 data-animate-duration="0.7"
+                 data-animate-stagger="0.09">
                 <x-tentang-kami.section-badge icon="organization" variant="dark">
                     TATA KELOLA &amp; STRUKTUR ORGANISASI
                 </x-tentang-kami.section-badge>
@@ -316,7 +349,11 @@
             </div>
 
             <!-- BOTTOM GRID: 4 Pengurus Cards (Responsive: 1 col mobile, 2 col tablet, 4 col desktop) -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-6"
+                 data-animate-group="fade-up"
+                 data-animate-distance="20"
+                 data-animate-duration="0.7"
+                 data-animate-stagger="0.1">
                 
                 <!-- Card 01: Yusuf Hamdani -->
                 <x-tentang-kami.pengurus-card 
@@ -367,7 +404,11 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             
             <!-- Section Header (Left-Aligned, Sesuai Desain) -->
-            <div class="max-w-3xl mb-10 sm:mb-14 space-y-3">
+            <div class="max-w-3xl mb-10 sm:mb-14 space-y-3"
+                 data-animate-group="fade-up"
+                 data-animate-distance="18"
+                 data-animate-duration="0.7"
+                 data-animate-stagger="0.09">
                 <x-tentang-kami.section-badge icon="legal">
                     LEGALITAS &amp; LEGAL STANDING LEMBAGA
                 </x-tentang-kami.section-badge>
@@ -382,7 +423,11 @@
             </div>
 
             <!-- Cards Grid (Responsive: 1 col on mobile, 2 col on tablet & desktop) -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 items-start">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 items-start"
+                 data-animate-group="fade-up"
+                 data-animate-distance="20"
+                 data-animate-duration="0.7"
+                 data-animate-stagger="0.12">
                 
                 <!-- Dokumen 1: LKSA -->
                 <x-tentang-kami.dokumen-hukum-card 
