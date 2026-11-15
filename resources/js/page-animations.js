@@ -68,8 +68,9 @@ function getHashTarget() {
  * di atas target, sehingga ScrollTrigger `once` untuk elemen tersebut tidak pernah
  * terpicu dan kontennya tertinggal dalam keadaan opacity: 0.
  *
- * Karena itu entrance animation dilewati untuk load seperti ini: konten langsung
- * terlihat utuh, lalu posisi scroll dirapikan ke target (di bawah header tetap).
+ * Deteksi ini dipakai untuk menandai elemen yang sudah melewati garis start agar
+ * entrance-nya tetap dijalankan saat load, lalu posisi scroll dirapikan ke target
+ * (di bawah header tetap). Elemen di bawah target tetap memakai ScrollTrigger.
  */
 function isDeepLinkEntry(roots) {
     const target = getHashTarget();
@@ -78,12 +79,12 @@ function isDeepLinkEntry(roots) {
 
     if (Math.round(window.scrollY || 0) > 0) return true;
 
-    // Back/forward: browser memulihkan posisi scroll setelah init, jadi konten di
-    // atas viewport juga berisiko tertinggal tersembunyi.
+    // Back/forward atau reload: browser memulihkan posisi scroll setelah init, jadi
+    // konten di atas viewport juga berisiko tertinggal tersembunyi.
     try {
         const type = performance.getEntriesByType?.('navigation')?.[0]?.type;
 
-        if (type === 'back_forward') return true;
+        if (type === 'back_forward' || type === 'reload') return true;
     } catch {
         /* Navigation Timing tidak tersedia: abaikan */
     }
@@ -157,6 +158,7 @@ function settleDeepLink() {
 
         setScrollInstant(target.getBoundingClientRect().top + window.scrollY - offset);
         restoreSmoothScroll();
+        ScrollTrigger.refresh();
     };
 
     // Tunggu posisi scroll berhenti berubah (mis. sisa animasi smooth dari browser),
@@ -216,6 +218,36 @@ function numberFrom(el, key, fallback) {
 
 function stringFrom(el, key, fallback) {
     return el?.dataset?.[key] || fallback;
+}
+
+/**
+ * Perkiraan apakah garis start ScrollTrigger sudah terlewati saat init.
+ * Dipakai khusus pada deep link / restored scroll agar entrance element yang
+ * sudah melewati trigger tetap tampil dan ikut beranimasi.
+ */
+function isPastStartLine(el, start) {
+    const match = /(\d+(?:\.\d+)?)%/.exec(start);
+    const ratio = match ? Number.parseFloat(match[1]) / 100 : 0.85;
+
+    return el.getBoundingClientRect().top < window.innerHeight * ratio;
+}
+
+/**
+ * Elemen yang berada di atas target deep-link (mis. grid berita saat URL mengarah
+ * ke #kalender-kegiatan) pasti terlewati saat browser melompat ke anchor, bahkan jika
+ * settleDeepLink() belum selesai menyelaraskan posisi scroll ketika node dirender Alpine.
+ */
+function isBeforeDeepLinkTarget(el, hashTarget) {
+    if (!hashTarget || !hashTarget.isConnected || el === hashTarget) return false;
+    if (el.contains(hashTarget) || hashTarget.contains(el)) return false;
+
+    return Boolean(el.compareDocumentPosition(hashTarget) & Node.DOCUMENT_POSITION_FOLLOWING);
+}
+
+function shouldPlayImmediately(el, start, { revealPassed = false, hashTarget = null } = {}) {
+    if (!revealPassed) return false;
+
+    return isBeforeDeepLinkTarget(el, hashTarget) || isPastStartLine(el, start);
 }
 
 function debounce(fn, wait) {
@@ -404,7 +436,7 @@ function initHero(hero, { isMobile, lock }) {
  * Grup: satu ScrollTrigger + satu timeline untuk child langsung, sehingga
  * entrance kartu berjalan berurutan (stagger) tanpa membuat banyak trigger.
  */
-function initGroupReveals(root, { isMobile, lock }) {
+function initGroupReveals(root, { isMobile, lock, revealPassed = false, hashTarget = null }) {
     const distanceFactor = isMobile ? MOBILE_DISTANCE_FACTOR : 1;
 
     root.querySelectorAll(GROUP_SELECTOR).forEach((group) => {
@@ -422,13 +454,21 @@ function initGroupReveals(root, { isMobile, lock }) {
 
         items.forEach((item) => lock.lock(item));
 
+        // Deep link / restored scroll: grup yang sudah melewati garis start tetap
+        // dianimasikan saat load, bukan dibiarkan menunggu trigger yang tak akan datang.
+        const playNow = shouldPlayImmediately(group, start, { revealPassed, hashTarget });
+
         const timeline = gsap.timeline({
             delay,
-            scrollTrigger: {
-                trigger: group,
-                start,
-                once: true,
-            },
+            ...(playNow
+                ? {}
+                : {
+                      scrollTrigger: {
+                          trigger: group,
+                          start,
+                          once: true,
+                      },
+                  }),
             onComplete: () => items.forEach((item) => lock.release(item)),
         });
 
@@ -454,7 +494,7 @@ function initGroupReveals(root, { isMobile, lock }) {
 /**
  * Elemen tunggal di luar grup (mis. container statistik, link, banner).
  */
-function initStandaloneReveals(root, { isMobile, lock }) {
+function initStandaloneReveals(root, { isMobile, lock, revealPassed = false, hashTarget = null }) {
     const distanceFactor = isMobile ? MOBILE_DISTANCE_FACTOR : 1;
 
     root.querySelectorAll(ITEM_SELECTOR).forEach((el) => {
@@ -470,16 +510,22 @@ function initStandaloneReveals(root, { isMobile, lock }) {
 
         lock.lock(el);
 
+        const playNow = shouldPlayImmediately(el, start, { revealPassed, hashTarget });
+
         gsap.from(el, {
             ...entranceVars(type, { distance, duration }),
             delay,
             ease,
             clearProps: 'transform',
-            scrollTrigger: {
-                trigger: el,
-                start,
-                once: true,
-            },
+            ...(playNow
+                ? {}
+                : {
+                      scrollTrigger: {
+                          trigger: el,
+                          start,
+                          once: true,
+                      },
+                  }),
             onComplete: () => lock.release(el),
         });
     });
@@ -490,7 +536,7 @@ function initStandaloneReveals(root, { isMobile, lock }) {
  * MutationObserver membuat kartu baru tetap mendapat entrance animation, dan
  * trigger milik kartu yang dilepas Alpine ikut dibersihkan agar tidak menumpuk.
  */
-function initDynamicReveals(root, { isMobile, lock }) {
+function initDynamicReveals(root, { isMobile, lock, revealPassed = false, hashTarget = null }) {
     const containers = Array.from(root.querySelectorAll(DYNAMIC_SELECTOR));
 
     if (!containers.length) return () => {};
@@ -542,16 +588,22 @@ function initDynamicReveals(root, { isMobile, lock }) {
                 const distance =
                     numberFrom(node, 'animateDistance', defaultDistance) * distanceFactor;
 
+                const playNow = shouldPlayImmediately(node, start, { revealPassed, hashTarget });
+
                 gsap.from(node, {
                     ...entranceVars(type, { distance, duration }),
                     delay: index * defaultStagger,
                     ease,
                     clearProps: 'transform',
-                    scrollTrigger: {
-                        trigger: node,
-                        start,
-                        once: true,
-                    },
+                    ...(playNow
+                        ? {}
+                        : {
+                              scrollTrigger: {
+                                  trigger: node,
+                                  start,
+                                  once: true,
+                              },
+                          }),
                     onComplete: () => lock.release(node),
                 });
             });
@@ -882,12 +934,14 @@ export function initPageAnimations() {
 
     initialized = true;
 
-    // Deep-link/restored-scroll: biarkan konten tampil utuh tanpa entrance animation,
-    // lalu ratakan posisi ke anchor. Ini mencegah layar kosong karena ScrollTrigger
-    // melewati elemen yang sudah berada di atas posisi scroll saat halaman dimuat.
-    if (isDeepLinkEntry(roots)) {
+    // Deep-link/restored-scroll: posisi ke anchor tetap dirapikan, tetapi entrance
+    // animation tidak lagi dilewati total. Elemen yang sudah melewati garis start
+    // dianimasikan saat load; elemen di bawah tetap memakai ScrollTrigger.
+    const hashTarget = getHashTarget();
+    const entryAtDepth = isDeepLinkEntry(roots);
+
+    if (entryAtDepth) {
         settleDeepLink();
-        return;
     }
 
     // matchMedia membuat context internal: seluruh tween & ScrollTrigger otomatis
@@ -906,7 +960,12 @@ export function initPageAnimations() {
             if (context.conditions.reduceMotion) return;
 
             const lock = createTransitionLock();
-            const options = { isMobile: !context.conditions.isDesktop, lock };
+            const options = {
+                isMobile: !context.conditions.isDesktop,
+                lock,
+                revealPassed: entryAtDepth,
+                hashTarget,
+            };
             const cleanups = [];
 
             roots.forEach((root) => {

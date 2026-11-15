@@ -225,8 +225,7 @@
             </div>
 
             {{-- Grid berita --}}
-            <div x-cloak
-                 class="mt-4 sm:mt-5 grid grid-cols-1 gap-4 sm:gap-5 sm:grid-cols-2 lg:grid-cols-3"
+            <div class="mt-4 sm:mt-5 grid grid-cols-1 gap-4 sm:gap-5 sm:grid-cols-2 lg:grid-cols-3"
                  data-animate-dynamic="fade-scale"
                  data-animate-distance="18"
                  data-animate-duration="0.6"
