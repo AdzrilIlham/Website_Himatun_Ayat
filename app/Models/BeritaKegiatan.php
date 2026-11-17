@@ -3,10 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class BeritaKegiatan extends Model
 {
+    use HasFactory;
+
     /**
      * Kolom yang boleh diisi secara massal.
      *
@@ -14,6 +18,7 @@ class BeritaKegiatan extends Model
      */
     protected $fillable = [
         'tipe',
+        'status',
         'kategori',
         'judul',
         'slug',
@@ -63,5 +68,21 @@ class BeritaKegiatan extends Model
     public function scopeTerbaru(Builder $query): Builder
     {
         return $query->orderByDesc('tanggal')->orderByDesc('id');
+    }
+
+    public function scopeDipublikasikan(Builder $query): Builder
+    {
+        return $query->where('status', 'tayang')->whereDate('tanggal', '<=', today());
+    }
+
+    public function getGambarUrlAttribute(): string
+    {
+        if (! $this->gambar) {
+            return asset('images/User/potopalingatas.png');
+        }
+
+        return str_starts_with($this->gambar, 'berita/')
+            ? Storage::disk('public')->url($this->gambar)
+            : asset('images/User/'.$this->gambar);
     }
 }

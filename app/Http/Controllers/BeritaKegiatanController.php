@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\BeritaKegiatan;
-use Database\Seeders\BeritaKegiatanSeeder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
@@ -17,15 +16,12 @@ class BeritaKegiatanController extends Controller
     {
         $hasKalenderColumn = Schema::hasColumn('berita_kegiatans', 'terjadwal_di_kalender');
 
-        $beritaQuery = BeritaKegiatan::query()->terbaru();
+        $beritaQuery = BeritaKegiatan::query()->dipublikasikan()->terbaru();
         if ($hasKalenderColumn) {
             $beritaQuery->where('terjadwal_di_kalender', false);
         }
 
         $daftarBerita = $beritaQuery->get();
-        if ($daftarBerita->isEmpty()) {
-            $daftarBerita = BeritaKegiatan::query()->terbaru()->get();
-        }
 
         $featuredModel = $daftarBerita->firstWhere('unggulan', true) ?? $daftarBerita->first();
 
@@ -38,20 +34,8 @@ class BeritaKegiatanController extends Controller
 
         $startOfCurrentMonth = now()->startOfMonth()->toDateString();
 
-        if ($hasKalenderColumn) {
-            // Hapus data jadwal kalender dari bulan-bulan sebelumnya
-            $deletedOldEvents = BeritaKegiatan::query()
-                ->where('terjadwal_di_kalender', true)
-                ->whereDate('tanggal', '<', $startOfCurrentMonth)
-                ->delete();
-
-            // Jika sebelumnya masih memakai data seeder bulan lama, sinkronkan ke bulan berjalan
-            if ($deletedOldEvents > 0 && ! BeritaKegiatan::query()->where('terjadwal_di_kalender', true)->whereDate('tanggal', '>=', $startOfCurrentMonth)->exists()) {
-                (new BeritaKegiatanSeeder)->run();
-            }
-        }
-
         $kalenderQuery = BeritaKegiatan::query()
+            ->where('status', 'tayang')
             ->where('tipe', 'kegiatan')
             ->whereDate('tanggal', '>=', $startOfCurrentMonth);
 
@@ -93,9 +77,7 @@ class BeritaKegiatanController extends Controller
             'date' => $berita->tanggal->locale('id')->translatedFormat('j F Y'),
             'date_iso' => $berita->tanggal->toDateString(),
             'location' => $berita->lokasi,
-            'image' => $berita->gambar
-                ? asset('images/User/'.$berita->gambar)
-                : asset('images/User/potopalingatas.png'),
+            'image' => $berita->gambar_url,
             'url' => route('berita-kegiatan.show', $berita->slug),
         ];
     }
@@ -278,9 +260,12 @@ class BeritaKegiatanController extends Controller
      */
     public function show(BeritaKegiatan $beritaKegiatan)
     {
+        abort_unless($beritaKegiatan->status === 'tayang' && $beritaKegiatan->tanggal->lte(today()), 404);
         $article = $this->formatDetail($beritaKegiatan);
 
         $related = BeritaKegiatan::query()
+            ->dipublikasikan()
+            ->where('terjadwal_di_kalender', false)
             ->terbaru()
             ->whereKeyNot($beritaKegiatan->getKey())
             ->take(3)

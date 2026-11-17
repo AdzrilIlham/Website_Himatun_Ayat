@@ -11,9 +11,9 @@
 
 @section('content')
 <div class="space-y-4 sm:space-y-5 pb-16 w-full max-w-full min-w-0" x-data="{
-    status: 'tayang',
-    ringkasan: '',
-    isiBerita: '',
+    status: {{ Js::from(old('status', $berita->status ?? 'tayang')) }},
+    ringkasan: {{ Js::from(old('ringkasan', $berita->ringkasan ?? '')) }},
+    isiBerita: {{ Js::from(\App\Support\BeritaHtml::sanitize(old('konten', $berita->konten ?? ''))) }},
     isEmpty: true,
     isBold: false,
     isItalic: false,
@@ -26,7 +26,7 @@
     isNumberedList: false,
     currentBlockLabel: 'Paragraf',
     openBlock: false,
-    tags: [],
+    tags: {{ Js::from(old('tags', $berita->tags ?? [])) }},
     tagInput: '',
     recommendedTags: [
         'Donasi',
@@ -52,7 +52,7 @@
             this.tags.push(trimmed);
         }
     },
-    imagePreview: null,
+    imagePreview: {{ Js::from($berita->gambar ? $berita->gambar_url : null) }},
     isDragging: false,
     get wordCount() {
         if (!this.isiBerita) return 0;
@@ -188,7 +188,7 @@
     <!-- Header Page: Title + Kembali Button -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-            <h1 class="text-2xl sm:text-3xl font-bold text-brand-900 tracking-tight">Tambah Berita</h1>
+            <h1 class="text-2xl sm:text-3xl font-bold text-brand-900 tracking-tight">{{ $berita->exists ? 'Edit Berita' : 'Tambah Berita' }}</h1>
             <p class="text-xs sm:text-sm text-muted-foreground-1 mt-0.5 font-medium">Buat berita atau pengumuman terbaru untuk yayasan</p>
         </div>
         <div>
@@ -200,7 +200,22 @@
     </div>
 
     <!-- Main Card Container Form -->
-    <form action="{{ route('admin.berita.index') }}" method="GET" class="space-y-6">
+    <form action="{{ $berita->exists ? route('admin.berita.update', $berita) : route('admin.berita.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6" @submit="updateContent()">
+        @csrf
+        @if($berita->exists)
+            @method('PUT')
+        @endif
+        <input type="hidden" name="status" :value="status">
+        @if($errors->any())
+            <div role="alert">
+                <p>Berita belum tersimpan. Periksa isian berikut:</p>
+                <ul>
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
         <div class="bg-card rounded-2xl sm:rounded-3xl border border-border/90 p-6 sm:p-8 space-y-8 shadow-xs">
             
             <!-- 1. Informasi Utama -->
@@ -220,6 +235,7 @@
                         </label>
                         <input type="text" 
                                name="judul" 
+                               value="{{ old('judul', $berita->judul) }}"
                                placeholder="Masukkan judul berita..." 
                                class="w-full bg-card border border-border-line-3 rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-hidden focus:ring-2 focus:ring-brand-700 focus:border-brand-700 transition">
                     </div>
@@ -232,9 +248,9 @@
                         <x-preline-select name="kategori" 
                                 placeholder="Pilih kategori"
                                 toggle-classes="hs-select-disabled:pointer-events-none hs-select-disabled:opacity-50 relative px-4 py-2.5 pe-10 flex gap-x-2 text-nowrap w-full cursor-pointer bg-card border border-border-line-3 rounded-xl text-start text-sm text-foreground shadow-2xs focus:outline-hidden focus:border-brand-700 focus:ring-2 focus:ring-brand-700/20 transition">
-                            <option value="" selected>Pilih kategori</option>
+                            <option value="">Pilih kategori</option>
                             @foreach($kategoriList as $kategori)
-                                <option value="{{ $kategori }}">{{ $kategori }}</option>
+                                <option value="{{ $kategori }}" @selected(old('kategori', $berita->kategori) === $kategori)>{{ $kategori }}</option>
                             @endforeach
                         </x-preline-select>
                     </div>
@@ -247,7 +263,7 @@
                         <div class="relative flex items-center">
                             <input type="date" 
                                    name="tanggal_publikasi" 
-                                   value="2025-10-09"
+                                   value="{{ old('tanggal_publikasi', $berita->tanggal?->toDateString() ?? today()->toDateString()) }}"
                                    class="w-full bg-card border border-border-line-3 rounded-xl px-4 py-2.5 text-sm text-foreground focus:outline-hidden focus:ring-2 focus:ring-brand-700 focus:border-brand-700 transition">
                         </div>
                     </div>
@@ -385,7 +401,7 @@
                 </div>
 
                 <div class="space-y-1">
-                    <textarea x-model="ringkasan" 
+                    <textarea x-model="ringkasan" name="ringkasan"
                               maxlength="300"
                               rows="3" 
                               placeholder="Tulis ringkasan singkat tentang berita ini..." 
@@ -592,6 +608,7 @@
 
                         <!-- Contenteditable Surface -->
                         <div x-ref="editor"
+                             x-init="$el.innerHTML = isiBerita; updateContent()"
                              contenteditable="true"
                              @input="updateContent()"
                              @blur="updateContent()"

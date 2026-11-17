@@ -85,6 +85,10 @@ Route::prefix('admin')->name('admin.')->middleware([
     // CMS Berita
     Route::get('/cms-berita', [BeritaController::class, 'index'])->name('berita.index');
     Route::get('/cms-berita/create', [BeritaController::class, 'create'])->name('berita.create');
+    Route::post('/cms-berita', [BeritaController::class, 'store'])->name('berita.store');
+    Route::get('/cms-berita/{berita}/edit', [BeritaController::class, 'edit'])->name('berita.edit');
+    Route::put('/cms-berita/{berita}', [BeritaController::class, 'update'])->name('berita.update');
+    Route::delete('/cms-berita/{berita}', [BeritaController::class, 'destroy'])->name('berita.destroy');
 
     // Laporan & Ekspor
     Route::get('/laporan-ekspor', [LaporanEksporController::class, 'index'])->name('laporan-ekspor.index');

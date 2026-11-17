@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\BeritaKegiatan;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -23,12 +24,13 @@ class AdminCmsBeritaTest extends TestCase
      */
     public function test_admin_cms_berita_index_rendered_successfully(): void
     {
+        BeritaKegiatan::factory()->create(['judul' => 'Kafalah Guru Ngaji']);
         $response = $this->get('/admin/cms-berita');
 
         $response->assertStatus(200);
         $response->assertSee('CMS Berita');
         $response->assertSee('TOTAL BERITA');
-        $response->assertSee('BERITA DI PUBLIKASIKAN');
+        $response->assertSee('DI PUBLIKASIKAN');
         $response->assertSee('DRAFT');
         $response->assertSee('ARSIP');
         $response->assertSee('Kafalah Guru Ngaji');
