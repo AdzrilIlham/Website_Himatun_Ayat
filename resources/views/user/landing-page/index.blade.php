@@ -8,14 +8,6 @@
         ['image' => 'images/User/Lomba Balap Makan Kerupuk.png', 'alt' => 'Anak asuh mengikuti lomba makan kerupuk'],
         ['image' => 'images/User/Renovasi Ruang Belajar.png', 'alt' => 'Pembangunan ruang belajar asrama'],
     ];
-
-    // Sementara data statis; nanti diisi donasi yang sudah di-acc admin.
-    $recentDonors = [
-        ['name' => 'Hamba Allah', 'amount' => 'Rp50.000,00', 'time' => '2 menit lalu'],
-        ['name' => 'Febriansyah Nugraha', 'amount' => 'Rp70.000,00', 'time' => '15 menit lalu'],
-        ['name' => 'Muhammad Ihsan Ansori', 'amount' => 'Rp10.000,00', 'time' => '22 menit lalu'],
-        ['name' => 'Adzril Ilham', 'amount' => 'Rp5.000,00', 'time' => '27 menit lalu'],
-    ];
 @endphp
 <div class="overflow-x-hidden" data-landing-animations>
 
@@ -100,38 +92,40 @@
     <!-- ========================================== -->
     <!-- 2. RECENT DONATIONS TICKER / BADGES        -->
     <!-- ========================================== -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-1 sm:-mt-2 relative z-20">
-        <div class="relative py-2"
-             data-animate="fade-up"
-             data-animate-distance="8"
-             data-animate-duration="0.5"
-             data-animate-start="top 88%">
+    @if ($recentDonors->isNotEmpty())
+        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-1 sm:-mt-2 relative z-20">
+            <div class="relative py-2"
+                 data-animate="fade-up"
+                 data-animate-distance="8"
+                 data-animate-duration="0.5"
+                 data-animate-start="top 88%">
 
-            <!-- Ticker berjalan: dua set badge identik agar loop tidak terlihat putus -->
-            <div class="donor-marquee-viewport no-scrollbar [mask-image:linear-gradient(to_right,transparent,black_4%,black_96%,transparent)]">
-                <div class="donor-marquee-track flex w-max items-center">
-                    @foreach ([0, 1] as $pass)
-                        <div class="flex items-center gap-2.5 pr-2.5 sm:gap-3 sm:pr-3"
-                             @if ($pass === 1) aria-hidden="true" @endif>
-                            @foreach ($recentDonors as $donor)
-                                <div class="shrink-0 bg-white/95 backdrop-blur-sm border border-slate-200/80 rounded-xl py-1.5 px-3 flex items-center gap-2 shadow-2xs hover:shadow-xs transition">
-                                    <div class="w-7 h-7 rounded-full bg-[#E4F1EB] flex items-center justify-center shrink-0 overflow-hidden">
-                                        <img src="{{ asset('images/User/profil.png') }}" alt="Avatar" class="w-3.5 h-3.5 object-contain">
+                <!-- Ticker berjalan: dua set badge identik agar loop tidak terlihat putus -->
+                <div class="donor-marquee-viewport no-scrollbar [mask-image:linear-gradient(to_right,transparent,black_4%,black_96%,transparent)]">
+                    <div class="donor-marquee-track flex w-max items-center">
+                        @foreach ([0, 1] as $pass)
+                            <div class="flex items-center gap-2.5 pr-2.5 sm:gap-3 sm:pr-3"
+                                 @if ($pass === 1) aria-hidden="true" @endif>
+                                @foreach ($recentDonors as $donor)
+                                    <div class="shrink-0 bg-white/95 backdrop-blur-sm border border-slate-200/80 rounded-xl py-1.5 px-3 flex items-center gap-2 shadow-2xs hover:shadow-xs transition">
+                                        <div class="w-7 h-7 rounded-full bg-[#E4F1EB] flex items-center justify-center shrink-0 overflow-hidden">
+                                            <img src="{{ asset('images/User/profil.png') }}" alt="Avatar" class="w-3.5 h-3.5 object-contain">
+                                        </div>
+                                        <div>
+                                            <p class="font-bold text-[11px] sm:text-xs text-slate-800 leading-tight whitespace-nowrap">{{ $donor['name'] }}</p>
+                                            <p class="text-[10px] sm:text-[11px] text-slate-500 font-medium whitespace-nowrap">
+                                                Donasi {{ $donor['amount'] }} • {{ $donor['time'] }}
+                                            </p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <p class="font-bold text-[11px] sm:text-xs text-slate-800 leading-tight whitespace-nowrap">{{ $donor['name'] }}</p>
-                                        <p class="text-[10px] sm:text-[11px] text-slate-500 font-medium whitespace-nowrap">
-                                            Donasi {{ $donor['amount'] }} • {{ $donor['time'] }}
-                                        </p>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    @endforeach
+                                @endforeach
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
+    @endif
 
 
     <!-- ========================================== -->
@@ -251,6 +245,7 @@
     <!-- ========================================== -->
     <!-- 4. PAKET DONASI CEPAT TERARAH              -->
     <!-- ========================================== -->
+    @if ($programUtama)
     <section id="paket-donasi" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
         
         <!-- Header Section -->
@@ -274,7 +269,7 @@
         </div>
 
         <!-- 2 Columns Grid: Program Utama & Paket Sedekah Kilat -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-7 mt-6 sm:mt-7 items-stretch"
+        <div class="grid grid-cols-1 {{ $paketKilat->isNotEmpty() ? 'lg:grid-cols-2' : '' }} gap-6 sm:gap-7 mt-6 sm:mt-7 items-stretch"
              data-animate-group="fade-up"
              data-animate-start="top 82%"
              data-animate-distance="24"
@@ -286,30 +281,30 @@
                 <div>
                     <!-- Image Card with Tag -->
                     <div class="relative rounded-xl sm:rounded-2xl overflow-hidden aspect-[16/9] bg-slate-100">
-                        <img src="{{ asset('images/User/Renovasi Ruang Belajar.png') }}" 
-                             alt="Renovasi Ruang Belajar" 
+                        <img src="{{ $programUtama['image'] }}" 
+                             alt="{{ $programUtama['judul'] }}" 
                              class="w-full h-full object-cover">
                         <span class="absolute top-2.5 left-2.5 sm:top-3 sm:left-3 bg-[#1E3A2F]/85 backdrop-blur-xs text-white text-[10px] sm:text-[11px] font-bold px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full shadow-xs">
-                            Program Utama
+                            {{ $programUtama['kategori'] }}
                         </span>
                     </div>
 
                     <!-- Title & Donatur -->
                     <div class="mt-3.5 sm:mt-4 flex items-center justify-between gap-2 min-h-[1.75rem]">
                         <h3 class="font-bold text-sm sm:text-base lg:text-lg text-slate-900">
-                            Renovasi Ruang Belajar
+                            {{ $programUtama['judul'] }}
                         </h3>
                         <div class="flex items-center gap-1 text-[11px] sm:text-xs text-slate-500 font-medium shrink-0">
                             <svg class="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
                             </svg>
-                            <span>215 Donatur</span>
+                            <span>{{ number_format($programUtama['donatur'], 0, ',', '.') }} Donatur</span>
                         </div>
                     </div>
 
                     <!-- Description -->
                     <p class="text-xs text-slate-600 mt-1.5 sm:mt-2 leading-relaxed">
-                        Menyediakan ruang mukim aman, masjid asrama, dan 6 ruang belajar kondusif bagi 65 santri yatim dhuafa penghafal Al-Qur'an agar bebas dari ancaman relokasi dan memiliki sarana ibadah yang layak.
+                        {{ $programUtama['deskripsi'] }}
                     </p>
 
                     <!-- Verification Badge Card -->
@@ -329,20 +324,20 @@
                     <div class="mt-4 sm:mt-5">
                         <div class="flex items-center justify-between text-xs font-semibold text-slate-700">
                             <span>Terkumpul:</span>
-                            <span class="text-[#2D6A4F] font-bold">62%</span>
+                            <span class="text-[#2D6A4F] font-bold">{{ $programUtama['persentase'] }}%</span>
                         </div>
                         <div class="w-full bg-slate-100 rounded-full h-2 mt-1.5 overflow-hidden">
-                            <div class="bg-[#2D6A4F] h-2 rounded-full w-[62%] transition-all duration-500"></div>
+                            <div class="bg-[#2D6A4F] h-2 rounded-full transition-all duration-500" style="width: {{ $programUtama['persentase'] }}%"></div>
                         </div>
 
                         <div class="flex items-center justify-between mt-2.5 sm:mt-3 text-xs">
                             <div>
                                 <span class="text-[10px] sm:text-[11px] text-slate-400 block font-medium">Terkumpul</span>
-                                <span class="text-sm sm:text-base font-extrabold text-slate-900">Rp 52.700.000</span>
+                                <span class="text-sm sm:text-base font-extrabold text-slate-900">{{ $programUtama['terkumpul'] }}</span>
                             </div>
                             <div class="text-right">
                                 <span class="text-[10px] sm:text-[11px] text-slate-400 block font-medium">Target Kebutuhan</span>
-                                <span class="text-xs sm:text-sm font-bold text-slate-700">Rp 85.000.000</span>
+                                <span class="text-xs sm:text-sm font-bold text-slate-700">{{ $programUtama['target'] }}</span>
                             </div>
                         </div>
                     </div>
@@ -350,7 +345,7 @@
 
                 <!-- CTA Button -->
                 <div class="mt-5 sm:mt-6 flex justify-center">
-                    <a href="{{ route('kampanye.index', ['program' => 'wakaf-pembangunan-sarana-belajar']) }}" class="py-2.5 px-6 sm:py-3 sm:px-8 inline-flex items-center justify-center gap-x-2 text-xs sm:text-sm font-semibold rounded-full border border-transparent bg-[#2D6A4F] text-white hover:bg-[#235843] focus:outline-hidden transition shadow-xs w-full sm:w-auto">
+                    <a href="{{ $programUtama['url'] }}" class="py-2.5 px-6 sm:py-3 sm:px-8 inline-flex items-center justify-center gap-x-2 text-xs sm:text-sm font-semibold rounded-full border border-transparent bg-[#2D6A4F] text-white hover:bg-[#235843] focus:outline-hidden transition shadow-xs w-full sm:w-auto">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
                         </svg>
@@ -359,32 +354,11 @@
                 </div>
             </div>
 
+            @if ($paketKilat->isNotEmpty())
             <!-- Kolom Kanan: Paket Sedekah Kilat (Fixed Sizing Card) -->
             <div id="paket-sedekah" class="flex flex-col justify-between h-full" data-animate-item="fade-up" data-animate-distance="20" x-data="{
                 activeSlide: 0,
-                slides: [
-                    {
-                        title: 'Paket Nutrisi & Pangan Bergizi Anak',
-                        image: '{{ asset('images/User/Paket SedekahKilat.png') }}',
-                        donatur: '215 Donatur',
-                        desc: 'Penyediaan pasokan susu formula, madu, telur, dan sembako berkualitas untuk 120 santri asrama dan...',
-                        url: '{{ route('kampanye.index', ['program' => 'paket-sembako-keluarga-dhuafa']) }}'
-                    },
-                    {
-                        title: 'Paket Beasiswa Pendidikan Yatim',
-                        image: '{{ asset('images/User/WisudaKhotmillQuran.png') }}',
-                        donatur: '184 Donatur',
-                        desc: 'Dukungan perlengkapan sekolah, seragam baru, tas, dan SPP santri yatim dhuafa berprestasi asrama.',
-                        url: '{{ route('kampanye.index', ['program' => 'program-beasiswa-pendidikan-tahfidz']) }}'
-                    },
-                    {
-                        title: 'Paket Fasilitas Tahfidz & Quran',
-                        image: '{{ asset('images/User/potopalingatas.png') }}',
-                        donatur: '342 Donatur',
-                        desc: 'Fasilitas mushaf hafalan Quran, sarana meja asrama, dan bimbingan tahfidz intensif berkelanjutan.',
-                        url: '{{ route('kampanye.index', ['program' => 'dakwah-kajian-rutin-ahad-pagi']) }}'
-                    }
-                ],
+                slides: @js($paketKilat->all()),
                 next() {
                     this.activeSlide = (this.activeSlide + 1) % this.slides.length;
                 },
@@ -437,34 +411,36 @@
                         <!-- Image Container with Fixed Aspect Ratio -->
                         <div class="relative rounded-xl sm:rounded-2xl overflow-hidden aspect-[16/9] bg-slate-100">
                             <img :src="slides[activeSlide].image" 
-                                 :alt="slides[activeSlide].title" 
+                                 src="{{ $paketKilat->first()['image'] }}"
+                                 :alt="slides[activeSlide].judul" 
+                                 alt="{{ $paketKilat->first()['judul'] }}"
                                  class="w-full h-full object-cover transition-opacity duration-300">
                         </div>
 
                         <!-- Title & Donatur with Fixed Height Row -->
                         <div class="mt-3.5 sm:mt-4 flex items-center justify-between gap-2 min-h-[1.75rem]">
-                            <h3 class="font-bold text-sm sm:text-base text-slate-900 truncate" x-text="slides[activeSlide].title">
-                                Paket Nutrisi & Pangan Bergizi Anak
+                            <h3 class="font-bold text-sm sm:text-base text-slate-900 truncate" x-text="slides[activeSlide].judul">
+                                {{ $paketKilat->first()['judul'] }}
                             </h3>
                             <div class="flex items-center gap-1 text-[11px] sm:text-xs text-slate-500 font-medium shrink-0">
                                 <svg class="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
                                 </svg>
-                                <span x-text="slides[activeSlide].donatur">215 Donatur</span>
+                                <span x-text="slides[activeSlide].donatur + ' Donatur'">{{ number_format($paketKilat->first()['donatur'], 0, ',', '.') }} Donatur</span>
                             </div>
                         </div>
 
                         <!-- Description with Fixed Height (h-10 sm:h-12 overflow-hidden) to prevent any layout shifts -->
                         <div class="h-10 sm:h-12 mt-1.5 sm:mt-2 overflow-hidden">
-                            <p class="text-xs text-slate-600 leading-relaxed line-clamp-2" x-text="slides[activeSlide].desc">
-                                Penyediaan pasokan susu formula, madu, telur, dan sembako berkualitas untuk 120 santri asrama dan...
+                            <p class="text-xs text-slate-600 leading-relaxed line-clamp-2" x-text="slides[activeSlide].deskripsi">
+                                {{ $paketKilat->first()['deskripsi'] }}
                             </p>
                         </div>
                     </div>
 
                     <!-- CTA Button -->
                     <div class="mt-5 sm:mt-6 flex justify-center">
-                        <a :href="slides[activeSlide].url" href="{{ route('kampanye.index', ['program' => 'paket-sembako-keluarga-dhuafa']) }}" class="py-2.5 px-6 sm:py-3 sm:px-8 inline-flex items-center justify-center gap-x-2 text-xs sm:text-sm font-semibold rounded-full border border-transparent bg-[#2D6A4F] text-white hover:bg-[#235843] focus:outline-hidden transition shadow-xs w-full sm:w-auto">
+                        <a :href="slides[activeSlide].url" href="{{ $paketKilat->first()['url'] }}" class="py-2.5 px-6 sm:py-3 sm:px-8 inline-flex items-center justify-center gap-x-2 text-xs sm:text-sm font-semibold rounded-full border border-transparent bg-[#2D6A4F] text-white hover:bg-[#235843] focus:outline-hidden transition shadow-xs w-full sm:w-auto">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
                             </svg>
@@ -484,9 +460,11 @@
                     </template>
                 </div>
             </div>
+            @endif
 
         </div>
     </section>
+    @endif
 
 
     <!-- ========================================== -->
@@ -756,21 +734,13 @@
                         :class="selectedCategory === 'all' ? 'py-1.5 px-3.5 rounded-lg bg-[#2D6A4F] text-white text-xs font-semibold shadow-xs' : 'py-1.5 px-3.5 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-medium transition'">
                     Semua Program
                 </button>
-                <button type="button" 
-                        @click="selectedCategory = 'pendidikan'" 
-                        :class="selectedCategory === 'pendidikan' ? 'py-1.5 px-3.5 rounded-lg bg-[#2D6A4F] text-white text-xs font-semibold shadow-xs' : 'py-1.5 px-3.5 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-medium transition'">
-                    Pendidikan
-                </button>
-                <button type="button" 
-                        @click="selectedCategory = 'tahfidz'" 
-                        :class="selectedCategory === 'tahfidz' ? 'py-1.5 px-3.5 rounded-lg bg-[#2D6A4F] text-white text-xs font-semibold shadow-xs' : 'py-1.5 px-3.5 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-medium transition'">
-                    Tahfidz Quran
-                </button>
-                <button type="button" 
-                        @click="selectedCategory = 'kegiatan'" 
-                        :class="selectedCategory === 'kegiatan' ? 'py-1.5 px-3.5 rounded-lg bg-[#2D6A4F] text-white text-xs font-semibold shadow-xs' : 'py-1.5 px-3.5 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-medium transition'">
-                    Kegiatan Luar Ruangan
-                </button>
+                @foreach ($kategoriBerita as $kategori)
+                    <button type="button" 
+                            @click="selectedCategory = @js($kategori)" 
+                            :class="selectedCategory === @js($kategori) ? 'py-1.5 px-3.5 rounded-lg bg-[#2D6A4F] text-white text-xs font-semibold shadow-xs' : 'py-1.5 px-3.5 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-medium transition'">
+                        {{ $kategori }}
+                    </button>
+                @endforeach
             </div>
 
             <!-- View All Link -->
@@ -787,222 +757,72 @@
         </div>
 
         <!-- 4 News Cards Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5 mt-5"
-             data-animate-group="fade-scale"
-             data-animate-distance="20"
-             data-animate-duration="0.65"
-             data-animate-stagger="0.1"
-             data-animate-start="top 84%">
-            
-            <!-- News Card 1 -->
-            <div x-show="selectedCategory === 'all' || selectedCategory === 'pendidikan'" 
-                 class="bg-white rounded-xl sm:rounded-2xl border border-slate-200/90 p-3 sm:p-3.5 flex flex-col justify-between shadow-2xs hover:shadow-md transition duration-200">
-                <div>
-                    <!-- Image with Badge -->
-                    <div class="relative rounded-lg sm:rounded-xl overflow-hidden aspect-[4/3] bg-slate-100">
-                        <img src="{{ asset('images/User/WisudaKhotmillQuran.png') }}" 
-                             alt="Penyaluran Perlengkapan Sekolah" 
-                             class="w-full h-full object-cover">
-                        <span class="absolute top-2 left-2 bg-[#1E3A2F]/85 backdrop-blur-xs text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-                            Pendidikan
-                        </span>
-                        <a href="{{ route('berita-kegiatan.show', 'penyaluran-perlengkapan-sekolah') }}" class="absolute inset-0" aria-label="Penyaluran Perlengkapan Sekolah"></a>
+        @if ($beritaTerbaru->isNotEmpty())
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5 mt-5"
+                 data-animate-group="fade-scale"
+                 data-animate-distance="20"
+                 data-animate-duration="0.65"
+                 data-animate-stagger="0.1"
+                 data-animate-start="top 84%">
+                @foreach ($beritaTerbaru as $berita)
+                    <div x-show="selectedCategory === 'all' || selectedCategory === @js($berita['kategori'])"
+                         class="bg-white rounded-xl sm:rounded-2xl border border-slate-200/90 p-3 sm:p-3.5 flex flex-col justify-between shadow-2xs hover:shadow-md transition duration-200">
+                        <div>
+                            <!-- Image with Badge -->
+                            <div class="relative rounded-lg sm:rounded-xl overflow-hidden aspect-[4/3] bg-slate-100">
+                                <img src="{{ $berita['image'] }}" 
+                                     alt="{{ $berita['judul'] }}" 
+                                     class="w-full h-full object-cover">
+                                <span class="absolute top-2 left-2 bg-[#1E3A2F]/85 backdrop-blur-xs text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                                    {{ $berita['kategori'] }}
+                                </span>
+                                <a href="{{ $berita['url'] }}" class="absolute inset-0" aria-label="{{ $berita['judul'] }}"></a>
+                            </div>
+
+                            <!-- Meta: Date & Location -->
+                            <div class="mt-2.5 flex items-center gap-2.5 text-[10px] sm:text-[11px] text-slate-500 font-medium">
+                                <span class="flex items-center gap-1">
+                                    <svg class="w-3 h-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h14.25A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 9v7.5" />
+                                    </svg>
+                                    {{ $berita['tanggal'] }}
+                                </span>
+                                <span class="flex items-center gap-1">
+                                    <svg class="w-3 h-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                                    </svg>
+                                    {{ $berita['lokasi'] }}
+                                </span>
+                            </div>
+
+                            <!-- Title -->
+                            <h4 class="font-bold text-xs sm:text-[13px] text-slate-900 mt-1.5 line-clamp-1">
+                                <a href="{{ $berita['url'] }}" class="transition hover:text-[#2D6A4F]">{{ $berita['judul'] }}</a>
+                            </h4>
+
+                            <!-- Subtitle -->
+                            <p class="text-[11px] sm:text-xs text-slate-500 mt-1 leading-relaxed line-clamp-2 sm:line-clamp-3">
+                                {{ $berita['ringkasan'] }}
+                            </p>
+                        </div>
+
+                        <!-- Button -->
+                        <div class="mt-3">
+                            <a href="{{ $berita['url'] }}" class="w-full py-1.5 px-2.5 rounded-lg bg-[#E4F1EB] hover:bg-[#D4EAE0] text-slate-800 text-[11px] sm:text-xs font-bold inline-flex items-center justify-center gap-1.5 transition">
+                                <img src="{{ asset('images/User/lembaran.png') }}" alt="File" class="w-3 h-3 object-contain">
+                                <span>Lihat Selengkapnya</span>
+                            </a>
+                        </div>
                     </div>
-
-                    <!-- Meta: Date & Location -->
-                    <div class="mt-2.5 flex items-center gap-2.5 text-[10px] sm:text-[11px] text-slate-500 font-medium">
-                        <span class="flex items-center gap-1">
-                            <svg class="w-3 h-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h14.25A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 9v7.5" />
-                            </svg>
-                            11 Okt 2025
-                        </span>
-                        <span class="flex items-center gap-1">
-                            <svg class="w-3 h-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-                            </svg>
-                            Bandung
-                        </span>
-                    </div>
-
-                    <!-- Title -->
-                    <h4 class="font-bold text-xs sm:text-[13px] text-slate-900 mt-1.5 line-clamp-1">
-                        <a href="{{ route('berita-kegiatan.show', 'penyaluran-perlengkapan-sekolah') }}" class="transition hover:text-[#2D6A4F]">Penyaluran Perlengkapan Sekolah</a>
-                    </h4>
-
-                    <!-- Subtitle -->
-                    <p class="text-[11px] sm:text-xs text-slate-500 mt-1 leading-relaxed line-clamp-2 sm:line-clamp-3">
-                        Sebanyak 85 anak asuh tingkat SD dan SMP menerima paket seragam baru, tas, sepatu, dan buku tulis untuk menyambut tahun ajaran baru
-                    </p>
-                </div>
-
-                <!-- Button -->
-                <div class="mt-3">
-                    <a href="{{ route('berita-kegiatan.show', 'penyaluran-perlengkapan-sekolah') }}" class="w-full py-1.5 px-2.5 rounded-lg bg-[#E4F1EB] hover:bg-[#D4EAE0] text-slate-800 text-[11px] sm:text-xs font-bold inline-flex items-center justify-center gap-1.5 transition">
-                        <img src="{{ asset('images/User/lembaran.png') }}" alt="File" class="w-3 h-3 object-contain">
-                        <span>Lihat Selengkapnya</span>
-                    </a>
-                </div>
+                @endforeach
             </div>
-
-            <!-- News Card 2 -->
-            <div x-show="selectedCategory === 'all' || selectedCategory === 'tahfidz'" 
-                 class="bg-white rounded-xl sm:rounded-2xl border border-slate-200/90 p-3 sm:p-3.5 flex flex-col justify-between shadow-2xs hover:shadow-md transition duration-200">
-                <div>
-                    <!-- Image with Badge -->
-                    <div class="relative rounded-lg sm:rounded-xl overflow-hidden aspect-[4/3] bg-slate-100">
-                        <img src="{{ asset('images/User/WisudaKhotmilQuran.png') }}" 
-                             alt="Wisuda Khotmil Quran" 
-                             class="w-full h-full object-cover">
-                        <span class="absolute top-2 left-2 bg-[#1E3A2F]/85 backdrop-blur-xs text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-                            Tahfidz Quran
-                        </span>
-                        <a href="{{ route('berita-kegiatan.show', 'wisuda-khotmil-quran-merayakan-ikhtiar-para-santri') }}" class="absolute inset-0" aria-label="Wisuda Khotmil Quran"></a>
-                    </div>
-
-                    <!-- Meta: Date & Location -->
-                    <div class="mt-2.5 flex items-center gap-2.5 text-[10px] sm:text-[11px] text-slate-500 font-medium">
-                        <span class="flex items-center gap-1">
-                            <svg class="w-3 h-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h14.25A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 9v7.5" />
-                            </svg>
-                            11 Okt 2025
-                        </span>
-                        <span class="flex items-center gap-1">
-                            <svg class="w-3 h-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-                            </svg>
-                            Bandung
-                        </span>
-                    </div>
-
-                    <!-- Title -->
-                    <h4 class="font-bold text-xs sm:text-[13px] text-slate-900 mt-1.5 line-clamp-1">
-                        <a href="{{ route('berita-kegiatan.show', 'wisuda-khotmil-quran-merayakan-ikhtiar-para-santri') }}" class="transition hover:text-[#2D6A4F]">Wisuda Khotmil Quran</a>
-                    </h4>
-
-                    <!-- Subtitle -->
-                    <p class="text-[11px] sm:text-xs text-slate-500 mt-1 leading-relaxed line-clamp-2 sm:line-clamp-3">
-                        Sebanyak 85 anak asuh tingkat SD dan SMP menerima paket seragam baru, tas, sepatu, dan buku tulis untuk menyambut tahun ajaran baru
-                    </p>
-                </div>
-
-                <!-- Button -->
-                <div class="mt-3">
-                    <a href="{{ route('berita-kegiatan.show', 'wisuda-khotmil-quran-merayakan-ikhtiar-para-santri') }}" class="w-full py-1.5 px-2.5 rounded-lg bg-[#E4F1EB] hover:bg-[#D4EAE0] text-slate-800 text-[11px] sm:text-xs font-bold inline-flex items-center justify-center gap-1.5 transition">
-                        <img src="{{ asset('images/User/lembaran.png') }}" alt="File" class="w-3 h-3 object-contain">
-                        <span>Lihat Selengkapnya</span>
-                    </a>
-                </div>
+        @else
+            <div class="mt-5 rounded-2xl border border-slate-200/90 bg-white px-6 py-12 text-center shadow-2xs">
+                <p class="text-sm font-semibold text-slate-700">Belum ada kabar terbaru</p>
+                <p class="mt-1 text-xs text-slate-500">Kabar kegiatan akan tampil di sini setelah dipublikasikan.</p>
             </div>
-
-            <!-- News Card 3 -->
-            <div x-show="selectedCategory === 'all' || selectedCategory === 'kegiatan'" 
-                 class="bg-white rounded-xl sm:rounded-2xl border border-slate-200/90 p-3 sm:p-3.5 flex flex-col justify-between shadow-2xs hover:shadow-md transition duration-200">
-                <div>
-                    <!-- Image with Badge -->
-                    <div class="relative rounded-lg sm:rounded-xl overflow-hidden aspect-[4/3] bg-slate-100">
-                        <img src="{{ asset('images/User/Lomba Balap Makan Kerupuk.png') }}" 
-                             alt="Lomba Balap Makan Kerupuk" 
-                             class="w-full h-full object-cover">
-                        <span class="absolute top-2 left-2 bg-[#1E3A2F]/85 backdrop-blur-xs text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-                            Kegiatan Luar Ruangan
-                        </span>
-                        <a href="{{ route('berita-kegiatan.show', 'keceriaan-anak-asuh-dalam-lomba-makan-kerupuk') }}" class="absolute inset-0" aria-label="Lomba Balap Makan Kerupuk"></a>
-                    </div>
-
-                    <!-- Meta: Date & Location -->
-                    <div class="mt-2.5 flex items-center gap-2.5 text-[10px] sm:text-[11px] text-slate-500 font-medium">
-                        <span class="flex items-center gap-1">
-                            <svg class="w-3 h-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h14.25A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 9v7.5" />
-                            </svg>
-                            11 Okt 2025
-                        </span>
-                        <span class="flex items-center gap-1">
-                            <svg class="w-3 h-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-                            </svg>
-                            Bandung
-                        </span>
-                    </div>
-
-                    <!-- Title -->
-                    <h4 class="font-bold text-xs sm:text-[13px] text-slate-900 mt-1.5 line-clamp-1">
-                        <a href="{{ route('berita-kegiatan.show', 'keceriaan-anak-asuh-dalam-lomba-makan-kerupuk') }}" class="transition hover:text-[#2D6A4F]">Lomba Balap Makan Kerupuk</a>
-                    </h4>
-
-                    <!-- Subtitle -->
-                    <p class="text-[11px] sm:text-xs text-slate-500 mt-1 leading-relaxed line-clamp-2 sm:line-clamp-3">
-                        Sebanyak 85 anak asuh tingkat SD dan SMP menerima paket seragam baru, tas, sepatu, dan buku tulis untuk menyambut tahun ajaran baru
-                    </p>
-                </div>
-
-                <!-- Button -->
-                <div class="mt-3">
-                    <a href="{{ route('berita-kegiatan.show', 'keceriaan-anak-asuh-dalam-lomba-makan-kerupuk') }}" class="w-full py-1.5 px-2.5 rounded-lg bg-[#E4F1EB] hover:bg-[#D4EAE0] text-slate-800 text-[11px] sm:text-xs font-bold inline-flex items-center justify-center gap-1.5 transition">
-                        <img src="{{ asset('images/User/lembaran.png') }}" alt="File" class="w-3 h-3 object-contain">
-                        <span>Lihat Selengkapnya</span>
-                    </a>
-                </div>
-            </div>
-
-            <!-- News Card 4 -->
-            <div x-show="selectedCategory === 'all' || selectedCategory === 'tahfidz'" 
-                 class="bg-white rounded-xl sm:rounded-2xl border border-slate-200/90 p-3 sm:p-3.5 flex flex-col justify-between shadow-2xs hover:shadow-md transition duration-200">
-                <div>
-                    <!-- Image with Badge -->
-                    <div class="relative rounded-lg sm:rounded-xl overflow-hidden aspect-[4/3] bg-slate-100">
-                        <img src="{{ asset('images/User/WisudaKhotmillQuran.png') }}" 
-                             alt="Wisuda Khotmil Quran" 
-                             class="w-full h-full object-cover">
-                        <span class="absolute top-2 left-2 bg-[#1E3A2F]/85 backdrop-blur-xs text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-                            Tahfidz Quran
-                        </span>
-                        <a href="{{ route('berita-kegiatan.show', 'wisuda-khotmil-quran-merayakan-ikhtiar-para-santri') }}" class="absolute inset-0" aria-label="Wisuda Khotmil Quran"></a>
-                    </div>
-
-                    <!-- Meta: Date & Location -->
-                    <div class="mt-2.5 flex items-center gap-2.5 text-[10px] sm:text-[11px] text-slate-500 font-medium">
-                        <span class="flex items-center gap-1">
-                            <svg class="w-3 h-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h14.25A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 9v7.5" />
-                            </svg>
-                            11 Okt 2025
-                        </span>
-                        <span class="flex items-center gap-1">
-                            <svg class="w-3 h-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-                            </svg>
-                            Bandung
-                        </span>
-                    </div>
-
-                    <!-- Title -->
-                    <h4 class="font-bold text-xs sm:text-[13px] text-slate-900 mt-1.5 line-clamp-1">
-                        <a href="{{ route('berita-kegiatan.show', 'wisuda-khotmil-quran-merayakan-ikhtiar-para-santri') }}" class="transition hover:text-[#2D6A4F]">Wisuda Khotmil Quran</a>
-                    </h4>
-
-                    <!-- Subtitle -->
-                    <p class="text-[11px] sm:text-xs text-slate-500 mt-1 leading-relaxed line-clamp-2 sm:line-clamp-3">
-                        Sebanyak 85 anak asuh tingkat SD dan SMP menerima paket seragam baru, tas, sepatu, dan buku tulis untuk menyambut tahun ajaran baru
-                    </p>
-                </div>
-
-                <!-- Button -->
-                <div class="mt-3">
-                    <a href="{{ route('berita-kegiatan.show', 'wisuda-khotmil-quran-merayakan-ikhtiar-para-santri') }}" class="w-full py-1.5 px-2.5 rounded-lg bg-[#E4F1EB] hover:bg-[#D4EAE0] text-slate-800 text-[11px] sm:text-xs font-bold inline-flex items-center justify-center gap-1.5 transition">
-                        <img src="{{ asset('images/User/lembaran.png') }}" alt="File" class="w-3 h-3 object-contain">
-                        <span>Lihat Selengkapnya</span>
-                    </a>
-                </div>
-            </div>
-
-        </div>
+        @endif
     </section>
 
 
