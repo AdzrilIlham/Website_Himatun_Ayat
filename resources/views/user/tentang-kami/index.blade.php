@@ -55,7 +55,7 @@
                          data-tilt-glare 
                          data-tilt-max="14" 
                          data-tilt-scale="1.04">
-                        <img src="{{ asset('images/Asset/logo_himmatun.png') }}" 
+                        <img src="{{ asset('images/logo-himmatun-ayat.png') }}" 
                              alt="Logo Resmi Yayasan Himmatun Ayat" 
                              class="w-72 lg:w-96 max-w-full h-auto object-contain drop-shadow-2xl transition-transform duration-300"
                              data-tilt-layer="30">
