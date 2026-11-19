@@ -197,29 +197,51 @@
                     <!-- Card Detail Metode Pembayaran -->
                     <div class="bg-card rounded-2xl p-4 sm:p-5 shadow-2xs border border-border/50 space-y-4">
                         @if ($this->virtualAccountDetails['type'] === 'qris')
-                            <!-- Tampilan QRIS -->
+                            <!-- Tampilan QRIS Dinamis -->
                             <div class="text-center space-y-2.5">
-                                <div class="badge badge-success px-3 py-1">
-                                    <span>QRIS Standar Nasional Bank Indonesia</span>
-                                </div>
+                                <p class="text-xs sm:text-sm font-medium text-muted-foreground-1">
+                                    Buka aplikasi pembayaran anda dan scan QR dibawah
+                                </p>
 
-                                <div class="p-2.5 bg-white border border-border rounded-2xl inline-block shadow-xs">
-                                    <img src="{{ asset('images/qris-code.svg') }}" alt="QRIS Yayasan Himatun Ayat" class="w-40 h-40 mx-auto" />
-                                    <div class="text-2xs font-bold text-slate-700 mt-1.5">
-                                        NMID: ID1024389201948 • Yayasan Himatun Ayat
+                                <div class="p-3 bg-white border border-border rounded-2xl inline-block shadow-xs">
+                                    <div class="text-xs font-extrabold text-slate-900 tracking-tight uppercase">
+                                        {{ $this->virtualAccountDetails['atas_nama'] }}
                                     </div>
+                                    <div class="text-2xs font-semibold text-slate-600 mb-1.5">
+                                        NMID : {{ $this->virtualAccountDetails['nmid'] }} • {{ $this->virtualAccountDetails['tid'] }}
+                                    </div>
+                                    <img src="{{ $this->virtualAccountDetails['qris_image'] }}"
+                                        alt="QRIS Dinamis Yayasan Himatun Ayat Bandung"
+                                        class="w-44 h-44 mx-auto" />
                                 </div>
 
-                                <div class="p-2.5 rounded-xl bg-brand-50 border border-brand-200">
-                                    <div class="text-xs text-muted-foreground-1 font-medium">Total Nominal Donasi:</div>
-                                    <div class="text-base sm:text-lg font-extrabold text-brand-900 tabular">
-                                        Rp{{ number_format($currentDonasi?->nominal ?? $selectedNominal, 0, ',', '.') }}
+                                <div class="text-left space-y-1.5" x-data="{ copiedNominal: false }">
+                                    <div class="text-xs font-medium text-muted-foreground-1">
+                                        Total Nominal Donasi
+                                    </div>
+                                    <div class="px-3.5 py-2.5 sm:px-4 sm:py-3 rounded-xl bg-brand-50 border border-brand-200 flex items-center justify-between gap-2">
+                                        <span class="text-sm sm:text-base font-extrabold text-brand-900 tabular">
+                                            Rp {{ number_format($currentDonasi?->nominal ?? $selectedNominal, 0, ',', '.') }}
+                                        </span>
+                                        <div class="flex items-center gap-1.5">
+                                            <span x-show="copiedNominal" x-cloak class="badge badge-success">Tersalin!</span>
+                                            <button type="button"
+                                                @click="navigator.clipboard.writeText('{{ (int) round((float) ($currentDonasi?->nominal ?? $selectedNominal)) }}'); copiedNominal = true; setTimeout(() => copiedNominal = false, 2000)"
+                                                class="text-brand-700 hover:text-brand-900 transition p-1 rounded-lg hover:bg-brand-100/70 cursor-pointer"
+                                                title="Salin Nominal Donasi"
+                                                aria-label="Salin Nominal Donasi">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <rect x="9" y="9" width="11" height="11" rx="2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></rect>
+                                                    <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                                                </svg>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         @else
                             <!-- Tampilan Transfer Bank BRI / BCA -->
-                            <div class="space-y-3" x-data="{ copiedRek: false }">
+                            <div class="space-y-3" x-data="{ copiedRek: false, copiedNominal: false }">
                                 <div class="flex items-center justify-between border-b border-border pb-2">
                                     <span class="text-xs font-semibold text-muted-foreground-1">Bank Tujuan:</span>
                                     <span class="badge badge-success">
@@ -245,11 +267,28 @@
                                     </div>
                                 </div>
 
-                                <div class="flex items-center justify-between p-3 rounded-xl bg-layer border border-border">
-                                    <span class="text-xs font-bold text-foreground">Total Pembayaran:</span>
-                                    <span class="text-sm font-extrabold text-brand-900 tabular">
-                                        Rp{{ number_format($currentDonasi?->nominal ?? $selectedNominal, 0, ',', '.') }}
-                                    </span>
+                                <div class="text-left space-y-1.5">
+                                    <div class="text-xs font-medium text-muted-foreground-1">
+                                        Total Nominal Donasi
+                                    </div>
+                                    <div class="px-3.5 py-2.5 sm:px-4 sm:py-3 rounded-xl bg-brand-50 border border-brand-200 flex items-center justify-between gap-2">
+                                        <span class="text-sm sm:text-base font-extrabold text-brand-900 tabular">
+                                            Rp {{ number_format($currentDonasi?->nominal ?? $selectedNominal, 0, ',', '.') }}
+                                        </span>
+                                        <div class="flex items-center gap-1.5">
+                                            <span x-show="copiedNominal" x-cloak class="badge badge-success">Tersalin!</span>
+                                            <button type="button"
+                                                @click="navigator.clipboard.writeText('{{ (int) round((float) ($currentDonasi?->nominal ?? $selectedNominal)) }}'); copiedNominal = true; setTimeout(() => copiedNominal = false, 2000)"
+                                                class="text-brand-700 hover:text-brand-900 transition p-1 rounded-lg hover:bg-brand-100/70 cursor-pointer"
+                                                title="Salin Nominal Donasi"
+                                                aria-label="Salin Nominal Donasi">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <rect x="9" y="9" width="11" height="11" rx="2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></rect>
+                                                    <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         @endif

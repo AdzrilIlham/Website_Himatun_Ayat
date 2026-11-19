@@ -5,6 +5,7 @@ namespace App\Livewire\User;
 use App\Models\Donasi;
 use App\Models\Kampanye;
 use App\Services\CloudflareR2Service;
+use App\Services\QrisDinamisService;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -331,10 +332,10 @@ class KampanyeDonasi extends Component
 
     public function getVirtualAccountDetailsProperty(): array
     {
-        $nominal = $this->currentDonasi?->nominal ?? ($this->selectedNominal ?? 0);
+        $nominal = (int) round((float) ($this->currentDonasi?->nominal ?? ($this->selectedNominal ?? 0)));
 
-        return match ($this->metodePembayaran) {
-            'Transfer Bank', 'Transfer Bank BSI' => [
+        if (in_array($this->metodePembayaran, ['Transfer Bank', 'Transfer Bank BSI'], true)) {
+            return [
                 'bank' => 'Bank BSI',
                 'va_number' => '721.919.9827',
                 'atas_nama' => 'Yayasan Himatun Ayat Bandung',
@@ -345,20 +346,28 @@ class KampanyeDonasi extends Component
                     'Pastikan nominal sesuai (Rp '.number_format($nominal, 0, ',', '.').') atas nama Yayasan Himatun Ayat Bandung lalu selesaikan transaksi.',
                     'Unggah foto atau screenshot bukti transfer pada kolom di bawah ini.',
                 ],
+            ];
+        }
+
+        $qrisService = app(QrisDinamisService::class);
+        $qrisPayload = $qrisService->generateDynamicPayload(max(10000, $nominal));
+
+        return [
+            'bank' => 'QRIS',
+            'va_number' => null,
+            'atas_nama' => QrisDinamisService::MERCHANT_NAME,
+            'nmid' => QrisDinamisService::MERCHANT_NMID,
+            'tid' => QrisDinamisService::MERCHANT_TID,
+            'qris_payload' => $qrisPayload,
+            'qris_image' => $qrisService->generateQrSvgDataUri($qrisPayload, 240),
+            'type' => 'qris',
+            'cara_bayar' => [
+                'Buka aplikasi m-Banking atau e-Wallet favorit Anda.',
+                'Pilih menu QRIS / Scan.',
+                'Arahkan kamera ke kode QRIS Dinamis di atas (nominal Rp '.number_format($nominal, 0, ',', '.').' otomatis terisi).',
+                'Konfirmasi pembayaran, lalu unggah bukti transaksi di bawah ini.',
             ],
-            default => [
-                'bank' => 'QRIS',
-                'va_number' => null,
-                'atas_nama' => 'Yayasan Himatun Ayat Bandung',
-                'type' => 'qris',
-                'cara_bayar' => [
-                    'Buka aplikasi m-Banking atau e-Wallet favorit Anda.',
-                    'Pilih menu QRIS / Scan.',
-                    'Arahkan kamera ke kode QRIS di bawah.',
-                    'Konfirmasi nominal donasi, selesaikan pembayaran, lalu unggah bukti transfer di bawah ini.',
-                ],
-            ],
-        };
+        ];
     }
 
     public function getWhatsappLinkProperty(): string
