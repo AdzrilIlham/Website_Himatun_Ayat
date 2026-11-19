@@ -118,6 +118,110 @@
         </div>
     </div>
 
+    @if(isset($pengajuanMenunggu) && $pengajuanMenunggu->isNotEmpty())
+        <!-- Widget Notifikasi Pengajuan Kunjungan / Agenda Baru -->
+        <div class="rounded-2xl border border-warning/40 bg-warning-soft/40 p-4 sm:p-5"
+             x-data="{ setujuiModalOpen: false, selectedPengajuan: {} }">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-warning/20">
+                <div class="flex items-center gap-2.5">
+                    <span class="flex size-8 shrink-0 items-center justify-center rounded-xl bg-warning text-white font-bold text-xs">
+                        {{ $pengajuanMenunggu->count() }}
+                    </span>
+                    <div>
+                        <h2 class="text-sm sm:text-base font-bold text-foreground leading-tight">Pengajuan Jadwal & Kunjungan Menunggu ACC</h2>
+                        <p class="text-xs text-muted-foreground-1">Ada calon donatur/komunitas yang mengajukan agenda kunjungan baru ke yayasan.</p>
+                    </div>
+                </div>
+                <a href="{{ route('admin.pengajuan-kegiatan.index', ['status' => 'menunggu']) }}"
+                   class="btn btn-secondary btn-sm rounded-full text-xs font-semibold self-start sm:self-auto">
+                    <span>Lihat Semua Pengajuan &rarr;</span>
+                </a>
+            </div>
+
+            <div class="mt-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                @foreach($pengajuanMenunggu->take(3) as $item)
+                    <div class="bg-card rounded-xl p-3 border border-border shadow-2xs flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between text-2xs text-muted-foreground-1 mb-1">
+                                <span class="font-semibold text-warning">{{ $item->jenis_kegiatan }}</span>
+                                <span class="tabular font-medium text-brand-900" title="{{ $item->created_at->format('d M Y, H:i') }} WIB">
+                                    Diajukan: {{ $item->created_at->diffForHumans() }}
+                                </span>
+                            </div>
+                            <p class="font-bold text-xs text-foreground truncate">{{ $item->nama_pemohon }}</p>
+                            <p class="text-[11px] text-muted-foreground-1 mt-0.5 line-clamp-1">Jadwal: {{ $item->tanggal->format('d M Y') }} ({{ $item->waktu }})</p>
+                        </div>
+                        <div class="mt-3 pt-2 border-t border-border flex items-center justify-between">
+                            <span class="text-2xs text-muted-foreground-1">{{ $item->waktu }}</span>
+                            @php
+                                $bentrokDashboard = in_array($item->id, $bentrokPengajuanIds ?? []);
+                            @endphp
+                            @if($bentrokDashboard)
+                                <span class="text-2xs font-semibold text-danger" title="Jam kegiatan bentrok atau kurang dari jeda 1 jam">
+                                    Bentrok Jam
+                                </span>
+                            @else
+                                <button type="button"
+                                        @click="selectedPengajuan = { id: {{ $item->id }}, nama_pemohon: @js($item->nama_pemohon), jenis_kegiatan: @js($item->jenis_kegiatan), tanggal_label: @js($item->tanggal->translatedFormat('d F Y')), waktu: @js($item->waktu) }; setujuiModalOpen = true"
+                                        class="text-2xs font-bold text-brand-700 hover:text-brand-800 cursor-pointer">
+                                    Setujui (ACC) &rarr;
+                                </button>
+                            @endif
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+
+            <!-- Modal Konfirmasi ACC dari Widget Dashboard -->
+            <div x-show="setujuiModalOpen" x-cloak
+                 class="fixed inset-0 z-80 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs"
+                 @click.self="setujuiModalOpen = false"
+                 @keydown.escape.window="setujuiModalOpen = false">
+                <div class="relative w-full max-w-md rounded-3xl bg-card border border-border p-6 sm:p-7 shadow-2xl space-y-5">
+                    <div class="flex items-start gap-3.5">
+                        <div class="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-brand-100 text-brand-700">
+                            <svg class="size-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                            </svg>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <h3 class="text-lg font-extrabold text-foreground leading-snug">Setujui Pengajuan Kegiatan?</h3>
+                            <p class="mt-1 text-xs leading-relaxed text-muted-foreground-1">
+                                Agenda yang disetujui (ACC) akan langsung diterbitkan ke <strong>Kalender Kegiatan publik</strong>.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="rounded-2xl border border-brand-200/80 bg-brand-50/70 p-4 space-y-2 text-xs">
+                        <div class="flex justify-between gap-3">
+                            <span class="text-muted-foreground-1">Pemohon</span>
+                            <span class="font-bold text-foreground text-right" x-text="selectedPengajuan.nama_pemohon"></span>
+                        </div>
+                        <div class="flex justify-between gap-3">
+                            <span class="text-muted-foreground-1">Kegiatan</span>
+                            <span class="font-bold text-brand-900 text-right" x-text="selectedPengajuan.jenis_kegiatan"></span>
+                        </div>
+                        <div class="flex justify-between gap-3">
+                            <span class="text-muted-foreground-1">Jadwal</span>
+                            <span class="font-bold text-foreground text-right" x-text="(selectedPengajuan.tanggal_label || '') + ' (' + (selectedPengajuan.waktu || '') + ')'"></span>
+                        </div>
+                    </div>
+
+                    <form :action="'/admin/pengajuan-kegiatan/' + selectedPengajuan.id + '/setujui'" method="POST" class="flex items-center justify-end gap-2.5 pt-1">
+                        @csrf
+                        <button type="button" @click="setujuiModalOpen = false" class="btn btn-secondary btn-sm px-4">Batal</button>
+                        <button type="submit" class="btn btn-primary btn-sm px-5">
+                            <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                            </svg>
+                            <span>Ya, Setujui (ACC)</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <!-- ========================================================================= -->
     <!-- BARIS 2: VISUALISASI ANALITIK (AREA CHART 8 COLS & DONUT CHART 4 COLS)     -->
     <!-- ========================================================================= -->

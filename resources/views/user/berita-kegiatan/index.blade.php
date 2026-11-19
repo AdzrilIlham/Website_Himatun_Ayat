@@ -334,7 +334,7 @@
     <!-- KALENDER KEGIATAN & PENGAJUAN JADWAL INTERAKTIF (KEGIATAN MENDATANG V.2) -->
     <section id="kalender-kegiatan"
              class="mt-10 border-y border-brand-100 bg-brand-50/70 py-10 sm:mt-12 sm:py-14"
-             x-data="kalenderKegiatanSection({{ Js::from($calendarEvents ?? $events) }})"
+             x-data="kalenderKegiatanSection({{ Js::from($calendarEvents ?? $events) }}, '{{ config('app.whatsapp_admin', '6283157371088') }}')"
              @keydown.escape.window="closeModal()">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             {{-- Header Section --}}
@@ -993,7 +993,7 @@
     </section>
 
     <script>
-        function kalenderKegiatanSection(initialEvents) {
+        function kalenderKegiatanSection(initialEvents, adminWhatsappNumber = '6283157371088') {
             const monthNames = [
                 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
                 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
@@ -1028,7 +1028,7 @@
                 selectedEvent: null,
                 selectedCell: null,
                 selectedDateEvents: [],
-                adminPhone: '6283157371088',
+                adminPhone: adminWhatsappNumber || '6283157371088',
                 jenisKegiatanOptions: [
                     'Santunan & Bakti Sosial',
                     'Buka Puasa Bersama (Bukber)',
@@ -1433,7 +1433,35 @@
                     this.modalState = 'confirm';
                 },
 
-                confirmFormSubmission() {
+                async confirmFormSubmission() {
+                    this.syncWaktuPelaksanaan();
+                    try {
+                        const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                        const response = await fetch('{{ route('pengajuan-kegiatan.store') }}', {
+                            method: 'POST',
+                            credentials: 'same-origin',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'X-CSRF-TOKEN': token || ''
+                            },
+                            body: JSON.stringify({
+                                nama_pemohon: this.formData.namaPemohon,
+                                nomor_whatsapp: this.formData.nomorWhatsapp,
+                                tanggal: this.formData.tanggalIso,
+                                waktu: this.formData.waktuPelaksanaan,
+                                jenis_kegiatan: this.formData.jenisKegiatan,
+                                rencana_kegiatan: this.formData.rencanaKegiatan
+                            })
+                        });
+                        if (!response.ok) {
+                            console.error('Gagal menyimpan pengajuan (HTTP ' + response.status + '):', await response.text());
+                        }
+                    } catch (e) {
+                        console.error('Gagal menyimpan pengajuan ke database:', e);
+                    }
+
                     this.modalState = 'whatsapp';
                 },
 

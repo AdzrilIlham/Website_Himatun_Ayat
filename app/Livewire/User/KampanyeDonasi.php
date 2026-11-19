@@ -377,7 +377,9 @@ class KampanyeDonasi extends Component
             ."• Metode: {$this->metodePembayaran}\n\n"
             .'Semoga berkah dan bermanfaat bagi adik-adik santri. Terima kasih.';
 
-        return 'https://wa.me/6281268765420?text='.urlencode($text);
+        $whatsappAdmin = config('app.whatsapp_admin', '6283157371088');
+
+        return 'https://wa.me/'.$whatsappAdmin.'?text='.urlencode($text);
     }
 
     public function render()

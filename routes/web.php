@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\EmailOtpController;
 use App\Http\Controllers\Admin\KampanyeController;
 use App\Http\Controllers\Admin\KelolaDonasiController;
 use App\Http\Controllers\Admin\LaporanEksporController;
+use App\Http\Controllers\Admin\PengajuanKegiatanController;
 use App\Http\Controllers\Admin\TwoFactorSetupController;
 use App\Http\Controllers\BeritaKegiatanController;
 use App\Http\Controllers\User\LandingPageController;
@@ -24,6 +25,7 @@ Route::get('/tentang-kami', [TentangKamiController::class, 'index'])->name('tent
 Route::get('/profile', [TentangKamiController::class, 'index'])->name('profile');
 Route::get('/berita-kegiatan', [BeritaKegiatanController::class, 'index'])->name('berita-kegiatan.index');
 Route::get('/berita-kegiatan/{beritaKegiatan:slug}', [BeritaKegiatanController::class, 'show'])->name('berita-kegiatan.show');
+Route::post('/pengajuan-kegiatan/ajukan', [BeritaKegiatanController::class, 'storePengajuan'])->name('pengajuan-kegiatan.store');
 
 // Halaman preview design system (hanya lokal)
 if (app()->environment('local')) {
@@ -89,6 +91,13 @@ Route::prefix('admin')->name('admin.')->middleware([
     Route::get('/cms-berita/{berita}/edit', [BeritaController::class, 'edit'])->name('berita.edit');
     Route::put('/cms-berita/{berita}', [BeritaController::class, 'update'])->name('berita.update');
     Route::delete('/cms-berita/{berita}', [BeritaController::class, 'destroy'])->name('berita.destroy');
+
+    // Pengajuan Kegiatan
+    Route::get('/pengajuan-kegiatan', [PengajuanKegiatanController::class, 'index'])->name('pengajuan-kegiatan.index');
+    Route::post('/pengajuan-kegiatan/{pengajuan}/setujui', [PengajuanKegiatanController::class, 'setujui'])->name('pengajuan-kegiatan.setujui');
+    Route::post('/pengajuan-kegiatan/{pengajuan}/tolak', [PengajuanKegiatanController::class, 'tolak'])->name('pengajuan-kegiatan.tolak');
+    Route::put('/pengajuan-kegiatan/{pengajuan}', [PengajuanKegiatanController::class, 'update'])->name('pengajuan-kegiatan.update');
+    Route::delete('/pengajuan-kegiatan/{pengajuan}', [PengajuanKegiatanController::class, 'destroy'])->name('pengajuan-kegiatan.destroy');
 
     // Laporan & Ekspor
     Route::get('/laporan-ekspor', [LaporanEksporController::class, 'index'])->name('laporan-ekspor.index');
