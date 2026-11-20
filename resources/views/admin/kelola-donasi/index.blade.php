@@ -53,7 +53,7 @@
                 </div>
                 <div class="mt-2">
                     <span class="text-xl sm:text-2xl font-extrabold tracking-tight text-foreground">
-                        Rp. 312.450.000
+                        Rp {{ number_format($metrics['total_zis'], 0, ',', '.') }}
                     </span>
                     <p class="text-[11px] text-muted-foreground-1 font-medium mt-0.5">Akumulasi Infaq, Zakat, &amp; Wakaf Masuk</p>
                 </div>
@@ -63,7 +63,7 @@
                     <svg class="w-3.5 h-3.5 text-brand-700" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.318 4.318L20.25 7.5m0 0h-5.25m5.25 0v5.25" />
                     </svg>
-                    <span>+14.2% dibanding bulan lalu</span>
+                <span>{{ $metrics['persen_bulan_lalu'] >= 0 ? '+' : '' }}{{ $metrics['persen_bulan_lalu'] }}% dibanding bulan lalu</span>
                 </span>
             </div>
         </div>
@@ -81,18 +81,18 @@
                 </div>
                 <div class="mt-2">
                     <span class="text-xl sm:text-2xl font-extrabold tracking-tight text-foreground">
-                        Rp. 220.450.000
+                        Rp {{ number_format($metrics['penyaluran_program'], 0, ',', '.') }}
                     </span>
                     <p class="text-[11px] text-muted-foreground-1 font-medium mt-0.5">Akumulasi Infaq, Zakat, &amp; Wakaf Masuk</p>
                 </div>
             </div>
             <div class="mt-3 pt-2">
                 <div class="w-full bg-surface rounded-full h-1 overflow-hidden">
-                    <div class="bg-brand-700 h-1 rounded-full" style="width: 91%"></div>
+                    <div class="bg-brand-700 h-1 rounded-full" style="width: {{ min($metrics['rasio_efektivitas'], 100) }}%"></div>
                 </div>
                 <div class="flex items-center justify-between mt-2 text-[10px]">
                     <span class="font-bold text-foreground">Rasio Penyaluran</span>
-                    <span class="font-bold text-warning">91% Efektivitas</span>
+                    <span class="font-bold text-warning">{{ $metrics['rasio_efektivitas'] }}% Efektivitas</span>
                 </div>
             </div>
         </div>
@@ -110,9 +110,9 @@
                 </div>
                 <div class="mt-2">
                     <span class="text-xl sm:text-2xl font-extrabold tracking-tight text-foreground">
-                        Rp. 22.450.000
+                        Rp {{ number_format($metrics['operasional_hak_milik'], 0, ',', '.') }}
                     </span>
-                    <p class="text-[11px] text-muted-foreground-1 font-medium mt-0.5">Rasio 7.3% dari dana terkumpul</p>
+                    <p class="text-[11px] text-muted-foreground-1 font-medium mt-0.5">Rasio {{ $metrics['rasio_operasional'] }}% dari dana terkumpul</p>
                 </div>
             </div>
             <div class="mt-3 pt-2">
@@ -138,7 +138,7 @@
                 </div>
                 <div class="mt-2">
                     <span class="text-xl sm:text-2xl font-extrabold tracking-tight text-foreground">
-                        Rp. 154.450.000
+                        Rp {{ number_format($metrics['saldo_kas'], 0, ',', '.') }}
                     </span>
                     <p class="text-[11px] text-muted-foreground-1 font-medium mt-0.5">Rekening giro amanah BRI Syariah</p>
                 </div>
@@ -162,56 +162,44 @@
                 <p class="text-xs text-muted-foreground-2 mt-0.5">Distribusi realisasi pemanfaatan dana sedekah dan zakat secara terperinci.</p>
             </div>
             <div class="text-xs text-muted-foreground-2 sm:text-right shrink-0">
-                Total Realisasi: <span class="font-bold text-foreground">Rp 284.150.000</span>
+                Total Realisasi: <span class="font-bold text-foreground">Rp {{ number_format($asnaf['total_realisasi'], 0, ',', '.') }}</span>
             </div>
         </div>
 
-        <!-- Multi-segment Colored Progress Bar (Flush/menyatu mulus tanpa jeda renggang) -->
+        <!-- Multi-segment Colored Progress Bar -->
+        @php
+            $klasterKeys = ['pendidikan', 'nutrisi', 'kesehatan', 'asrama', 'lainnya'];
+        @endphp
         <div class="mt-3.5 w-full h-3 rounded-full overflow-hidden flex bg-border-line-3/40">
-            <div style="width: 48%;" class="bg-brand-700 h-full" title="Pendidikan: 48%"></div>
-            <div style="width: 27%;" class="bg-brand-400 h-full" title="Nutrisi: 27%"></div>
-            <div style="width: 16%;" class="bg-warning h-full" title="Kesehatan: 16%"></div>
-            <div style="width: 9%;" class="bg-muted-foreground h-full" title="Asrama: 9%"></div>
+            @foreach($klasterKeys as $key)
+                @if(isset($asnaf[$key]) && $asnaf[$key]['persen'] > 0)
+                    <div style="width: {{ $asnaf[$key]['persen'] }}%;"
+                         class="{{ $asnaf[$key]['bg'] }} h-full"
+                         title="{{ $asnaf[$key]['nama'] }}: {{ $asnaf[$key]['persen'] }}%"></div>
+                @endif
+            @endforeach
         </div>
 
-        <!-- 4 Legend Breakdown Items -->
+        <!-- Legend Breakdown Items -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mt-3.5 pt-0.5">
-            <!-- 1. Pendidikan -->
-            <div class="flex items-start gap-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-brand-700 shrink-0 mt-1"></span>
-                <div class="text-xs">
-                    <p class="font-bold text-foreground leading-tight">Pendidikan &amp; Beasiswa</p>
-                    <p class="text-muted-foreground-2 text-[11px] mt-0.5 font-medium">Rp 136.392.000 (48%)</p>
-                </div>
-            </div>
-
-            <!-- 2. Nutrisi -->
-            <div class="flex items-start gap-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-brand-400 shrink-0 mt-1"></span>
-                <div class="text-xs">
-                    <p class="font-bold text-foreground leading-tight">Nutrisi &amp; Permakanan</p>
-                    <p class="text-muted-foreground-2 text-[11px] mt-0.5 font-medium">Rp 76.720.500 (27%)</p>
-                </div>
-            </div>
-
-            <!-- 3. Kesehatan -->
-            <div class="flex items-start gap-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-warning shrink-0 mt-1"></span>
-                <div class="text-xs">
-                    <p class="font-bold text-foreground leading-tight">Layanan Kesehatan</p>
-                    <p class="text-muted-foreground-2 text-[11px] mt-0.5 font-medium">Rp 45.464.000 (16%)</p>
-                </div>
-            </div>
-
-            <!-- 4. Asrama -->
-            <div class="flex items-start gap-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-muted-foreground shrink-0 mt-1"></span>
-                <div class="text-xs">
-                    <p class="font-bold text-foreground leading-tight">Fasilitas Asrama</p>
-                    <p class="text-muted-foreground-2 text-[11px] mt-0.5 font-medium">Rp 25.573.500 (9%)</p>
-                </div>
-            </div>
+            @foreach($klasterKeys as $key)
+                @if(isset($asnaf[$key]) && $asnaf[$key]['nominal'] > 0)
+                    <div class="flex items-start gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full {{ $asnaf[$key]['dot'] }} shrink-0 mt-1"></span>
+                        <div class="text-xs">
+                            <p class="font-bold text-foreground leading-tight">{{ $asnaf[$key]['nama'] }}</p>
+                            <p class="text-muted-foreground-2 text-[11px] mt-0.5 font-medium">
+                                Rp {{ number_format($asnaf[$key]['nominal'], 0, ',', '.') }} ({{ $asnaf[$key]['persen'] }}%)
+                            </p>
+                        </div>
+                    </div>
+                @endif
+            @endforeach
         </div>
+
+        @if($asnaf['total_realisasi'] == 0)
+            <p class="mt-4 text-center text-xs text-muted-foreground-2">Belum ada data penyaluran dana.</p>
+        @endif
     </div>
 
     <!-- Toolbar: Search Bar & Segmented Sorting Pills (Besar, Nyaman di Desktop & Rapi di Mobile) -->

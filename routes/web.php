@@ -10,6 +10,8 @@ use App\Http\Controllers\Admin\KampanyeController;
 use App\Http\Controllers\Admin\KelolaDonasiController;
 use App\Http\Controllers\Admin\LaporanEksporController;
 use App\Http\Controllers\Admin\PengajuanKegiatanController;
+use App\Http\Controllers\Admin\PengeluaranOperasionalController;
+use App\Http\Controllers\Admin\PenyaluranDanaController;
 use App\Http\Controllers\Admin\TwoFactorSetupController;
 use App\Http\Controllers\BeritaKegiatanController;
 use App\Http\Controllers\ImageUploadController;
@@ -84,6 +86,16 @@ Route::prefix('admin')->name('admin.')->middleware([
     Route::post('/kelola-donasi/{donasi}/terima', [KelolaDonasiController::class, 'terima'])->name('kelola-donasi.terima');
     Route::delete('/kelola-donasi/{donasi}', [KelolaDonasiController::class, 'destroy'])->name('kelola-donasi.destroy');
     Route::get('/kelola-donasi/export', [KelolaDonasiController::class, 'export'])->name('kelola-donasi.export');
+
+    // Penyaluran Dana (CRUD)
+    Route::post('/penyaluran-dana', [PenyaluranDanaController::class, 'store'])->name('penyaluran-dana.store');
+    Route::put('/penyaluran-dana/{penyaluranDana}', [PenyaluranDanaController::class, 'update'])->name('penyaluran-dana.update');
+    Route::delete('/penyaluran-dana/{penyaluranDana}', [PenyaluranDanaController::class, 'destroy'])->name('penyaluran-dana.destroy');
+
+    // Pengeluaran Operasional (CRUD)
+    Route::post('/pengeluaran-operasional', [PengeluaranOperasionalController::class, 'store'])->name('pengeluaran-operasional.store');
+    Route::put('/pengeluaran-operasional/{pengeluaranOperasional}', [PengeluaranOperasionalController::class, 'update'])->name('pengeluaran-operasional.update');
+    Route::delete('/pengeluaran-operasional/{pengeluaranOperasional}', [PengeluaranOperasionalController::class, 'destroy'])->name('pengeluaran-operasional.destroy');
 
     // Kelola Kampanye
     Route::resource('/kelola-kampanye', KampanyeController::class)->except(['show'])->parameters([

@@ -6,6 +6,8 @@ use App\Exports\DonasiExport;
 use App\Http\Controllers\Controller;
 use App\Models\Donasi;
 use App\Models\Kampanye;
+use App\Models\PengeluaranOperasional;
+use App\Models\PenyaluranDana;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -51,54 +53,88 @@ class KelolaDonasiController extends Controller
 
         $donasiList = $query->paginate(10)->withQueryString();
 
-        // 4 Top Metrics (Consistent with screenshot)
-        $actualVerifiedSum = (float) Donasi::where('status', 'verified')->sum('nominal');
-        $totalZis = max(312450000, $actualVerifiedSum);
-        $penyaluranProgram = 220450000;
-        $operasionalHakMilik = 22450000;
-        $saldoKas = 154450000;
+        // --- 4 Top Metrics (dari DB) ---
+        $totalZis = (float) Donasi::where('status', 'verified')->sum('nominal');
+
+        $totalPenyaluranProgram = (float) PenyaluranDana::sum('nominal');
+
+        $totalOperasional = (float) PengeluaranOperasional::sum('nominal');
+
+        $saldoKas = $totalZis - $totalPenyaluranProgram - $totalOperasional;
+
+        // Rasio penyaluran (%) terhadap total ZIS
+        $rasioEfektivitas = $totalZis > 0
+            ? round(($totalPenyaluranProgram / $totalZis) * 100, 1)
+            : 0;
+
+        // Rasio operasional (%) terhadap total ZIS
+        $rasioOperasional = $totalZis > 0
+            ? round(($totalOperasional / $totalZis) * 100, 1)
+            : 0;
+
+        // Persentase bulan lalu dibanding bulan sebelumnya
+        $nominalBulanIni = (float) Donasi::where('status', 'verified')
+            ->whereMonth('diverifikasi_pada', now()->month)
+            ->whereYear('diverifikasi_pada', now()->year)
+            ->sum('nominal');
+
+        $nominalBulanLalu = (float) Donasi::where('status', 'verified')
+            ->whereMonth('diverifikasi_pada', now()->subMonth()->month)
+            ->whereYear('diverifikasi_pada', now()->subMonth()->year)
+            ->sum('nominal');
+
+        $persenBulanLalu = $nominalBulanLalu > 0
+            ? round((($nominalBulanIni - $nominalBulanLalu) / $nominalBulanLalu) * 100, 1)
+            : 0;
 
         $metrics = [
             'total_zis' => $totalZis,
-            'persen_bulan_lalu' => 14.2,
-            'penyaluran_program' => $penyaluranProgram,
-            'rasio_efektivitas' => 91,
-            'operasional_hak_milik' => $operasionalHakMilik,
-            'rasio_operasional' => 7.3,
+            'persen_bulan_lalu' => $persenBulanLalu,
+            'penyaluran_program' => $totalPenyaluranProgram,
+            'rasio_efektivitas' => $rasioEfektivitas,
+            'operasional_hak_milik' => $totalOperasional,
+            'rasio_operasional' => $rasioOperasional,
             'saldo_kas' => $saldoKas,
         ];
 
-        // Klaster Asnaf Breakdown (Consistent with screenshot)
+        // --- Klaster Asnaf Breakdown (dari DB) ---
+        $klasterLabels = PenyaluranDana::klasterLabels();
+
+        $klasterRows = PenyaluranDana::select('klaster_asnaf', DB::raw('SUM(nominal) as total'))
+            ->groupBy('klaster_asnaf')
+            ->get()
+            ->keyBy('klaster_asnaf');
+
+        $totalRealisasi = $klasterRows->sum('total');
+
+        $klasterColors = [
+            'pendidikan' => ['bg' => 'bg-brand-700',       'dot' => 'bg-brand-700'],
+            'nutrisi' => ['bg' => 'bg-brand-400',        'dot' => 'bg-brand-400'],
+            'kesehatan' => ['bg' => 'bg-warning',          'dot' => 'bg-warning'],
+            'asrama' => ['bg' => 'bg-muted-foreground', 'dot' => 'bg-muted-foreground'],
+            'lainnya' => ['bg' => 'bg-slate-400',        'dot' => 'bg-slate-400'],
+        ];
+
+        $asnafBreakdown = [];
+        foreach ($klasterLabels as $key => $label) {
+            $nominal = isset($klasterRows[$key]) ? (float) $klasterRows[$key]->total : 0;
+            $persen = $totalRealisasi > 0 ? round(($nominal / $totalRealisasi) * 100) : 0;
+            $asnafBreakdown[$key] = [
+                'nama' => $label,
+                'nominal' => $nominal,
+                'persen' => $persen,
+                'bg' => $klasterColors[$key]['bg'] ?? 'bg-slate-400',
+                'dot' => $klasterColors[$key]['dot'] ?? 'bg-slate-400',
+            ];
+        }
+
         $asnaf = [
-            'total_realisasi' => 284150000,
-            'pendidikan' => [
-                'nama' => 'Pendidikan & Beasiswa',
-                'nominal' => 136392000,
-                'persen' => 48,
-                'color' => '#1B4332',
-            ],
-            'nutrisi' => [
-                'nama' => 'Nutrisi & Permakanan',
-                'nominal' => 76720500,
-                'persen' => 27,
-                'color' => '#74A892',
-            ],
-            'kesehatan' => [
-                'nama' => 'Layanan Kesehatan',
-                'nominal' => 45464000,
-                'persen' => 16,
-                'color' => '#E5B84B',
-            ],
-            'asrama' => [
-                'nama' => 'Fasilitas Asrama',
-                'nominal' => 25573500,
-                'persen' => 9,
-                'color' => '#94A3B8',
-            ],
+            'total_realisasi' => $totalRealisasi,
+            ...$asnafBreakdown,
         ];
 
         $kampanyeList = Kampanye::where('status', 'aktif')->get();
-        $totalDonaturTerkini = 10;
+        $totalDonaturTerkini = Donasi::distinct('nama_donatur')->count('nama_donatur');
 
         return view('admin.kelola-donasi.index', compact(
             'donasiList',
