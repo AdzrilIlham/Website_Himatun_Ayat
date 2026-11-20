@@ -125,7 +125,6 @@
                     </div>
 
                     <!-- Card 3: Rincian Pembayaran -->
-@@
                     <div class="bg-card rounded-2xl p-4 sm:p-5 shadow-2xs border border-border/50 space-y-2.5">
                         <h4 class="text-sm sm:text-base font-bold text-foreground">
                             Rincian Pembayaran
