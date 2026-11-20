@@ -2,9 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Models\BeritaKegiatan;
 use App\Models\Donasi;
 use App\Models\Kampanye;
 use App\Models\User;
+use App\Services\LaporanService;
 use Database\Seeders\DashboardDemoSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -111,5 +113,31 @@ class AdminDashboardTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertHeader('content-type', 'application/pdf');
+    }
+
+    public function test_laporan_service_recent_activities_queries_berita_kegiatan(): void
+    {
+        $berita = BeritaKegiatan::create([
+            'tipe' => 'berita',
+            'status' => 'tayang',
+            'kategori' => 'Pendidikan',
+            'judul' => 'Santri Mengikuti Ujian Tahfidz Nasional',
+            'slug' => 'santri-mengikuti-ujian-tahfidz-nasional',
+            'ringkasan' => 'Ujian tahfidz berjalan lancar.',
+            'konten' => '<p>Konten artikel.</p>',
+            'tanggal' => now(),
+            'terjadwal_di_kalender' => false,
+        ]);
+
+        $service = app(LaporanService::class);
+        $activities = $service->getRecentActivities(10);
+
+        $activityTitles = array_column($activities, 'title');
+        $this->assertContains('Aktivitas Berita', $activityTitles);
+
+        $beritaActivity = collect($activities)->firstWhere('id', 'berita-'.$berita->id);
+        $this->assertNotNull($beritaActivity);
+        $this->assertEquals('CMS Berita', $beritaActivity['badge']);
+        $this->assertStringContainsString('Santri Mengikuti Ujian Tahfidz', $beritaActivity['desc']);
     }
 }

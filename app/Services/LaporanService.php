@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Models\AnakAsuh;
-use App\Models\Berita;
+use App\Models\BeritaKegiatan;
 use App\Models\Donasi;
 use App\Models\Kampanye;
 use Carbon\Carbon;
@@ -378,14 +378,14 @@ class LaporanService
             }
 
             // 4. Aktivitas CMS Berita
-            if (Schema::hasTable('berita')) {
-                $latestBerita = Berita::latest('updated_at')->take(2)->get();
+            if (Schema::hasTable('berita_kegiatans')) {
+                $latestBerita = BeritaKegiatan::latest('updated_at')->take(2)->get();
                 foreach ($latestBerita as $b) {
                     $activities[] = [
                         'id' => 'berita-'.$b->id,
                         'type' => 'konten',
                         'title' => 'Aktivitas Berita',
-                        'desc' => 'Artikel: '.Str::limit($b->judul, 45).' ('.($b->status ?? 'Draft').')',
+                        'desc' => 'Artikel: '.Str::limit($b->judul, 45).' ('.(ucfirst($b->status ?? 'Draft')).')',
                         'badge' => 'CMS Berita',
                         'badge_color' => 'purple',
                         'icon' => 'newspaper',

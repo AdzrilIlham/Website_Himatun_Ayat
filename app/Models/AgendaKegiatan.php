@@ -2,40 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @deprecated Legacy model. Seluruh agenda kegiatan/kalender sudah digabungkan ke App\Models\BeritaKegiatan.
+ */
 class AgendaKegiatan extends Model
 {
-    /**
-     * Kolom yang boleh diisi secara massal.
-     *
-     * @var array<int, string>
-     */
-    protected $fillable = [
-        'judul',
-        'tanggal',
-        'waktu',
-        'lokasi',
-        'deskripsi',
-        'label',
-    ];
-
-    /**
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return [
-            'tanggal' => 'date',
-        ];
-    }
-
-    /**
-     * Urutkan agenda dari tanggal terdekat.
-     */
-    public function scopeMendatang(Builder $query): Builder
-    {
-        return $query->orderBy('tanggal')->orderBy('id');
-    }
+    protected $table = 'agenda_kegiatans';
 }

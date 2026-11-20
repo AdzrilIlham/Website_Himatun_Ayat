@@ -4,16 +4,20 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\BeritaKegiatan;
+use App\Services\CloudflareR2Service;
 use App\Support\BeritaHtml;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class BeritaController extends Controller
 {
+    public function __construct(
+        protected CloudflareR2Service $r2Service
+    ) {}
+
     public function index(): View
     {
         $berita = BeritaKegiatan::query()->where('terjadwal_di_kalender', false)->terbaru()->get();
@@ -103,11 +107,11 @@ class BeritaController extends Controller
         }
         $oldImage = $berita->gambar;
         if ($request->hasFile('gambar')) {
-            $data['gambar'] = $request->file('gambar')->store('berita', 'public');
+            $data['gambar'] = $this->r2Service->uploadPublic($request->file('gambar'), 'berita');
         }
         $berita->fill($data)->save();
-        if (isset($data['gambar']) && $oldImage && str_starts_with($oldImage, 'berita/')) {
-            Storage::disk('public')->delete($oldImage);
+        if (isset($data['gambar']) && $oldImage && (str_starts_with($oldImage, 'berita/') || str_starts_with($oldImage, 'storage/berita/'))) {
+            $this->r2Service->deletePublic($oldImage);
         }
 
         return to_route('admin.berita.index')->with('success', 'Berita berhasil disimpan.');
@@ -117,8 +121,8 @@ class BeritaController extends Controller
     {
         abort_if($berita->terjadwal_di_kalender, 404);
         $berita->delete();
-        if ($berita->gambar && str_starts_with($berita->gambar, 'berita/')) {
-            Storage::disk('public')->delete($berita->gambar);
+        if ($berita->gambar && (str_starts_with($berita->gambar, 'berita/') || str_starts_with($berita->gambar, 'storage/berita/'))) {
+            $this->r2Service->deletePublic($berita->gambar);
         }
 
         return to_route('admin.berita.index')->with('success', 'Berita berhasil dihapus.');

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Berita;
+use App\Models\BeritaKegiatan;
 use App\Models\Kampanye;
 use App\Services\CloudflareR2Service;
 use Carbon\Carbon;
@@ -79,7 +79,7 @@ class KampanyeController extends Controller
             ->count();
         $totalReguler = max(0, $totalAktif - $totalMendesak);
 
-        $totalBeritaPublished = Berita::where('status', 'published')->count();
+        $totalBeritaPublished = BeritaKegiatan::dipublikasikan()->count();
         // Fallback default minimal 24 seperti di desain referensi jika berita belum di-seed
         $kabarPenyaluranCount = max(24, $totalBeritaPublished);
 
@@ -189,6 +189,9 @@ class KampanyeController extends Controller
         ]);
 
         if ($request->hasFile('banner')) {
+            if ($kampanye->banner_path) {
+                $this->r2Service->deletePublic($kampanye->banner_path);
+            }
             $validated['banner_path'] = $this->r2Service->uploadPublic($request->file('banner'), 'kampanye');
         }
 
@@ -204,6 +207,9 @@ class KampanyeController extends Controller
     public function destroy(Kampanye $kampanye): RedirectResponse
     {
         $judul = $kampanye->judul;
+        if ($kampanye->banner_path) {
+            $this->r2Service->deletePublic($kampanye->banner_path);
+        }
         $kampanye->delete();
 
         return redirect()->route('admin.kelola-kampanye.index')
