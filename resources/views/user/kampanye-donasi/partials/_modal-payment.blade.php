@@ -104,26 +104,7 @@
                     </div>
 
                     <!-- Card 2: Pilih Jenis Pembayaran anda -->
-                    <div class="bg-card rounded-2xl p-4 sm:p-5 shadow-2xs border border-border/50 space-y-3.5"
-                        data-receipt-authorization="{{ $currentDonasi ? route('donasi.bukti-transfer.upload', $currentDonasi) : '' }}"
-                        x-data="{
-                            fileName: '',
-                            uploading: false,
-                            uploadError: '',
-                            async sendReceipt() {
-                                if (this.uploading) return;
-                                this.uploading = true;
-                                this.uploadError = '';
-                                try {
-                                    const { reference } = await window.uploadCloudinaryImage(this.$refs.receiptFile.files[0], this.$root.dataset.receiptAuthorization);
-                                    await this.$wire.uploadBuktiTransfer(reference);
-                                } catch (error) {
-                                    this.uploadError = error instanceof TypeError ? 'Koneksi unggah terputus. Coba lagi.' : error.message;
-                                } finally {
-                                    this.uploading = false;
-                                }
-                            }
-                        }">
+                    <div class="bg-card rounded-2xl p-4 sm:p-5 shadow-2xs border border-border/50 space-y-3.5">
                         <h4 class="text-sm sm:text-base font-bold text-foreground">
                             Pilih Jenis Pembayaran anda
                         </h4>
@@ -144,6 +125,7 @@
                     </div>
 
                     <!-- Card 3: Rincian Pembayaran -->
+@@
                     <div class="bg-card rounded-2xl p-4 sm:p-5 shadow-2xs border border-border/50 space-y-2.5">
                         <h4 class="text-sm sm:text-base font-bold text-foreground">
                             Rincian Pembayaran
@@ -324,7 +306,27 @@
                     </div>
 
                     <!-- Card Form Upload Bukti Transfer & Konfirmasi -->
-                    <div class="bg-card rounded-2xl p-4 sm:p-5 shadow-2xs border border-border/50 space-y-3.5">
+                    <div wire:key="receipt-upload-{{ $currentDonasi->id }}"
+                        class="bg-card rounded-2xl p-4 sm:p-5 shadow-2xs border border-border/50 space-y-3.5"
+                        data-receipt-authorization="{{ route('donasi.bukti-transfer.upload', $currentDonasi) }}"
+                        x-data="{
+                            fileName: '',
+                            uploading: false,
+                            uploadError: '',
+                            async sendReceipt() {
+                                if (this.uploading) return;
+                                this.uploading = true;
+                                this.uploadError = '';
+                                try {
+                                    const { reference } = await window.uploadCloudinaryImage(this.$refs.receiptFile.files[0], this.$root.dataset.receiptAuthorization);
+                                    await this.$wire.uploadBuktiTransfer(reference);
+                                } catch (error) {
+                                    this.uploadError = error instanceof TypeError ? 'Koneksi unggah terputus. Coba lagi.' : error.message;
+                                } finally {
+                                    this.uploading = false;
+                                }
+                            }
+                        }">
                         <label class="form-label text-xs font-bold mb-0">
                             Upload Bukti Transfer <span class="text-danger">*</span>
                         </label>

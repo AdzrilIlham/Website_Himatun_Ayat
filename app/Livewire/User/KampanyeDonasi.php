@@ -5,8 +5,8 @@ namespace App\Livewire\User;
 use App\Models\Donasi;
 use App\Models\Kampanye;
 use App\Services\CloudinaryImageService;
-use Illuminate\Support\Facades\DB;
 use App\Services\QrisDinamisService;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\Title;
@@ -16,12 +16,10 @@ use Livewire\Component;
 #[Title('Program Donasi & Kampanye Kebaikan - Yayasan Himatun Ayat Bandung')]
 class KampanyeDonasi extends Component
 {
-    use WithFileUploads;
-
     /**
      * Kunci session untuk menyimpan transaksi pembayaran yang sedang aktif.
      */
-    public const ACTIVE_PAYMENT_SESSION_KEY = 'kampanye_donasi.active_payment';
+    public const ACTIVE_PAYMENT_SESSION_KEY = Donasi::ACTIVE_PAYMENT_SESSION_KEY;
 
     public ?int $selectedKampanyeId = null;
 
@@ -41,8 +39,10 @@ class KampanyeDonasi extends Component
 
     public string $metodePembayaran = 'QRIS';
 
+    #[Locked]
     public string $paymentId = '';
 
+    #[Locked]
     public int $paymentStep = 1;
 
     public bool $showPaymentModal = false;
@@ -51,6 +51,7 @@ class KampanyeDonasi extends Component
 
     public bool $showFailedModal = false;
 
+    #[Locked]
     public ?int $paymentExpiresAt = null;
 
     #[Locked]
@@ -150,7 +151,8 @@ class KampanyeDonasi extends Component
         $this->selectedKampanyeId = $donasi->kampanye_id ?? $this->selectedKampanyeId;
 
         if ((int) $active['expires_at'] <= now()->timestamp) {
-            $donasi->update(['status' => 'rejected']);
+            Donasi::whereKey($donasi->id)->where('status', 'pending')
+                ->whereNull('bukti_transfer_path')->update(['status' => 'rejected']);
             $this->clearActivePayment();
             $this->showPaymentModal = false;
             $this->showFailedModal = true;
@@ -274,7 +276,6 @@ class KampanyeDonasi extends Component
         $this->paymentId = $this->generatePaymentId($donasi->id);
         $this->paymentStep = 1;
         $this->paymentExpiresAt = now()->addMinutes(5)->timestamp;
-        session()->put('donasi_checkout', ['id' => $donasi->id, 'expires_at' => $this->paymentExpiresAt]);
         $this->showFailedModal = false;
         $this->showPaymentModal = true;
         $this->persistActivePayment();
@@ -293,60 +294,60 @@ class KampanyeDonasi extends Component
 
     public function selectMetodePembayaran(string $metode): void
     {
-        $this->metodePembayaran = $metode;
-        if ($this->currentDonasi?->allowsReceiptUpload(session()->driver())) {
-            $this->currentDonasi->update([
-                'metode_pembayaran' => $metode,
-            ]);
+        if (! $this->currentDonasi?->hasActivePayment(session()->driver())) {
+            return;
         }
+
+        $this->metodePembayaran = $metode;
+        $this->currentDonasi->update(['metode_pembayaran' => $metode]);
         $this->persistActivePayment();
     }
 
     public function payNow(): void
     {
-        if ($this->currentDonasi?->allowsReceiptUpload(session()->driver())) {
-            $this->currentDonasi->update([
-                'metode_pembayaran' => $this->metodePembayaran,
-            ]);
+        if (! $this->currentDonasi?->hasActivePayment(session()->driver())) {
+            return;
         }
+        $this->currentDonasi->update(['metode_pembayaran' => $this->metodePembayaran]);
         $this->paymentStep = 2;
         $this->persistActivePayment();
     }
 
     public function backToStepOne(): void
     {
+        if (! $this->currentDonasi?->hasActivePayment(session()->driver())) {
+            return;
+        }
+
         $this->paymentStep = 1;
         $this->persistActivePayment();
     }
 
     public function closePaymentModal(): void
     {
-        if (session('donasi_checkout.id') === $this->currentDonasi?->id) {
-            session()->forget('donasi_checkout');
+        if (session(self::ACTIVE_PAYMENT_SESSION_KEY.'.donasi_id') === $this->currentDonasi?->id) {
+            $this->clearActivePayment();
         }
         $this->showPaymentModal = false;
         $this->paymentStep = 1;
         $this->paymentExpiresAt = null;
-        $this->clearActivePayment();
     }
 
     public function expirePayment(): void
     {
         if (! $this->showPaymentModal || ! $this->currentDonasi
-            || session('donasi_checkout.id') !== $this->currentDonasi->id
-            || session('donasi_checkout.expires_at') > now()->timestamp) {
+            || session(self::ACTIVE_PAYMENT_SESSION_KEY.'.donasi_id') !== $this->currentDonasi->id
+            || session(self::ACTIVE_PAYMENT_SESSION_KEY.'.expires_at') > now()->timestamp) {
             return;
         }
 
         Donasi::whereKey($this->currentDonasi->id)->where('status', 'pending')
             ->whereNull('bukti_transfer_path')->update(['status' => 'rejected']);
-        session()->forget('donasi_checkout');
 
         $this->showPaymentModal = false;
         $this->showFailedModal = true;
         $this->paymentStep = 1;
         $this->paymentExpiresAt = null;
-        $this->reset(['buktiTransfer']);
         $this->clearActivePayment();
     }
 
