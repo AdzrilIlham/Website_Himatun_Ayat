@@ -4,7 +4,7 @@
 <div class="space-y-4 sm:space-y-5 pb-12 w-full max-w-full min-w-0" x-data="{
     searchQuery: '',
     selectedSort: 'status',
-    beritaList: {{ Js::from($daftarBerita) }},
+    beritaList: {{ Js::from($daftarBerita->getCollection()->map(fn ($berita) => array_merge($berita->toArray(), ['thumbnail' => $berita->gambar ? $berita->gambar_url : null]))->values()) }},
     get filteredBerita() {
         if (!this.searchQuery) return this.beritaList;
         return this.beritaList.filter(item => 
@@ -222,11 +222,20 @@
                             <!-- Judul Berita + Thumbnail -->
                             <td class="py-4 px-6">
                                 <div class="flex items-center gap-3">
-                                    <!-- Thumbnail Placeholder Box -->
-                                    <div class="w-12 h-12 rounded-lg bg-slate-300/80 shrink-0 flex items-center justify-center text-slate-400">
-                                        <svg class="w-6 h-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-                                        </svg>
+                                    <!-- Thumbnail Box: gambar asli + fallback -->
+                                    <div class="w-12 h-12 rounded-lg bg-slate-300/80 shrink-0 flex items-center justify-center text-slate-400 overflow-hidden"
+                                         x-data="{ gagalMuat: false }">
+                                        <template x-if="item.thumbnail && ! gagalMuat">
+                                            <img :src="item.thumbnail"
+                                                 :alt="item.judul"
+                                                 class="w-full h-full object-cover"
+                                                 x-on:error="gagalMuat = true">
+                                        </template>
+                                        <template x-if="! item.thumbnail || gagalMuat">
+                                            <svg class="w-6 h-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                                            </svg>
+                                        </template>
                                     </div>
                                     <span class="font-bold text-slate-900 leading-snug" x-text="item.judul"></span>
                                 </div>
@@ -310,11 +319,20 @@
                 <!-- Baris 1: Thumbnail, Judul Berita, & Tombol Aksi -->
                 <div class="flex items-start justify-between gap-3">
                     <div class="flex items-start gap-3 min-w-0 flex-1">
-                        <!-- Thumbnail Box -->
-                        <div class="w-12 h-12 rounded-xl bg-slate-200/80 shrink-0 flex items-center justify-center text-slate-400">
-                            <svg class="w-6 h-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-                            </svg>
+                        <!-- Thumbnail Box: gambar asli + fallback -->
+                        <div class="w-12 h-12 rounded-xl bg-slate-200/80 shrink-0 flex items-center justify-center text-slate-400 overflow-hidden"
+                             x-data="{ gagalMuat: false }">
+                            <template x-if="item.thumbnail && ! gagalMuat">
+                                <img :src="item.thumbnail"
+                                     :alt="item.judul"
+                                     class="w-full h-full object-cover"
+                                     x-on:error="gagalMuat = true">
+                            </template>
+                            <template x-if="! item.thumbnail || gagalMuat">
+                                <svg class="w-6 h-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                                </svg>
+                            </template>
                         </div>
                         <div class="min-w-0 flex-1">
                             <span class="inline-block text-[11px] font-bold text-slate-400 uppercase tracking-wider" x-text="'Berita #' + (index + 1)"></span>
