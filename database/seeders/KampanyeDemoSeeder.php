@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Berita;
+use App\Models\BeritaKegiatan;
 use App\Models\Kampanye;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
@@ -15,17 +15,19 @@ class KampanyeDemoSeeder extends Seeder
     public function run(): void
     {
         // Pastikan ada beberapa Berita published agar counter rilis berita >= 24
-        $beritaCount = Berita::count();
+        $beritaCount = BeritaKegiatan::count();
         if ($beritaCount < 24) {
             for ($i = $beritaCount + 1; $i <= 24; $i++) {
-                Berita::create([
+                BeritaKegiatan::create([
+                    'tipe' => 'berita',
+                    'status' => 'tayang',
+                    'kategori' => 'Sosial & Kemanusiaan',
                     'judul' => "Laporan Penyaluran Donasi dan Kegiatan Berita ke-{$i}",
                     'slug' => "laporan-penyaluran-donasi-ke-{$i}",
-                    'kategori' => 'Penyaluran',
-                    'konten' => "Dokumentasi dan penyaluran bantuan kepada santri binaan yayasan ke-{$i}.",
-                    'penulis' => 'Admin Yayasan',
-                    'status' => 'published',
-                    'dipublikasikan_pada' => Carbon::now()->subDays(30 - $i),
+                    'ringkasan' => "Dokumentasi dan penyaluran bantuan kepada santri binaan yayasan ke-{$i}.",
+                    'konten' => "<p>Dokumentasi dan penyaluran bantuan kepada santri binaan yayasan ke-{$i}.</p>",
+                    'tanggal' => Carbon::now()->subDays(30 - $i),
+                    'terjadwal_di_kalender' => false,
                 ]);
             }
         }

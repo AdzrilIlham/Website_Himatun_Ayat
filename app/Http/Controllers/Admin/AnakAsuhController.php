@@ -5,14 +5,18 @@ namespace App\Http\Controllers\Admin;
 use App\Exports\AnakAsuhExport;
 use App\Http\Controllers\Controller;
 use App\Models\AnakAsuh;
+use App\Services\CloudflareR2Service;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 
 class AnakAsuhController extends Controller
 {
+    public function __construct(
+        protected CloudflareR2Service $r2Service
+    ) {}
+
     public function index(Request $request)
     {
         $search = $request->query('search');
@@ -132,8 +136,7 @@ class AnakAsuhController extends Controller
         ]);
 
         if ($request->hasFile('foto')) {
-            $path = $request->file('foto')->store('anak-asuh', 'public');
-            $validated['foto_path'] = 'storage/'.$path;
+            $validated['foto_path'] = $this->r2Service->uploadPublic($request->file('foto'), 'anak-asuh');
         }
 
         AnakAsuh::create($validated);
@@ -156,11 +159,10 @@ class AnakAsuhController extends Controller
         ]);
 
         if ($request->hasFile('foto')) {
-            if ($anakAsuh->foto_path && str_starts_with($anakAsuh->foto_path, 'storage/')) {
-                Storage::disk('public')->delete(str_replace('storage/', '', $anakAsuh->foto_path));
+            if ($anakAsuh->foto_path) {
+                $this->r2Service->deletePublic($anakAsuh->foto_path);
             }
-            $path = $request->file('foto')->store('anak-asuh', 'public');
-            $validated['foto_path'] = 'storage/'.$path;
+            $validated['foto_path'] = $this->r2Service->uploadPublic($request->file('foto'), 'anak-asuh');
         }
 
         $anakAsuh->update($validated);
@@ -171,8 +173,8 @@ class AnakAsuhController extends Controller
 
     public function destroy(AnakAsuh $anakAsuh): RedirectResponse
     {
-        if ($anakAsuh->foto_path && str_starts_with($anakAsuh->foto_path, 'storage/')) {
-            Storage::disk('public')->delete(str_replace('storage/', '', $anakAsuh->foto_path));
+        if ($anakAsuh->foto_path) {
+            $this->r2Service->deletePublic($anakAsuh->foto_path);
         }
 
         $nama = $anakAsuh->nama_lengkap;

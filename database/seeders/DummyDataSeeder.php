@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\AnakAsuh;
-use App\Models\Berita;
 use App\Models\Donasi;
 use App\Models\Kampanye;
 use App\Models\User;
@@ -32,17 +31,15 @@ class DummyDataSeeder extends Seeder
         $this->seedAnakAsuh();
         $this->seedDonasi($kampanye);
         $this->syncDanaTerkumpul();
-        $this->seedBerita();
 
         if ($this->command) {
             $this->command->newLine();
             $this->command->info(sprintf(
-                'Data dummy siap: %d admin, %d kampanye, %d anak asuh, %d donasi, %d berita.',
+                'Data dummy siap: %d admin, %d kampanye, %d anak asuh, %d donasi.',
                 User::count(),
                 Kampanye::count(),
                 AnakAsuh::count(),
-                Donasi::count(),
-                Berita::count()
+                Donasi::count()
             ));
         }
     }
@@ -682,64 +679,5 @@ class DummyDataSeeder extends Seeder
 
             $kampanye->update(['dana_terkumpul' => $verifiedTotal]);
         }
-    }
-
-    private function seedBerita(): void
-    {
-        $items = [
-            ['judul' => 'Santunan Yatim & Piatu Cibiru Berjalan Lancar', 'kategori' => 'Sosial & Kemanusiaan', 'status' => 'published', 'days' => 1],
-            ['judul' => 'Beasiswa Tahfidz Angkatan 2026 Resmi Dibuka', 'kategori' => 'Pendidikan', 'status' => 'published', 'days' => 4],
-            ['judul' => 'Asrama Putri Himatun Ayat Gelar Kegiatan Mabit', 'kategori' => 'Kegiatan Yayasan', 'status' => 'published', 'days' => 8],
-            ['judul' => 'Paket Sembako untuk 120 Keluarga Dhuafa', 'kategori' => 'Gizi & Sembako', 'status' => 'published', 'days' => 12],
-            ['judul' => 'Pemeriksaan Kesehatan Gratis di Cibiru Wetan', 'kategori' => 'Kesehatan', 'status' => 'published', 'days' => 17],
-            ['judul' => 'Kajian Rutin Ahad Kembali Digelar Bersama Warga', 'kategori' => 'Dakwah & Syiar', 'status' => 'published', 'days' => 22],
-            ['judul' => 'Kolaborasi dengan Universitas untuk Program Beasiswa', 'kategori' => 'Pendidikan', 'status' => 'published', 'days' => 27],
-            ['judul' => 'Renovasi Kamar Santri Memasuki Tahap Akhir', 'kategori' => 'Kegiatan Yayasan', 'status' => 'published', 'days' => 33],
-            ['judul' => 'Santri Himatun Ayat Raih Juara Musabaqah Hifzil Qur\'an', 'kategori' => 'Dakwah & Syiar', 'status' => 'published', 'days' => 38],
-            ['judul' => 'Dapur Umum Yayasan Layani 300 Porsi Setiap Hari', 'kategori' => 'Gizi & Sembako', 'status' => 'published', 'days' => 45],
-            ['judul' => 'Program Pendampingan Belajar untuk Anak Asuh', 'kategori' => 'Pendidikan', 'status' => 'published', 'days' => 52],
-            ['judul' => 'Peringatan Maulid Nabi di Asrama Putra', 'kategori' => 'Dakwah & Syiar', 'status' => 'published', 'days' => 60],
-            ['judul' => 'Rencana Pembangunan Aula Serbaguna Yayasan', 'kategori' => 'Kegiatan Yayasan', 'status' => 'draft', 'days' => null],
-            ['judul' => 'Program Kewirausahaan untuk Santri Alumni', 'kategori' => 'Sosial & Kemanusiaan', 'status' => 'draft', 'days' => null],
-            ['judul' => 'Laporan Keuangan Triwulan III 2026', 'kategori' => 'Kegiatan Yayasan', 'status' => 'draft', 'days' => null],
-            ['judul' => 'Persiapan Santunan Ramadan 1447 H', 'kategori' => 'Gizi & Sembako', 'status' => 'draft', 'days' => null],
-        ];
-
-        $authors = [
-            'Tim Media Himatun Ayat',
-            'Pengurus Yayasan',
-            'Humas Yayasan',
-        ];
-
-        foreach ($items as $index => $item) {
-            $publishedAt = $item['days'] !== null
-                ? Carbon::now()->subDays($item['days'])->setTime(9, 0)
-                : null;
-
-            Berita::updateOrCreate(
-                ['slug' => Str::slug($item['judul'])],
-                [
-                    'judul' => $item['judul'],
-                    'kategori' => $item['kategori'],
-                    'konten' => $this->beritaKonten($item['judul'], $item['kategori']),
-                    'thumbnail_path' => null,
-                    'penulis' => $authors[$index % count($authors)],
-                    'status' => $item['status'],
-                    'dipublikasikan_pada' => $publishedAt,
-                ]
-            );
-        }
-    }
-
-    private function beritaKonten(string $judul, string $kategori): string
-    {
-        return '<p><strong>Cibiru Wetan, Bandung.</strong> '.$judul
-            .' menjadi bagian dari komitmen Yayasan Himatun Ayat Bandung dalam menghadirkan layanan '
-            .e(strtolower($kategori))
-            .' yang berkelanjutan bagi anak asuh dan masyarakat sekitar.</p>'
-            .'<p>Kegiatan ini melibatkan pengurus, relawan, serta dukungan para donatur dan mitra yayasan. '
-            .'Setiap proses dijalankan dengan memperhatikan kebutuhan penerima manfaat dan prinsip transparansi.</p>'
-            .'<p>Yayasan mengucapkan terima kasih atas doa dan dukungan semua pihak. Semoga program ini '
-            .'memberikan manfaat yang luas dan menjadi amal jariyah bagi para donatur.</p>';
     }
 }

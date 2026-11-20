@@ -91,20 +91,63 @@ class CloudflareR2Service
             return $path;
         }
 
+        $cleanPath = Str::startsWith($path, 'storage/') ? Str::after($path, 'storage/') : $path;
+
         if (config('filesystems.disks.r2_public.key')) {
             try {
-                if (Storage::disk('r2_public')->exists($path)) {
-                    return Storage::disk('r2_public')->url($path);
+                if (Storage::disk('r2_public')->exists($cleanPath)) {
+                    return Storage::disk('r2_public')->url($cleanPath);
                 }
             } catch (\Throwable $e) {
                 // Ignore and fall back to local
             }
         }
 
-        if (Storage::disk('public')->exists($path)) {
-            return Storage::disk('public')->url($path);
+        if (Storage::disk('public')->exists($cleanPath)) {
+            return Storage::disk('public')->url($cleanPath);
         }
 
-        return asset('storage/'.$path);
+        return asset('storage/'.$cleanPath);
+    }
+
+    /**
+     * Delete public asset from r2_public and local public disk.
+     */
+    public function deletePublic(?string $path): bool
+    {
+        if (empty($path)) {
+            return false;
+        }
+
+        if (Str::startsWith($path, ['http://', 'https://', 'images/'])) {
+            return false;
+        }
+
+        $cleanPath = Str::startsWith($path, 'storage/') ? Str::after($path, 'storage/') : $path;
+        $deleted = false;
+
+        if (config('filesystems.disks.r2_public.key')) {
+            try {
+                if (Storage::disk('r2_public')->exists($cleanPath)) {
+                    $deleted = Storage::disk('r2_public')->delete($cleanPath) || $deleted;
+                }
+            } catch (\Throwable $e) {
+                // Ignore and fall back to local
+            }
+        }
+
+        if (Storage::disk('public')->exists($cleanPath)) {
+            $deleted = Storage::disk('public')->delete($cleanPath) || $deleted;
+        }
+
+        return $deleted;
+    }
+
+    /**
+     * Alias for deletePublic.
+     */
+    public function delete(?string $path): bool
+    {
+        return $this->deletePublic($path);
     }
 }

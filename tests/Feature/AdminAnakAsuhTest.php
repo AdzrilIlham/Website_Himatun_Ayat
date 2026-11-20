@@ -5,6 +5,8 @@ namespace Tests\Feature;
 use App\Models\AnakAsuh;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class AdminAnakAsuhTest extends TestCase
@@ -165,5 +167,84 @@ class AdminAnakAsuhTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertHeader('content-type', 'application/pdf');
+    }
+
+    public function test_store_anak_asuh_with_photo_uploads_via_r2_service_and_sets_foto_url(): void
+    {
+        Storage::fake('public');
+
+        $response = $this->post('/admin/anak-asuh', [
+            'nama_lengkap' => 'Anak Foto Baru',
+            'nama_panggilan' => 'Foto',
+            'jenis_kelamin' => 'L',
+            'tanggal_lahir' => '2015-01-01',
+            'pendidikan_terakhir' => 'SD',
+            'status_asuhan' => 'Aktif',
+            'foto' => UploadedFile::fake()->image('anak.jpg'),
+        ]);
+
+        $response->assertRedirect('/admin/anak-asuh');
+        $anak = AnakAsuh::where('nama_lengkap', 'Anak Foto Baru')->firstOrFail();
+        $this->assertNotNull($anak->foto_path);
+        $this->assertStringStartsWith('anak-asuh/', $anak->foto_path);
+        Storage::disk('public')->assertExists($anak->foto_path);
+
+        $this->assertNotNull($anak->foto_url);
+        $this->assertStringContainsString($anak->foto_path, $anak->foto_url);
+    }
+
+    public function test_update_anak_asuh_with_new_photo_deletes_old_photo(): void
+    {
+        Storage::fake('public');
+
+        Storage::disk('public')->put('anak-asuh/old_photo.jpg', 'old content');
+        $anak = AnakAsuh::create([
+            'nama_lengkap' => 'Anak Update Foto',
+            'nama_panggilan' => 'Update',
+            'jenis_kelamin' => 'P',
+            'tanggal_lahir' => '2014-02-02',
+            'pendidikan_terakhir' => 'SMP',
+            'status_asuhan' => 'Aktif',
+            'foto_path' => 'anak-asuh/old_photo.jpg',
+        ]);
+
+        $response = $this->put("/admin/anak-asuh/{$anak->id}", [
+            'nama_lengkap' => 'Anak Update Foto Renamed',
+            'nama_panggilan' => 'Update',
+            'jenis_kelamin' => 'P',
+            'tanggal_lahir' => '2014-02-02',
+            'pendidikan_terakhir' => 'SMP',
+            'status_asuhan' => 'Aktif',
+            'foto' => UploadedFile::fake()->image('new_photo.jpg'),
+        ]);
+
+        $response->assertRedirect('/admin/anak-asuh');
+        Storage::disk('public')->assertMissing('anak-asuh/old_photo.jpg');
+
+        $anak->refresh();
+        $this->assertNotEquals('anak-asuh/old_photo.jpg', $anak->foto_path);
+        Storage::disk('public')->assertExists($anak->foto_path);
+    }
+
+    public function test_destroy_anak_asuh_deletes_associated_photo(): void
+    {
+        Storage::fake('public');
+
+        Storage::disk('public')->put('anak-asuh/to_delete.jpg', 'content');
+        $anak = AnakAsuh::create([
+            'nama_lengkap' => 'Anak Untuk Dihapus',
+            'nama_panggilan' => 'Hapus',
+            'jenis_kelamin' => 'L',
+            'tanggal_lahir' => '2016-03-03',
+            'pendidikan_terakhir' => 'SD',
+            'status_asuhan' => 'Aktif',
+            'foto_path' => 'anak-asuh/to_delete.jpg',
+        ]);
+
+        $response = $this->delete("/admin/anak-asuh/{$anak->id}");
+        $response->assertRedirect('/admin/anak-asuh');
+
+        $this->assertDatabaseMissing('anak_asuh', ['id' => $anak->id]);
+        Storage::disk('public')->assertMissing('anak-asuh/to_delete.jpg');
     }
 }

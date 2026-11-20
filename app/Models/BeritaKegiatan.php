@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
+use App\Services\CloudflareR2Service;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Storage;
 
 class BeritaKegiatan extends Model
 {
@@ -81,8 +81,8 @@ class BeritaKegiatan extends Model
             return asset('images/User/potopalingatas.png');
         }
 
-        return str_starts_with($this->gambar, 'berita/')
-            ? Storage::disk('public')->url($this->gambar)
+        return str_starts_with($this->gambar, 'berita/') || str_starts_with($this->gambar, 'http') || str_starts_with($this->gambar, 'storage/')
+            ? app(CloudflareR2Service::class)->getPublicUrl($this->gambar)
             : asset('images/User/'.$this->gambar);
     }
 }

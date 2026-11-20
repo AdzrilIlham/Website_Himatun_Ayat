@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\CloudflareR2Service;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -91,5 +92,17 @@ class Kampanye extends Model
             'Pendidikan & Tahfidz' => 'bg-brand-100 dark:bg-brand-900/50 text-brand-700 dark:text-brand-200 border-brand-200 dark:border-brand-800',
             default => 'bg-muted text-muted-foreground-2 border-border',
         };
+    }
+
+    /**
+     * Get banner URL via CloudflareR2Service.
+     */
+    public function getBannerUrlAttribute(): string
+    {
+        if (empty($this->banner_path)) {
+            return asset('images/kampanye/nutrisi.svg');
+        }
+
+        return app(CloudflareR2Service::class)->getPublicUrl($this->banner_path);
     }
 }

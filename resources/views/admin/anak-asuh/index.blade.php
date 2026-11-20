@@ -34,7 +34,8 @@
                 pendidikan_terakhir: anak.pendidikan_terakhir || 'SD',
                 status_asuhan: anak.status_asuhan,
                 keterangan: anak.keterangan || '',
-                foto_path: anak.foto_path || ''
+                foto_path: anak.foto_path || '',
+                foto_url: anak.foto_url || ''
             };
             this.$nextTick(() => {
                 const form = this.$root.querySelector('#edit-anak-form');
@@ -279,8 +280,8 @@
                             <!-- Kolom Nama (Avatar & Nama Lengkap) -->
                             <td class="py-3.5 px-6 align-middle">
                                 <div class="flex items-center gap-3 min-w-0">
-                                    @if($anak->foto_path && file_exists(public_path($anak->foto_path)))
-                                        <img src="{{ asset($anak->foto_path) }}" 
+                                    @if($anak->foto_url)
+                                        <img src="{{ $anak->foto_url }}" 
                                              alt="{{ $anak->nama_lengkap }}" 
                                              class="w-10 h-10 rounded-full object-cover shrink-0 border border-border">
                                     @else
@@ -393,8 +394,8 @@
                 <div class="bg-card rounded-xl border border-border shadow-2xs p-4 space-y-3 transition">
                     <div class="flex items-start justify-between gap-3">
                         <div class="flex items-center gap-2.5 min-w-0">
-                            @if($anak->foto_path && file_exists(public_path($anak->foto_path)))
-                                <img src="{{ asset($anak->foto_path) }}" alt="{{ $anak->nama_lengkap }}" class="w-10 h-10 rounded-full object-cover shrink-0 border border-border">
+                            @if($anak->foto_url)
+                                <img src="{{ $anak->foto_url }}" alt="{{ $anak->nama_lengkap }}" class="w-10 h-10 rounded-full object-cover shrink-0 border border-border">
                             @else
                                 <div class="w-10 h-10 rounded-full bg-surface border border-border text-foreground font-bold text-sm flex items-center justify-center shrink-0">
                                     {{ $anak->inisial }}
@@ -710,8 +711,8 @@
                                     </button>
                                 </div>
                             </template>
-                            <template x-if="!editPhotoPreview && editData.foto_path">
-                                <img :src="'/' + editData.foto_path" alt="Foto Saat Ini" class="w-12 h-12 rounded-full object-cover shrink-0 border border-border">
+                            <template x-if="!editPhotoPreview && editData.foto_url">
+                                <img :src="editData.foto_url" alt="Foto Saat Ini" class="w-12 h-12 rounded-full object-cover shrink-0 border border-border">
                             </template>
                             <input type="file" 
                                    id="edit_foto_input"
@@ -756,12 +757,12 @@
                 </div>
                 <div class="p-5 overflow-y-auto space-y-4" x-show="selectedAnak">
                     <div class="flex items-center gap-4">
-                        <template x-if="selectedAnak && selectedAnak.foto_path">
-                            <img :src="'/' + selectedAnak.foto_path" 
+                        <template x-if="selectedAnak && selectedAnak.foto_url">
+                            <img :src="selectedAnak.foto_url" 
                                  :alt="selectedAnak.nama_lengkap" 
                                  class="w-16 h-16 rounded-full object-cover shrink-0 border border-border shadow-2xs">
                         </template>
-                        <template x-if="!selectedAnak || !selectedAnak.foto_path">
+                        <template x-if="!selectedAnak || !selectedAnak.foto_url">
                             <div class="w-16 h-16 rounded-full bg-surface text-foreground font-bold text-xl flex items-center justify-center shrink-0 border border-border">
                                 <span x-text="selectedAnak ? selectedAnak.nama_lengkap.substring(0, 1).toUpperCase() : 'A'"></span>
                             </div>

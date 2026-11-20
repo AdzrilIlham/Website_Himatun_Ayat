@@ -17,7 +17,6 @@ class DatabaseSeeder extends Seeder
         $this->call([
             DummyDataSeeder::class,
             BeritaKegiatanSeeder::class,
-            AgendaKegiatanSeeder::class,
         ]);
     }
 }

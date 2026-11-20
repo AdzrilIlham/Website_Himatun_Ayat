@@ -112,7 +112,7 @@
                                         'badge' => $item->kategori,
                                         'badge_icon' => 'book',
                                         'nominal' => 50000,
-                                        'image' => asset($item->banner_path ?: 'images/kampanye/nutrisi.svg'),
+                                        'image' => $item->banner_url,
                                     ];
                                 @endphp
 
