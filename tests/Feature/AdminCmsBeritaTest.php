@@ -53,4 +53,57 @@ class AdminCmsBeritaTest extends TestCase
         $response->assertSee('Kembali ke Daftar');
         $response->assertSee('Simpan Berita');
     }
+
+    /**
+     * Test pagination berfungsi pada daftar berita.
+     */
+    public function test_admin_cms_berita_pagination_works(): void
+    {
+        BeritaKegiatan::factory()->count(15)->create([
+            'terjadwal_di_kalender' => false,
+        ]);
+
+        $response = $this->get(route('admin.berita.index'));
+        $response->assertStatus(200);
+        $response->assertSee('Menampilkan 1 - 10 dari 15 Berita');
+        $response->assertSee('page=2');
+
+        $responsePage2 = $this->get(route('admin.berita.index', ['page' => 2]));
+        $responsePage2->assertStatus(200);
+        $responsePage2->assertSee('Menampilkan 11 - 15 dari 15 Berita');
+    }
+
+    /**
+     * Test pagination mempertahankan query pencarian dan pengurutan.
+     */
+    public function test_admin_cms_berita_pagination_retains_search_and_sort(): void
+    {
+        BeritaKegiatan::factory()->count(12)->create([
+            'judul' => 'Santunan Khusus Dhuafa',
+            'terjadwal_di_kalender' => false,
+        ]);
+        BeritaKegiatan::factory()->count(5)->create([
+            'judul' => 'Agenda Lain',
+            'terjadwal_di_kalender' => false,
+        ]);
+
+        $response = $this->get(route('admin.berita.index', [
+            'search' => 'Santunan',
+            'sort' => 'kategori',
+        ]));
+
+        $response->assertStatus(200);
+        $response->assertSee('Menampilkan 1 - 10 dari 12 Berita');
+        $response->assertSee('search=Santunan');
+        $response->assertSee('sort=kategori');
+        $response->assertSee('page=2');
+
+        $responsePage2 = $this->get(route('admin.berita.index', [
+            'search' => 'Santunan',
+            'sort' => 'kategori',
+            'page' => 2,
+        ]));
+        $responsePage2->assertStatus(200);
+        $responsePage2->assertSee('Menampilkan 11 - 12 dari 12 Berita');
+    }
 }
