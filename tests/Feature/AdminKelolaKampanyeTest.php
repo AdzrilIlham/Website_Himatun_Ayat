@@ -7,6 +7,7 @@ use App\Models\Kampanye;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -43,6 +44,11 @@ class AdminKelolaKampanyeTest extends TestCase
         $response->assertSee('Buat Kampanye Baru');
         $response->assertSee('Program Kafalah Guru Ngaji');
         $response->assertSee('Dakwah &amp; Syiar', false);
+    }
+
+    public function test_campaign_detail_route_is_not_registered_without_a_detail_page(): void
+    {
+        $this->assertFalse(Route::has('admin.kelola-kampanye.show'));
     }
 
     public function test_can_search_kampanye(): void

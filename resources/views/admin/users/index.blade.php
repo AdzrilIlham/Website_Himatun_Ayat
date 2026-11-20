@@ -24,6 +24,12 @@
         </div>
     @endif
 
+    @if (session('warning') || session('error'))
+        <div class="flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-900 sm:text-sm" role="alert">
+            <span>{{ session('warning') ?? session('error') }}</span>
+        </div>
+    @endif
+
     <!-- Alert Error -->
     @if ($errors->any())
         <div class="flex items-start gap-2.5 bg-red-50 border border-red-200 text-red-800 rounded-xl px-4 py-3 text-xs sm:text-sm">
@@ -87,13 +93,14 @@
             </div>
 
             <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs sm:text-sm">
+                <table class="w-full min-w-[760px] text-left text-xs sm:text-sm">
                     <thead class="bg-muted/60 text-muted-foreground text-2xs uppercase tracking-wider font-semibold border-b border-border">
                         <tr>
                             <th class="py-3 px-4">Administrator</th>
                             <th class="py-3 px-4">Status Email</th>
                             <th class="py-3 px-4">Status 2FA (TOTP)</th>
                             <th class="py-3 px-4">Terdaftar</th>
+                            <th class="py-3 px-4 text-right">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-border">
@@ -125,6 +132,24 @@
                                 </td>
                                 <td class="py-3.5 px-4 text-xs text-muted-foreground">
                                     {{ $admin->created_at->format('d M Y') }}
+                                </td>
+                                <td class="py-3.5 px-4">
+                                    <div class="flex flex-wrap items-center justify-end gap-2">
+                                        <a href="{{ route('admin.users.edit', $admin) }}" class="rounded-lg border border-border px-2.5 py-1.5 text-xs font-semibold text-muted-foreground-2 hover:bg-muted">Edit</a>
+                                        @unless ($admin->email_verified_at)
+                                            <form method="POST" action="{{ route('admin.users.resend-invitation', $admin) }}">
+                                                @csrf
+                                                <button type="submit" class="rounded-lg border border-brand-200 bg-brand-50 px-2.5 py-1.5 text-xs font-semibold text-brand-800 hover:bg-brand-100">Kirim Ulang</button>
+                                            </form>
+                                        @endunless
+                                        @if (! $admin->is(auth()->user()) && $adminCount > 1)
+                                            <form method="POST" action="{{ route('admin.users.destroy', $admin) }}" onsubmit="return confirm('Hapus akun administrator ini? Tindakan ini tidak dapat dibatalkan.')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="rounded-lg border border-danger/30 px-2.5 py-1.5 text-xs font-semibold text-danger hover:bg-danger-soft">Hapus</button>
+                                            </form>
+                                        @endif
+                                    </div>
                                 </td>
                             </tr>
                         @endforeach

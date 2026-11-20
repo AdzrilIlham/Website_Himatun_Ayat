@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\BeritaKegiatan;
+use App\Models\PengajuanKegiatan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
@@ -67,24 +68,24 @@ class BeritaKegiatanController extends Controller
     public function storePengajuan(Request $request)
     {
         $validated = $request->validate([
-            'nama_pemohon'     => 'required|string|max:255',
-            'nomor_whatsapp'   => 'required|string|max:50',
-            'tanggal'          => 'required|date',
-            'waktu'            => 'required|string|max:100',
-            'jenis_kegiatan'   => 'required|string|max:150',
+            'nama_pemohon' => 'required|string|max:255',
+            'nomor_whatsapp' => 'required|string|max:50',
+            'tanggal' => 'required|date',
+            'waktu' => 'required|string|max:100',
+            'jenis_kegiatan' => 'required|string|max:150',
             'rencana_kegiatan' => 'required|string',
         ]);
 
-        \App\Models\PengajuanKegiatan::ensureTableExists();
+        PengajuanKegiatan::ensureTableExists();
 
-        $pengajuan = \App\Models\PengajuanKegiatan::create([
+        $pengajuan = PengajuanKegiatan::create([
             ...$validated,
             'status' => 'menunggu',
         ]);
 
         return response()->json([
             'success' => true,
-            'id'      => $pengajuan->id,
+            'id' => $pengajuan->id,
             'message' => 'Pengajuan kegiatan berhasil disimpan.',
         ]);
     }
@@ -267,25 +268,6 @@ class BeritaKegiatanController extends Controller
         ];
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
     public function show(BeritaKegiatan $beritaKegiatan)
     {
         abort_unless($beritaKegiatan->status === 'tayang' && $beritaKegiatan->tanggal->lte(today()), 404);
@@ -305,29 +287,5 @@ class BeritaKegiatanController extends Controller
             'related' => $related,
             'title' => $beritaKegiatan->judul.' — Yayasan Himmatun Ayat Bandung',
         ]);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(BeritaKegiatan $beritaKegiatan)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, BeritaKegiatan $beritaKegiatan)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(BeritaKegiatan $beritaKegiatan)
-    {
-        //
     }
 }

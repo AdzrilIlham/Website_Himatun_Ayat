@@ -80,7 +80,7 @@ Route::prefix('admin')->name('admin.')->middleware([
     Route::get('/kelola-donasi/export', [KelolaDonasiController::class, 'export'])->name('kelola-donasi.export');
 
     // Kelola Kampanye
-    Route::resource('/kelola-kampanye', KampanyeController::class)->parameters([
+    Route::resource('/kelola-kampanye', KampanyeController::class)->except(['show'])->parameters([
         'kelola-kampanye' => 'kampanye',
     ]);
 
@@ -107,6 +107,10 @@ Route::prefix('admin')->name('admin.')->middleware([
     // Manajemen Administrator (Server-side provisioning)
     Route::get('/kelola-admin', [AdminUserController::class, 'index'])->name('users.index');
     Route::post('/kelola-admin', [AdminUserController::class, 'store'])->name('users.store');
+    Route::get('/kelola-admin/{admin}/edit', [AdminUserController::class, 'edit'])->name('users.edit');
+    Route::put('/kelola-admin/{admin}', [AdminUserController::class, 'update'])->name('users.update');
+    Route::delete('/kelola-admin/{admin}', [AdminUserController::class, 'destroy'])->name('users.destroy');
+    Route::post('/kelola-admin/{admin}/resend-invitation', [AdminUserController::class, 'resendInvitation'])->middleware('throttle:1,1')->name('users.resend-invitation');
 
     // Keamanan Akun, Manajemen Sesi, dan Perangkat Terpercaya
     Route::get('/keamanan-akun', [AccountSecurityController::class, 'index'])->name('security.index');
