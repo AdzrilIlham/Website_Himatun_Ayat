@@ -215,7 +215,24 @@
                 <tbody class="divide-y divide-border-line-1 text-sm">
                     @forelse($daftarBerita as $index => $item)
                         @php
-                            $statusLabel = $item->status === 'tayang' && $item->tanggal->gt(today()) ? 'Terjadwal' : ucfirst($item->status);
+                            $normalizedStatus = strtolower(trim((string) $item->status));
+                            $statusKey = $normalizedStatus === 'tayang' && $item->tanggal->gt(today())
+                                ? 'terjadwal'
+                                : $normalizedStatus;
+                            $statusLabel = match ($statusKey) {
+                                'tayang' => 'Tayang',
+                                'terjadwal' => 'Terjadwal',
+                                'draft' => 'Draft',
+                                'arsip' => 'Arsip',
+                                default => trim((string) $item->status) !== '' ? trim((string) $item->status) : 'Tidak diketahui',
+                            };
+                            $statusBadgeClass = match ($statusKey) {
+                                'tayang' => 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300',
+                                'terjadwal' => 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900/50 dark:text-cyan-300',
+                                'draft' => 'bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300',
+                                'arsip' => 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300',
+                                default => 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
+                            };
                             $formattedDate = $item->tanggal->locale('id')->translatedFormat('d M Y');
                             $editUrl = route('admin.berita.edit', $item);
                             $deleteUrl = route('admin.berita.destroy', $item);
@@ -251,7 +268,7 @@
 
                             <!-- Status Badge -->
                             <td class="py-4 px-4 text-center">
-                                <span class="inline-block px-3.5 py-1 rounded-full text-xs font-semibold {{ $item->status === 'tayang' ? 'bg-brand-100 dark:bg-brand-900/50 text-brand-600 dark:text-brand-300' : ($item->status === 'draft' ? 'bg-danger-soft text-danger' : 'bg-muted text-muted-foreground') }}">
+                                <span class="inline-block px-3.5 py-1 rounded-full text-xs font-semibold {{ $statusBadgeClass }}">
                                     {{ $statusLabel }}
                                 </span>
                             </td>
@@ -314,7 +331,24 @@
     <div class="md:hidden space-y-3">
         @forelse($daftarBerita as $index => $item)
             @php
-                $statusLabel = $item->status === 'tayang' && $item->tanggal->gt(today()) ? 'Terjadwal' : ucfirst($item->status);
+                $normalizedStatus = strtolower(trim((string) $item->status));
+                $statusKey = $normalizedStatus === 'tayang' && $item->tanggal->gt(today())
+                    ? 'terjadwal'
+                    : $normalizedStatus;
+                $statusLabel = match ($statusKey) {
+                    'tayang' => 'Tayang',
+                    'terjadwal' => 'Terjadwal',
+                    'draft' => 'Draft',
+                    'arsip' => 'Arsip',
+                    default => trim((string) $item->status) !== '' ? trim((string) $item->status) : 'Tidak diketahui',
+                };
+                $statusBadgeClass = match ($statusKey) {
+                    'tayang' => 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300',
+                    'terjadwal' => 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900/50 dark:text-cyan-300',
+                    'draft' => 'bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300',
+                    'arsip' => 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300',
+                    default => 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
+                };
                 $formattedDate = $item->tanggal->locale('id')->translatedFormat('d M Y');
                 $editUrl = route('admin.berita.edit', $item);
                 $deleteUrl = route('admin.berita.destroy', $item);
@@ -367,7 +401,7 @@
                     <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold {{ str_contains($item->kategori, 'Dakwah') ? 'bg-info-soft text-info' : 'bg-warning-soft text-warning' }}">
                         {{ $item->kategori }}
                     </span>
-                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold {{ $item->status === 'tayang' ? 'bg-brand-100 dark:bg-brand-900/50 text-brand-600 dark:text-brand-300' : ($item->status === 'draft' ? 'bg-danger-soft text-danger' : 'bg-muted text-muted-foreground') }}">
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold {{ $statusBadgeClass }}">
                         {{ $statusLabel }}
                     </span>
                 </div>
