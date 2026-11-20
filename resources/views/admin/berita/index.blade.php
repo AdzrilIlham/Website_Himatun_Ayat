@@ -254,10 +254,8 @@
                             <!-- Status Badge -->
                             <td class="py-4 px-4 text-center">
                                 <span class="inline-block px-3.5 py-1 rounded-full text-xs font-semibold"
-                                      :class="item.status === 'Selesai' 
-                                          ? 'bg-[#EBF5FF] text-[#3F83F8]' 
-                                          : 'bg-[#DEF7EC] text-[#0E9F6E]'"
-                                      x-text="item.status">
+                                      :class="({ tayang: 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300', terjadwal: 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900/50 dark:text-cyan-300', draft: 'bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300', arsip: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300' })[(item.status || '').trim().toLowerCase()] || 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'"
+                                      x-text="({ tayang: 'Tayang', terjadwal: 'Terjadwal', draft: 'Draft', arsip: 'Arsip' })[(item.status || '').trim().toLowerCase()] || item.status || 'Tidak diketahui'">
                                 </span>
                             </td>
 
@@ -367,8 +365,8 @@
                           x-text="item.kategori">
                     </span>
                     <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold"
-                          :class="item.status === 'Selesai' ? 'bg-[#EBF5FF] text-[#3F83F8]' : 'bg-[#DEF7EC] text-[#0E9F6E]'"
-                          x-text="item.status">
+                          :class="({ tayang: 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300', terjadwal: 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900/50 dark:text-cyan-300', draft: 'bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300', arsip: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300' })[(item.status || '').trim().toLowerCase()] || 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'"
+                          x-text="({ tayang: 'Tayang', terjadwal: 'Terjadwal', draft: 'Draft', arsip: 'Arsip' })[(item.status || '').trim().toLowerCase()] || item.status || 'Tidak diketahui'">
                     </span>
                 </div>
 
