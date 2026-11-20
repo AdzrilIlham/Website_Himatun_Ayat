@@ -14,30 +14,56 @@ use Illuminate\View\View;
 
 class BeritaController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
-        $berita = BeritaKegiatan::query()->where('terjadwal_di_kalender', false)->terbaru()->get();
-        $published = $berita->filter(fn (BeritaKegiatan $item): bool => $item->status === 'tayang' && $item->tanggal->lte(today()))->count();
-        $stats = [
-            'total_berita' => $berita->count(),
-            'reguler' => $published,
-            'mendesak' => $berita->where('status', 'draft')->count(),
-            'dipublikasikan' => $published,
-            'draft' => $berita->where('status', 'draft')->count(),
-            'arsip' => $berita->where('status', 'arsip')->count(),
-        ];
-        $daftarBerita = $berita->map(fn (BeritaKegiatan $item): array => [
-            'id' => $item->id,
-            'judul' => $item->judul,
-            'kategori' => $item->kategori,
-            'status' => $item->status === 'tayang' && $item->tanggal->gt(today()) ? 'Terjadwal' : ucfirst($item->status),
-            'tanggal' => $item->tanggal->locale('id')->translatedFormat('d M Y'),
-            'thumbnail' => $item->gambar_url,
-            'edit_url' => route('admin.berita.edit', $item),
-            'delete_url' => route('admin.berita.destroy', $item),
-        ]);
+        $search = $request->query('search');
+        $sort = $request->query('sort', 'status');
+        $status = $request->query('status');
+        $kategori = $request->query('kategori');
 
-        return view('admin.berita.index', compact('stats', 'daftarBerita'));
+        $baseQuery = BeritaKegiatan::query()->where('terjadwal_di_kalender', false);
+
+        $allBerita = (clone $baseQuery)->get();
+        $published = $allBerita->filter(fn (BeritaKegiatan $item): bool => $item->status === 'tayang' && $item->tanggal->lte(today()))->count();
+        $stats = [
+            'total_berita' => $allBerita->count(),
+            'reguler' => $published,
+            'mendesak' => $allBerita->where('status', 'draft')->count(),
+            'dipublikasikan' => $published,
+            'draft' => $allBerita->where('status', 'draft')->count(),
+            'arsip' => $allBerita->where('status', 'arsip')->count(),
+        ];
+
+        $query = clone $baseQuery;
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('judul', 'like', "%{$search}%")
+                    ->orWhere('kategori', 'like', "%{$search}%");
+            });
+        }
+
+        if ($status) {
+            $query->where('status', $status);
+        }
+
+        if ($kategori) {
+            $query->where('kategori', $kategori);
+        }
+
+        if ($sort === 'kategori') {
+            $query->orderBy('kategori', 'asc')->latest('tanggal')->latest('id');
+        } elseif ($sort === 'status') {
+            $query->orderByRaw("CASE WHEN status = 'tayang' THEN 1 WHEN status = 'draft' THEN 2 ELSE 3 END")
+                ->latest('tanggal')
+                ->latest('id');
+        } else {
+            $query->latest('tanggal')->latest('id');
+        }
+
+        $daftarBerita = $query->paginate(10)->withQueryString();
+
+        return view('admin.berita.index', compact('stats', 'daftarBerita', 'search', 'sort', 'status', 'kategori'));
     }
 
     public function create(): View

@@ -22,7 +22,7 @@ class DashboardDemoSeeder extends Seeder
             ['email' => 'admin@himmatunayat.org'],
             [
                 'name' => 'Admin Yayasan',
-                'password' => bcrypt('password'),
+                'password' => 'password123',
                 'email_verified_at' => now(),
             ]
         );
