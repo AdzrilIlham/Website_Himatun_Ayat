@@ -441,7 +441,7 @@
                 Menampilkan {{ $daftarBerita->firstItem() ?? 1 }} - {{ $daftarBerita->lastItem() ?? $daftarBerita->count() }} dari {{ $daftarBerita->total() }} Berita
             </div>
 
-            @if($daftarBerita->hasPages())
+            @if($daftarBerita->total() > 0)
                 <nav class="flex items-center justify-center sm:justify-end gap-1.5" aria-label="Navigasi Halaman">
                     {{-- Prev Link --}}
                     @if ($daftarBerita->onFirstPage())
@@ -457,23 +457,28 @@
                     @endif
 
                     {{-- Numbered Page Links --}}
-                    @php
-                        $start = max(1, $daftarBerita->currentPage() - 2);
-                        $end = min($daftarBerita->lastPage(), $daftarBerita->currentPage() + 2);
-                    @endphp
-                    @for ($p = $start; $p <= $end; $p++)
-                        @if ($p == $daftarBerita->currentPage())
-                            <span class="w-8 h-8 rounded-lg bg-brand-700 text-white flex items-center justify-center font-bold text-xs sm:text-sm shadow-2xs">
-                                {{ $p }}
-                            </span>
-                        @else
-                            <a href="{{ $daftarBerita->url($p) }}" 
-                               class="w-8 h-8 rounded-lg text-muted-foreground-2 hover:bg-muted flex items-center justify-center font-medium text-xs sm:text-sm border border-border transition">
-                                {{ $p }}
-                            </a>
-                        @endif
-                    @endfor
-
+                    @if ($daftarBerita->hasPages())
+                        @php
+                            $start = max(1, $daftarBerita->currentPage() - 2);
+                            $end = min($daftarBerita->lastPage(), $daftarBerita->currentPage() + 2);
+                        @endphp
+                        @for ($p = $start; $p <= $end; $p++)
+                            @if ($p == $daftarBerita->currentPage())
+                                <span class="w-8 h-8 rounded-lg bg-brand-700 text-white flex items-center justify-center font-bold text-xs sm:text-sm shadow-2xs" aria-current="page">
+                                    {{ $p }}
+                                </span>
+                            @else
+                                <a href="{{ $daftarBerita->url($p) }}"
+                                   class="w-8 h-8 rounded-lg text-muted-foreground-2 hover:bg-muted flex items-center justify-center font-medium text-xs sm:text-sm border border-border transition">
+                                    {{ $p }}
+                                </a>
+                            @endif
+                        @endfor
+                    @else
+                        <span class="w-8 h-8 rounded-lg bg-brand-700 text-white flex items-center justify-center font-bold text-xs sm:text-sm shadow-2xs" aria-current="page">
+                            1
+                        </span>
+                    @endif
                     {{-- Next Link --}}
                     @if ($daftarBerita->hasMorePages())
                         <a href="{{ $daftarBerita->nextPageUrl() }}" 

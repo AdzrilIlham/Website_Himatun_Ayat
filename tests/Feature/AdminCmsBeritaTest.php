@@ -35,6 +35,8 @@ class AdminCmsBeritaTest extends TestCase
         $response->assertSee('ARSIP');
         $response->assertSee('Kafalah Guru Ngaji');
         $response->assertSee('Tambah Berita');
+        $response->assertSee('Navigasi Halaman');
+        $response->assertSee('aria-current="page"', false);
     }
 
     /**
