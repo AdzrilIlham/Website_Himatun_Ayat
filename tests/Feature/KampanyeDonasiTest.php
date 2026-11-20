@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Livewire\User\KampanyeDonasi;
+use App\Models\Donasi;
 use App\Models\Kampanye;
 use App\Services\QrisDinamisService;
 use Livewire\Livewire;
@@ -112,6 +113,63 @@ class KampanyeDonasiTest extends TestCase
         $secondPaymentId = $test->get('paymentId');
         $this->assertMatchesRegularExpression('/^DNS-\d{8}-\d{3}$/', $secondPaymentId);
         $this->assertNotSame($firstPaymentId, $secondPaymentId);
+    }
+
+    public function test_active_payment_modal_is_restored_after_page_refresh(): void
+    {
+        $first = Livewire::test(KampanyeDonasi::class)
+            ->set('namaDonatur', 'Rina Refresh')
+            ->set('noTelepon', '081234567890')
+            ->set('selectedNominal', 60000)
+            ->call('confirmDonasi')
+            ->call('selectMetodePembayaran', 'Transfer Bank')
+            ->call('payNow');
+
+        $paymentId = $first->get('paymentId');
+        $expiresAt = $first->get('paymentExpiresAt');
+        $donasiId = $first->get('currentDonasi')->id;
+
+        // Simulasi refresh: komponen baru di-mount dengan session yang sama
+        Livewire::test(KampanyeDonasi::class)
+            ->assertSet('showPaymentModal', true)
+            ->assertSet('paymentStep', 2)
+            ->assertSet('paymentId', $paymentId)
+            ->assertSet('paymentExpiresAt', $expiresAt)
+            ->assertSet('metodePembayaran', 'Transfer Bank')
+            ->assertSee('721.919.9827');
+
+        $this->assertSame(1, Donasi::where('nama_donatur', 'Rina Refresh')->count());
+
+        // Menutup modal menghapus sesi aktif
+        Livewire::test(KampanyeDonasi::class)->call('closePaymentModal');
+        Livewire::test(KampanyeDonasi::class)->assertSet('showPaymentModal', false);
+
+        Donasi::whereKey($donasiId)->delete();
+    }
+
+    public function test_expired_active_payment_shows_failed_modal_after_refresh(): void
+    {
+        $component = Livewire::test(KampanyeDonasi::class)
+            ->set('namaDonatur', 'Eko Expired')
+            ->set('noTelepon', '081234567890')
+            ->set('selectedNominal', 20000)
+            ->call('confirmDonasi');
+
+        $donasiId = $component->get('currentDonasi')->id;
+
+        session()->put(KampanyeDonasi::ACTIVE_PAYMENT_SESSION_KEY, array_merge(
+            session(KampanyeDonasi::ACTIVE_PAYMENT_SESSION_KEY),
+            ['expires_at' => now()->subMinute()->timestamp]
+        ));
+
+        Livewire::test(KampanyeDonasi::class)
+            ->assertSet('showPaymentModal', false)
+            ->assertSet('showFailedModal', true);
+
+        $this->assertSame('rejected', Donasi::find($donasiId)->status);
+        $this->assertNull(session(KampanyeDonasi::ACTIVE_PAYMENT_SESSION_KEY));
+
+        Donasi::whereKey($donasiId)->delete();
     }
 
     public function test_qris_dinamis_generates_valid_emvco_payload_and_svg_qr_code(): void
