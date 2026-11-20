@@ -4,19 +4,20 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\BeritaKegiatan;
-use App\Services\CloudflareR2Service;
+use App\Services\CloudinaryImageService;
 use App\Support\BeritaHtml;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class BeritaController extends Controller
 {
-
     public function __construct(
-        protected CloudflareR2Service $r2Service
+        protected CloudinaryImageService $images
     ) {}
 
     public function index(Request $request): View
@@ -112,16 +113,27 @@ class BeritaController extends Controller
             'status' => ['required', 'in:tayang,draft,arsip'],
             'ringkasan' => ['required', 'string', 'max:300'],
             'konten' => ['required', 'string', 'max:5000000'],
-            'gambar' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'gambar' => ['nullable', 'array:id,public_id'],
+            'gambar_konten' => ['sometimes', 'array', 'max:10'],
+            'gambar_konten.*' => ['required', 'array:id,public_id'],
             'tags' => ['nullable', 'array', 'max:20'],
             'tags.*' => ['required', 'string', 'max:50'],
         ]);
         $data['konten'] = BeritaHtml::sanitize($data['konten']);
-        if (blank(trim(strip_tags($data['konten']))) && ! str_contains($data['konten'], '<img')) {
+        $sources = BeritaHtml::imageSources($data['konten']);
+        $legacySources = BeritaHtml::imageSources(BeritaHtml::sanitize($berita->konten ?? ''));
+        foreach (array_diff($sources, $legacySources) as $source) {
+            if (str_starts_with(strtolower($source), 'data:')) {
+                throw ValidationException::withMessages(['konten' => 'Gunakan tombol sisipkan gambar untuk menambah gambar ke isi berita.']);
+            }
+        }
+        if (blank(trim(strip_tags($data['konten']))) && $sources === []) {
             throw ValidationException::withMessages(['konten' => 'Isi berita wajib diisi.']);
         }
         $data['tanggal'] = $data['tanggal_publikasi'];
-        unset($data['tanggal_publikasi'], $data['gambar']);
+        unset($data['tanggal_publikasi']);
+        $coverReference = Arr::pull($data, 'gambar');
+        $inlineReferences = Arr::pull($data, 'gambar_konten', []);
         $data['tags'] = $data['tags'] ?? [];
         if (! $berita->exists) {
             $base = Str::slug($data['judul']) ?: 'berita';
@@ -132,13 +144,41 @@ class BeritaController extends Controller
             }
             $data['slug'] = $slug;
         }
-        $oldImage = $berita->gambar;
-        if ($request->hasFile('gambar')) {
-            $data['gambar'] = $this->r2Service->uploadPublic($request->file('gambar'), 'berita');
+        $cover = null;
+        $removedInline = DB::transaction(function () use ($request, $berita, $data, $sources, $coverReference, $inlineReferences, &$cover): array {
+            $newCover = $coverReference ? $this->images->consume($request, $coverReference, 'gambar', $berita->id) : null;
+            $newInline = [];
+            foreach ($inlineReferences as $reference) {
+                $asset = $this->images->consume($request, $reference, 'gambar_konten', $berita->id);
+                if (! in_array($asset['secure_url'], $sources, true)) {
+                    throw ValidationException::withMessages(['konten' => 'Gambar yang diunggah harus ada di isi berita.']);
+                }
+                $newInline[] = $asset;
+            }
+
+            $record = $berita->exists ? BeritaKegiatan::lockForUpdate()->findOrFail($berita->id) : $berita;
+            $existingSources = BeritaHtml::imageSources(BeritaHtml::sanitize($record->konten ?? ''));
+            $verifiedSources = array_column($newInline, 'secure_url');
+            if (array_diff($sources, $existingSources, $verifiedSources) !== []) {
+                throw ValidationException::withMessages(['konten' => 'Gambar baru di isi berita harus diunggah melalui tombol sisipkan gambar.']);
+            }
+            $previousInline = collect($record->gambar_konten_cloudinary ?? []);
+            $record->fill($data)->forceFill([
+                'gambar_konten_cloudinary' => $previousInline->whereInStrict('secure_url', $sources)->concat($newInline)->values()->all(),
+            ]);
+            if ($newCover !== null) {
+                $cover = [$record->gambar, $record->gambar_cloudinary];
+                $record->forceFill(['gambar' => $newCover['secure_url'], 'gambar_cloudinary' => $newCover]);
+            }
+            $record->save();
+
+            return $previousInline->whereNotInStrict('secure_url', $sources)->all();
+        });
+        if ($cover !== null) {
+            $this->deleteCover(...$cover);
         }
-        $berita->fill($data)->save();
-        if (isset($data['gambar']) && $oldImage && (str_starts_with($oldImage, 'berita/') || str_starts_with($oldImage, 'storage/berita/'))) {
-            $this->r2Service->deletePublic($oldImage);
+        foreach ($removedInline as $asset) {
+            $this->images->deleteAsset($asset);
         }
 
         return to_route('admin.berita.index')->with('success', 'Berita berhasil disimpan.');
@@ -148,10 +188,18 @@ class BeritaController extends Controller
     {
         abort_if($berita->terjadwal_di_kalender, 404);
         $berita->delete();
-        if ($berita->gambar && (str_starts_with($berita->gambar, 'berita/') || str_starts_with($berita->gambar, 'storage/berita/'))) {
-            $this->r2Service->deletePublic($berita->gambar);
+        $this->deleteCover($berita->gambar, $berita->gambar_cloudinary);
+        foreach ($berita->gambar_konten_cloudinary ?? [] as $asset) {
+            $this->images->deleteAsset($asset);
         }
 
         return to_route('admin.berita.index')->with('success', 'Berita berhasil dihapus.');
+    }
+
+    private function deleteCover(?string $path, ?array $asset): void
+    {
+        if ($asset !== null || ($path && Str::startsWith($path, ['berita/', 'storage/berita/']))) {
+            $this->images->deletePublic($path, $asset);
+        }
     }
 }

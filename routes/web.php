@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\LaporanEksporController;
 use App\Http\Controllers\Admin\PengajuanKegiatanController;
 use App\Http\Controllers\Admin\TwoFactorSetupController;
 use App\Http\Controllers\BeritaKegiatanController;
+use App\Http\Controllers\ImageUploadController;
 use App\Http\Controllers\User\LandingPageController;
 use App\Http\Controllers\User\TentangKamiController;
 use App\Livewire\User\KampanyeDonasi;
@@ -21,6 +22,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [LandingPageController::class, 'index'])->name('home');
 Route::get('/kampanye', KampanyeDonasi::class)->name('kampanye.index');
 Route::get('/donasi', KampanyeDonasi::class)->name('donasi.index');
+Route::post('/donasi/{donasi}/bukti-transfer/upload', [ImageUploadController::class, 'donation'])
+    ->middleware('throttle:10,1')->name('donasi.bukti-transfer.upload');
 Route::get('/tentang-kami', [TentangKamiController::class, 'index'])->name('tentang-kami');
 Route::get('/profile', [TentangKamiController::class, 'index'])->name('profile');
 Route::get('/berita-kegiatan', [BeritaKegiatanController::class, 'index'])->name('berita-kegiatan.index');
@@ -60,6 +63,9 @@ Route::prefix('admin')->name('admin.')->middleware([
     'idle.timeout',
     'remember.challenge',
 ])->group(function () {
+    Route::post('/image-uploads', [ImageUploadController::class, 'admin'])->middleware('throttle:30,1')->name('image-uploads.store');
+    Route::get('/donasi/{donasi}/bukti-transfer', [ImageUploadController::class, 'receipt'])->name('donasi.bukti-transfer.show');
+
     // Dashboard Admin
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/donasi/{donasi}/verifikasi', [DashboardController::class, 'verifikasi'])->name('donasi.verifikasi');

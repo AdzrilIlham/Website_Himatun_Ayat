@@ -27,6 +27,7 @@ class Kampanye extends Model
     ];
 
     protected $casts = [
+        'banner_cloudinary' => 'array',
         'target_dana' => 'decimal:2',
         'dana_terkumpul' => 'decimal:2',
         'tanggal_mulai' => 'date',
@@ -95,7 +96,7 @@ class Kampanye extends Model
     }
 
     /**
-     * Get banner URL via CloudflareR2Service.
+     * Get the current or legacy banner URL.
      */
     public function getBannerUrlAttribute(): string
     {

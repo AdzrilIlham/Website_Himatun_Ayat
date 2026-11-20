@@ -551,7 +551,7 @@
                         </svg>
                     </button>
                 </div>
-                <form method="POST" action="{{ route('admin.anak-asuh.store') }}" enctype="multipart/form-data" class="overflow-y-auto p-5 space-y-4">
+                <form method="POST" action="{{ route('admin.anak-asuh.store') }}" data-image-authorization="{{ route('admin.image-uploads.store') }}" class="overflow-y-auto p-5 space-y-4">
                     @csrf
                     <div>
                         <label class="block text-xs font-semibold text-muted-foreground-2 mb-1">Nama Lengkap *</label>
@@ -612,10 +612,11 @@
                             </template>
                             <input type="file" 
                                    id="create_foto_input"
-                                   name="foto" 
-                                   accept="image/*" 
+                                   data-image-field="foto"
+                                   accept="image/jpeg,image/png,image/webp"
                                    @change="handleCreatePhoto" 
                                    class="w-full text-xs text-muted-foreground-1 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100 cursor-pointer">
+                            <p data-image-upload-status role="status"></p>
                         </div>
                     </div>
                     <div>
@@ -651,7 +652,7 @@
                         </svg>
                     </button>
                 </div>
-                <form id="edit-anak-form" :action="'/admin/anak-asuh/' + editData.id" method="POST" enctype="multipart/form-data" class="overflow-y-auto p-5 space-y-4">
+                <form id="edit-anak-form" :action="'/admin/anak-asuh/' + editData.id" method="POST" data-image-authorization="{{ route('admin.image-uploads.store') }}" :data-image-record="editData.id" class="overflow-y-auto p-5 space-y-4">
                     @csrf
                     @method('PUT')
                     <div>
@@ -716,10 +717,11 @@
                             </template>
                             <input type="file" 
                                    id="edit_foto_input"
-                                   name="foto" 
-                                   accept="image/*" 
+                                   data-image-field="foto"
+                                   accept="image/jpeg,image/png,image/webp"
                                    @change="handleEditPhoto" 
                                    class="w-full text-xs text-muted-foreground-1 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100 cursor-pointer">
+                            <p data-image-upload-status role="status"></p>
                         </div>
                     </div>
                     <div>

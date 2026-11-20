@@ -9,7 +9,7 @@ use App\Models\User;
 use App\Services\CloudflareR2Service;
 use App\Services\LaporanService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -88,31 +88,22 @@ class LegacyModelsAndStorageCleanupTest extends TestCase
         $this->assertTrue($events->contains('id', $event->id));
     }
 
-    /**
-     * Poin 3: Samain penyimpanan file — Kampanye, Berita & AnakAsuh semua memakai CloudflareR2Service.
-     */
-    public function test_file_storage_is_unified_with_cloudflare_r2_service_for_all_modules(): void
+    public function test_all_public_image_modules_store_cloudinary_references_and_remove_deleted_assets(): void
     {
-        Storage::fake('public');
-
-        // 1. Kampanye Banner via CloudflareR2Service
         $kampanyeResponse = $this->post(route('admin.kelola-kampanye.store'), [
             'judul' => 'Kampanye Bersama R2 Service',
             'kategori' => 'Dakwah & Syiar',
             'deskripsi' => 'Deskripsi kampanye pengujian R2.',
             'target_dana' => 10000000,
             'status' => 'aktif',
-            'banner' => UploadedFile::fake()->image('kampanye_banner.jpg'),
+            'banner' => $this->cloudinaryImageReference('banner'),
         ]);
         $kampanyeResponse->assertRedirect(route('admin.kelola-kampanye.index'));
 
         $kampanye = Kampanye::where('judul', 'Kampanye Bersama R2 Service')->firstOrFail();
         $this->assertNotNull($kampanye->banner_path);
-        $this->assertStringStartsWith('kampanye/', $kampanye->banner_path);
-        Storage::disk('public')->assertExists($kampanye->banner_path);
-        $this->assertNotEmpty($kampanye->banner_url);
+        $this->assertSame($kampanye->banner_cloudinary['secure_url'], $kampanye->banner_url);
 
-        // 2. Berita Gambar via CloudflareR2Service
         $beritaResponse = $this->post(route('admin.berita.store'), [
             'judul' => 'Berita Bersama R2 Service',
             'kategori' => 'Pendidikan',
@@ -120,17 +111,14 @@ class LegacyModelsAndStorageCleanupTest extends TestCase
             'status' => 'tayang',
             'ringkasan' => 'Ringkasan berita pengujian R2.',
             'konten' => '<p>Konten berita pengujian R2.</p>',
-            'gambar' => UploadedFile::fake()->image('berita_gambar.jpg'),
+            'gambar' => $this->cloudinaryImageReference('gambar'),
         ]);
         $beritaResponse->assertRedirect(route('admin.berita.index'));
 
         $berita = BeritaKegiatan::where('judul', 'Berita Bersama R2 Service')->firstOrFail();
         $this->assertNotNull($berita->gambar);
-        $this->assertStringStartsWith('berita/', $berita->gambar);
-        Storage::disk('public')->assertExists($berita->gambar);
-        $this->assertNotEmpty($berita->gambar_url);
+        $this->assertSame($berita->gambar_cloudinary['secure_url'], $berita->gambar_url);
 
-        // 3. Anak Asuh Foto via CloudflareR2Service
         $anakResponse = $this->post(route('admin.anak-asuh.store'), [
             'nama_lengkap' => 'Anak Asuh R2 Service',
             'nama_panggilan' => 'Asuh R2',
@@ -138,25 +126,22 @@ class LegacyModelsAndStorageCleanupTest extends TestCase
             'tanggal_lahir' => '2016-01-01',
             'pendidikan_terakhir' => 'SD',
             'status_asuhan' => 'Aktif',
-            'foto' => UploadedFile::fake()->image('anak_foto.jpg'),
+            'foto' => $this->cloudinaryImageReference('foto'),
         ]);
         $anakResponse->assertRedirect(route('admin.anak-asuh.index'));
 
         $anak = AnakAsuh::where('nama_lengkap', 'Anak Asuh R2 Service')->firstOrFail();
         $this->assertNotNull($anak->foto_path);
-        $this->assertStringStartsWith('anak-asuh/', $anak->foto_path);
-        Storage::disk('public')->assertExists($anak->foto_path);
-        $this->assertNotEmpty($anak->foto_url);
+        $this->assertSame($anak->foto_cloudinary['secure_url'], $anak->foto_url);
 
-        // 4. Pengujian penghapusan file melalui CloudflareR2Service saat delete
         $this->delete(route('admin.kelola-kampanye.destroy', $kampanye));
-        Storage::disk('public')->assertMissing($kampanye->banner_path);
-
         $this->delete(route('admin.berita.destroy', $berita));
-        Storage::disk('public')->assertMissing($berita->gambar);
-
         $this->delete(route('admin.anak-asuh.destroy', $anak));
-        Storage::disk('public')->assertMissing($anak->foto_path);
+
+        foreach ([$kampanye->banner_cloudinary, $berita->gambar_cloudinary, $anak->foto_cloudinary] as $asset) {
+            Http::assertSent(fn ($request) => str_ends_with($request->url(), '/image/destroy')
+                && $request['public_id'] === $asset['public_id']);
+        }
     }
 
     /**

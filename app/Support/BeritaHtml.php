@@ -8,6 +8,14 @@ use DOMNode;
 
 class BeritaHtml
 {
+    /** @return list<string> */
+    public static function imageSources(string $sanitizedHtml): array
+    {
+        preg_match_all('/<img\b[^>]*\ssrc="([^"]*)"/i', $sanitizedHtml, $matches);
+
+        return array_map(html_entity_decode(...), $matches[1]);
+    }
+
     public static function sanitize(string $html): string
     {
         $document = new DOMDocument;

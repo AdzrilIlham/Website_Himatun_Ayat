@@ -4,18 +4,17 @@ namespace App\Livewire\User;
 
 use App\Models\Donasi;
 use App\Models\Kampanye;
-use App\Services\CloudflareR2Service;
+use App\Services\CloudinaryImageService;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Locked;
 use Livewire\Attributes\Title;
 use Livewire\Component;
-use Livewire\WithFileUploads;
 
 #[Layout('layouts.user')]
 #[Title('Program Donasi & Kampanye Kebaikan - Yayasan Himatun Ayat Bandung')]
 class KampanyeDonasi extends Component
 {
-    use WithFileUploads;
-
     public ?int $selectedKampanyeId = null;
 
     public ?int $selectedNominal = null;
@@ -38,8 +37,6 @@ class KampanyeDonasi extends Component
 
     public int $paymentStep = 1;
 
-    public $buktiTransfer;
-
     public bool $showPaymentModal = false;
 
     public bool $showSuccessModal = false;
@@ -48,6 +45,7 @@ class KampanyeDonasi extends Component
 
     public ?int $paymentExpiresAt = null;
 
+    #[Locked]
     public ?Donasi $currentDonasi = null;
 
     public int $activeSlide = 0;
@@ -196,6 +194,7 @@ class KampanyeDonasi extends Component
         $this->paymentId = $this->generatePaymentId($donasi->id);
         $this->paymentStep = 1;
         $this->paymentExpiresAt = now()->addMinutes(5)->timestamp;
+        session()->put('donasi_checkout', ['id' => $donasi->id, 'expires_at' => $this->paymentExpiresAt]);
         $this->showFailedModal = false;
         $this->showPaymentModal = true;
     }
@@ -214,7 +213,7 @@ class KampanyeDonasi extends Component
     public function selectMetodePembayaran(string $metode): void
     {
         $this->metodePembayaran = $metode;
-        if ($this->currentDonasi) {
+        if ($this->currentDonasi?->allowsReceiptUpload(session()->driver())) {
             $this->currentDonasi->update([
                 'metode_pembayaran' => $metode,
             ]);
@@ -223,7 +222,7 @@ class KampanyeDonasi extends Component
 
     public function payNow(): void
     {
-        if ($this->currentDonasi) {
+        if ($this->currentDonasi?->allowsReceiptUpload(session()->driver())) {
             $this->currentDonasi->update([
                 'metode_pembayaran' => $this->metodePembayaran,
             ]);
@@ -238,6 +237,9 @@ class KampanyeDonasi extends Component
 
     public function closePaymentModal(): void
     {
+        if (session('donasi_checkout.id') === $this->currentDonasi?->id) {
+            session()->forget('donasi_checkout');
+        }
         $this->showPaymentModal = false;
         $this->paymentStep = 1;
         $this->paymentExpiresAt = null;
@@ -245,67 +247,48 @@ class KampanyeDonasi extends Component
 
     public function expirePayment(): void
     {
-        if (! $this->showPaymentModal) {
+        if (! $this->showPaymentModal || ! $this->currentDonasi
+            || session('donasi_checkout.id') !== $this->currentDonasi->id
+            || session('donasi_checkout.expires_at') > now()->timestamp) {
             return;
         }
 
-        if ($this->currentDonasi && $this->currentDonasi->status === 'pending') {
-            $this->currentDonasi->update([
-                'status' => 'rejected',
-            ]);
-        }
+        Donasi::whereKey($this->currentDonasi->id)->where('status', 'pending')
+            ->whereNull('bukti_transfer_path')->update(['status' => 'rejected']);
+        session()->forget('donasi_checkout');
 
         $this->showPaymentModal = false;
         $this->showFailedModal = true;
         $this->paymentStep = 1;
         $this->paymentExpiresAt = null;
-        $this->reset(['buktiTransfer']);
     }
 
     public function closeFailedModal(): void
     {
         $this->showFailedModal = false;
         $this->currentDonasi = null;
-        $this->buktiTransfer = null;
         $this->paymentStep = 1;
         $this->paymentExpiresAt = null;
     }
 
-    public function updatedBuktiTransfer(): void
+    public function uploadBuktiTransfer(array $reference, CloudinaryImageService $images): void
     {
-        $this->resetValidation('buktiTransfer');
-    }
+        $request = request();
+        abort_unless($this->currentDonasi?->allowsReceiptUpload(session()->driver()), 403);
 
-    public function uploadBuktiTransfer(CloudflareR2Service $r2Service): void
-    {
-        $this->validate([
-            'buktiTransfer' => 'required|image|max:5120', // Max 5MB
-        ], [
-            'buktiTransfer.required' => 'Wajib mengunggah foto atau screenshot bukti transfer untuk menyelesaikan pembayaran.',
-            'buktiTransfer.image' => 'Berkas harus berupa gambar (JPG, PNG, atau WEBP).',
-            'buktiTransfer.max' => 'Ukuran gambar maksimal 5MB.',
-        ]);
+        DB::transaction(function () use ($request, $reference, $images): void {
+            $asset = $images->consume($request, $reference, 'buktiTransfer', $this->currentDonasi->id);
+            $donasi = Donasi::lockForUpdate()->findOrFail($this->currentDonasi->id);
+            abort_unless($donasi->allowsReceiptUpload(session()->driver()), 403);
+            $donasi->forceFill([
+                'bukti_transfer_path' => $asset['public_id'],
+                'bukti_transfer_cloudinary' => $asset,
+            ])->save();
+            $this->currentDonasi = $donasi;
+        });
 
-        if ($this->currentDonasi && $this->buktiTransfer) {
-            $path = $r2Service->uploadPrivate($this->buktiTransfer, 'bukti-transfer');
-
-            $this->currentDonasi->update([
-                'bukti_transfer_path' => $path,
-                'metode_pembayaran' => $this->metodePembayaran,
-            ]);
-
-            // Add dana terkumpul update
-            if ($this->currentDonasi->kampanye_id) {
-                $kampanye = Kampanye::find($this->currentDonasi->kampanye_id);
-                if ($kampanye) {
-                    $kampanye->increment('dana_terkumpul', $this->currentDonasi->nominal);
-                }
-            }
-
-            $this->showPaymentModal = false;
-            $this->showSuccessModal = true;
-            $this->reset(['buktiTransfer']);
-        }
+        $this->closePaymentModal();
+        $this->showSuccessModal = true;
     }
 
     public function closeSuccessModal(): void
@@ -324,7 +307,6 @@ class KampanyeDonasi extends Component
         $this->selectedNominal = null;
         $this->customNominal = null;
         $this->currentDonasi = null;
-        $this->buktiTransfer = null;
         $this->paymentStep = 1;
         $this->metodePembayaran = 'QRIS';
     }

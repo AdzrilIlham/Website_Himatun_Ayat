@@ -14,6 +14,9 @@
     status: {{ Js::from(old('status', $berita->status ?? 'tayang')) }},
     ringkasan: {{ Js::from(old('ringkasan', $berita->ringkasan ?? '')) }},
     isiBerita: {{ Js::from(\App\Support\BeritaHtml::sanitize(old('konten', $berita->konten ?? ''))) }},
+    inlineImages: {{ Js::from(array_values((array) old('gambar_konten', []))) }},
+    inlineUploading: false,
+    inlineStatus: '',
     isEmpty: true,
     isBold: false,
     isItalic: false,
@@ -127,20 +130,48 @@
             input.click();
         }
     },
-    handleEditorImageUpload(e) {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                if (this.$refs.editor) {
-                    this.$refs.editor.focus();
-                    document.execCommand('insertHTML', false, `<p><img src='${event.target.result}' alt='Gambar Berita' class='rounded-xl max-w-full my-3 border border-border shadow-xs' /></p>`);
-                    this.updateContent();
-                }
-            };
-            reader.readAsDataURL(file);
+    async uploadInlineImage(file) {
+        if (!file || this.inlineUploading) return;
+        const form = this.$refs.newsForm;
+        this.inlineUploading = true;
+        this.inlineStatus = 'Mengunggah gambar ke isi berita…';
+        try {
+            const { reference, url } = await window.uploadCloudinaryImage(file, form.dataset.imageAuthorization, {
+                purpose: 'gambar_konten',
+                record_id: form.dataset.imageRecord || null,
+            });
+            this.$refs.editor.focus();
+            document.execCommand('insertImage', false, url);
+            this.inlineImages.push(reference);
+            this.updateContent();
+            this.inlineStatus = '';
+        } catch (error) {
+            this.inlineStatus = error instanceof TypeError ? 'Koneksi unggah terputus. Coba lagi.' : error.message;
+        } finally {
+            this.inlineUploading = false;
         }
-        e.target.value = '';
+    },
+    prepareSubmit(event) {
+        if (this.inlineUploading) {
+            event.preventDefault();
+            return;
+        }
+        this.updateContent();
+        this.$refs.contentInput.value = this.isiBerita;
+        const images = Array.from(this.$refs.editor.querySelectorAll('img[src]'));
+        const activeReferences = this.inlineImages.filter((reference) => reference?.public_id && images.some((image) =>
+            image.src.startsWith('https://res.cloudinary.com/') && ['jpg', 'jpeg', 'png', 'webp'].some((extension) =>
+                image.src.endsWith(`/${reference.public_id}.${extension}`))));
+        this.$refs.inlineReferences.replaceChildren();
+        activeReferences.forEach((reference, index) => {
+            for (const key of ['id', 'public_id']) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = `gambar_konten[${index}][${key}]`;
+                input.value = reference[key];
+                this.$refs.inlineReferences.append(input);
+            }
+        });
     },
     addTag() {
         const trimmed = this.tagInput.trim();
@@ -200,7 +231,7 @@
     </div>
 
     <!-- Main Card Container Form -->
-    <form action="{{ $berita->exists ? route('admin.berita.update', $berita) : route('admin.berita.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6" @submit="updateContent()">
+    <form action="{{ $berita->exists ? route('admin.berita.update', $berita) : route('admin.berita.store') }}" method="POST" x-ref="newsForm" data-image-authorization="{{ route('admin.image-uploads.store') }}" data-image-record="{{ $berita->id }}" class="space-y-6" @submit="prepareSubmit($event)">
         @csrf
         @if($berita->exists)
             @method('PUT')
@@ -317,10 +348,11 @@
                 <!-- Hidden Input File -->
                 <input type="file" 
                        id="gambar_input" 
-                       name="gambar"
+                       data-image-field="gambar"
                        @change="handleImageUpload($event)" 
                        accept="image/png, image/jpeg, image/webp" 
                        class="hidden">
+                <p data-image-upload-status role="status"></p>
 
                 <!-- 1. Kondisi Kosong (Belum ada gambar yang diunggah) -->
                 <div x-show="!imagePreview">
@@ -592,9 +624,9 @@
                         </button>
                         <input type="file" 
                                id="editor_image_file" 
-                               accept="image/*" 
+                               accept="image/jpeg,image/png,image/webp"
                                class="hidden" 
-                               @change="handleEditorImageUpload($event)">
+                               @change="uploadInlineImage($event.target.files[0]); $event.target.value = ''">
                     </div>
 
                     <!-- Editable Content Area Container -->
@@ -614,11 +646,13 @@
                              @blur="updateContent()"
                              @keyup="checkActiveStates()"
                              @mouseup="checkActiveStates()"
-                             @paste="setTimeout(() => updateContent(), 10)"
+                             @paste="if ($event.clipboardData.files.length) { $event.preventDefault(); uploadInlineImage($event.clipboardData.files[0]); } else { setTimeout(() => updateContent(), 10); }"
                              class="w-full p-4 text-sm text-foreground focus:outline-hidden min-h-[220px] max-h-[500px] overflow-y-auto leading-relaxed [&_p]:mb-2.5 [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:mb-2 [&_h1]:mt-3 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:mb-2 [&_h2]:mt-3 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:mb-1.5 [&_h3]:mt-2.5 [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:mb-2.5 [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:mb-2.5 [&_blockquote]:border-l-4 [&_blockquote]:border-brand-600 [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:my-3 [&_blockquote]:text-muted-foreground-1 [&_a]:text-brand-700 [&_a]:underline [&_img]:max-w-full [&_img]:rounded-xl [&_img]:my-3"></div>
 
                         <!-- Hidden Input for Form Submission -->
-                        <input type="hidden" name="konten" :value="isiBerita">
+                        <input type="hidden" name="konten" x-ref="contentInput" :value="isiBerita">
+                        <div x-ref="inlineReferences" hidden></div>
+                        <p role="status" x-text="inlineStatus"></p>
                     </div>
 
                     <!-- Footer Word Counter -->

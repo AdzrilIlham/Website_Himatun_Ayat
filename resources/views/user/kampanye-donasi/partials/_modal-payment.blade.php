@@ -104,7 +104,26 @@
                     </div>
 
                     <!-- Card 2: Pilih Jenis Pembayaran anda -->
-                    <div class="bg-card rounded-2xl p-4 sm:p-5 shadow-2xs border border-border/50 space-y-3.5">
+                    <div class="bg-card rounded-2xl p-4 sm:p-5 shadow-2xs border border-border/50 space-y-3.5"
+                        data-receipt-authorization="{{ $currentDonasi ? route('donasi.bukti-transfer.upload', $currentDonasi) : '' }}"
+                        x-data="{
+                            fileName: '',
+                            uploading: false,
+                            uploadError: '',
+                            async sendReceipt() {
+                                if (this.uploading) return;
+                                this.uploading = true;
+                                this.uploadError = '';
+                                try {
+                                    const { reference } = await window.uploadCloudinaryImage(this.$refs.receiptFile.files[0], this.$root.dataset.receiptAuthorization);
+                                    await this.$wire.uploadBuktiTransfer(reference);
+                                } catch (error) {
+                                    this.uploadError = error instanceof TypeError ? 'Koneksi unggah terputus. Coba lagi.' : error.message;
+                                } finally {
+                                    this.uploading = false;
+                                }
+                            }
+                        }">
                         <h4 class="text-sm sm:text-base font-bold text-foreground">
                             Pilih Jenis Pembayaran anda
                         </h4>
@@ -272,32 +291,28 @@
                         </label>
 
                         <div class="relative border-2 border-dashed {{ $errors->has('buktiTransfer') ? 'border-danger bg-red-50/40' : 'border-brand-300 hover:border-brand-500 bg-brand-50/50' }} rounded-xl p-3.5 text-center transition">
-                            <input type="file" wire:model="buktiTransfer" accept="image/*"
+                            <input type="file" x-ref="receiptFile" accept="image/jpeg,image/png,image/webp"
+                                @change="fileName = $event.target.files[0]?.name || ''; uploadError = ''" :disabled="uploading"
                                 class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
                             <div class="space-y-1">
                                 <svg class="w-6 h-6 mx-auto text-brand-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2 2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                 </svg>
-                                <p class="text-xs font-medium text-foreground">
-                                    @if ($buktiTransfer)
-                                        <span class="text-brand-700 font-bold">{{ $buktiTransfer->getClientOriginalName() }}</span>
-                                    @else
-                                        Klik atau seret foto bukti transfer di sini (JPG/PNG max 5MB)
-                                    @endif
+                                <p class="text-xs font-medium text-foreground" x-text="fileName || 'Klik atau seret foto bukti transfer di sini (JPG/PNG/WebP, maks. 5 MB)'">
+                                    Klik atau seret foto bukti transfer di sini (JPG/PNG/WebP, maks. 5 MB)
                                 </p>
                             </div>
                         </div>
 
-                        <div wire:loading wire:target="buktiTransfer" class="text-xs text-brand-700 font-semibold">
-                            Mengunggah pratinjau berkas...
-                        </div>
+                        <p role="status" x-show="uploading" x-cloak>Mengunggah bukti transfer…</p>
+                        <p class="form-error" role="alert" x-show="uploadError" x-text="uploadError" x-cloak></p>
                         @error('buktiTransfer')
                             <p class="form-error">{{ $message }}</p>
                         @enderror
 
                         <!-- Tombol Aksi Step 2 -->
                         <div class="pt-1">
-                            <button type="button" wire:click="uploadBuktiTransfer"
+                            <button type="button" @click="sendReceipt()" :disabled="uploading"
                                 class="btn btn-primary rounded-xl w-full py-3 text-xs sm:text-sm font-bold shadow-sm transition cursor-pointer">
                                 Saya Sudah Bayar / Selesai
                             </button>

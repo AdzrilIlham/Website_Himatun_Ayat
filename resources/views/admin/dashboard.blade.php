@@ -554,7 +554,7 @@
                             <!-- BUKTI TRANSFER THUMBNAIL (Rata Tengah & Buka Overlay Modal) -->
                             <td class="py-2.5 sm:py-3 px-1.5 align-middle text-center">
                                 @php
-                                    $proofUrl = $donasi->bukti_transfer_path ? asset($donasi->bukti_transfer_path) : null;
+                                    $proofUrl = $donasi->bukti_transfer_path ? route('admin.donasi.bukti-transfer.show', $donasi) : null;
                                 @endphp
                                 @if($proofUrl)
                                     <div class="flex justify-center">
@@ -690,7 +690,7 @@
                     <!-- Baris 4: Bukti Transfer & Tombol Aksi -->
                     <div class="flex items-center justify-between gap-3 pt-1">
                         @php
-                            $proofUrlMobile = $donasi->bukti_transfer_path ? asset($donasi->bukti_transfer_path) : null;
+                            $proofUrlMobile = $donasi->bukti_transfer_path ? route('admin.donasi.bukti-transfer.show', $donasi) : null;
                         @endphp
                         <div>
                             @if($proofUrlMobile)

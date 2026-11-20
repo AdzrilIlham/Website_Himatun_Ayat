@@ -4,11 +4,14 @@ namespace Tests\Feature;
 
 use App\Livewire\User\KampanyeDonasi;
 use App\Models\Kampanye;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
 
 class KampanyeDonasiTest extends TestCase
 {
+    use RefreshDatabase;
+
     /**
      * A basic feature test example.
      */

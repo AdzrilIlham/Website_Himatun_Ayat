@@ -6,7 +6,6 @@ use App\Models\BeritaKegiatan;
 use App\Models\Kampanye;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
@@ -209,7 +208,7 @@ class AdminKelolaKampanyeTest extends TestCase
         $this->assertEquals(26, $updatedMetrics['kabar_penyaluran']);
     }
 
-    public function test_store_kampanye_with_banner_uploads_via_r2_service_and_sets_banner_url(): void
+    public function test_store_kampanye_with_verified_banner_sets_banner_url(): void
     {
         Storage::fake('public');
 
@@ -219,14 +218,14 @@ class AdminKelolaKampanyeTest extends TestCase
             'deskripsi' => 'Deskripsi kampanye dengan banner.',
             'target_dana' => 15000000,
             'status' => 'aktif',
-            'banner' => UploadedFile::fake()->image('banner.jpg'),
+            'banner' => $this->cloudinaryImageReference('banner'),
         ]);
 
         $response->assertRedirect('/admin/kelola-kampanye');
         $kampanye = Kampanye::where('judul', 'Kampanye Berbanner Baru')->firstOrFail();
         $this->assertNotNull($kampanye->banner_path);
-        $this->assertStringStartsWith('kampanye/', $kampanye->banner_path);
-        Storage::disk('public')->assertExists($kampanye->banner_path);
+        $this->assertStringStartsWith('himatun-ayat/kampanye/', $kampanye->banner_cloudinary['public_id']);
+        $this->assertSame($kampanye->banner_cloudinary['secure_url'], $kampanye->banner_path);
 
         $this->assertNotNull($kampanye->banner_url);
         $this->assertStringContainsString($kampanye->banner_path, $kampanye->banner_url);
@@ -253,7 +252,7 @@ class AdminKelolaKampanyeTest extends TestCase
             'deskripsi' => 'Deskripsi.',
             'target_dana' => 20000000,
             'status' => 'aktif',
-            'banner' => UploadedFile::fake()->image('new_banner.jpg'),
+            'banner' => $this->cloudinaryImageReference('banner', $kampanye->id),
         ]);
 
         $response->assertRedirect('/admin/kelola-kampanye');
@@ -261,7 +260,7 @@ class AdminKelolaKampanyeTest extends TestCase
 
         $kampanye->refresh();
         $this->assertNotEquals('kampanye/old_banner.jpg', $kampanye->banner_path);
-        Storage::disk('public')->assertExists($kampanye->banner_path);
+        $this->assertSame($kampanye->banner_cloudinary['secure_url'], $kampanye->banner_path);
     }
 
     public function test_delete_kampanye_deletes_banner(): void

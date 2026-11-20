@@ -25,6 +25,7 @@ class AnakAsuh extends Model
 
     protected $casts = [
         'tanggal_lahir' => 'date',
+        'foto_cloudinary' => 'array',
     ];
 
     protected $appends = [

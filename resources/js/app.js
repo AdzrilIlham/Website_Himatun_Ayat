@@ -3,6 +3,7 @@ import Alpine from 'alpinejs';
 import ApexCharts from 'apexcharts';
 import './hero-swiper';
 import './page-animations';
+import './cloudinary-upload';
 
 window.HSStaticMethods = HSStaticMethods;
 window.HSSelect = HSSelect;

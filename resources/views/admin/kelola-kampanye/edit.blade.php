@@ -21,7 +21,7 @@
         tenggat_waktu: {{ json_encode($kampanye->tenggat_waktu ? $kampanye->tenggat_waktu->format('Y-m-d') : '') }},
         status: {{ json_encode($kampanye->status) }},
         isDirty: false,
-        bannerPreview: {{ json_encode($kampanye->banner_path ? app(\App\Services\CloudflareR2Service::class)->getPublicUrl($kampanye->banner_path) : null) }},
+        bannerPreview: {{ json_encode($kampanye->banner_path ? $kampanye->banner_url : null) }},
         confirmLeave(e) {
             if (this.isDirty) {
                 if (!confirm('Perubahan formulir belum disimpan. Yakin ingin kembali ke halaman Kelola Kampanye?')) {
@@ -142,7 +142,7 @@
             </div>
 
             <!-- Form Wrapper -->
-            <form action="{{ route('admin.kelola-kampanye.update', $kampanye->id) }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('admin.kelola-kampanye.update', $kampanye->id) }}" method="POST" data-image-authorization="{{ route('admin.image-uploads.store') }}" data-image-record="{{ $kampanye->id }}">
                 @csrf
                 @method('PUT')
 
@@ -279,8 +279,8 @@
                             </label>
                             <div class="border-2 border-dashed border-border-line-3 hover:border-brand-700 rounded-2xl p-6 text-center transition cursor-pointer bg-muted relative">
                                 <input type="file" 
-                                       name="banner" 
-                                       accept="image/*"
+                                       data-image-field="banner"
+                                       accept="image/jpeg,image/png,image/webp"
                                        @change="handleImageUpload($event)"
                                        class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
                                 <div class="flex flex-col items-center justify-center pointer-events-none">
@@ -291,6 +291,7 @@
                                     <p class="text-[11px] text-muted-foreground mt-1">Kosongkan bila tidak ingin mengubah foto</p>
                                 </div>
                             </div>
+                            <p data-image-upload-status role="status"></p>
                         </div>
 
                         <div class="pt-4 border-t border-border-line-1 flex items-center justify-between gap-3">

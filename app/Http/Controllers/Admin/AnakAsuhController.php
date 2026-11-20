@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Exports\AnakAsuhExport;
 use App\Http\Controllers\Controller;
 use App\Models\AnakAsuh;
-use App\Services\CloudflareR2Service;
+use App\Services\CloudinaryImageService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -14,7 +14,7 @@ use Maatwebsite\Excel\Facades\Excel;
 class AnakAsuhController extends Controller
 {
     public function __construct(
-        protected CloudflareR2Service $r2Service
+        protected CloudinaryImageService $images
     ) {}
 
     public function index(Request $request)
@@ -132,14 +132,10 @@ class AnakAsuhController extends Controller
             'pendidikan_terakhir' => 'nullable|string|max:50',
             'status_asuhan' => 'required|string|max:50',
             'keterangan' => 'nullable|string',
-            'foto' => 'nullable|image|max:2048',
+            'foto' => 'nullable|array:id,public_id',
         ]);
 
-        if ($request->hasFile('foto')) {
-            $validated['foto_path'] = $this->r2Service->uploadPublic($request->file('foto'), 'anak-asuh');
-        }
-
-        AnakAsuh::create($validated);
+        $this->images->savePublicImage($request, new AnakAsuh, $validated, 'foto', 'foto_path');
 
         return redirect()->route('admin.anak-asuh.index')
             ->with('success', 'Data anak asuh berhasil ditambahkan.');
@@ -155,17 +151,10 @@ class AnakAsuhController extends Controller
             'pendidikan_terakhir' => 'nullable|string|max:50',
             'status_asuhan' => 'required|string|max:50',
             'keterangan' => 'nullable|string',
-            'foto' => 'nullable|image|max:2048',
+            'foto' => 'nullable|array:id,public_id',
         ]);
 
-        if ($request->hasFile('foto')) {
-            if ($anakAsuh->foto_path) {
-                $this->r2Service->deletePublic($anakAsuh->foto_path);
-            }
-            $validated['foto_path'] = $this->r2Service->uploadPublic($request->file('foto'), 'anak-asuh');
-        }
-
-        $anakAsuh->update($validated);
+        $this->images->savePublicImage($request, $anakAsuh, $validated, 'foto', 'foto_path');
 
         return redirect()->route('admin.anak-asuh.index')
             ->with('success', "Data anak asuh {$anakAsuh->nama_lengkap} berhasil diperbarui.");
@@ -173,12 +162,9 @@ class AnakAsuhController extends Controller
 
     public function destroy(AnakAsuh $anakAsuh): RedirectResponse
     {
-        if ($anakAsuh->foto_path) {
-            $this->r2Service->deletePublic($anakAsuh->foto_path);
-        }
-
         $nama = $anakAsuh->nama_lengkap;
         $anakAsuh->delete();
+        $this->images->deletePublic($anakAsuh->foto_path, $anakAsuh->foto_cloudinary);
 
         return redirect()->route('admin.anak-asuh.index')
             ->with('success', "Data anak asuh {$nama} berhasil dihapus.");

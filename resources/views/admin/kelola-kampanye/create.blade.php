@@ -326,7 +326,7 @@
             <!-- Form Wrapper -->
             <form action="{{ route('admin.kelola-kampanye.store') }}" 
                   method="POST" 
-                  enctype="multipart/form-data"
+                  data-image-authorization="{{ route('admin.image-uploads.store') }}"
                   @submit="handleFormSubmit($event)">
                 @csrf
 
@@ -548,8 +548,8 @@
                             <div class="border-2 border-dashed rounded-2xl p-6 text-center transition cursor-pointer bg-muted relative"
                                  :class="step3Errors.banner ? 'border-danger ring-2 ring-danger/20 bg-danger-soft/30' : 'border-border-line-3 hover:border-brand-700'">
                                 <input type="file" 
-                                       name="banner" 
-                                       accept="image/*"
+                                       data-image-field="banner"
+                                       accept="image/jpeg,image/png,image/webp"
                                        required
                                        @change="handleImageUpload($event)"
                                        class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
@@ -574,6 +574,7 @@
                                     </template>
                                 </div>
                             </div>
+                            <p data-image-upload-status role="status"></p>
                             <p x-show="step3Errors.banner" class="text-[11px] font-semibold text-danger mt-1.5 text-center flex items-center justify-center gap-1" style="display: none;">
                                 <svg class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />

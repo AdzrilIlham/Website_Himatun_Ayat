@@ -47,6 +47,8 @@ class BeritaKegiatan extends Model
             'unggulan' => 'boolean',
             'terjadwal_di_kalender' => 'boolean',
             'tags' => 'array',
+            'gambar_cloudinary' => 'array',
+            'gambar_konten_cloudinary' => 'array',
         ];
     }
 

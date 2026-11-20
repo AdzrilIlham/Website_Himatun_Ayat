@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\BeritaKegiatan;
 use App\Models\Kampanye;
-use App\Services\CloudflareR2Service;
+use App\Services\CloudinaryImageService;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -23,7 +23,7 @@ class KampanyeController extends Controller
     ];
 
     public function __construct(
-        protected CloudflareR2Service $r2Service
+        protected CloudinaryImageService $images
     ) {}
 
     /**
@@ -127,7 +127,7 @@ class KampanyeController extends Controller
             'tanggal_mulai' => 'nullable|date',
             'tenggat_waktu' => 'nullable|date|after_or_equal:tanggal_mulai',
             'status' => 'required|in:aktif,draft,selesai',
-            'banner' => 'nullable|image|max:5120',
+            'banner' => 'nullable|array:id,public_id',
         ], [
             'judul.required' => 'Judul kampanye wajib diisi.',
             'kategori.required' => 'Silakan pilih kategori kampanye.',
@@ -135,7 +135,6 @@ class KampanyeController extends Controller
             'target_dana.required' => 'Target dana donasi wajib diisi.',
             'target_dana.min' => 'Target dana minimal Rp 1.000.',
             'tenggat_waktu.after_or_equal' => 'Tenggat waktu harus sama atau setelah tanggal mulai.',
-            'banner.image' => 'File banner harus berupa gambar.',
         ]);
 
         // Buat slug unik
@@ -148,15 +147,11 @@ class KampanyeController extends Controller
         }
         $validated['slug'] = $slug;
 
-        // Upload banner jika ada
-        if ($request->hasFile('banner')) {
-            $validated['banner_path'] = $this->r2Service->uploadPublic($request->file('banner'), 'kampanye');
-        }
-
         $validated['dana_terkumpul'] = 0;
         $validated['tanggal_mulai'] = $validated['tanggal_mulai'] ?? now()->toDateString();
 
-        $kampanye = Kampanye::create($validated);
+        $kampanye = new Kampanye;
+        $this->images->savePublicImage($request, $kampanye, $validated, 'banner', 'banner_path');
 
         return redirect()->route('admin.kelola-kampanye.index')
             ->with('success', "Kampanye '{$kampanye->judul}' berhasil dibuat.");
@@ -185,17 +180,10 @@ class KampanyeController extends Controller
             'tanggal_mulai' => 'nullable|date',
             'tenggat_waktu' => 'nullable|date|after_or_equal:tanggal_mulai',
             'status' => 'required|in:aktif,draft,selesai',
-            'banner' => 'nullable|image|max:5120',
+            'banner' => 'nullable|array:id,public_id',
         ]);
 
-        if ($request->hasFile('banner')) {
-            if ($kampanye->banner_path) {
-                $this->r2Service->deletePublic($kampanye->banner_path);
-            }
-            $validated['banner_path'] = $this->r2Service->uploadPublic($request->file('banner'), 'kampanye');
-        }
-
-        $kampanye->update($validated);
+        $this->images->savePublicImage($request, $kampanye, $validated, 'banner', 'banner_path');
 
         return redirect()->route('admin.kelola-kampanye.index')
             ->with('success', "Kampanye '{$kampanye->judul}' berhasil diperbarui.");
@@ -207,10 +195,8 @@ class KampanyeController extends Controller
     public function destroy(Kampanye $kampanye): RedirectResponse
     {
         $judul = $kampanye->judul;
-        if ($kampanye->banner_path) {
-            $this->r2Service->deletePublic($kampanye->banner_path);
-        }
         $kampanye->delete();
+        $this->images->deletePublic($kampanye->banner_path, $kampanye->banner_cloudinary);
 
         return redirect()->route('admin.kelola-kampanye.index')
             ->with('success', "Kampanye '{$judul}' berhasil dihapus.");

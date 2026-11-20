@@ -6,6 +6,7 @@ use App\Models\BeritaKegiatan;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -28,15 +29,14 @@ class BeritaIntegrationTest extends TestCase
 
     public function test_admin_can_publish_news_with_image_to_public_pages(): void
     {
-        Storage::fake('public');
         $this->actingAs(User::factory()->withTwoFactor()->create());
 
         $this->post(route('admin.berita.store'), $this->payload([
-            'gambar' => UploadedFile::fake()->image('berita.jpg'),
+            'gambar' => $this->cloudinaryImageReference('gambar'),
         ]))->assertRedirect(route('admin.berita.index'))->assertSessionHasNoErrors();
 
         $berita = BeritaKegiatan::where('slug', 'berita-dari-admin')->firstOrFail();
-        Storage::disk('public')->assertExists($berita->gambar);
+        $this->assertSame($berita->gambar_cloudinary['secure_url'], $berita->gambar);
         $this->get(route('berita-kegiatan.index'))->assertOk()->assertSee('Berita dari admin');
         $this->get(route('berita-kegiatan.show', $berita->slug))
             ->assertOk()->assertSee('<strong>berita</strong>', false)->assertSee($berita->gambar_url);
@@ -71,12 +71,12 @@ class BeritaIntegrationTest extends TestCase
 
         $this->put(route('admin.berita.update', $berita), $this->payload([
             'judul' => 'Judul diperbarui',
-            'gambar' => UploadedFile::fake()->image('new.jpg'),
+            'gambar' => $this->cloudinaryImageReference('gambar', $berita->id),
         ]))->assertRedirect(route('admin.berita.index'));
 
         Storage::disk('public')->assertMissing('berita/old.jpg');
         $berita->refresh();
-        Storage::disk('public')->assertExists($berita->gambar);
+        $this->assertSame($berita->gambar_cloudinary['secure_url'], $berita->gambar);
         $this->get(route('berita-kegiatan.show', $berita->slug))->assertOk()->assertSee('Judul diperbarui');
 
         $this->put(route('admin.berita.update', $berita), $this->payload(['status' => 'draft']))->assertRedirect();
@@ -84,7 +84,8 @@ class BeritaIntegrationTest extends TestCase
 
         $this->delete(route('admin.berita.destroy', $berita))->assertRedirect(route('admin.berita.index'));
         $this->assertModelMissing($berita);
-        Storage::disk('public')->assertMissing($berita->gambar);
+        Http::assertSent(fn ($request) => str_ends_with($request->url(), '/image/destroy')
+            && $request['public_id'] === $berita->gambar_cloudinary['public_id']);
     }
 
     public function test_invalid_input_does_not_create_news(): void
