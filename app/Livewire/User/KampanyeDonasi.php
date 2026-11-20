@@ -6,6 +6,7 @@ use App\Models\Donasi;
 use App\Models\Kampanye;
 use App\Services\CloudinaryImageService;
 use Illuminate\Support\Facades\DB;
+use App\Services\QrisDinamisService;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\Title;
@@ -15,6 +16,13 @@ use Livewire\Component;
 #[Title('Program Donasi & Kampanye Kebaikan - Yayasan Himatun Ayat Bandung')]
 class KampanyeDonasi extends Component
 {
+    use WithFileUploads;
+
+    /**
+     * Kunci session untuk menyimpan transaksi pembayaran yang sedang aktif.
+     */
+    public const ACTIVE_PAYMENT_SESSION_KEY = 'kampanye_donasi.active_payment';
+
     public ?int $selectedKampanyeId = null;
 
     public ?int $selectedNominal = null;
@@ -61,6 +69,13 @@ class KampanyeDonasi extends Component
 
     public function mount(?int $kampanye_id = null): void
     {
+        $this->selectedKampanyeId = $this->resolveInitialKampanyeId($kampanye_id);
+
+        $this->restoreActivePayment();
+    }
+
+    protected function resolveInitialKampanyeId(?int $kampanye_id = null): ?int
+    {
         $programParam = $kampanye_id ?? request()->query('program') ?? request()->query('kampanye_id');
 
         if ($programParam !== null && $programParam !== '') {
@@ -76,14 +91,79 @@ class KampanyeDonasi extends Component
                 ->first();
 
             if ($matched) {
-                $this->selectedKampanyeId = $matched->id;
-
-                return;
+                return $matched->id;
             }
         }
 
-        $first = Kampanye::where('status', 'aktif')->first();
-        $this->selectedKampanyeId = $first?->id;
+        return Kampanye::where('status', 'aktif')->value('id');
+    }
+
+    /**
+     * Simpan transaksi pembayaran yang sedang berjalan ke session agar pop-up
+     * tetap tampil (tidak membuat transaksi baru) ketika halaman di-refresh.
+     */
+    protected function persistActivePayment(): void
+    {
+        if (! $this->currentDonasi || ! $this->paymentExpiresAt) {
+            return;
+        }
+
+        session()->put(self::ACTIVE_PAYMENT_SESSION_KEY, [
+            'donasi_id' => $this->currentDonasi->id,
+            'payment_id' => $this->paymentId,
+            'payment_step' => $this->paymentStep,
+            'metode_pembayaran' => $this->metodePembayaran,
+            'expires_at' => $this->paymentExpiresAt,
+        ]);
+    }
+
+    protected function clearActivePayment(): void
+    {
+        session()->forget(self::ACTIVE_PAYMENT_SESSION_KEY);
+    }
+
+    /**
+     * Pulihkan pop-up pembayaran dari session setelah halaman di-refresh.
+     */
+    protected function restoreActivePayment(): void
+    {
+        /** @var array{donasi_id: int, payment_id: string, payment_step: int, metode_pembayaran: string, expires_at: int}|null $active */
+        $active = session(self::ACTIVE_PAYMENT_SESSION_KEY);
+
+        if (! is_array($active) || empty($active['donasi_id'])) {
+            return;
+        }
+
+        $donasi = Donasi::find($active['donasi_id']);
+
+        if (! $donasi || $donasi->status !== 'pending' || $donasi->bukti_transfer_path) {
+            $this->clearActivePayment();
+
+            return;
+        }
+
+        $this->currentDonasi = $donasi;
+        $this->paymentId = (string) $active['payment_id'];
+        $this->metodePembayaran = (string) ($active['metode_pembayaran'] ?? 'QRIS');
+        $this->selectedNominal = (int) round((float) $donasi->nominal);
+        $this->customNominal = $this->selectedNominal;
+        $this->selectedKampanyeId = $donasi->kampanye_id ?? $this->selectedKampanyeId;
+
+        if ((int) $active['expires_at'] <= now()->timestamp) {
+            $donasi->update(['status' => 'rejected']);
+            $this->clearActivePayment();
+            $this->showPaymentModal = false;
+            $this->showFailedModal = true;
+            $this->paymentStep = 1;
+            $this->paymentExpiresAt = null;
+
+            return;
+        }
+
+        $this->paymentStep = in_array((int) $active['payment_step'], [1, 2], true) ? (int) $active['payment_step'] : 1;
+        $this->paymentExpiresAt = (int) $active['expires_at'];
+        $this->showFailedModal = false;
+        $this->showPaymentModal = true;
     }
 
     public function selectKampanye(int $id, ?int $nominal = null): void
@@ -197,6 +277,7 @@ class KampanyeDonasi extends Component
         session()->put('donasi_checkout', ['id' => $donasi->id, 'expires_at' => $this->paymentExpiresAt]);
         $this->showFailedModal = false;
         $this->showPaymentModal = true;
+        $this->persistActivePayment();
     }
 
     protected function generatePaymentId(?int $donasiId = null): string
@@ -218,6 +299,7 @@ class KampanyeDonasi extends Component
                 'metode_pembayaran' => $metode,
             ]);
         }
+        $this->persistActivePayment();
     }
 
     public function payNow(): void
@@ -228,11 +310,13 @@ class KampanyeDonasi extends Component
             ]);
         }
         $this->paymentStep = 2;
+        $this->persistActivePayment();
     }
 
     public function backToStepOne(): void
     {
         $this->paymentStep = 1;
+        $this->persistActivePayment();
     }
 
     public function closePaymentModal(): void
@@ -243,6 +327,7 @@ class KampanyeDonasi extends Component
         $this->showPaymentModal = false;
         $this->paymentStep = 1;
         $this->paymentExpiresAt = null;
+        $this->clearActivePayment();
     }
 
     public function expirePayment(): void
@@ -261,6 +346,8 @@ class KampanyeDonasi extends Component
         $this->showFailedModal = true;
         $this->paymentStep = 1;
         $this->paymentExpiresAt = null;
+        $this->reset(['buktiTransfer']);
+        $this->clearActivePayment();
     }
 
     public function closeFailedModal(): void
@@ -313,10 +400,10 @@ class KampanyeDonasi extends Component
 
     public function getVirtualAccountDetailsProperty(): array
     {
-        $nominal = $this->currentDonasi?->nominal ?? ($this->selectedNominal ?? 0);
+        $nominal = (int) round((float) ($this->currentDonasi?->nominal ?? ($this->selectedNominal ?? 0)));
 
-        return match ($this->metodePembayaran) {
-            'Transfer Bank', 'Transfer Bank BSI' => [
+        if (in_array($this->metodePembayaran, ['Transfer Bank', 'Transfer Bank BSI'], true)) {
+            return [
                 'bank' => 'Bank BSI',
                 'va_number' => '721.919.9827',
                 'atas_nama' => 'Yayasan Himatun Ayat Bandung',
@@ -327,20 +414,28 @@ class KampanyeDonasi extends Component
                     'Pastikan nominal sesuai (Rp '.number_format($nominal, 0, ',', '.').') atas nama Yayasan Himatun Ayat Bandung lalu selesaikan transaksi.',
                     'Unggah foto atau screenshot bukti transfer pada kolom di bawah ini.',
                 ],
+            ];
+        }
+
+        $qrisService = app(QrisDinamisService::class);
+        $qrisPayload = $qrisService->generateDynamicPayload(max(10000, $nominal));
+
+        return [
+            'bank' => 'QRIS',
+            'va_number' => null,
+            'atas_nama' => QrisDinamisService::MERCHANT_NAME,
+            'nmid' => QrisDinamisService::MERCHANT_NMID,
+            'tid' => QrisDinamisService::MERCHANT_TID,
+            'qris_payload' => $qrisPayload,
+            'qris_image' => $qrisService->generateQrSvgDataUri($qrisPayload, 240),
+            'type' => 'qris',
+            'cara_bayar' => [
+                'Buka aplikasi m-Banking atau e-Wallet favorit Anda.',
+                'Pilih menu QRIS / Scan.',
+                'Arahkan kamera ke kode QRIS Dinamis di atas (nominal Rp '.number_format($nominal, 0, ',', '.').' otomatis terisi).',
+                'Konfirmasi pembayaran, lalu unggah bukti transaksi di bawah ini.',
             ],
-            default => [
-                'bank' => 'QRIS',
-                'va_number' => null,
-                'atas_nama' => 'Yayasan Himatun Ayat Bandung',
-                'type' => 'qris',
-                'cara_bayar' => [
-                    'Buka aplikasi m-Banking atau e-Wallet favorit Anda.',
-                    'Pilih menu QRIS / Scan.',
-                    'Arahkan kamera ke kode QRIS di bawah.',
-                    'Konfirmasi nominal donasi, selesaikan pembayaran, lalu unggah bukti transfer di bawah ini.',
-                ],
-            ],
-        };
+        ];
     }
 
     public function getWhatsappLinkProperty(): string
