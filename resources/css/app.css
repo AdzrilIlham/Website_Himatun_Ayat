@@ -12,6 +12,11 @@
 /* Design token milik proyek (warna brand, dark mode, status, dll). */
 @import './theme.css';
 
+/* Sebelum Swiper siap, tampilkan satu gambar saja agar daftar slide tidak berkedip. */
+.hero-image-swiper:not(.swiper-initialized) .swiper-slide:not(:first-child) {
+    display: none;
+}
+
 /* File yang dipindai Tailwind untuk generate class. */
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
@@ -360,4 +365,3 @@
 .perspective-1000 {
     perspective: 1000px;
 }
-

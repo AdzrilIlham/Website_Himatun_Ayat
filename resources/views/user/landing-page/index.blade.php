@@ -19,7 +19,7 @@
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 lg:gap-10 items-center">
                 
                 <!-- Kolom Foto: Di Mobile Tampil Pertama (order-1), di Desktop Tampil di Kanan (lg:order-2) -->
-                <div class="order-1 lg:order-2 lg:col-span-5 relative flex justify-center" data-hero-media>
+                <div class="order-1 lg:order-2 lg:col-span-5 relative flex justify-center">
                     <div class="relative w-full max-w-lg sm:max-w-xl lg:max-w-none">
                         
                         <!-- Warm Yellow Sunshine Ambient Aura behind the photo stack (Sesuai Desain Landing Page.png) -->
@@ -37,7 +37,8 @@
                                                 <div class="relative w-full h-full">
                                                     <img src="{{ asset($slide['image']) }}"
                                                          alt="{{ $slide['alt'] }}"
-                                                         class="w-full h-full object-cover">
+                                                         class="w-full h-full object-cover"
+                                                         @if ($loop->first) fetchpriority="high" @endif>
 
                                                     <!-- Gradient Fade Overlay + Caption, ikut berputar bersama foto -->
                                                     <div class="absolute inset-x-0 bottom-0 pointer-events-none bg-gradient-to-t from-[#143D2B]/95 via-[#1E4D3B]/75 to-transparent p-3.5 sm:p-5 pt-10 sm:pt-12 text-white opacity-0 transition-opacity duration-200 [.swiper-slide-active_&]:opacity-100">
