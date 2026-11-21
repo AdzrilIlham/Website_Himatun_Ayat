@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Livewire\User\KampanyeDonasi;
 use App\Models\Donasi;
 use App\Models\Kampanye;
+use App\Models\User;
 use App\Services\QrisDinamisService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -206,5 +207,69 @@ class KampanyeDonasiTest extends TestCase
             ->assertSee('YAYASAN HIMATUN AYAT BANDUNG')
             ->assertSee('ID1026518070838')
             ->assertSee('data:image/svg+xml;base64,');
+    }
+
+    public function test_dana_terkumpul_does_not_double_count_on_upload_verify_and_reject(): void
+    {
+        $this->configureCloudinary();
+
+        $kampanye = Kampanye::create([
+            'judul' => 'Program Anti Double Count',
+            'slug' => 'program-anti-double-count',
+            'kategori' => 'Pendidikan & Tahfidz',
+            'deskripsi' => 'Deskripsi program pengujian dana terkumpul',
+            'target_dana' => 10000000,
+            'dana_terkumpul' => 0,
+            'status' => 'aktif',
+        ]);
+
+        // 1. User konfirmasi donasi & upload bukti transfer (status masih pending)
+        Livewire::test(KampanyeDonasi::class)
+            ->set('selectedKampanyeId', $kampanye->id)
+            ->set('namaDonatur', 'Donatur Satu')
+            ->set('noTelepon', '081234567890')
+            ->set('selectedNominal', 100000)
+            ->call('confirmDonasi')
+            ->call('selectMetodePembayaran', 'Transfer Bank')
+            ->call('payNow');
+
+        $donasi = Donasi::where('nama_donatur', 'Donatur Satu')->firstOrFail();
+        $authorization = $this->postJson(route('donasi.bukti-transfer.upload', $donasi), [
+            'bytes' => 1234,
+            'mime' => 'image/jpeg',
+        ])->assertOk()->json();
+
+        $reference = [
+            'id' => $authorization['id'],
+            'public_id' => $authorization['parameters']['public_id'],
+        ];
+        $this->fakeCloudinaryAsset($reference, 'authenticated', [
+            'secure_url' => 'https://res.cloudinary.com/test-cloud/image/authenticated/s--bm_APlM0--/v123/'.$reference['public_id'].'.jpg',
+        ]);
+
+        Livewire::test(KampanyeDonasi::class)
+            ->call('uploadBuktiTransfer', $reference)
+            ->assertHasNoErrors();
+
+        // Pastikan saat upload bukti transfer (masih pending), dana_terkumpul TIDAK bertambah
+        $this->assertSame('pending', $donasi->fresh()->status);
+        $this->assertEquals(0.0, (float) $kampanye->fresh()->dana_terkumpul);
+
+        // 2. Admin memverifikasi donasi -> dana_terkumpul naik tepat 1x (100.000)
+        $admin = User::factory()->withTwoFactor()->create();
+        $this->actingAs($admin);
+
+        $this->post(route('admin.donasi.verifikasi', $donasi))->assertRedirect();
+        $this->assertSame('verified', $donasi->fresh()->status);
+        $this->assertEquals(100000.0, (float) $kampanye->fresh()->dana_terkumpul);
+
+        // 3. Jika verifikasi dipanggil dua kali, tidak boleh double increment
+        $this->post(route('admin.donasi.verifikasi', $donasi))->assertRedirect();
+        $this->assertEquals(100000.0, (float) $kampanye->fresh()->dana_terkumpul);
+
+        // 4. Jika donasi terverifikasi ditolak, dana_terkumpul dikurangi kembali ke 0
+        $this->post(route('admin.donasi.tolak', $donasi))->assertRedirect();
+        $this->assertSame('rejected', $donasi->fresh()->status);
+        $this->assertEquals(0.0, (float) $kampanye->fresh()->dana_terkumpul);
     }
 }
