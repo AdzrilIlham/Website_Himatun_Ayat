@@ -113,12 +113,20 @@ class BeritaController extends Controller
             'status' => ['required', 'in:tayang,draft,arsip'],
             'ringkasan' => ['required', 'string', 'max:300'],
             'konten' => ['required', 'string', 'max:5000000'],
+            'youtube_url' => ['nullable', 'string', 'max:255'],
             'gambar' => ['nullable', 'array:id,public_id'],
             'gambar_konten' => ['sometimes', 'array', 'max:10'],
             'gambar_konten.*' => ['required', 'array:id,public_id'],
             'tags' => ['nullable', 'array', 'max:20'],
             'tags.*' => ['required', 'string', 'max:50'],
         ]);
+        $data['youtube_url'] = isset($data['youtube_url']) ? trim((string) $data['youtube_url']) : null;
+        if (filled($data['youtube_url']) && BeritaKegiatan::extractYoutubeId($data['youtube_url']) === null) {
+            throw ValidationException::withMessages([
+                'youtube_url' => 'Tautan video harus berupa link YouTube yang valid (contoh: https://www.youtube.com/watch?v=... atau https://youtu.be/...).',
+            ]);
+        }
+        $data['youtube_url'] = filled($data['youtube_url']) ? $data['youtube_url'] : null;
         $data['konten'] = BeritaHtml::sanitize($data['konten']);
         $sources = BeritaHtml::imageSources($data['konten']);
         $legacySources = BeritaHtml::imageSources(BeritaHtml::sanitize($berita->konten ?? ''));

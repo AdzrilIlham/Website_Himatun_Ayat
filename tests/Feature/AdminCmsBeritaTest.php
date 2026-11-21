@@ -108,4 +108,49 @@ class AdminCmsBeritaTest extends TestCase
         $responsePage2->assertStatus(200);
         $responsePage2->assertSee('Menampilkan 11 - 12 dari 12 Berita');
     }
+
+    /**
+     * Admin dapat menyimpan link YouTube pada berita dan pemutar embed tampil di halaman detail publik.
+     */
+    public function test_admin_can_save_youtube_url_and_detail_page_renders_inline_embed_player(): void
+    {
+        $response = $this->post(route('admin.berita.store'), [
+            'judul' => 'Dokumentasi Video Santunan',
+            'kategori' => 'Kegiatan Yayasan',
+            'tanggal_publikasi' => today()->toDateString(),
+            'status' => 'tayang',
+            'ringkasan' => 'Ringkasan video dokumentasi santunan.',
+            'konten' => '<p>Isi berita dokumentasi video santunan bersama santri.</p>',
+            'youtube_url' => 'https://youtu.be/jNQXAC9IVRw',
+        ]);
+
+        $response->assertRedirect(route('admin.berita.index'));
+
+        $berita = BeritaKegiatan::where('judul', 'Dokumentasi Video Santunan')->firstOrFail();
+        $this->assertSame('https://youtu.be/jNQXAC9IVRw', $berita->youtube_url);
+        $this->assertSame('https://www.youtube-nocookie.com/embed/jNQXAC9IVRw?rel=0', $berita->youtube_embed_url);
+
+        $detailResponse = $this->get(route('berita-kegiatan.show', $berita->slug));
+        $detailResponse->assertStatus(200);
+        $detailResponse->assertSee('Video Dokumentasi Kegiatan');
+        $detailResponse->assertSee('https://www.youtube-nocookie.com/embed/jNQXAC9IVRw?rel=0', false);
+    }
+
+    /**
+     * Validasi menolak link video yang bukan berasal dari YouTube.
+     */
+    public function test_admin_berita_rejects_invalid_non_youtube_url(): void
+    {
+        $response = $this->post(route('admin.berita.store'), [
+            'judul' => 'Berita Link Salah',
+            'kategori' => 'Kegiatan Yayasan',
+            'tanggal_publikasi' => today()->toDateString(),
+            'status' => 'tayang',
+            'ringkasan' => 'Ringkasan.',
+            'konten' => '<p>Isi berita.</p>',
+            'youtube_url' => 'https://example.com/bukan-video-youtube',
+        ]);
+
+        $response->assertSessionHasErrors(['youtube_url']);
+    }
 }

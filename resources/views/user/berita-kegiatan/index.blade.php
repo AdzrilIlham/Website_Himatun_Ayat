@@ -237,6 +237,14 @@
                             <div class="relative aspect-[16/9]">
                                 <img :src="article.image" :alt="article.title" loading="lazy"
                                      class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]">
+                                <template x-if="article.has_video">
+                                    <span class="absolute top-2.5 right-2.5 inline-flex items-center gap-1 rounded-full bg-slate-900/80 px-2.5 py-1 text-[10px] font-bold text-white backdrop-blur-xs shadow-xs">
+                                        <svg class="size-3 text-amber-300" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M6.3 2.84A1.5 1.5 0 0 0 4 4.11v11.78a1.5 1.5 0 0 0 2.3 1.27l9.344-5.891a1.5 1.5 0 0 0 0-2.538L6.3 2.841Z" />
+                                        </svg>
+                                        <span>Video</span>
+                                    </span>
+                                </template>
                             </div>
                         </a>
 

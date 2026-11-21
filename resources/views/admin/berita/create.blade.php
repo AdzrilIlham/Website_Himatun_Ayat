@@ -56,6 +56,13 @@
         }
     },
     imagePreview: {{ Js::from($berita->gambar ? $berita->gambar_url : null) }},
+    youtubeUrl: {{ Js::from(old('youtube_url', $berita->youtube_url ?? '')) }},
+    get youtubeEmbedUrl() {
+        const raw = (this.youtubeUrl || '').trim();
+        if (!raw) return null;
+        const match = raw.match(/(?:youtube(?:-nocookie)?\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?|shorts|live)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/i);
+        return match ? ('https://www.youtube-nocookie.com/embed/' + match[1] + '?rel=0') : null;
+    },
     isDragging: false,
     get wordCount() {
         if (!this.isiBerita) return 0;
@@ -420,6 +427,59 @@
                         </svg>
                         <span>Gambar ini akan menjadi thumbnail di daftar berita dan banner utama di halaman detail berita.</span>
                     </p>
+                </div>
+            </div>
+
+            <!-- 2b. Video Dokumentasi YouTube (Opsional) -->
+            <div class="space-y-4">
+                <div class="flex items-center justify-between border-b border-border-line-1 pb-3">
+                    <div class="flex items-center gap-2 text-foreground font-bold text-base">
+                        <svg class="w-5 h-5 text-muted-foreground-2" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m15.75 10.5 4.72-4.72a.75.75 0 0 1 1.28.53v11.38a.75.75 0 0 1-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25h-9A2.25 2.25 0 0 0 2.25 7.5v9a2.25 2.25 0 0 0 2.25 2.25Z" />
+                        </svg>
+                        <span>Video Dokumentasi YouTube</span>
+                    </div>
+                    <span class="badge badge-secondary text-2xs">Opsional • Hemat Penyimpanan</span>
+                </div>
+
+                <div class="space-y-2">
+                    <label for="youtube_url_input" class="block text-xs font-semibold text-foreground">
+                        Tautan / Link Video YouTube
+                    </label>
+                    <div class="relative flex items-center">
+                        <input type="url"
+                               id="youtube_url_input"
+                               name="youtube_url"
+                               x-model="youtubeUrl"
+                               placeholder="Contoh: https://www.youtube.com/watch?v=dQw4w9WgXcQ atau https://youtu.be/..."
+                               class="w-full bg-card border border-border-line-3 rounded-xl px-4 py-2.5 pr-20 text-sm text-foreground placeholder:text-muted-foreground focus:outline-hidden focus:ring-2 focus:ring-brand-700 focus:border-brand-700 transition">
+                        <button type="button"
+                                x-show="youtubeUrl.trim() !== ''"
+                                x-cloak
+                                @click="youtubeUrl = ''"
+                                class="absolute right-3 px-2.5 py-1 rounded-lg bg-muted hover:bg-border text-2xs font-semibold text-muted-foreground-2 transition cursor-pointer">
+                            Hapus
+                        </button>
+                    </div>
+                    <p class="text-[11px] text-muted-foreground-1">
+                        Cukup tempel link YouTube biasa. Video akan diputar <strong>langsung di dalam halaman website</strong> tanpa mengarahkan pembaca keluar ke YouTube.
+                    </p>
+                    <p x-show="youtubeUrl.trim() !== '' && !youtubeEmbedUrl" x-cloak class="text-xs font-semibold text-danger">
+                        Format link YouTube belum dikenali. Gunakan link seperti <code>https://www.youtube.com/watch?v=...</code> atau <code>https://youtu.be/...</code>
+                    </p>
+                </div>
+
+                <!-- Live Preview Pemutar Video di Admin -->
+                <div x-show="youtubeEmbedUrl" x-cloak class="space-y-2">
+                    <p class="text-xs font-semibold text-brand-800">Preview Pemutar Video di Website:</p>
+                    <div class="overflow-hidden rounded-2xl border border-border bg-slate-950 shadow-xs aspect-video max-w-2xl">
+                        <iframe :src="youtubeEmbedUrl || 'about:blank'"
+                                title="Preview Video YouTube"
+                                class="w-full h-full border-0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                referrerpolicy="strict-origin-when-cross-origin"
+                                allowfullscreen></iframe>
+                    </div>
                 </div>
             </div>
 

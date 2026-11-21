@@ -107,6 +107,9 @@ class BeritaKegiatanController extends Controller
             'date_iso' => $berita->tanggal->toDateString(),
             'location' => $berita->lokasi,
             'image' => $berita->gambar_url,
+            'youtube_url' => $berita->youtube_url,
+            'youtube_embed_url' => $berita->youtube_embed_url,
+            'has_video' => filled($berita->youtube_embed_url),
             'url' => route('berita-kegiatan.show', $berita->slug),
         ];
     }

@@ -114,6 +114,35 @@
 
             {{-- Kolom utama --}}
             <div class="lg:col-span-7">
+                @if (! empty($article['youtube_embed_url']))
+                    <div class="mb-7 rounded-2xl border border-brand-100 bg-brand-50/50 p-3.5 sm:p-4 shadow-2xs"
+                         data-animate="fade-up"
+                         data-animate-distance="18"
+                         data-animate-duration="0.7">
+                        <div class="mb-2.5 flex items-center justify-between gap-2">
+                            <span class="inline-flex items-center gap-1.5 text-xs font-extrabold text-brand-900">
+                                <svg class="size-4 text-brand-700" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M4.5 4.5a3 3 0 0 0-3 3v9a3 3 0 0 0 3 3h15a3 3 0 0 0 3-3v-9a3 3 0 0 0-3-3h-15Zm6.22 5.03 4.5 2.25a.75.75 0 0 1 0 1.34l-4.5 2.25A.75.75 0 0 1 9.75 14.7v-4.5a.75.75 0 0 1 .97-.67Z" />
+                                </svg>
+                                <span>Video Dokumentasi Kegiatan</span>
+                            </span>
+                            <span class="rounded-full bg-white px-2.5 py-0.5 text-[11px] font-semibold text-brand-800 border border-brand-100">
+                                Putar Langsung
+                            </span>
+                        </div>
+
+                        <div class="overflow-hidden rounded-xl bg-slate-950 aspect-video shadow-xs">
+                            <iframe src="{{ $article['youtube_embed_url'] }}"
+                                    title="Video {{ $article['title'] }}"
+                                    class="h-full w-full border-0"
+                                    loading="lazy"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                    referrerpolicy="strict-origin-when-cross-origin"
+                                    allowfullscreen></iframe>
+                        </div>
+                    </div>
+                @endif
+
                 <article class="article-content"
                          data-animate="fade-up"
                          data-animate-distance="18"

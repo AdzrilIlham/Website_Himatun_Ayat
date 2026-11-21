@@ -26,6 +26,7 @@ class BeritaKegiatan extends Model
         'konten',
         'gambar',
         'keterangan_gambar',
+        'youtube_url',
         'tags',
         'lokasi',
         'penyelenggara',
@@ -86,5 +87,41 @@ class BeritaKegiatan extends Model
         return str_starts_with($this->gambar, 'berita/') || str_starts_with($this->gambar, 'http') || str_starts_with($this->gambar, 'storage/')
             ? app(CloudflareR2Service::class)->getPublicUrl($this->gambar)
             : asset('images/User/'.$this->gambar);
+    }
+
+    /**
+     * Ekstrak 11 karakter YouTube Video ID dari berbagai variasi URL YouTube.
+     */
+    public static function extractYoutubeId(?string $url): ?string
+    {
+        if (! $url) {
+            return null;
+        }
+
+        $trimmed = trim($url);
+        if ($trimmed === '') {
+            return null;
+        }
+
+        $pattern = '/(?:youtube(?:-nocookie)?\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?|shorts|live)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/i';
+        if (preg_match($pattern, $trimmed, $matches)) {
+            return $matches[1];
+        }
+
+        return null;
+    }
+
+    /**
+     * URL embed YouTube untuk diputar langsung di dalam halaman website.
+     */
+    public function getYoutubeEmbedUrlAttribute(): ?string
+    {
+        $videoId = self::extractYoutubeId($this->youtube_url);
+
+        if (! $videoId) {
+            return null;
+        }
+
+        return 'https://www.youtube-nocookie.com/embed/'.$videoId.'?rel=0';
     }
 }
