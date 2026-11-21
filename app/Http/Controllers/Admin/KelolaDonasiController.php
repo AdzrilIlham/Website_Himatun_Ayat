@@ -135,6 +135,8 @@ class KelolaDonasiController extends Controller
 
         $kampanyeList = Kampanye::where('status', 'aktif')->get();
         $totalDonaturTerkini = Donasi::distinct('nama_donatur')->count('nama_donatur');
+        $penyaluranList = PenyaluranDana::latest('tanggal_penyaluran')->latest('id')->get();
+        $operasionalList = PengeluaranOperasional::latest('tanggal_pengeluaran')->latest('id')->get();
 
         return view('admin.kelola-donasi.index', compact(
             'donasiList',
@@ -143,7 +145,10 @@ class KelolaDonasiController extends Controller
             'search',
             'sort',
             'kampanyeList',
-            'totalDonaturTerkini'
+            'totalDonaturTerkini',
+            'penyaluranList',
+            'operasionalList',
+            'klasterLabels'
         ));
     }
 
@@ -182,6 +187,52 @@ class KelolaDonasiController extends Controller
         });
 
         return back()->with('success', "Data donatur {$validated['nama_donatur']} berhasil ditambahkan.");
+    }
+
+    /**
+     * Update an existing donasi record.
+     */
+    public function update(Request $request, Donasi $donasi): RedirectResponse
+    {
+        $validated = $request->validate([
+            'nama_donatur'      => 'required|string|max:255',
+            'email'             => 'nullable|email|max:255',
+            'no_whatsapp'       => 'nullable|string|max:50',
+            'kampanye_id'       => 'nullable|exists:kampanye,id',
+            'nominal'           => 'required|numeric|min:1000',
+            'metode_pembayaran' => 'nullable|string|max:100',
+            'pesan_doa'         => 'nullable|string',
+            'status'            => 'required|in:pending,verified,rejected',
+        ]);
+
+        $wasVerified = $donasi->status === 'verified';
+        $willBeVerified = $validated['status'] === 'verified';
+        $nominalLama = (float) $donasi->nominal;
+        $kampanyeIdLama = $donasi->kampanye_id;
+
+        if ($willBeVerified && ! $wasVerified) {
+            $validated['diverifikasi_pada'] = now();
+        } elseif (! $willBeVerified) {
+            $validated['diverifikasi_pada'] = null;
+        }
+
+        DB::transaction(function () use ($donasi, $validated, $wasVerified, $willBeVerified, $nominalLama, $kampanyeIdLama) {
+            // Rollback dana_terkumpul kampanye lama jika sebelumnya verified
+            if ($wasVerified && $kampanyeIdLama) {
+                Kampanye::where('id', $kampanyeIdLama)
+                    ->decrement('dana_terkumpul', $nominalLama);
+            }
+
+            $donasi->update($validated);
+
+            // Tambah dana_terkumpul kampanye baru jika akan/masih verified
+            if ($willBeVerified && ! empty($validated['kampanye_id'])) {
+                Kampanye::where('id', $validated['kampanye_id'])
+                    ->increment('dana_terkumpul', (float) $validated['nominal']);
+            }
+        });
+
+        return back()->with('success', "Data donasi {$validated['nama_donatur']} berhasil diperbarui.");
     }
 
     /**

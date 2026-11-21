@@ -83,6 +83,7 @@ Route::prefix('admin')->name('admin.')->middleware([
     // Kelola Donasi
     Route::get('/kelola-donasi', [KelolaDonasiController::class, 'index'])->name('kelola-donasi.index');
     Route::post('/kelola-donasi', [KelolaDonasiController::class, 'store'])->name('kelola-donasi.store');
+    Route::put('/kelola-donasi/{donasi}', [KelolaDonasiController::class, 'update'])->name('kelola-donasi.update');
     Route::post('/kelola-donasi/{donasi}/terima', [KelolaDonasiController::class, 'terima'])->name('kelola-donasi.terima');
     Route::delete('/kelola-donasi/{donasi}', [KelolaDonasiController::class, 'destroy'])->name('kelola-donasi.destroy');
     Route::get('/kelola-donasi/export', [KelolaDonasiController::class, 'export'])->name('kelola-donasi.export');
