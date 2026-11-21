@@ -228,6 +228,16 @@ class KampanyeDonasi extends Component
         $this->resetValidation('noTelepon');
     }
 
+    public function updatedDoaHarapan(): void
+    {
+        $trimmed = trim($this->doaHarapan);
+        $words = $trimmed === '' ? [] : preg_split('/\s+/u', $trimmed, -1, PREG_SPLIT_NO_EMPTY);
+
+        if (is_array($words) && count($words) <= 100) {
+            $this->resetValidation('doaHarapan');
+        }
+    }
+
     public function nextSlide(int $total): void
     {
         $this->activeSlide = ($this->activeSlide + 1) % max(1, $total);
@@ -251,7 +261,19 @@ class KampanyeDonasi extends Component
             'noTelepon' => 'required|string|min:9|max:20',
             'email' => 'nullable|email|max:100',
             'selectedNominal' => 'required|numeric|min:10000',
-            'doaHarapan' => 'nullable|string|max:1000',
+            'doaHarapan' => [
+                'nullable',
+                'string',
+                function (string $attribute, mixed $value, \Closure $fail): void {
+                    $trimmed = trim((string) $value);
+                    if ($trimmed !== '') {
+                        $words = preg_split('/\s+/u', $trimmed, -1, PREG_SPLIT_NO_EMPTY);
+                        if (is_array($words) && count($words) > 100) {
+                            $fail('Doa & harapan maksimal 100 karakter.');
+                        }
+                    }
+                },
+            ],
         ], [
             'namaDonatur.required' => 'Mohon masukkan nama donatur atau centang Hamba Allah.',
             'noTelepon.required' => 'Nomor telepon/WhatsApp wajib diisi untuk konfirmasi.',

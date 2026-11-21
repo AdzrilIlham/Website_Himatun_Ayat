@@ -191,13 +191,40 @@
                             </div>
 
                             <!-- Doa & Harapan Donatur -->
-                            <div>
-                                <label class="form-label text-xs sm:text-sm font-semibold">
-                                    Doa & Harapan Donatur
-                                </label>
-                                <textarea wire:model.live.debounce.300ms="doaHarapan" rows="3"
-                                    placeholder="Masukan Teks"
-                                    class="form-input bg-white py-3 text-xs sm:text-sm resize-none"></textarea>
+                            <div x-data="{
+                                maxWords: 100,
+                                wordCount: 0,
+                                countWords(text) {
+                                    const trimmed = (text || '').trim();
+                                    return trimmed ? trimmed.split(/\s+/).length : 0;
+                                },
+                                enforceLimit(el) {
+                                    const words = (el.value || '').trim().split(/\s+/).filter(Boolean);
+                                    if (words.length > this.maxWords) {
+                                        const match = el.value.match(/^\s*(?:\S+\s+){0,99}\S+/);
+                                        el.value = match ? match[0] : words.slice(0, this.maxWords).join(' ');
+                                        el.dispatchEvent(new Event('input', { bubbles: true }));
+                                    }
+                                    this.wordCount = this.countWords(el.value);
+                                }
+                            }"
+                            x-init="wordCount = countWords($refs.doaInput?.value)">
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <label class="form-label text-xs sm:text-sm font-semibold mb-0">
+                                        Doa & Harapan Donatur
+                                    </label>
+                                    <span class="text-xs font-medium tabular"
+                                        :class="wordCount >= maxWords ? 'text-danger font-semibold' : 'text-muted-foreground-1'"
+                                        x-text="`${wordCount}/${maxWords}`">
+                                        0/100
+                                    </span>
+                                </div>
+                                <textarea x-ref="doaInput"
+                                    wire:model.live.debounce.300ms="doaHarapan" rows="3"
+                                    @input="enforceLimit($event.target)"
+                                    @keydown="if (wordCount >= maxWords && ($event.key === ' ' || $event.key === 'Enter')) { $event.preventDefault(); }"
+                                    placeholder="Masukan Teks (maksimal 100 kata)"
+                                    class="form-input bg-white py-3 text-xs sm:text-sm resize-none custom-scrollbar"></textarea>
                                 @error('doaHarapan')
                                     <p class="form-error">{{ $message }}</p>
                                 @enderror
