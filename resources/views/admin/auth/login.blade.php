@@ -26,7 +26,7 @@
             <div class="text-center mb-6">
                 <!-- White Square Logo Box -->
                 <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white border border-slate-100 shadow-[0_4px_12px_rgba(0,0,0,0.04)] p-2 mx-auto mb-3.5 transition-transform hover:scale-105">
-                    <img src="{{ asset('images/logo-himmatun-ayat.png') }}" 
+                    <img src="{{ asset('images/logo-himmatun-ayat.avif') }}" 
                          alt="Logo Himmatun Ayat" 
                          class="w-11 h-11 object-contain">
                 </div>

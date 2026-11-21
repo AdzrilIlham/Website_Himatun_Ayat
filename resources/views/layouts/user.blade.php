@@ -52,8 +52,8 @@
             <!-- Brand / Logo -->
             <a href="{{ route('home') }}"
                 class="flex items-center gap-2 group -ml-3 sm:-ml-4 pl-2 pr-4 py-1.5 rounded-full bg-white/70 border border-white/60 shadow-2xs hover:bg-white transition">
-                @if (file_exists(public_path('images/logo-himmatun-ayat.png')))
-                    <img src="{{ asset('images/logo-himmatun-ayat.png') }}" alt="Logo Himatun"
+                @if (file_exists(public_path('images/logo-himmatun-ayat.avif')))
+                    <img src="{{ asset('images/logo-himmatun-ayat.avif') }}" alt="Logo Himatun"
                         class="w-8 h-8 object-contain">
                 @endif
                 <span

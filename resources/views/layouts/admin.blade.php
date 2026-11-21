@@ -47,7 +47,7 @@
                 <!-- Brand / Header -->
                 <div class="p-5 sm:p-6 border-b border-border-line-1 flex items-center justify-between">
                     <div class="flex items-center gap-3">
-                        <img src="{{ asset('images/logo-himmatun-ayat.png') }}" 
+                        <img src="{{ asset('images/logo-himmatun-ayat.avif') }}" 
                              alt="Logo Himmatun Ayat" 
                              class="w-10 h-10 object-contain shrink-0">
                         <div>
@@ -217,7 +217,7 @@
                     </button>
 
                     <div class="flex items-center gap-2 lg:hidden">
-                        <img src="{{ asset('images/logo-himmatun-ayat.png') }}" 
+                        <img src="{{ asset('images/logo-himmatun-ayat.avif') }}" 
                              alt="Logo Himmatun Ayat" 
                              class="w-8 h-8 object-contain shrink-0">
                         <span class="font-bold text-sm text-foreground">@yield('page-title', $breadcrumb ?? $moduleBreadcrumb)</span>
