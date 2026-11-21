@@ -178,24 +178,48 @@ class CloudinaryImageUploadTest extends TestCase
         $this->assertStringContainsString($url, $berita->konten);
     }
 
-    public function test_guest_saves_a_private_receipt_for_their_active_donation(): void
+    #[TestWith(['gambar'])]
+    #[TestWith(['gambar_konten'])]
+    public function test_news_upload_signs_the_news_media_folder(string $purpose): void
+    {
+        $this->actingAs(User::factory()->withTwoFactor()->create());
+        $this->configureCloudinary();
+
+        $this->postJson(route('admin.image-uploads.store'), ['purpose' => $purpose, 'bytes' => 1234, 'mime' => 'image/jpeg'])
+            ->assertOk()->assertJsonPath('parameters.asset_folder', 'HimatunAyat/news');
+    }
+
+    #[TestWith(['QRIS'])]
+    #[TestWith(['Transfer Bank'])]
+    public function test_guest_saves_a_private_receipt_after_restoring_their_active_donation(string $method): void
     {
         $this->configureCloudinary();
-        $checkout = Livewire::test(KampanyeDonasi::class)
+        Livewire::test(KampanyeDonasi::class)
             ->set('namaDonatur', 'Donatur Tes')->set('noTelepon', '081234567890')->set('selectedNominal', 25000)
-            ->call('confirmDonasi')->call('payNow');
+            ->call('confirmDonasi')->call('selectMetodePembayaran', $method)->call('payNow');
         $donasi = Donasi::sole();
         $uploadRoute = route('donasi.bukti-transfer.upload', $donasi);
+        $checkout = Livewire::test(KampanyeDonasi::class)->assertSet('paymentStep', 2)->assertSet('metodePembayaran', $method);
+        $this->assertMatchesRegularExpression(
+            '~<div wire:key="receipt-upload-[0-9]+"[^>]+data-receipt-authorization="[^"]+"[^>]+x-data="[\s\S]+?x-ref="receiptFile"~',
+            $checkout->html(),
+        );
         $authorization = $this->postJson($uploadRoute, ['bytes' => 1234, 'mime' => 'image/jpeg'])
-            ->assertOk()->assertJsonPath('parameters.type', 'authenticated')->json();
+            ->assertOk()->assertJsonPath('parameters.type', 'authenticated')
+            ->assertJsonPath('parameters.asset_folder', 'HimatunAyat/transactions')->json();
         $reference = ['id' => $authorization['id'], 'public_id' => $authorization['parameters']['public_id']];
-        $this->fakeCloudinaryAsset($reference, 'authenticated');
+        $receiptUrl = 'https://res.cloudinary.com/test-cloud/image/authenticated/';
+        $this->fakeCloudinaryAsset($reference, 'authenticated', [
+            'secure_url' => $receiptUrl.'s--bm_APlM0--/v123/'.$reference['public_id'].'.jpg',
+        ]);
 
         $checkout->call('uploadBuktiTransfer', $reference)->assertHasNoErrors()->assertSet('showSuccessModal', true);
 
         $this->assertSame($reference['public_id'], $donasi->refresh()->bukti_transfer_path);
         $this->assertSame('authenticated', $donasi->bukti_transfer_cloudinary['type']);
+        $this->assertSame($receiptUrl.'v123/'.$reference['public_id'].'.jpg', $donasi->bukti_transfer_cloudinary['secure_url']);
         $this->assertSame('pending', $donasi->status);
+        $this->assertNull(session(Donasi::ACTIVE_PAYMENT_SESSION_KEY));
         $this->postJson($uploadRoute, ['bytes' => 1234, 'mime' => 'image/jpeg'])->assertForbidden();
 
         $receiptRoute = route('admin.donasi.bukti-transfer.show', $donasi);
@@ -214,11 +238,15 @@ class CloudinaryImageUploadTest extends TestCase
         $url = route('donasi.bukti-transfer.upload', $donasi);
         $file = ['bytes' => 1234, 'mime' => 'image/jpeg'];
 
+        $this->postJson($url, $file)->assertForbidden();
+        $checkout->call('payNow')->assertSet('paymentStep', 2);
         $this->travel(6)->minutes();
         $this->postJson($url, $file)->assertForbidden();
+        $checkout->call('expirePayment')->assertSet('showFailedModal', true);
         $checkout->call('uploadBuktiTransfer', [])->assertForbidden();
 
-        $this->withSession(['donasi_checkout' => null])->postJson($url, $file)->assertForbidden();
+        $this->assertNull(session(Donasi::ACTIVE_PAYMENT_SESSION_KEY));
+        $this->assertSame('rejected', $donasi->refresh()->status);
         $this->assertNull($donasi->refresh()->bukti_transfer_path);
     }
 

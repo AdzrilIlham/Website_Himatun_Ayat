@@ -31,6 +31,9 @@ window.uploadCloudinaryImage = async (file, authorizationUrl, scope = {}) => {
     body.append('file', file);
 
     const upload = await fetch(url, { method: 'POST', body, credentials: 'omit' });
+    if (upload.status === 403) {
+        throw new Error('Cloudinary menolak izin unggah. Hubungi pengelola situs.');
+    }
     if (!upload.ok) {
         throw new Error('Cloudinary gagal mengunggah gambar. Coba lagi.');
     }

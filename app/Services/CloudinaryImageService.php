@@ -27,6 +27,12 @@ class CloudinaryImageService
 
     private const FORMATS = ['jpg', 'jpeg', 'png', 'webp'];
 
+    private const ASSET_FOLDERS = [
+        'gambar' => 'HimatunAyat/news',
+        'gambar_konten' => 'HimatunAyat/news',
+        'buktiTransfer' => 'HimatunAyat/transactions',
+    ];
+
     public function authorize(Request $request, string $purpose, ?int $recordId, int $bytes, string $mime): array
     {
         [$directory, $maxBytes, $type] = self::POLICY[$purpose];
@@ -53,6 +59,9 @@ class CloudinaryImageService
             'timestamp' => $timestamp,
             'type' => $type,
         ];
+        if (isset(self::ASSET_FOLDERS[$purpose])) {
+            $parameters['asset_folder'] = self::ASSET_FOLDERS[$purpose];
+        }
         DB::table('image_upload_intents')->insert([
             'id' => $id,
             'purpose' => $purpose,
@@ -120,11 +129,18 @@ class CloudinaryImageService
             throw $this->invalidAsset($purpose);
         }
 
-        $deliveryPath = config('services.cloudinary.cloud_name')."/image/{$type}/v{$asset['version']}/{$publicId}.{$asset['format']}";
-        if (($asset['secure_url'] ?? null) !== 'https://res.cloudinary.com/'.$deliveryPath
+        $deliveryBase = 'https://res.cloudinary.com/'.config('services.cloudinary.cloud_name')."/image/{$type}/";
+        $deliveryPath = "v{$asset['version']}/{$publicId}.{$asset['format']}";
+        $unsignedUrl = $deliveryBase.$deliveryPath;
+        $cloudinaryUrl = $asset['secure_url'] ?? null;
+        $hasSignedDeliveryUrl = $type === 'authenticated' && is_string($cloudinaryUrl)
+            && preg_match('~\A'.preg_quote($deliveryBase, '~').'s--[A-Za-z0-9_-]+--/'.preg_quote($deliveryPath, '~').'\z~', $cloudinaryUrl);
+        if (($cloudinaryUrl !== $unsignedUrl && ! $hasSignedDeliveryUrl)
             || $intents->where('expires_at', '>', now()->timestamp)->delete() !== 1) {
             throw $this->invalidAsset($purpose);
         }
+
+        $asset['secure_url'] = $unsignedUrl;
 
         return Arr::only($asset, ['asset_id', 'public_id', 'secure_url', 'resource_type', 'type', 'format', 'bytes', 'version', 'width', 'height', 'created_at']);
     }

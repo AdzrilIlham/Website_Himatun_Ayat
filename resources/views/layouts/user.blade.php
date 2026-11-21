@@ -9,6 +9,10 @@
 
     <title>{{ $title ?? 'Yayasan Himatun Ayat - Mengukir Senyum dan Masa Depan Anak Yatim' }}</title>
 
+    @if (file_exists(public_path('images/logo-himmatun-ayat.avif')))
+        <link rel="preload" as="image" href="{{ asset('images/logo-himmatun-ayat.avif') }}" type="image/avif" fetchpriority="high">
+    @endif
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=plus-jakarta-sans:400,500,600,700,800" rel="stylesheet" />
@@ -52,9 +56,9 @@
             <!-- Brand / Logo -->
             <a href="{{ route('home') }}"
                 class="flex items-center gap-2 group -ml-3 sm:-ml-4 pl-2 pr-4 py-1.5 rounded-full bg-white/70 border border-white/60 shadow-2xs hover:bg-white transition">
-                @if (file_exists(public_path('images/logo-himmatun-ayat.png')))
-                    <img src="{{ asset('images/logo-himmatun-ayat.png') }}" alt="Logo Himatun"
-                        class="w-8 h-8 object-contain">
+                @if (file_exists(public_path('images/logo-himmatun-ayat.avif')))
+                    <img src="{{ asset('images/logo-himmatun-ayat.avif') }}" alt="Logo Himatun"
+                        class="w-8 h-8 object-contain" width="32" height="32" fetchpriority="high" decoding="async">
                 @endif
                 <span
                     class="font-bold text-base sm:text-lg tracking-tight text-brand-900 group-hover:text-brand-700 transition">

@@ -127,9 +127,13 @@
                                     <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-xs sm:text-sm font-bold text-muted-foreground">
                                         Rp
                                     </div>
-                                    <input type="number" wire:model.live.debounce.300ms="customNominal" min="10000" step="5000"
+                                    <input type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off"
+                                        wire:model.live.debounce.300ms="customNominal"
+                                        @keydown="if (!['Backspace','Delete','Tab','Escape','Enter','ArrowLeft','ArrowRight','Home','End'].includes($event.key) && !($event.ctrlKey || $event.metaKey) && !/^[0-9]$/.test($event.key)) { $event.preventDefault(); }"
+                                        @input="$event.target.value = $event.target.value.replace(/[^0-9]/g, '')"
+                                        @paste.prevent="const text = ($event.clipboardData || window.clipboardData).getData('text').replace(/[^0-9]/g, ''); const el = $event.target; const start = el.selectionStart; const end = el.selectionEnd; el.value = el.value.slice(0, start) + text + el.value.slice(end); el.dispatchEvent(new Event('input', { bubbles: true }));"
                                         placeholder="Nominal lainnya (contoh: 75000)"
-                                        class="form-input bg-white py-2.5 pl-11 pr-4 text-xs sm:text-sm font-semibold tabular [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-inner-spin-button]:m-0" />
+                                        class="form-input bg-white py-2.5 pl-11 pr-4 text-xs sm:text-sm font-semibold tabular" />
                                 </div>
                                 @error('selectedNominal')
                                     <p class="form-error">{{ $message }}</p>
@@ -154,10 +158,14 @@
                                     <label class="form-label text-xs sm:text-sm font-semibold">
                                         No. Telepon / WA <span class="text-danger">*</span>
                                     </label>
-                                    <input type="tel" wire:model.live.debounce.300ms="noTelepon"
+                                    <input type="tel" inputmode="numeric" pattern="[0-9]*"
+                                        wire:model.live.debounce.300ms="noTelepon"
                                         autocomplete="off"
+                                        @keydown="if (!['Backspace','Delete','Tab','Escape','Enter','ArrowLeft','ArrowRight','Home','End'].includes($event.key) && !($event.ctrlKey || $event.metaKey) && !/^[0-9]$/.test($event.key)) { $event.preventDefault(); }"
+                                        @input="$event.target.value = $event.target.value.replace(/[^0-9]/g, '')"
+                                        @paste.prevent="const text = ($event.clipboardData || window.clipboardData).getData('text').replace(/[^0-9]/g, ''); const el = $event.target; const start = el.selectionStart; const end = el.selectionEnd; el.value = el.value.slice(0, start) + text + el.value.slice(end); el.dispatchEvent(new Event('input', { bubbles: true }));"
                                         placeholder="Masukan Teks"
-                                        class="form-input bg-white py-3 text-xs sm:text-sm text-foreground" />
+                                        class="form-input bg-white py-3 text-xs sm:text-sm text-foreground tabular" />
                                     @error('noTelepon')
                                         <p class="form-error">{{ $message }}</p>
                                     @enderror
@@ -187,13 +195,40 @@
                             </div>
 
                             <!-- Doa & Harapan Donatur -->
-                            <div>
-                                <label class="form-label text-xs sm:text-sm font-semibold">
-                                    Doa & Harapan Donatur
-                                </label>
-                                <textarea wire:model.live.debounce.300ms="doaHarapan" rows="3"
-                                    placeholder="Masukan Teks"
-                                    class="form-input bg-white py-3 text-xs sm:text-sm resize-none"></textarea>
+                            <div x-data="{
+                                maxWords: 100,
+                                wordCount: 0,
+                                countWords(text) {
+                                    const trimmed = (text || '').trim();
+                                    return trimmed ? trimmed.split(/\s+/).length : 0;
+                                },
+                                enforceLimit(el) {
+                                    const words = (el.value || '').trim().split(/\s+/).filter(Boolean);
+                                    if (words.length > this.maxWords) {
+                                        const match = el.value.match(/^\s*(?:\S+\s+){0,99}\S+/);
+                                        el.value = match ? match[0] : words.slice(0, this.maxWords).join(' ');
+                                        el.dispatchEvent(new Event('input', { bubbles: true }));
+                                    }
+                                    this.wordCount = this.countWords(el.value);
+                                }
+                            }"
+                            x-init="wordCount = countWords($refs.doaInput?.value)">
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <label class="form-label text-xs sm:text-sm font-semibold mb-0">
+                                        Doa & Harapan Donatur
+                                    </label>
+                                    <span class="text-xs font-medium tabular"
+                                        :class="wordCount >= maxWords ? 'text-danger font-semibold' : 'text-muted-foreground-1'"
+                                        x-text="`${wordCount}/${maxWords}`">
+                                        0/100
+                                    </span>
+                                </div>
+                                <textarea x-ref="doaInput"
+                                    wire:model.live.debounce.300ms="doaHarapan" rows="3"
+                                    @input="enforceLimit($event.target)"
+                                    @keydown="if (wordCount >= maxWords && ($event.key === ' ' || $event.key === 'Enter')) { $event.preventDefault(); }"
+                                    placeholder="Masukan Teks (maksimal 100 kata)"
+                                    class="form-input bg-white py-3 text-xs sm:text-sm resize-none custom-scrollbar"></textarea>
                                 @error('doaHarapan')
                                     <p class="form-error">{{ $message }}</p>
                                 @enderror

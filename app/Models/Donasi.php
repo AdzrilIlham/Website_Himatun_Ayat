@@ -11,6 +11,8 @@ class Donasi extends Model
 {
     use HasFactory;
 
+    public const ACTIVE_PAYMENT_SESSION_KEY = 'kampanye_donasi.active_payment';
+
     protected $table = 'donasi';
 
     protected $fillable = [
@@ -34,12 +36,18 @@ class Donasi extends Model
 
     protected $hidden = ['bukti_transfer_cloudinary'];
 
-    public function allowsReceiptUpload(Session $session): bool
+    public function hasActivePayment(Session $session): bool
     {
         return $this->status === 'pending'
             && $this->bukti_transfer_path === null
-            && $session->get('donasi_checkout.id') === $this->id
-            && $session->get('donasi_checkout.expires_at', 0) > now()->timestamp;
+            && $session->get(self::ACTIVE_PAYMENT_SESSION_KEY.'.donasi_id') === $this->id
+            && $session->get(self::ACTIVE_PAYMENT_SESSION_KEY.'.expires_at', 0) > now()->timestamp;
+    }
+
+    public function allowsReceiptUpload(Session $session): bool
+    {
+        return $this->hasActivePayment($session)
+            && $session->get(self::ACTIVE_PAYMENT_SESSION_KEY.'.payment_step') === 2;
     }
 
     public function kampanye(): BelongsTo

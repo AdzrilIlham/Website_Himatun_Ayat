@@ -21,8 +21,8 @@
         <div class="max-w-7xl mx-auto flex h-20 items-center justify-between px-4 sm:px-6 lg:px-8">
             <!-- Brand / Logo dengan Aset Resmi -->
             <a href="{{ route('kampanye.index') }}" class="flex items-center gap-2.5 group">
-                @if(file_exists(public_path('images/logo-himmatun-ayat.png')))
-                    <img src="{{ asset('images/logo-himmatun-ayat.png') }}" alt="Logo Himmatun Ayat" class="w-8 h-8 object-contain">
+                @if(file_exists(public_path('images/logo-himmatun-ayat.avif')))
+                    <img src="{{ asset('images/logo-himmatun-ayat.avif') }}" alt="Logo Himmatun Ayat" class="w-8 h-8 object-contain">
                 @endif
                 <span class="font-bold text-xl sm:text-2xl tracking-tight text-foreground group-hover:text-brand-700 transition">
                     Yayasan Himatun
@@ -78,8 +78,8 @@
                 <!-- Kolom 1: Profil Yayasan -->
                 <div class="md:col-span-5 lg:col-span-5 space-y-4">
                     <div class="flex items-center gap-2.5">
-                        @if(file_exists(public_path('images/logo-himmatun-ayat.png')))
-                            <img src="{{ asset('images/logo-himmatun-ayat.png') }}" alt="Logo Himmatun Ayat" class="w-7 h-7 object-contain">
+                        @if(file_exists(public_path('images/logo-himmatun-ayat.avif')))
+                            <img src="{{ asset('images/logo-himmatun-ayat.avif') }}" alt="Logo Himmatun Ayat" class="w-7 h-7 object-contain">
                         @endif
                         <h3 class="text-base font-bold text-foreground tracking-tight">
                             Yayasan Himatun Ayat Bandung

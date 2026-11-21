@@ -142,7 +142,7 @@
     <header class="mx-auto w-full max-w-lg flex items-center justify-between gap-3">
         <div class="flex items-center gap-2.5">
             <div class="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-card p-1.5 shadow-2xs">
-                <img src="{{ asset('images/logo-himmatun-ayat.png') }}"
+                <img src="{{ asset('images/logo-himmatun-ayat.avif') }}"
                      alt="Logo Yayasan Himmatun Ayat"
                      width="32"
                      height="32"
