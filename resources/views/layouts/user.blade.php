@@ -96,12 +96,8 @@
                                 border border-white/70 shadow-xl shadow-brand-900/10"
                         role="menu" aria-orientation="vertical" aria-labelledby="hs-dropdown-layanan">
                         <a class="flex items-center gap-x-2 py-2 px-3 rounded-xl text-xs font-medium text-brand-900/80 hover:bg-brand-50 hover:text-brand-800 transition"
-                            href="{{ route('home') }}#paket-donasi">
-                            <span>Program Donasi Utama</span>
-                        </a>
-                        <a class="flex items-center gap-x-2 py-2 px-3 rounded-xl text-xs font-medium text-brand-900/80 hover:bg-brand-50 hover:text-brand-800 transition"
-                            href="{{ route('home') }}#paket-sedekah">
-                            <span>Paket Sedekah Kilat</span>
+                            href="{{ route('kampanye.index') }}">
+                            <span>Program Donasi</span>
                         </a>
                         <a class="flex items-center gap-x-2 py-2 px-3 rounded-xl text-xs font-medium text-brand-900/80 hover:bg-brand-50 hover:text-brand-800 transition"
                             href="{{ route('home') }}#transparansi">
