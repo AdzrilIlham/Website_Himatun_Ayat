@@ -127,9 +127,13 @@
                                     <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-xs sm:text-sm font-bold text-muted-foreground">
                                         Rp
                                     </div>
-                                    <input type="number" wire:model.live.debounce.300ms="customNominal" min="10000" step="5000"
+                                    <input type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off"
+                                        wire:model.live.debounce.300ms="customNominal"
+                                        @keydown="if (!['Backspace','Delete','Tab','Escape','Enter','ArrowLeft','ArrowRight','Home','End'].includes($event.key) && !($event.ctrlKey || $event.metaKey) && !/^[0-9]$/.test($event.key)) { $event.preventDefault(); }"
+                                        @input="$event.target.value = $event.target.value.replace(/[^0-9]/g, '')"
+                                        @paste.prevent="const text = ($event.clipboardData || window.clipboardData).getData('text').replace(/[^0-9]/g, ''); const el = $event.target; const start = el.selectionStart; const end = el.selectionEnd; el.value = el.value.slice(0, start) + text + el.value.slice(end); el.dispatchEvent(new Event('input', { bubbles: true }));"
                                         placeholder="Nominal lainnya (contoh: 75000)"
-                                        class="form-input bg-white py-2.5 pl-11 pr-4 text-xs sm:text-sm font-semibold tabular [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-inner-spin-button]:m-0" />
+                                        class="form-input bg-white py-2.5 pl-11 pr-4 text-xs sm:text-sm font-semibold tabular" />
                                 </div>
                                 @error('selectedNominal')
                                     <p class="form-error">{{ $message }}</p>

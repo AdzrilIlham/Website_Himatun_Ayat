@@ -201,6 +201,7 @@ class KampanyeDonasi extends Component
 
         $intVal = (int) preg_replace('/[^0-9]/', '', (string) $val);
         $this->selectedNominal = $intVal > 0 ? $intVal : null;
+        $this->customNominal = $this->selectedNominal;
 
         if ($this->selectedNominal >= 10000) {
             $this->resetValidation('selectedNominal');
