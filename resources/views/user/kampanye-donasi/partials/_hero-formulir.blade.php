@@ -158,10 +158,14 @@
                                     <label class="form-label text-xs sm:text-sm font-semibold">
                                         No. Telepon / WA <span class="text-danger">*</span>
                                     </label>
-                                    <input type="tel" wire:model.live.debounce.300ms="noTelepon"
+                                    <input type="tel" inputmode="numeric" pattern="[0-9]*"
+                                        wire:model.live.debounce.300ms="noTelepon"
                                         autocomplete="off"
+                                        @keydown="if (!['Backspace','Delete','Tab','Escape','Enter','ArrowLeft','ArrowRight','Home','End'].includes($event.key) && !($event.ctrlKey || $event.metaKey) && !/^[0-9]$/.test($event.key)) { $event.preventDefault(); }"
+                                        @input="$event.target.value = $event.target.value.replace(/[^0-9]/g, '')"
+                                        @paste.prevent="const text = ($event.clipboardData || window.clipboardData).getData('text').replace(/[^0-9]/g, ''); const el = $event.target; const start = el.selectionStart; const end = el.selectionEnd; el.value = el.value.slice(0, start) + text + el.value.slice(end); el.dispatchEvent(new Event('input', { bubbles: true }));"
                                         placeholder="Masukan Teks"
-                                        class="form-input bg-white py-3 text-xs sm:text-sm text-foreground" />
+                                        class="form-input bg-white py-3 text-xs sm:text-sm text-foreground tabular" />
                                     @error('noTelepon')
                                         <p class="form-error">{{ $message }}</p>
                                     @enderror

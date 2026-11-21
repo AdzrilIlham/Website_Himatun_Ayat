@@ -225,6 +225,7 @@ class KampanyeDonasi extends Component
 
     public function updatedNoTelepon(): void
     {
+        $this->noTelepon = (string) preg_replace('/[^0-9]/', '', $this->noTelepon);
         $this->resetValidation('noTelepon');
     }
 
@@ -258,7 +259,7 @@ class KampanyeDonasi extends Component
         $this->validate([
             'selectedKampanyeId' => 'nullable|exists:kampanye,id',
             'namaDonatur' => 'required|string|min:2|max:100',
-            'noTelepon' => 'required|string|min:9|max:20',
+            'noTelepon' => 'required|digits_between:9,20',
             'email' => 'nullable|email|max:100',
             'selectedNominal' => 'required|numeric|min:10000',
             'doaHarapan' => [
@@ -277,6 +278,7 @@ class KampanyeDonasi extends Component
         ], [
             'namaDonatur.required' => 'Mohon masukkan nama donatur atau centang Hamba Allah.',
             'noTelepon.required' => 'Nomor telepon/WhatsApp wajib diisi untuk konfirmasi.',
+            'noTelepon.digits_between' => 'Nomor telepon/WhatsApp hanya boleh berisi angka (9–20 digit).',
             'selectedNominal.required' => 'Silakan pilih nominal donasi atau masukkan nominal lainnya.',
             'selectedNominal.min' => 'Minimal donasi adalah Rp 10.000.',
         ]);
