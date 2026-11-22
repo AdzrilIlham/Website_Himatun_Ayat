@@ -947,11 +947,6 @@ function initOrgTreeAnimation(root) {
             path.style.strokeDashoffset = '1';
         });
 
-        const nodeWaters = Array.from(connector.querySelectorAll('.pipe-node-water'));
-        if (nodeWaters.length) {
-            gsap.set(nodeWaters, { scale: 0, opacity: 0 });
-        }
-
         // Timeline dengan ScrollTrigger scrub untuk efek cairan mengalir di pipa
         const tl = gsap.timeline({
             scrollTrigger: {
@@ -967,19 +962,6 @@ function initOrgTreeAnimation(root) {
             ease: 'none',
             stagger: 0.05,
         });
-
-        if (nodeWaters.length) {
-            tl.to(
-                nodeWaters,
-                {
-                    scale: 1,
-                    opacity: 1,
-                    ease: 'power2.out',
-                    stagger: 0.08,
-                },
-                '-=0.35',
-            );
-        }
 
         cleanups.push(() => {
             if (tl.scrollTrigger) tl.scrollTrigger.kill();

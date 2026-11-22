@@ -539,7 +539,7 @@
                     </div>
 
                     <!-- Water Pipeline Connector: Pendidikan -> 2 Divisi Operasional -->
-                    <div class="hidden lg:block relative w-full h-16 sm:h-20" data-pipe-connector="4">
+                    <div class="hidden md:block relative w-full h-16 sm:h-20" data-pipe-connector="4">
                         <svg viewBox="0 0 1000 80" preserveAspectRatio="none" class="w-full h-full overflow-visible pipe-connector">
                             <!-- Background Conduit Pipes -->
                             <path d="M 500 0 L 500 32 Q 500 40 490 40 L 260 40 Q 250 40 250 48 L 250 80" class="pipe-track" />
@@ -557,8 +557,8 @@
                         </svg>
                     </div>
 
-                    <!-- Mobile vertical connector (< lg) -->
-                    <div class="lg:hidden w-8 h-10 mx-auto my-1" data-pipe-connector="4-m">
+                    <!-- Mobile vertical connector (< md) -->
+                    <div class="md:hidden w-8 h-10 mx-auto my-1" data-pipe-connector="4-m">
                         <svg viewBox="0 0 40 60" preserveAspectRatio="none" class="w-full h-full overflow-visible pipe-connector">
                             <path d="M 20 0 L 20 60" class="pipe-track" />
                             <circle cx="20" cy="56" r="4" class="pipe-node-track" />
@@ -574,10 +574,13 @@
                 <div class="relative max-w-5xl mx-auto w-full" data-animate-group="fade-up" data-animate-distance="26"
                     data-animate-duration="0.75" data-animate-stagger="0.1" data-animate-start="top 84%">
 
+                    <!-- 2 Divisions Grid: Humas (50%) & Wirausaha (50%) Sejajar -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 items-stretch">
+
                         <!-- ========================================================== -->
                         <!-- DIVISI HUMAS (3 Anggota: Apid, Hj. Lilis, Pak Harli)       -->
                         <!-- ========================================================== -->
-                        <div class="rounded-2xl bg-black/15 border border-emerald-400/20 p-5 sm:p-6 backdrop-blur-[2px]">
+                        <div class="flex flex-col rounded-2xl bg-black/15 border border-emerald-400/20 p-5 sm:p-6 backdrop-blur-[2px]">
 
                             <!-- Header Divisi Humas (Aksen merah khas banner resmi) -->
                             <div class="flex items-center justify-between mb-5 pb-3 border-b border-emerald-400/15">
@@ -617,7 +620,7 @@
                         <!-- ========================================================== -->
                         <!-- DIVISI WIRAUSAHA (2 Anggota: Herdianto, Rian Setiawan)     -->
                         <!-- ========================================================== -->
-                        <div class="rounded-2xl bg-black/15 border border-emerald-400/20 p-5 sm:p-6 backdrop-blur-[2px]">
+                        <div class="flex flex-col rounded-2xl bg-black/15 border border-emerald-400/20 p-5 sm:p-6 backdrop-blur-[2px]">
 
                             <!-- Header Divisi Wirausaha (Aksen oranye khas banner resmi) -->
                             <div class="flex items-center justify-between mb-5 pb-3 border-b border-emerald-400/15">
@@ -631,7 +634,7 @@
                             </div>
 
                             <!-- 2 Cards Grid -->
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-sm sm:max-w-none mx-auto">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-sm sm:max-w-none mx-auto w-full my-auto">
 
                                 <!-- Herdianto (Dummy Photo) -->
                                 <div class="flex flex-col items-center">
