@@ -29,7 +29,7 @@
                                 </span>
                                 <span
                                     class="text-white font-bold text-sm sm:text-base tracking-tight drop-shadow-sm leading-snug">
-                                    Mengayomi 1.450+ Anak Yatim &amp; Dhuafa
+                                    Mengayomi 50+ Anak Yatim &amp; Dhuafa
                                 </span>
                             </div>
                         </div>
@@ -96,7 +96,7 @@
                                 </span>
                                 <span
                                     class="text-white font-bold text-base sm:text-lg md:text-xl tracking-tight drop-shadow-sm leading-snug">
-                                    Mengayomi 1.450+ Anak Yatim &amp; Dhuafa
+                                    Mengayomi 50+ Anak Yatim &amp; Dhuafa
                                 </span>
                             </div>
                         </div>
