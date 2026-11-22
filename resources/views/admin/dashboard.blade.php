@@ -209,7 +209,7 @@
 
                     <form :action="'/admin/pengajuan-kegiatan/' + selectedPengajuan.id + '/setujui'" method="POST" class="flex items-center justify-end gap-2.5 pt-1">
                         @csrf
-                        <button type="button" @click="setujuiModalOpen = false" class="btn btn-secondary btn-sm px-4">Batal</button>
+                        <button type="button" @click="setujuiModalOpen = false" class="btn btn-secondary text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-950/40 btn-sm px-4">Batal</button>
                         <button type="submit" class="btn btn-primary btn-sm px-5">
                             <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
@@ -602,7 +602,10 @@
                                     <form method="POST" action="{{ route('admin.donasi.verifikasi', $donasi->id) }}">
                                         @csrf
                                         <button type="submit" 
-                                                onclick="return confirm('Verifikasi donasi sebesar Rp{{ number_format($donasi->nominal, 0, ',', '.') }} dari {{ $donasi->nama_donatur }}?')"
+                                                data-confirm="Verifikasi donasi sebesar Rp{{ number_format($donasi->nominal, 0, ',', '.') }} dari {{ $donasi->nama_donatur }}?"
+                                                data-confirm-title="Verifikasi Donasi"
+                                                data-confirm-type="success"
+                                                data-confirm-button="Ya, Verifikasi"
                                                 class="px-2.5 py-1 rounded-lg text-xs font-bold border border-success/40 bg-success-soft text-success hover:bg-success hover:text-white transition whitespace-nowrap cursor-pointer">
                                             Verif
                                         </button>
@@ -612,7 +615,10 @@
                                     <form method="POST" action="{{ route('admin.donasi.tolak', $donasi->id) }}">
                                         @csrf
                                         <button type="submit" 
-                                                onclick="return confirm('Tolak donasi ini?')"
+                                                data-confirm="Tolak donasi sebesar Rp{{ number_format($donasi->nominal, 0, ',', '.') }} dari {{ $donasi->nama_donatur }}? Status donasi akan diubah menjadi Ditolak."
+                                                data-confirm-title="Tolak Donasi"
+                                                data-confirm-type="danger"
+                                                data-confirm-button="Ya, Tolak"
                                                 class="px-2.5 py-1 rounded-lg text-xs font-bold border border-danger/40 bg-danger-soft text-danger hover:bg-danger hover:text-white transition whitespace-nowrap cursor-pointer">
                                             Tolak
                                         </button>
@@ -713,16 +719,22 @@
                             <form method="POST" action="{{ route('admin.donasi.verifikasi', $donasi->id) }}">
                                 @csrf
                                 <button type="submit" 
-                                        onclick="return confirm('Verifikasi donasi sebesar Rp{{ number_format($donasi->nominal, 0, ',', '.') }} dari {{ $donasi->nama_donatur }}?')"
-                                        class="px-3.5 py-1.5 rounded-lg text-xs font-semibold border border-success/40 bg-success-soft text-success hover:bg-success hover:text-white transition shadow-2xs">
+                                        data-confirm="Verifikasi donasi sebesar Rp{{ number_format($donasi->nominal, 0, ',', '.') }} dari {{ $donasi->nama_donatur }}?"
+                                        data-confirm-title="Verifikasi Donasi"
+                                        data-confirm-type="success"
+                                        data-confirm-button="Ya, Verifikasi"
+                                        class="px-3.5 py-1.5 rounded-lg text-xs font-semibold border border-success/40 bg-success-soft text-success hover:bg-success hover:text-white transition shadow-2xs cursor-pointer">
                                     Verif
                                 </button>
                             </form>
                             <form method="POST" action="{{ route('admin.donasi.tolak', $donasi->id) }}">
                                 @csrf
                                 <button type="submit" 
-                                        onclick="return confirm('Tolak donasi ini?')"
-                                        class="px-3.5 py-1.5 rounded-lg text-xs font-semibold border border-danger/40 bg-danger-soft text-danger hover:bg-danger hover:text-white transition shadow-2xs">
+                                        data-confirm="Tolak donasi sebesar Rp{{ number_format($donasi->nominal, 0, ',', '.') }} dari {{ $donasi->nama_donatur }}? Status donasi akan diubah menjadi Ditolak."
+                                        data-confirm-title="Tolak Donasi"
+                                        data-confirm-type="danger"
+                                        data-confirm-button="Ya, Tolak"
+                                        class="px-3.5 py-1.5 rounded-lg text-xs font-semibold border border-danger/40 bg-danger-soft text-danger hover:bg-danger hover:text-white transition shadow-2xs cursor-pointer">
                                     Tolak
                                 </button>
                             </form>
@@ -893,7 +905,7 @@
          role="dialog"
          tabindex="-1"
          aria-labelledby="proof-preview-modal-label">
-        <div class="hs-overlay-open:mt-7 hs-overlay-open:opacity-100 hs-overlay-open:duration-500 mt-0 opacity-0 ease-out transition-all sm:max-w-md sm:w-full m-3 sm:mx-auto">
+        <div class="hs-overlay-open:opacity-100 hs-overlay-open:duration-300 opacity-0 ease-out transition-all sm:max-w-md sm:w-full m-3 sm:mx-auto min-h-[calc(100%-3.5rem)] flex items-center justify-center">
             <div class="relative bg-overlay rounded-2xl shadow-2xl border border-overlay-line overflow-hidden w-full flex flex-col max-h-[90vh] pointer-events-auto">
                 <!-- Header Modal -->
                 <div class="px-5 py-3.5 border-b border-border-line-1 flex items-center justify-between bg-muted/60">

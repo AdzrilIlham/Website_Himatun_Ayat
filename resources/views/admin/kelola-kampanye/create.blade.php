@@ -130,10 +130,19 @@
             }
         },
 
-        confirmLeave(e) {
+        async confirmLeave(e) {
             if (this.isDirty) {
-                if (!confirm('Perubahan formulir belum disimpan. Yakin ingin kembali ke halaman Kelola Kampanye?')) {
-                    e.preventDefault();
+                e.preventDefault();
+                const targetUrl = e.currentTarget.href;
+                const ok = await window.confirmAction({
+                    title: 'Tinggalkan Halaman?',
+                    message: 'Perubahan formulir belum disimpan. Yakin ingin kembali ke halaman Kelola Kampanye?',
+                    type: 'warning',
+                    confirmText: 'Ya, Tinggalkan',
+                    cancelText: 'Batal'
+                });
+                if (ok && targetUrl) {
+                    window.location.href = targetUrl;
                 }
             }
         },
@@ -598,11 +607,19 @@
                                         name="status_override" 
                                         value="draft"
                                         @click="handleFormSubmit($event, 'draft')"
+                                        data-confirm="Simpan kampanye ini sebagai Draft?"
+                                        data-confirm-title="Simpan Sebagai Draft"
+                                        data-confirm-type="info"
+                                        data-confirm-button="Ya, Simpan Draft"
                                         class="px-4 py-2.5 rounded-xl border border-border-line-3 bg-card text-muted-foreground-2 text-xs sm:text-sm font-semibold hover:bg-muted active:scale-95 transition-all shadow-2xs cursor-pointer">
                                     Simpan Draft
                                 </button>
                                 <button type="submit" 
                                         @click="handleFormSubmit($event)"
+                                        data-confirm="Apakah Anda yakin ingin menyimpan dan menerbitkan kampanye donasi ini?"
+                                        data-confirm-title="Konfirmasi Terbitkan Kampanye"
+                                        data-confirm-type="success"
+                                        data-confirm-button="Ya, Terbitkan"
                                         class="px-5 py-2.5 rounded-xl bg-brand-700 text-white text-xs sm:text-sm font-semibold hover:bg-brand-800 active:scale-95 transition-all shadow-xs cursor-pointer">
                                     Simpan &amp; Terbitkan Kampanye
                                 </button>
