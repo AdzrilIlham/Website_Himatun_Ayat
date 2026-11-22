@@ -125,7 +125,7 @@
                 <!-- Preline Collapse Toggle Button (Mobile/Tablet) -->
                 <button type="button"
                     class="hs-collapse-toggle md:hidden p-2 inline-flex justify-center items-center gap-x-2 rounded-full bg-white/60 backdrop-blur-xl backdrop-saturate-150
-                            border border-white/60 shadow-xl shadow-brand-900/10 border border-white/70 text-brand-900 hover:bg-gray-100 focus:outline-hidden pointer-events-auto"
+                            border border-white/60 shadow-xl shadow-brand-900/10 border border-white/70 text-brand-900 hover:bg-brand-100 focus:outline-hidden pointer-events-auto"
                     id="hs-navbar-collapse" aria-expanded="false" aria-controls="hs-navbar-collapse-heading"
                     aria-label="Toggle navigation" data-hs-collapse="#hs-navbar-collapse-heading">
                     <svg class="hs-collapse-open:hidden size-5" xmlns="http://www.w3.org/2000/svg" fill="none"
@@ -147,21 +147,21 @@
             <div
                 class="bg-white/85 backdrop-blur-xl backdrop-saturate-150 rounded-3xl border border-white/70 p-4 shadow-xl shadow-brand-900/10 flex flex-col gap-3 text-sm font-medium text-brand-900/80">
                 <a href="{{ route('home') }}"
-                    class="{{ request()->routeIs('home') ? 'px-3 py-2 rounded-xl bg-brand-100 font-bold text-brand-800' : 'px-3 py-2 rounded-xl hover:bg-brand-50 transition' }}">
+                    class="{{ request()->routeIs('home') ? 'px-3 py-2 rounded-xl bg-brand-100 font-bold text-brand-800' : 'px-3 py-2 rounded-xl hover:bg-brand-100 transition' }}">
                     Beranda
                 </a>
                 <a href="{{ route('tentang-kami') }}"
-                                    class="{{ request()->routeIs('tentang-kami', 'profile') ? 'px-3 py-2 rounded-xl bg-brand-100 font-bold text-brand-800' : 'px-3 py-2 rounded-xl hover:bg-brand-50 transition' }}">
+                                    class="{{ request()->routeIs('tentang-kami', 'profile') ? 'px-3 py-2 rounded-xl bg-brand-100 font-bold text-brand-800' : 'px-3 py-2 rounded-xl hover:bg-brand-100 transition' }}">
                     Tentang Kami
                 </a>
-                <a href="{{ route('home') }}#paket-donasi" class="px-3 py-2 rounded-xl hover:bg-brand-50 transition">
+                <a href="{{ route('home') }}#paket-donasi" class="px-3 py-2 rounded-xl hover:bg-brand-100 transition">
                     Paket Donasi
                 </a>
-                <a href="{{ route('home') }}#transparansi" class="px-3 py-2 rounded-xl hover:bg-brand-50 transition">
+                <a href="{{ route('home') }}#transparansi" class="px-3 py-2 rounded-xl hover:bg-brand-100 transition">
                     Laporan Transparansi
                 </a>
                 <a href="{{ route('berita-kegiatan.index') }}"
-                    class="{{ request()->routeIs('berita-kegiatan.*') ? 'px-3 py-2 rounded-xl bg-brand-100 font-bold text-brand-800' : 'px-3 py-2 rounded-xl hover:bg-brand-50 transition' }}">
+                    class="{{ request()->routeIs('berita-kegiatan.*') ? 'px-3 py-2 rounded-xl bg-brand-100 font-bold text-brand-800' : 'px-3 py-2 rounded-xl hover:bg-brand-100 transition' }}">
                     Berita &amp; Kegiatan
                 </a>
                 @unless (request()->routeIs('kampanye.index', 'donasi.index'))
