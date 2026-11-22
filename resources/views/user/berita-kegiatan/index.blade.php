@@ -342,7 +342,7 @@
     <!-- KALENDER KEGIATAN & PENGAJUAN JADWAL INTERAKTIF (KEGIATAN MENDATANG V.2) -->
     <section id="kalender-kegiatan"
              class="mt-10 border-y border-brand-100 bg-brand-50/70 py-10 sm:mt-12 sm:py-14"
-             x-data="kalenderKegiatanSection({{ Js::from($calendarEvents ?? $events) }}, '{{ config('app.whatsapp_admin', '6283157371088') }}')"
+             x-data="kalenderKegiatanSection({{ Js::from($calendarEvents ?? $events) }}, '{{ config('app.whatsapp_admin', '6285862033063') }}')"
              @keydown.escape.window="closeModal()">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             {{-- Header Section --}}
@@ -1001,7 +1001,7 @@
     </section>
 
     <script>
-        function kalenderKegiatanSection(initialEvents, adminWhatsappNumber = '6283157371088') {
+        function kalenderKegiatanSection(initialEvents, adminWhatsappNumber = '6285862033063') {
             const monthNames = [
                 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
                 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
@@ -1036,7 +1036,7 @@
                 selectedEvent: null,
                 selectedCell: null,
                 selectedDateEvents: [],
-                adminPhone: adminWhatsappNumber || '6283157371088',
+                adminPhone: adminWhatsappNumber || '6285862033063',
                 jenisKegiatanOptions: [
                     'Santunan & Bakti Sosial',
                     'Buka Puasa Bersama (Bukber)',

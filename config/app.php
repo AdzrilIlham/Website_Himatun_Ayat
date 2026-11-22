@@ -19,9 +19,9 @@ return [
     |--------------------------------------------------------------------------
     | Nomor Kontak WhatsApp Admin Yayasan
     |--------------------------------------------------------------------------
-    | Format tanpa tanda '+' atau strip, contoh: 6283157371088
+    | Format tanpa tanda '+' atau strip, contoh: 6285862033063
     */
-    'whatsapp_admin' => env('WHATSAPP_ADMIN_NUMBER', '6283157371088'),
+    'whatsapp_admin' => env('WHATSAPP_ADMIN_NUMBER', '6285862033063'),
 
     /*
     |--------------------------------------------------------------------------

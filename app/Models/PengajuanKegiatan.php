@@ -31,6 +31,7 @@ class PengajuanKegiatan extends Model
             });
         }
     }
+
     /**
      * @var array<int, string>
      */
@@ -78,7 +79,6 @@ class PengajuanKegiatan extends Model
     public function scopeTerbaru(Builder $query): Builder
     {
         return $query->orderByRaw("FIELD(status, 'menunggu', 'disetujui', 'ditolak')")
-                     ->orderByDesc('created_at');
+            ->orderByDesc('created_at');
     }
 }
-

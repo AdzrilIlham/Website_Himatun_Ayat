@@ -101,7 +101,7 @@
             <div class="mt-4 relative rounded-2xl overflow-hidden border border-slate-200/90 bg-slate-50 aspect-[16/7] group/thumb shadow-xs">
                 <img src="{{ $image }}" 
                      alt="{{ $imageAlt }}" 
-                     class="w-full h-full object-cover group-hover/thumb:scale-105 transition-transform duration-300">
+                     class="w-full h-full object-cover object-top group-hover/thumb:scale-105 transition-transform duration-300">
                 
                 <!-- Zoom Overlay Button -->
                 <button type="button" 

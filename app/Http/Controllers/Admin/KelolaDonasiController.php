@@ -195,14 +195,14 @@ class KelolaDonasiController extends Controller
     public function update(Request $request, Donasi $donasi): RedirectResponse
     {
         $validated = $request->validate([
-            'nama_donatur'      => 'required|string|max:255',
-            'email'             => 'nullable|email|max:255',
-            'no_whatsapp'       => 'nullable|string|max:50',
-            'kampanye_id'       => 'nullable|exists:kampanye,id',
-            'nominal'           => 'required|numeric|min:1000',
+            'nama_donatur' => 'required|string|max:255',
+            'email' => 'nullable|email|max:255',
+            'no_whatsapp' => 'nullable|string|max:50',
+            'kampanye_id' => 'nullable|exists:kampanye,id',
+            'nominal' => 'required|numeric|min:1000',
             'metode_pembayaran' => 'nullable|string|max:100',
-            'pesan_doa'         => 'nullable|string',
-            'status'            => 'required|in:pending,verified,rejected',
+            'pesan_doa' => 'nullable|string',
+            'status' => 'required|in:pending,verified,rejected',
         ]);
 
         DB::transaction(function () use ($donasi, $validated) {
