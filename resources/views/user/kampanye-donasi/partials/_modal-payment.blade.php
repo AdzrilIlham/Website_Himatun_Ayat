@@ -375,19 +375,53 @@
                         data-receipt-authorization="{{ route('donasi.bukti-transfer.upload', $currentDonasi) }}"
                         x-data="{
                             fileName: '',
+                            uploadedReference: '',
                             uploading: false,
+                            submitting: false,
                             uploadError: '',
-                            async sendReceipt() {
-                                if (this.uploading) return;
-                                this.uploading = true;
+                            async handleFileSelect(event) {
+                                const file = event.target.files?.[0];
+                                if (!file) {
+                                    this.fileName = '';
+                                    this.uploadedReference = '';
+                                    this.uploadError = '';
+                                    return;
+                                }
+                                this.fileName = file.name;
+                                this.uploadedReference = '';
                                 this.uploadError = '';
+                                this.uploading = true;
                                 try {
-                                    const { reference } = await window.uploadCloudinaryImage(this.$refs.receiptFile.files[0], this.$root.dataset.receiptAuthorization);
-                                    await this.$wire.uploadBuktiTransfer(reference);
+                                    const { reference } = await window.uploadCloudinaryImage(file, this.$root.dataset.receiptAuthorization);
+                                    this.uploadedReference = reference;
                                 } catch (error) {
                                     this.uploadError = error instanceof TypeError ? 'Koneksi unggah terputus. Coba lagi.' : error.message;
                                 } finally {
                                     this.uploading = false;
+                                }
+                            },
+                            async sendReceipt() {
+                                if (this.uploading || this.submitting) return;
+                                const file = this.$refs.receiptFile?.files?.[0];
+                                if (!this.uploadedReference && !file) {
+                                    this.uploadError = 'Wajib mengunggah foto atau screenshot bukti transfer untuk menyelesaikan pembayaran.';
+                                    return;
+                                }
+                                this.uploadError = '';
+                                try {
+                                    if (!this.uploadedReference && file) {
+                                        this.uploading = true;
+                                        const { reference } = await window.uploadCloudinaryImage(file, this.$root.dataset.receiptAuthorization);
+                                        this.uploadedReference = reference;
+                                        this.uploading = false;
+                                    }
+                                    this.submitting = true;
+                                    await this.$wire.uploadBuktiTransfer(this.uploadedReference);
+                                } catch (error) {
+                                    this.uploadError = error instanceof TypeError ? 'Koneksi unggah terputus. Coba lagi.' : error.message;
+                                } finally {
+                                    this.uploading = false;
+                                    this.submitting = false;
                                 }
                             }
                         }">
@@ -395,21 +429,46 @@
                             Upload Bukti Transfer <span class="text-danger">*</span>
                         </label>
 
-                        <div class="relative border-2 border-dashed {{ $errors->has('buktiTransfer') ? 'border-danger bg-red-50/40' : 'border-brand-300 hover:border-brand-500 bg-brand-50/50' }} rounded-xl p-3.5 text-center transition">
+                        <div class="relative border-2 border-dashed {{ $errors->has('buktiTransfer') ? 'border-danger bg-red-50/40' : 'border-brand-300 hover:border-brand-500 bg-brand-50/50' }} rounded-xl p-4 text-center transition overflow-hidden"
+                            :class="uploading ? 'border-brand-500 bg-brand-50/80 pointer-events-none' : (uploadedReference ? 'border-brand-600 bg-brand-50/70' : '')">
                             <input type="file" x-ref="receiptFile" accept="image/jpeg,image/png,image/webp"
-                                @change="fileName = $event.target.files[0]?.name || ''; uploadError = ''" :disabled="uploading"
+                                @change="handleFileSelect($event)" :disabled="uploading || submitting"
                                 class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
-                            <div class="space-y-1">
+
+                            <!-- State 1: Sedang Mengunggah (Loading di dalam field upload) -->
+                            <div x-show="uploading" x-cloak class="space-y-2 py-0.5">
+                                <svg class="w-6 h-6 mx-auto animate-spin text-brand-700" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3.5"></circle>
+                                    <path class="opacity-90" fill="currentColor" d="M4 12a8 8 0 018-8v3a5 5 0 00-5 5H4z"></path>
+                                </svg>
+                                <p class="text-xs font-bold text-brand-800 break-all" x-text="`Mengunggah ${fileName}...`">
+                                    Mengunggah bukti transfer...
+                                </p>
+                                <div class="w-40 max-w-full h-1.5 mx-auto rounded-full bg-brand-200 overflow-hidden">
+                                    <div class="h-full w-2/3 rounded-full bg-brand-700 animate-pulse"></div>
+                                </div>
+                            </div>
+
+                            <!-- State 2: Berhasil Diunggah -->
+                            <div x-show="!uploading && uploadedReference" x-cloak class="space-y-1">
+                                <svg class="w-6 h-6 mx-auto text-brand-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <p class="text-xs font-bold text-brand-900 break-all" x-text="fileName"></p>
+                                <p class="text-2xs font-medium text-brand-700">Bukti berhasil diunggah • Klik untuk ganti foto</p>
+                            </div>
+
+                            <!-- State 3: Default / Belum Pilih File -->
+                            <div x-show="!uploading && !uploadedReference" class="space-y-1">
                                 <svg class="w-6 h-6 mx-auto text-brand-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2 2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                 </svg>
-                                <p class="text-xs font-medium text-foreground" x-text="fileName || 'Klik atau seret foto bukti transfer di sini (JPG/PNG/WebP, maks. 5 MB)'">
+                                <p class="text-xs font-medium text-foreground break-all" x-text="fileName || 'Klik atau seret foto bukti transfer di sini (JPG/PNG/WebP, maks. 5 MB)'">
                                     Klik atau seret foto bukti transfer di sini (JPG/PNG/WebP, maks. 5 MB)
                                 </p>
                             </div>
                         </div>
 
-                        <p role="status" x-show="uploading" x-cloak>Mengunggah bukti transfer…</p>
                         <p class="form-error" role="alert" x-show="uploadError" x-text="uploadError" x-cloak></p>
                         @error('buktiTransfer')
                             <p class="form-error">{{ $message }}</p>
@@ -417,9 +476,16 @@
 
                         <!-- Tombol Aksi Step 2 -->
                         <div class="pt-1">
-                            <button type="button" @click="sendReceipt()" :disabled="uploading"
-                                class="btn btn-primary rounded-xl w-full py-3 text-xs sm:text-sm font-bold shadow-sm transition cursor-pointer">
-                                Saya Sudah Bayar / Selesai
+                            <button type="button" @click="sendReceipt()" :disabled="uploading || submitting"
+                                class="btn btn-primary rounded-xl w-full py-3 text-xs sm:text-sm font-bold shadow-sm transition cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed">
+                                <span x-show="!uploading && !submitting">Saya Sudah Bayar / Selesai</span>
+                                <span x-show="uploading || submitting" x-cloak class="inline-flex items-center justify-center gap-2">
+                                    <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3.5"></circle>
+                                        <path class="opacity-90" fill="currentColor" d="M4 12a8 8 0 018-8v3a5 5 0 00-5 5H4z"></path>
+                                    </svg>
+                                    <span x-text="uploading ? 'Mengunggah Bukti...' : 'Menyimpan Donasi...'">Mengunggah Bukti...</span>
+                                </span>
                             </button>
                         </div>
                     </div>
