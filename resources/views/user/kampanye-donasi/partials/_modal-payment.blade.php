@@ -205,16 +205,79 @@
                                     Buka aplikasi pembayaran anda dan scan QR dibawah
                                 </p>
 
-                                <div class="p-3 bg-white border border-border rounded-2xl inline-block shadow-xs">
+                                <div class="p-3 bg-white border border-border rounded-2xl inline-block shadow-xs"
+                                    x-data="{
+                                        downloading: false,
+                                        downloadQrisPng() {
+                                            if (this.downloading) return;
+                                            this.downloading = true;
+                                            const img = new Image();
+                                            img.onload = () => {
+                                                const canvas = document.createElement('canvas');
+                                                const width = 720;
+                                                const height = 880;
+                                                canvas.width = width;
+                                                canvas.height = height;
+                                                const ctx = canvas.getContext('2d');
+
+                                                ctx.fillStyle = '#FFFFFF';
+                                                ctx.fillRect(0, 0, width, height);
+
+                                                ctx.fillStyle = '#0F172A';
+                                                ctx.font = '700 28px sans-serif';
+                                                ctx.textAlign = 'center';
+                                                ctx.fillText('{{ $this->virtualAccountDetails['atas_nama'] }}', width / 2, 68);
+
+                                                ctx.fillStyle = '#475569';
+                                                ctx.font = '600 20px sans-serif';
+                                                ctx.fillText('NMID : {{ $this->virtualAccountDetails['nmid'] }} • {{ $this->virtualAccountDetails['tid'] }}', width / 2, 102);
+
+                                                ctx.imageSmoothingEnabled = false;
+                                                const qrSize = 560;
+                                                ctx.drawImage(img, (width - qrSize) / 2, 130, qrSize, qrSize);
+
+                                                ctx.fillStyle = '#1B4332';
+                                                ctx.font = '800 32px sans-serif';
+                                                ctx.fillText('Rp {{ number_format($currentDonasi?->nominal ?? $selectedNominal, 0, ',', '.') }}', width / 2, 760);
+
+                                                ctx.fillStyle = '#64748B';
+                                                ctx.font = '500 18px monospace';
+                                                ctx.fillText('ID Pembayaran: {{ $paymentId }}', width / 2, 800);
+
+                                                const link = document.createElement('a');
+                                                link.download = 'QRIS-Yayasan-Himatun-Ayat-{{ $paymentId }}.png';
+                                                link.href = canvas.toDataURL('image/png');
+                                                document.body.appendChild(link);
+                                                link.click();
+                                                document.body.removeChild(link);
+                                                this.downloading = false;
+                                            };
+                                            img.onerror = () => {
+                                                this.downloading = false;
+                                            };
+                                            img.src = this.$refs.qrisImg.src;
+                                        }
+                                    }">
                                     <div class="text-xs font-extrabold text-slate-900 tracking-tight uppercase">
                                         {{ $this->virtualAccountDetails['atas_nama'] }}
                                     </div>
                                     <div class="text-2xs font-semibold text-slate-600 mb-1.5">
                                         NMID : {{ $this->virtualAccountDetails['nmid'] }} • {{ $this->virtualAccountDetails['tid'] }}
                                     </div>
-                                    <img src="{{ $this->virtualAccountDetails['qris_image'] }}"
+                                    <img x-ref="qrisImg"
+                                        src="{{ $this->virtualAccountDetails['qris_image'] }}"
                                         alt="QRIS Dinamis Yayasan Himatun Ayat Bandung"
                                         class="w-44 h-44 mx-auto" />
+                                    <div class="mt-2.5 pt-2.5 border-t border-border/70">
+                                        <button type="button"
+                                            @click="downloadQrisPng()"
+                                            class="inline-flex items-center justify-center gap-1.5 w-full py-2 px-3 rounded-xl text-xs font-bold text-brand-700 bg-brand-50 hover:bg-brand-100 border border-brand-200 transition active:scale-95 cursor-pointer">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                                            </svg>
+                                            <span x-text="downloading ? 'Menyiapkan PNG...' : 'Download QRIS (PNG)'">Download QRIS (PNG)</span>
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <div class="text-left space-y-1.5" x-data="{ copiedNominal: false }">
