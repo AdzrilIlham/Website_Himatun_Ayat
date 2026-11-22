@@ -1,46 +1,56 @@
 @extends('layouts.admin')
 
 @section('title', 'Keamanan Akun & Manajemen Sesi — Yayasan Himmatun Ayat')
+@section('breadcrumb', 'Keamanan Akun')
 
 @section('content')
-<div class="space-y-8 pb-12">
+<div class="space-y-4 sm:space-y-5 pb-12 w-full max-w-full min-w-0">
     <!-- Header -->
     <div>
-        <h1 class="text-xl sm:text-2xl font-bold text-foreground tracking-tight">Keamanan Akun & Sesi</h1>
-        <p class="text-xs sm:text-sm text-muted-foreground mt-1">
+        <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-brand-900">Keamanan Akun & Sesi</h1>
+        <p class="text-xs sm:text-sm text-muted-foreground-1 mt-0.5 font-medium">
             Pantau autentikasi dua faktor, kendalikan sesi perangkat aktif, dan periksa riwayat aktivitas keamanan akun Anda.
         </p>
     </div>
 
     <!-- Alert Messages -->
     @if (session('success'))
-        <div class="flex items-start gap-2.5 bg-emerald-50 border border-emerald-200 text-emerald-900 rounded-xl px-4 py-3 text-xs sm:text-sm">
-            <svg class="w-5 h-5 shrink-0 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" />
-            </svg>
-            <span>{{ session('success') }}</span>
+        <div class="p-3.5 rounded-xl bg-brand-50 border border-brand-200 text-brand-800 text-xs sm:text-sm flex items-center justify-between shadow-2xs">
+            <div class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-brand-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" />
+                </svg>
+                <span>{{ session('success') }}</span>
+            </div>
+            <button type="button" onclick="this.parentElement.remove()" class="text-brand-600 hover:text-brand-900 text-lg leading-none cursor-pointer">&times;</button>
         </div>
     @endif
 
     @if (session('info'))
-        <div class="flex items-start gap-2.5 bg-blue-50 border border-blue-200 text-blue-900 rounded-xl px-4 py-3 text-xs sm:text-sm">
-            <svg class="w-5 h-5 shrink-0 text-blue-600" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
-            </svg>
-            <span>{{ session('info') }}</span>
+        <div class="p-3.5 rounded-xl bg-info-soft border border-info/30 text-info text-xs sm:text-sm flex items-center justify-between shadow-2xs">
+            <div class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-info shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                </svg>
+                <span>{{ session('info') }}</span>
+            </div>
+            <button type="button" onclick="this.parentElement.remove()" class="text-info hover:opacity-80 text-lg leading-none cursor-pointer">&times;</button>
         </div>
     @endif
 
     @if ($errors->any())
-        <div class="flex items-start gap-2.5 bg-red-50 border border-red-200 text-red-800 rounded-xl px-4 py-3 text-xs sm:text-sm">
-            <svg class="w-5 h-5 shrink-0 text-red-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
-            </svg>
-            <div>
-                @foreach ($errors->all() as $error)
-                    <p>{{ $error }}</p>
-                @endforeach
+        <div class="p-3.5 rounded-xl bg-danger-soft border border-danger/30 text-danger text-xs sm:text-sm">
+            <div class="flex items-center gap-2 mb-1">
+                <svg class="w-4 h-4 text-danger shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                </svg>
+                <p class="font-bold">Terjadi kesalahan:</p>
             </div>
+            <ul class="list-disc pl-5 space-y-0.5">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
         </div>
     @endif
 

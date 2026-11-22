@@ -1,17 +1,18 @@
 @extends('layouts.admin')
 
 @section('title', 'Edit Administrator — Yayasan Himmatun Ayat')
+@section('breadcrumb', 'Kelola Admin')
 
 @section('content')
-<div class="max-w-2xl space-y-6 pb-12">
+<div class="max-w-2xl space-y-4 sm:space-y-5 pb-12 w-full">
     <div>
         <a href="{{ route('admin.users.index') }}" class="text-xs font-semibold text-brand-700 hover:underline">&larr; Kembali ke daftar administrator</a>
-        <h1 class="mt-3 text-xl sm:text-2xl font-bold text-foreground">Edit Administrator</h1>
-        <p class="mt-1 text-xs sm:text-sm text-muted-foreground">Perubahan email akan meminta verifikasi email dan aktivasi 2FA ulang.</p>
+        <h1 class="mt-3 text-2xl sm:text-3xl font-bold tracking-tight text-brand-900">Edit Administrator</h1>
+        <p class="mt-1 text-xs sm:text-sm text-muted-foreground-1">Perubahan email akan meminta verifikasi email dan aktivasi 2FA ulang.</p>
     </div>
 
     @if ($errors->any())
-        <div class="rounded-xl border border-danger/30 bg-danger-soft px-4 py-3 text-sm text-danger" role="alert">
+        <div class="p-3.5 rounded-xl bg-danger-soft border border-danger/30 text-danger text-xs sm:text-sm" role="alert">
             <ul class="list-inside list-disc">
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
@@ -35,8 +36,8 @@
         </div>
 
         <div class="flex justify-end gap-2 pt-2">
-            <a href="{{ route('admin.users.index') }}" class="rounded-xl border border-border px-4 py-2 text-sm font-semibold text-muted-foreground-2 hover:bg-muted">Batal</a>
-            <button type="submit" class="btn btn-primary px-4 py-2 text-sm font-semibold">Simpan Perubahan</button>
+            <a href="{{ route('admin.users.index') }}" class="rounded-xl border border-border px-4 py-2 text-sm font-semibold text-muted-foreground-2 hover:bg-muted transition">Batal</a>
+            <button type="submit" class="px-5 py-2 rounded-xl bg-brand-700 hover:bg-brand-800 text-white text-sm font-semibold transition cursor-pointer shadow-xs">Simpan Perubahan</button>
         </div>
     </form>
 </div>
