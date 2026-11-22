@@ -99,7 +99,7 @@
     <!-- Top Header & Action Buttons (Sesuai Desain Tangkapan Layar & Konsisten dengan Dashboard) -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-            <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-brand-700">Data Anak Asuh</h1>
+            <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-brand-900">Data Anak Asuh</h1>
             <p class="text-xs text-muted-foreground-1 mt-0.5">Kelola data dan informasi anak asuh Panti Asuhan Himmatun Ayat Bandung.</p>
         </div>
         <div class="flex flex-wrap items-center gap-2 sm:gap-2.5">
