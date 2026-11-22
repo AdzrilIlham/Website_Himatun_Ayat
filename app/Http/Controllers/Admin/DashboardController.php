@@ -99,19 +99,22 @@ class DashboardController extends Controller
 
     public function verifikasi(Donasi $donasi): RedirectResponse
     {
-        if ($donasi->status !== 'verified') {
-            DB::transaction(function () use ($donasi) {
-                $donasi->update([
-                    'status' => 'verified',
-                    'diverifikasi_pada' => now(),
-                ]);
+        DB::transaction(function () use ($donasi) {
+            $locked = Donasi::lockForUpdate()->findOrFail($donasi->id);
+            if ($locked->status === 'verified') {
+                return;
+            }
 
-                if ($donasi->kampanye_id) {
-                    Kampanye::where('id', $donasi->kampanye_id)
-                        ->increment('dana_terkumpul', (float) $donasi->nominal);
-                }
-            });
-        }
+            $locked->update([
+                'status' => 'verified',
+                'diverifikasi_pada' => now(),
+            ]);
+
+            if ($locked->kampanye_id) {
+                Kampanye::where('id', $locked->kampanye_id)
+                    ->increment('dana_terkumpul', (float) $locked->nominal);
+            }
+        });
 
         return back()->with('success', "Donasi #{$donasi->id} atas nama {$donasi->nama_donatur} berhasil diverifikasi.");
     }
@@ -119,12 +122,21 @@ class DashboardController extends Controller
     public function tolak(Donasi $donasi): RedirectResponse
     {
         DB::transaction(function () use ($donasi) {
-            if ($donasi->status === 'verified' && $donasi->kampanye_id) {
-                Kampanye::where('id', $donasi->kampanye_id)
-                    ->decrement('dana_terkumpul', (float) $donasi->nominal);
+            $locked = Donasi::lockForUpdate()->findOrFail($donasi->id);
+            if ($locked->status === 'rejected') {
+                return;
             }
 
-            $donasi->update([
+            if ($locked->status === 'verified' && $locked->kampanye_id) {
+                $kampanye = Kampanye::lockForUpdate()->find($locked->kampanye_id);
+                if ($kampanye) {
+                    $kampanye->update([
+                        'dana_terkumpul' => max(0, (float) $kampanye->dana_terkumpul - (float) $locked->nominal),
+                    ]);
+                }
+            }
+
+            $locked->update([
                 'status' => 'rejected',
                 'diverifikasi_pada' => now(),
             ]);

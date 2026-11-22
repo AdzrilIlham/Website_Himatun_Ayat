@@ -205,25 +205,30 @@ class KelolaDonasiController extends Controller
             'status'            => 'required|in:pending,verified,rejected',
         ]);
 
-        $wasVerified = $donasi->status === 'verified';
-        $willBeVerified = $validated['status'] === 'verified';
-        $nominalLama = (float) $donasi->nominal;
-        $kampanyeIdLama = $donasi->kampanye_id;
+        DB::transaction(function () use ($donasi, $validated) {
+            $locked = Donasi::lockForUpdate()->findOrFail($donasi->id);
+            $wasVerified = $locked->status === 'verified';
+            $willBeVerified = $validated['status'] === 'verified';
+            $nominalLama = (float) $locked->nominal;
+            $kampanyeIdLama = $locked->kampanye_id;
 
-        if ($willBeVerified && ! $wasVerified) {
-            $validated['diverifikasi_pada'] = now();
-        } elseif (! $willBeVerified) {
-            $validated['diverifikasi_pada'] = null;
-        }
-
-        DB::transaction(function () use ($donasi, $validated, $wasVerified, $willBeVerified, $nominalLama, $kampanyeIdLama) {
-            // Rollback dana_terkumpul kampanye lama jika sebelumnya verified
-            if ($wasVerified && $kampanyeIdLama) {
-                Kampanye::where('id', $kampanyeIdLama)
-                    ->decrement('dana_terkumpul', $nominalLama);
+            if ($willBeVerified && ! $wasVerified) {
+                $validated['diverifikasi_pada'] = now();
+            } elseif (! $willBeVerified) {
+                $validated['diverifikasi_pada'] = null;
             }
 
-            $donasi->update($validated);
+            // Rollback dana_terkumpul kampanye lama jika sebelumnya verified
+            if ($wasVerified && $kampanyeIdLama) {
+                $oldKampanye = Kampanye::lockForUpdate()->find($kampanyeIdLama);
+                if ($oldKampanye) {
+                    $oldKampanye->update([
+                        'dana_terkumpul' => max(0, (float) $oldKampanye->dana_terkumpul - $nominalLama),
+                    ]);
+                }
+            }
+
+            $locked->update($validated);
 
             // Tambah dana_terkumpul kampanye baru jika akan/masih verified
             if ($willBeVerified && ! empty($validated['kampanye_id'])) {
@@ -240,19 +245,22 @@ class KelolaDonasiController extends Controller
      */
     public function terima(Donasi $donasi): RedirectResponse
     {
-        if ($donasi->status !== 'verified') {
-            DB::transaction(function () use ($donasi) {
-                $donasi->update([
-                    'status' => 'verified',
-                    'diverifikasi_pada' => now(),
-                ]);
+        DB::transaction(function () use ($donasi) {
+            $locked = Donasi::lockForUpdate()->findOrFail($donasi->id);
+            if ($locked->status === 'verified') {
+                return;
+            }
 
-                if ($donasi->kampanye_id) {
-                    Kampanye::where('id', $donasi->kampanye_id)
-                        ->increment('dana_terkumpul', (float) $donasi->nominal);
-                }
-            });
-        }
+            $locked->update([
+                'status' => 'verified',
+                'diverifikasi_pada' => now(),
+            ]);
+
+            if ($locked->kampanye_id) {
+                Kampanye::where('id', $locked->kampanye_id)
+                    ->increment('dana_terkumpul', (float) $locked->nominal);
+            }
+        });
 
         return back()->with('success', "Donasi dari {$donasi->nama_donatur} telah diterima dan diverifikasi.");
     }
@@ -265,12 +273,17 @@ class KelolaDonasiController extends Controller
         $nama = $donasi->nama_donatur;
 
         DB::transaction(function () use ($donasi) {
-            if ($donasi->status === 'verified' && $donasi->kampanye_id) {
-                Kampanye::where('id', $donasi->kampanye_id)
-                    ->decrement('dana_terkumpul', (float) $donasi->nominal);
+            $locked = Donasi::lockForUpdate()->findOrFail($donasi->id);
+            if ($locked->status === 'verified' && $locked->kampanye_id) {
+                $kampanye = Kampanye::lockForUpdate()->find($locked->kampanye_id);
+                if ($kampanye) {
+                    $kampanye->update([
+                        'dana_terkumpul' => max(0, (float) $kampanye->dana_terkumpul - (float) $locked->nominal),
+                    ]);
+                }
             }
 
-            $donasi->delete();
+            $locked->delete();
         });
 
         return back()->with('success', "Data donasi {$nama} berhasil dihapus.");
