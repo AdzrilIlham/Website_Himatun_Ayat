@@ -375,19 +375,36 @@
                         data-receipt-authorization="{{ route('donasi.bukti-transfer.upload', $currentDonasi) }}"
                         x-data="{
                             fileName: '',
+                            previewUrl: '',
                             uploadedReference: '',
                             uploading: false,
                             submitting: false,
                             uploadError: '',
+                            setPreview(file) {
+                                if (this.previewUrl) {
+                                    URL.revokeObjectURL(this.previewUrl);
+                                    this.previewUrl = '';
+                                }
+                                if (file && file.type.startsWith('image/')) {
+                                    this.previewUrl = URL.createObjectURL(file);
+                                }
+                            },
+                            destroy() {
+                                if (this.previewUrl) {
+                                    URL.revokeObjectURL(this.previewUrl);
+                                }
+                            },
                             async handleFileSelect(event) {
                                 const file = event.target.files?.[0];
                                 if (!file) {
                                     this.fileName = '';
+                                    this.setPreview(null);
                                     this.uploadedReference = '';
                                     this.uploadError = '';
                                     return;
                                 }
                                 this.fileName = file.name;
+                                this.setPreview(file);
                                 this.uploadedReference = '';
                                 this.uploadError = '';
                                 this.uploading = true;
@@ -435,12 +452,28 @@
                                 @change="handleFileSelect($event)" :disabled="uploading || submitting"
                                 class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
 
-                            <!-- State 1: Sedang Mengunggah (Loading di dalam field upload) -->
+                            <!-- State 1: Sedang Mengunggah (Preview + Loading Overlay di dalam field upload) -->
                             <div x-show="uploading" x-cloak class="space-y-2 py-0.5">
-                                <svg class="w-6 h-6 mx-auto animate-spin text-brand-700" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3.5"></circle>
-                                    <path class="opacity-90" fill="currentColor" d="M4 12a8 8 0 018-8v3a5 5 0 00-5 5H4z"></path>
-                                </svg>
+                                <template x-if="previewUrl">
+                                    <div class="relative inline-block mx-auto">
+                                        <img :src="previewUrl" alt="Pratinjau bukti transfer"
+                                            class="max-h-36 mx-auto rounded-xl object-contain border border-brand-200 bg-white opacity-45" />
+                                        <div class="absolute inset-0 flex items-center justify-center">
+                                            <div class="p-2 rounded-full bg-white/90 shadow-sm">
+                                                <svg class="w-6 h-6 animate-spin text-brand-700" fill="none" viewBox="0 0 24 24">
+                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3.5"></circle>
+                                                    <path class="opacity-90" fill="currentColor" d="M4 12a8 8 0 018-8v3a5 5 0 00-5 5H4z"></path>
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
+                                <template x-if="!previewUrl">
+                                    <svg class="w-6 h-6 mx-auto animate-spin text-brand-700" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3.5"></circle>
+                                        <path class="opacity-90" fill="currentColor" d="M4 12a8 8 0 018-8v3a5 5 0 00-5 5H4z"></path>
+                                    </svg>
+                                </template>
                                 <p class="text-xs font-bold text-brand-800 break-all" x-text="`Mengunggah ${fileName}...`">
                                     Mengunggah bukti transfer...
                                 </p>
@@ -449,13 +482,23 @@
                                 </div>
                             </div>
 
-                            <!-- State 2: Berhasil Diunggah -->
-                            <div x-show="!uploading && uploadedReference" x-cloak class="space-y-1">
-                                <svg class="w-6 h-6 mx-auto text-brand-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                                <p class="text-xs font-bold text-brand-900 break-all" x-text="fileName"></p>
-                                <p class="text-2xs font-medium text-brand-700">Bukti berhasil diunggah • Klik untuk ganti foto</p>
+                            <!-- State 2: Berhasil Diunggah (Tampilkan Preview Gambar + Status Sukses) -->
+                            <div x-show="!uploading && uploadedReference" x-cloak class="space-y-2">
+                                <template x-if="previewUrl">
+                                    <div class="relative inline-block mx-auto">
+                                        <img :src="previewUrl" alt="Pratinjau bukti transfer"
+                                            class="max-h-36 mx-auto rounded-xl object-contain border border-brand-200 bg-white shadow-2xs" />
+                                        <span class="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-brand-700 text-white flex items-center justify-center shadow-xs">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+                                            </svg>
+                                        </span>
+                                    </div>
+                                </template>
+                                <div class="space-y-0.5">
+                                    <p class="text-xs font-bold text-brand-900 break-all" x-text="fileName"></p>
+                                    <p class="text-2xs font-medium text-brand-700">Bukti berhasil diunggah • Klik untuk ganti foto</p>
+                                </div>
                             </div>
 
                             <!-- State 3: Default / Belum Pilih File -->
