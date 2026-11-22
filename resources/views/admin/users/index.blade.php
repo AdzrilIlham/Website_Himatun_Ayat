@@ -1,14 +1,15 @@
 @extends('layouts.admin')
 
 @section('title', 'Kelola Administrator — Yayasan Himmatun Ayat')
+@section('breadcrumb', 'Kelola Admin')
 
 @section('content')
-<div class="space-y-6 pb-12">
+<div class="space-y-4 sm:space-y-5 pb-12 w-full max-w-full min-w-0">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-            <h1 class="text-xl sm:text-2xl font-bold text-foreground tracking-tight">Manajemen Administrator</h1>
-            <p class="text-xs sm:text-sm text-muted-foreground mt-1">
+            <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-brand-900">Manajemen Administrator</h1>
+            <p class="text-xs sm:text-sm text-muted-foreground-1 mt-0.5">
                 Kelola akun pengelola sistem yayasan. Seluruh akun memiliki satu peran seragam (<span class="font-semibold text-brand-700">admin</span>) dengan kewajiban 2FA dan verifikasi email.
             </p>
         </div>
@@ -16,34 +17,38 @@
 
     <!-- Alert Success -->
     @if (session('success'))
-        <div class="flex items-start gap-2.5 bg-emerald-50 border border-emerald-200 text-emerald-900 rounded-xl px-4 py-3 text-xs sm:text-sm">
-            <svg class="w-5 h-5 shrink-0 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" />
-            </svg>
-            <span>{{ session('success') }}</span>
+        <div class="p-3.5 rounded-xl bg-brand-50 border border-brand-200 text-brand-800 text-xs sm:text-sm flex items-center justify-between shadow-2xs">
+            <div class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-brand-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>{{ session('success') }}</span>
+            </div>
+            <button type="button" onclick="this.parentElement.remove()" class="text-brand-600 hover:text-brand-900 text-lg leading-none cursor-pointer">&times;</button>
         </div>
     @endif
 
     @if (session('warning') || session('error'))
-        <div class="flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-900 sm:text-sm" role="alert">
-            <span>{{ session('warning') ?? session('error') }}</span>
+        <div class="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs sm:text-sm flex items-center justify-between shadow-2xs" role="alert">
+            <span>{{ session('warning') ?? session('error') ?? '' }}</span>
+            <button type="button" onclick="this.parentElement.remove()" class="text-amber-600 hover:text-amber-900 text-lg leading-none cursor-pointer">&times;</button>
         </div>
     @endif
 
     <!-- Alert Error -->
     @if ($errors->any())
-        <div class="flex items-start gap-2.5 bg-red-50 border border-red-200 text-red-800 rounded-xl px-4 py-3 text-xs sm:text-sm">
-            <svg class="w-5 h-5 shrink-0 text-red-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
-            </svg>
-            <div>
-                <p class="font-semibold">Terjadi kesalahan input:</p>
-                <ul class="list-disc list-inside mt-1 space-y-0.5">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
+        <div class="p-3.5 rounded-xl bg-danger-soft border border-danger/30 text-danger text-xs sm:text-sm">
+            <div class="flex items-center gap-2 mb-1">
+                <svg class="w-4 h-4 text-danger shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                </svg>
+                <p class="font-bold">Terjadi kesalahan input:</p>
             </div>
+            <ul class="list-disc pl-5 space-y-0.5">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
         </div>
     @endif
 
@@ -77,7 +82,7 @@
                     </ul>
                 </div>
 
-                <button type="submit" class="btn btn-primary w-full py-2.5 text-xs sm:text-sm font-semibold cursor-pointer">
+                <button type="submit" class="w-full py-2.5 px-4 rounded-xl bg-brand-700 hover:bg-brand-800 text-white text-xs sm:text-sm font-semibold transition cursor-pointer shadow-xs">
                     Kirim Undangan Admin
                 </button>
             </form>
@@ -119,8 +124,8 @@
                                 </td>
                                 <td class="py-3.5 px-4">
                                     @if ($admin->two_factor_confirmed_at)
-                                        <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700">
-                                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                        <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-700">
+                                            <span class="w-2 h-2 rounded-full bg-brand-600"></span>
                                             Aktif
                                         </span>
                                     @else
@@ -135,18 +140,19 @@
                                 </td>
                                 <td class="py-3.5 px-4">
                                     <div class="flex flex-wrap items-center justify-end gap-2">
-                                        <a href="{{ route('admin.users.edit', $admin) }}" class="rounded-lg border border-border px-2.5 py-1.5 text-xs font-semibold text-muted-foreground-2 hover:bg-muted">Edit</a>
+                                        <a href="{{ route('admin.users.edit', $admin) }}" 
+                                           class="rounded-xl border border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground-2 hover:bg-muted transition">Edit</a>
                                         @unless ($admin->email_verified_at)
                                             <form method="POST" action="{{ route('admin.users.resend-invitation', $admin) }}">
                                                 @csrf
-                                                <button type="submit" class="rounded-lg border border-brand-200 bg-brand-50 px-2.5 py-1.5 text-xs font-semibold text-brand-800 hover:bg-brand-100">Kirim Ulang</button>
+                                                <button type="submit" class="rounded-xl border border-brand-200 bg-brand-50 px-3 py-1.5 text-xs font-semibold text-brand-800 hover:bg-brand-100 transition">Kirim Ulang</button>
                                             </form>
                                         @endunless
                                         @if (! $admin->is(auth()->user()) && $adminCount > 1)
                                             <form method="POST" action="{{ route('admin.users.destroy', $admin) }}" onsubmit="return confirm('Hapus akun administrator ini? Tindakan ini tidak dapat dibatalkan.')">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="rounded-lg border border-danger/30 px-2.5 py-1.5 text-xs font-semibold text-danger hover:bg-danger-soft">Hapus</button>
+                                                <button type="submit" class="rounded-xl border border-danger/30 px-3 py-1.5 text-xs font-semibold text-danger hover:bg-danger-soft transition">Hapus</button>
                                             </form>
                                         @endif
                                     </div>

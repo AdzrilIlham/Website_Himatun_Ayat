@@ -311,7 +311,7 @@
                 </h2>
 
                 <p class="text-[11px] sm:text-xs text-emerald-200/90 font-mono tracking-wider uppercase">
-                    Jl. Cibiru Indah 7 RT/RW 04/14 &bull; Tlp. 081394334726 Desa Cibiru Wetan Cileunyi Kab. Bandung
+                    Jl. Cibiru Indah 7 RT/RW 04/14 &bull; Tlp. 085862033063 Desa Cibiru Wetan Cileunyi Kab. Bandung
                 </p>
 
                 <p class="text-xs sm:text-sm text-emerald-100/85 leading-relaxed max-w-xl mx-auto font-normal pt-1">
@@ -339,7 +339,7 @@
                     number="01" 
                     name="Imran Rosadi, S.Ag." 
                     role="Pembina" 
-                    :image="asset('images/Asset/Daslim.png')" 
+                    :image="asset('images/Asset/Imran.webp')" 
                     icon="leader"
                     :featured="true"
                 />
@@ -368,7 +368,7 @@
                     number="02" 
                     name="Ust. Atep Kaokabadin, S.Pd.I." 
                     role="Pengawas" 
-                    :image="asset('images/Asset/Daslim.png')" 
+                    :image="asset('images/Asset/atep.webp')" 
                     icon="leader"
                     :featured="true"
                 />
@@ -399,7 +399,7 @@
                     number="03" 
                     name="Yusuf Hamdani, S.Pd.I." 
                     role="Ketua Yayasan" 
-                    :image="asset('images/Asset/YusufHamdani.png')" 
+                    :image="asset('images/Asset/Yusuf.webp')" 
                     icon="leader"
                     :featured="true"
                 />
@@ -434,7 +434,7 @@
                             number="04" 
                             name="Euis Nuraeni, S.Pd.I." 
                             role="Bendahara" 
-                            :image="asset('images/Asset/EuisNuraeni.png')" 
+                            :image="asset('images/Asset/EuisNuraeni.webp')" 
                             icon="manager" 
                         />
                     </div>
@@ -448,7 +448,7 @@
                             number="05" 
                             name="Asep Dedi, A.Ma." 
                             role="Sekretaris" 
-                            :image="asset('images/Asset/Daslim.png')" 
+                            :image="asset('images/Asset/AseoDedi.webp')" 
                             icon="manager" 
                         />
                     </div>
@@ -502,7 +502,7 @@
                             number="07" 
                             name="Herdianto" 
                             role="Dep. Pendanaan" 
-                            :image="asset('images/Asset/YusufHamdani.png')" 
+                            :image="asset('images/Asset/Daslim.png')" 
                             icon="manager" 
                         />
                     </div>
@@ -513,7 +513,7 @@
                             number="08" 
                             name="Cical Irmansyah, Lc." 
                             role="Dep. Pendidikan" 
-                            :image="asset('images/Asset/Daslim.png')" 
+                            :image="asset('images/Asset/CicalIrmansyah.webp')" 
                             icon="manager" 
                         />
                     </div>
@@ -524,7 +524,7 @@
                             number="09" 
                             name="Hapid Abidin" 
                             role="Dep. Kesejahteraan" 
-                            :image="asset('images/Asset/Juhaeriyah.png')" 
+                            :image="asset('images/Asset/Daslim.png')" 
                             icon="manager" 
                         />
                     </div>
@@ -597,20 +597,20 @@
                         </svg>
                     </div>
                     <div>
-                        <p class="text-xs font-bold text-slate-900 leading-tight">Terakreditasi A</p>
-                        <p class="text-2xs text-slate-600 mt-0.5 leading-snug">Dinas Sosial Prov. Jabar</p>
+                        <p class="text-xs font-bold text-slate-900 leading-tight">Akta Notaris</p>
+                        <p class="text-2xs text-slate-600 mt-0.5 leading-snug">No. 01 Tgl 07 Juni 2022</p>
                     </div>
                 </div>
 
                 <div class="rounded-2xl p-3.5 sm:p-4 bg-emerald-50/70 border border-emerald-200/80 shadow-2xs hover:shadow-md hover:border-emerald-300 transition-all duration-300 flex items-center gap-3">
                     <div class="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-xs">
                         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
                         </svg>
                     </div>
                     <div>
-                        <p class="text-xs font-bold text-slate-900 leading-tight">Taat Pajak NPWP</p>
-                        <p class="text-2xs text-slate-600 mt-0.5 leading-snug">KPP Pratama Cibeunying</p>
+                        <p class="text-xs font-bold text-slate-900 leading-tight">SK Pengesahan</p>
+                        <p class="text-2xs text-slate-600 mt-0.5 leading-snug">AHU-0012596.AH.01.04</p>
                     </div>
                 </div>
 
@@ -621,71 +621,30 @@
                         </svg>
                     </div>
                     <div>
-                        <p class="text-xs font-bold text-slate-900 leading-tight">Audit Syariah & WTP</p>
-                        <p class="text-2xs text-slate-600 mt-0.5 leading-snug">100% Bebas Pungutan</p>
+                        <p class="text-xs font-bold text-slate-900 leading-tight">Daftar Yayasan</p>
+                        <p class="text-2xs text-slate-600 mt-0.5 leading-snug">AHU-0018990.AH.01.12</p>
                     </div>
                 </div>
 
             </div>
 
-            <!-- Cards Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 items-start"
-                 data-animate-group="fade-up"
+            <!-- Single Showcase Card: SK Kemenkumham RI -->
+            <div class="max-w-2xl mx-auto"
+                 data-animate="fade-up"
                  data-animate-distance="24"
                  data-animate-duration="0.75"
-                 data-animate-stagger="0.14"
                  data-animate-start="top 82%">
                 
-                <!-- Dokumen 1: LKSA -->
-                <x-tentang-kami.dokumen-hukum-card 
-                    icon="shield"
-                    badgeText="Terakreditasi A"
-                    badgeVariant="success"
-                    title="Izin Operasional Lembaga Kesejahteraan Sosial Anak (LKSA)"
-                    nomor="No. Registrasi: 460/182-Dinsos/2021"
-                    deskripsi="Surat Keputusan Kepala Dinas Sosial Provinsi Jawa Barat perihal Izin Operasional Panti Sosial Asuhan Anak Yatim &amp; Dhuafa Berkelanjutan."
-                    :image="asset('images/Asset/dokumentasiHukum.png')"
-                    imageAlt="Izin Operasional LKSA Yayasan Himmatun Ayat"
-                    footerText="Masa Berlaku: 20XX - 20XX"
-                />
-
-                <!-- Dokumen 2: Akta Notaris & SK Kemenkumham -->
                 <x-tentang-kami.dokumen-hukum-card 
                     icon="notary"
-                    badgeText="KemenKumHam RI Sah"
-                    badgeVariant="sage"
-                    title="Akta Notaris Pendirian &amp; SK KemenkumHam RI"
-                    nomor="SK Pengesahan: AHU-0012345.AH.01.04.Tahun 2005"
-                    deskripsi="Akta Notaris No.XXXXX dan Pengesahan Menteri Hukum dan HAM Republik Indonesia atas Badan hukum Yayasan."
-                    :image="asset('images/Asset/dokumentasiHukum.png')"
-                    imageAlt="Akta Notaris dan SK Kemenkumham"
-                    footerText="Status: Badan Hukum Sah Permanen"
-                />
-
-                <!-- Dokumen 3: NPWP Resmi Lembaga -->
-                <x-tentang-kami.dokumen-hukum-card 
-                    icon="tax"
-                    badgeText="KemenKumHam RI Sah"
-                    badgeVariant="sage"
-                    title="NPWP Resmi Lembaga Yayasan"
-                    nomor="XXXX XXXX XXXX"
-                    deskripsi="Kartu Pokok Wajib Pajak Badan atas nama Yayasan Himmatun Ayat Bandung di KPP Pratama Bandung Cibeunying dengan ketaatan Pelaporan SPT Tahunan nilai audit"
-                    :image="asset('images/Asset/dokumentasiHukum.png')"
-                    imageAlt="NPWP Lembaga Yayasan Himmatun Ayat"
-                    footerText="KPP Pratama Bandung Cibeunying"
-                />
-
-                <!-- Dokumen 4: Pengawasan Syariah & Transparansi Publik -->
-                <x-tentang-kami.dokumen-hukum-card 
-                    icon="shield"
-                    badgeText="Audit & Akuntabel"
+                    badgeText="Kemenkumham RI Sah"
                     badgeVariant="success"
-                    title="Sertifikasi Dewan Syariah & Akuntabilitas Finansial"
-                    nomor="SK Penetapan: DPS-HA/BDG/X-2024"
-                    deskripsi="Audit kepatuhan syariah dan verifikasi transparansi pengasuhan santri yatim dhuafa secara akuntabel, bebas konflik kepentingan, serta dapat diaudit donatur."
-                    :image="asset('images/Asset/dokumentasiHukum.png')"
-                    imageAlt="Sertifikasi Dewan Syariah Yayasan Himmatun Ayat"
-                    footerText="Status: Wajar Tanpa Pengecualian (WTP)"
+                    title="Keputusan Menteri Hukum dan HAM RI tentang Pengesahan Badan Hukum Yayasan"
+                    nomor="Nomor: AHU-0012596.AH.01.04.Tahun 2022"
+                    deskripsi="Pengesahan Pendirian Badan Hukum Yayasan Himatun Ayat Bandung berkedudukan di Kabupaten Bandung, sesuai Akta Notaris Ginar Mayangsoka, S.H., M.Kn. Nomor 01 tanggal 07 Juni 2022."
+                    :image="asset('images/Asset/surat.jpeg')"
+                    imageAlt="Surat Keputusan Menteri Hukum dan HAM RI Pengesahan Badan Hukum Yayasan Himatun Ayat Bandung"
+                    footerText="Ditetapkan di Jakarta, 14 Juni 2022 • Daftar Yayasan No. AHU-0018990.AH.01.12.Tahun 2022"
                 />
 
             </div>

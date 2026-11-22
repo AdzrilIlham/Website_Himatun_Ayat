@@ -7,7 +7,9 @@ use App\Models\BeritaKegiatan;
 use App\Models\PengajuanKegiatan;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 class PengajuanKegiatanController extends Controller
@@ -21,13 +23,14 @@ class PengajuanKegiatanController extends Controller
         $search = $request->query('search');
 
         PengajuanKegiatan::ensureTableExists();
-        $hasTable = \Illuminate\Support\Facades\Schema::hasTable('pengajuan_kegiatans');
+        $hasTable = Schema::hasTable('pengajuan_kegiatans');
 
         if (! $hasTable) {
-            $daftarPengajuan = new \Illuminate\Pagination\LengthAwarePaginator([], 0, 10);
+            $daftarPengajuan = new LengthAwarePaginator([], 0, 10);
             $counts = ['total' => 0, 'menunggu' => 0, 'disetujui' => 0, 'ditolak' => 0];
             $bentrokMap = [];
             $agendaTerjadwal = [];
+
             return view('admin.pengajuan-kegiatan.index', compact('daftarPengajuan', 'counts', 'status', 'search', 'bentrokMap', 'agendaTerjadwal'));
         }
 
@@ -40,14 +43,19 @@ class PengajuanKegiatanController extends Controller
         if (filled($search)) {
             $query->where(function ($q) use ($search) {
                 $q->where('nama_pemohon', 'like', "%{$search}%")
-                  ->orWhere('nomor_whatsapp', 'like', "%{$search}%")
-                  ->orWhere('jenis_kegiatan', 'like', "%{$search}%")
-                  ->orWhere('rencana_kegiatan', 'like', "%{$search}%");
+                    ->orWhere('nomor_whatsapp', 'like', "%{$search}%")
+                    ->orWhere('jenis_kegiatan', 'like', "%{$search}%")
+                    ->orWhere('rencana_kegiatan', 'like', "%{$search}%");
             });
         }
 
+        $driver = DB::getDriverName();
+        $orderByStatus = $driver === 'sqlite'
+            ? "CASE status WHEN 'menunggu' THEN 1 WHEN 'disetujui' THEN 2 WHEN 'ditolak' THEN 3 ELSE 4 END"
+            : "FIELD(status, 'menunggu', 'disetujui', 'ditolak')";
+
         $daftarPengajuan = $query
-            ->orderByRaw("FIELD(status, 'menunggu', 'disetujui', 'ditolak')")
+            ->orderByRaw($orderByStatus)
             ->orderByDesc('created_at')
             ->orderByDesc('id')
             ->paginate(10)
@@ -60,10 +68,10 @@ class PengajuanKegiatanController extends Controller
             ->get(['id', 'judul', 'tanggal', 'waktu_teks']);
 
         $agendaTerjadwal = $semuaTerjadwal->map(fn (BeritaKegiatan $ev) => [
-            'id'       => $ev->id,
-            'title'    => $ev->judul,
+            'id' => $ev->id,
+            'title' => $ev->judul,
             'date_iso' => is_string($ev->tanggal) ? substr($ev->tanggal, 0, 10) : $ev->tanggal->toDateString(),
-            'time'     => $ev->waktu_teks ?? '08.00 - 11.00 WIB',
+            'time' => $ev->waktu_teks ?? '08.00 - 11.00 WIB',
         ])->values()->all();
 
         // Peta bentrok waktu (< 1 jam jeda) untuk setiap item pengajuan pada halaman aktif
@@ -83,10 +91,10 @@ class PengajuanKegiatanController extends Controller
         }
 
         $counts = [
-            'total'     => PengajuanKegiatan::count(),
-            'menunggu'  => PengajuanKegiatan::where('status', 'menunggu')->count(),
+            'total' => PengajuanKegiatan::count(),
+            'menunggu' => PengajuanKegiatan::where('status', 'menunggu')->count(),
             'disetujui' => PengajuanKegiatan::where('status', 'disetujui')->count(),
-            'ditolak'   => PengajuanKegiatan::where('status', 'ditolak')->count(),
+            'ditolak' => PengajuanKegiatan::where('status', 'ditolak')->count(),
         ];
 
         return view('admin.pengajuan-kegiatan.index', compact(
@@ -114,7 +122,7 @@ class PengajuanKegiatanController extends Controller
         }
 
         $start = ((int) $m[1]) + (((int) $m[2]) / 60);
-        $end   = ((int) $m[3]) + (((int) $m[4]) / 60);
+        $end = ((int) $m[3]) + (((int) $m[4]) / 60);
 
         if ($end <= $start) {
             return null;
@@ -151,7 +159,7 @@ class PengajuanKegiatanController extends Controller
             // Syarat valid (minimal jeda 1 jam):
             // Selesai kegiatan baru <= (Mulai kegiatan lama - 1 jam) ATAU Mulai kegiatan baru >= (Selesai kegiatan lama + 1 jam)
             $finishesOneHourBefore = $newRange['end'] <= ($evRange['start'] - 1);
-            $startsOneHourAfter    = $newRange['start'] >= ($evRange['end'] + 1);
+            $startsOneHourAfter = $newRange['start'] >= ($evRange['end'] + 1);
 
             if (! $finishesOneHourBefore && ! $startsOneHourAfter) {
                 return $ev;
@@ -176,20 +184,20 @@ class PengajuanKegiatanController extends Controller
         if ($bentrok) {
             return back()->with(
                 'warning',
-                'Tidak dapat menyetujui (ACC). Waktu "' . $pengajuan->waktu . '" pada tanggal '
-                . $pengajuan->tanggal->translatedFormat('d F Y')
-                . ' bentrok atau kurang dari jeda minimal 1 jam dengan agenda "' . $bentrok->judul
-                . '" (' . ($bentrok->waktu_teks ?? '-') . '). Silakan sesuaikan jam melalui tombol Edit atau tolak pengajuan.'
+                'Tidak dapat menyetujui (ACC). Waktu "'.$pengajuan->waktu.'" pada tanggal '
+                .$pengajuan->tanggal->translatedFormat('d F Y')
+                .' bentrok atau kurang dari jeda minimal 1 jam dengan agenda "'.$bentrok->judul
+                .'" ('.($bentrok->waktu_teks ?? '-').'). Silakan sesuaikan jam melalui tombol Edit atau tolak pengajuan.'
             );
         }
 
         DB::transaction(function () use ($pengajuan) {
             // 1. Buat atau perbarui record di berita_kegiatans agar muncul di kalender publik
-            $slugBase = Str::slug($pengajuan->jenis_kegiatan . '-' . $pengajuan->nama_pemohon);
+            $slugBase = Str::slug($pengajuan->jenis_kegiatan.'-'.$pengajuan->nama_pemohon);
             $slug = $slugBase;
             $counter = 1;
             while (BeritaKegiatan::where('slug', $slug)->where('id', '!=', $pengajuan->berita_kegiatan_id)->exists()) {
-                $slug = $slugBase . '-' . $counter++;
+                $slug = $slugBase.'-'.$counter++;
             }
 
             $kategoriMapping = [
@@ -203,7 +211,7 @@ class PengajuanKegiatanController extends Controller
             ];
             $kategori = $kategoriMapping[$pengajuan->jenis_kegiatan] ?? 'Kegiatan Yayasan';
 
-            $judul = $pengajuan->jenis_kegiatan . ' bersama ' . $pengajuan->nama_pemohon;
+            $judul = $pengajuan->jenis_kegiatan.' bersama '.$pengajuan->nama_pemohon;
 
             $kegiatan = BeritaKegiatan::updateOrCreate(
                 ['id' => $pengajuan->berita_kegiatan_id],
@@ -231,7 +239,7 @@ class PengajuanKegiatanController extends Controller
             ]);
         });
 
-        return back()->with('success', 'Pengajuan kegiatan dari "' . $pengajuan->nama_pemohon . '" berhasil disetujui (ACC) dan otomatis diterbitkan di kalender kegiatan!');
+        return back()->with('success', 'Pengajuan kegiatan dari "'.$pengajuan->nama_pemohon.'" berhasil disetujui (ACC) dan otomatis diterbitkan di kalender kegiatan!');
     }
 
     /**
@@ -252,7 +260,7 @@ class PengajuanKegiatanController extends Controller
             ]);
         });
 
-        return back()->with('warning', 'Pengajuan kegiatan dari "' . $pengajuan->nama_pemohon . '" telah ditolak.');
+        return back()->with('warning', 'Pengajuan kegiatan dari "'.$pengajuan->nama_pemohon.'" telah ditolak.');
     }
 
     /**
@@ -261,11 +269,11 @@ class PengajuanKegiatanController extends Controller
     public function update(Request $request, PengajuanKegiatan $pengajuan): RedirectResponse
     {
         $validated = $request->validate([
-            'nama_pemohon'     => 'required|string|max:255',
-            'nomor_whatsapp'   => 'required|string|max:50',
-            'tanggal'          => 'required|date',
-            'waktu'            => 'required|string|max:100',
-            'jenis_kegiatan'   => 'required|string|max:150',
+            'nama_pemohon' => 'required|string|max:255',
+            'nomor_whatsapp' => 'required|string|max:50',
+            'tanggal' => 'required|date',
+            'waktu' => 'required|string|max:100',
+            'jenis_kegiatan' => 'required|string|max:150',
             'rencana_kegiatan' => 'required|string',
         ]);
 
@@ -285,10 +293,10 @@ class PengajuanKegiatanController extends Controller
             if ($bentrok) {
                 return back()->with(
                     'warning',
-                    'Gagal mengubah jadwal. Waktu "' . $validated['waktu'] . '" pada tanggal '
-                    . date('d F Y', strtotime($validated['tanggal']))
-                    . ' bentrok atau kurang dari jeda minimal 1 jam dengan agenda "' . $bentrok->judul
-                    . '" (' . ($bentrok->waktu_teks ?? '-') . ').'
+                    'Gagal mengubah jadwal. Waktu "'.$validated['waktu'].'" pada tanggal '
+                    .date('d F Y', strtotime($validated['tanggal']))
+                    .' bentrok atau kurang dari jeda minimal 1 jam dengan agenda "'.$bentrok->judul
+                    .'" ('.($bentrok->waktu_teks ?? '-').').'
                 );
             }
         }
@@ -301,18 +309,18 @@ class PengajuanKegiatanController extends Controller
                 $kegiatan = BeritaKegiatan::find($pengajuan->berita_kegiatan_id);
                 if ($kegiatan) {
                     $kegiatan->update([
-                        'judul'         => $validated['jenis_kegiatan'] . ' bersama ' . $validated['nama_pemohon'],
-                        'ringkasan'     => $validated['rencana_kegiatan'],
-                        'konten'        => $validated['rencana_kegiatan'],
+                        'judul' => $validated['jenis_kegiatan'].' bersama '.$validated['nama_pemohon'],
+                        'ringkasan' => $validated['rencana_kegiatan'],
+                        'konten' => $validated['rencana_kegiatan'],
                         'penyelenggara' => $validated['nama_pemohon'],
-                        'tanggal'       => $validated['tanggal'],
-                        'waktu_teks'    => $validated['waktu'],
+                        'tanggal' => $validated['tanggal'],
+                        'waktu_teks' => $validated['waktu'],
                     ]);
                 }
             }
         });
 
-        return back()->with('success', 'Data pengajuan kegiatan dari "' . $pengajuan->nama_pemohon . '" berhasil diperbarui!');
+        return back()->with('success', 'Data pengajuan kegiatan dari "'.$pengajuan->nama_pemohon.'" berhasil diperbarui!');
     }
 
     /**
@@ -332,4 +340,3 @@ class PengajuanKegiatanController extends Controller
         return back()->with('success', 'Pengajuan kegiatan berhasil dihapus.');
     }
 }
-

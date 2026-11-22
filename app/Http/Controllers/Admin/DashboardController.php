@@ -4,13 +4,16 @@ namespace App\Http\Controllers\Admin;
 
 use App\Exports\DonasiExport;
 use App\Http\Controllers\Controller;
+use App\Models\BeritaKegiatan;
 use App\Models\Donasi;
 use App\Models\Kampanye;
+use App\Models\PengajuanKegiatan;
 use App\Services\LaporanService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Maatwebsite\Excel\Facades\Excel;
 
 class DashboardController extends Controller
@@ -37,28 +40,28 @@ class DashboardController extends Controller
         $pengajuanMenunggu = collect();
         $tanggalTerjadwal = [];
         $bentrokPengajuanIds = [];
-        \App\Models\PengajuanKegiatan::ensureTableExists();
-        if (\Illuminate\Support\Facades\Schema::hasTable('pengajuan_kegiatans')) {
-            $pengajuanMenunggu = \App\Models\PengajuanKegiatan::query()
+        PengajuanKegiatan::ensureTableExists();
+        if (Schema::hasTable('pengajuan_kegiatans')) {
+            $pengajuanMenunggu = PengajuanKegiatan::query()
                 ->where('status', 'menunggu')
                 ->orderByDesc('created_at')
                 ->orderByDesc('id')
                 ->take(5)
                 ->get();
 
-            $semuaTerjadwal = \App\Models\BeritaKegiatan::query()
+            $semuaTerjadwal = BeritaKegiatan::query()
                 ->where('terjadwal_di_kalender', true)
                 ->get(['id', 'tanggal', 'waktu_teks']);
 
             $tanggalTerjadwal = $semuaTerjadwal
                 ->pluck('tanggal')
-                ->map(fn($t) => is_string($t) ? $t : $t->toDateString())
+                ->map(fn ($t) => is_string($t) ? $t : $t->toDateString())
                 ->unique()
                 ->toArray();
 
             foreach ($pengajuanMenunggu as $item) {
                 $tglIso = $item->tanggal->toDateString();
-                $eventsOnDate = $semuaTerjadwal->filter(fn($ev) => (is_string($ev->tanggal) ? substr($ev->tanggal, 0, 10) : $ev->tanggal->toDateString()) === $tglIso);
+                $eventsOnDate = $semuaTerjadwal->filter(fn ($ev) => (is_string($ev->tanggal) ? substr($ev->tanggal, 0, 10) : $ev->tanggal->toDateString()) === $tglIso);
                 if ($eventsOnDate->isEmpty()) {
                     continue;
                 }
@@ -70,7 +73,7 @@ class DashboardController extends Controller
                         break;
                     }
                     $finishesBefore = $newRange['end'] <= ($evRange['start'] - 1);
-                    $startsAfter    = $newRange['start'] >= ($evRange['end'] + 1);
+                    $startsAfter = $newRange['start'] >= ($evRange['end'] + 1);
                     if (! $finishesBefore && ! $startsAfter) {
                         $bentrokPengajuanIds[] = $item->id;
                         break;
