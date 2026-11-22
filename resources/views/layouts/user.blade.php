@@ -124,7 +124,8 @@
 
                 <!-- Preline Collapse Toggle Button (Mobile/Tablet) -->
                 <button type="button"
-                    class="hs-collapse-toggle md:hidden p-2 inline-flex justify-center items-center gap-x-2 rounded-full border border-white/70 text-brand-900 hover:bg-brand-50 focus:outline-hidden pointer-events-auto"
+                    class="hs-collapse-toggle md:hidden p-2 inline-flex justify-center items-center gap-x-2 rounded-full bg-white/60 backdrop-blur-xl backdrop-saturate-150
+                            border border-white/60 shadow-xl shadow-brand-900/10 border border-white/70 text-brand-900 hover:bg-gray-100 focus:outline-hidden pointer-events-auto"
                     id="hs-navbar-collapse" aria-expanded="false" aria-controls="hs-navbar-collapse-heading"
                     aria-label="Toggle navigation" data-hs-collapse="#hs-navbar-collapse-heading">
                     <svg class="hs-collapse-open:hidden size-5" xmlns="http://www.w3.org/2000/svg" fill="none"
