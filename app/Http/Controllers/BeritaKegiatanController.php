@@ -68,12 +68,12 @@ class BeritaKegiatanController extends Controller
     public function storePengajuan(Request $request)
     {
         $validated = $request->validate([
-            'nama_pemohon' => 'required|string|max:255',
-            'nomor_whatsapp' => 'required|string|max:50',
-            'tanggal' => 'required|date',
-            'waktu' => 'required|string|max:100',
-            'jenis_kegiatan' => 'required|string|max:150',
-            'rencana_kegiatan' => 'required|string',
+            'nama_pemohon' => ['required', 'string', 'min:3', 'max:100', 'regex:/[a-zA-Z]/'],
+            'nomor_whatsapp' => ['required', 'string', 'regex:/^(\+?628|08)[1-9][0-9\s\-]{7,13}$/'],
+            'tanggal' => ['required', 'date'],
+            'waktu' => ['required', 'string', 'max:100'],
+            'jenis_kegiatan' => ['required', 'string', 'max:150'],
+            'rencana_kegiatan' => ['required', 'string', 'min:10'],
         ]);
 
         PengajuanKegiatan::ensureTableExists();

@@ -36,8 +36,13 @@
         </div>
 
         <div class="flex justify-end gap-2 pt-2">
-            <a href="{{ route('admin.users.index') }}" class="rounded-xl border border-border px-4 py-2 text-sm font-semibold text-muted-foreground-2 hover:bg-muted transition">Batal</a>
-            <button type="submit" class="px-5 py-2 rounded-xl bg-brand-700 hover:bg-brand-800 text-white text-sm font-semibold transition cursor-pointer shadow-xs">Simpan Perubahan</button>
+            <a href="{{ route('admin.users.index') }}" class="rounded-xl border border-red-200 dark:border-red-900/60 bg-red-50/50 hover:bg-red-100 text-red-600 dark:text-red-400 px-4 py-2 text-sm font-semibold transition">Batal</a>
+            <button type="submit" 
+                    data-confirm="Simpan perubahan profil administrator ini?"
+                    data-confirm-title="Konfirmasi Perubahan Data"
+                    data-confirm-type="success"
+                    data-confirm-button="Ya, Simpan"
+                    class="px-5 py-2 rounded-xl bg-brand-700 hover:bg-brand-800 text-white text-sm font-semibold transition cursor-pointer shadow-xs">Simpan Perubahan</button>
         </div>
     </form>
 </div>

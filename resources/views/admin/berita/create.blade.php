@@ -812,11 +812,15 @@
         <!-- Tombol Aksi Bawah: Batal & Simpan Berita -->
         <div class="flex items-center justify-end gap-3 pt-2">
             <a href="{{ route('admin.berita.index') }}" 
-               class="px-6 py-2.5 rounded-xl border border-border-line-3 bg-card hover:bg-muted text-muted-foreground-2 text-sm font-semibold transition shadow-2xs">
+               class="px-6 py-2.5 rounded-xl border border-red-200 dark:border-red-900/60 bg-red-50/50 hover:bg-red-100/80 text-red-600 dark:text-red-400 text-sm font-semibold transition shadow-2xs">
                 Batal
             </a>
 
             <button type="submit" 
+                    data-confirm="Apakah Anda yakin ingin menyimpan dan memproses berita ini?"
+                    data-confirm-title="Konfirmasi Simpan Berita"
+                    data-confirm-type="success"
+                    data-confirm-button="Ya, Simpan"
                     class="px-6 py-2.5 rounded-xl bg-brand-700 hover:bg-brand-800 text-white text-sm font-semibold flex items-center gap-2 shadow-xs transition hover:shadow-md cursor-pointer">
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />

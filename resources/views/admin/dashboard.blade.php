@@ -209,7 +209,7 @@
 
                     <form :action="'/admin/pengajuan-kegiatan/' + selectedPengajuan.id + '/setujui'" method="POST" class="flex items-center justify-end gap-2.5 pt-1">
                         @csrf
-                        <button type="button" @click="setujuiModalOpen = false" class="btn btn-secondary btn-sm px-4">Batal</button>
+                        <button type="button" @click="setujuiModalOpen = false" class="btn btn-secondary text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-950/40 btn-sm px-4">Batal</button>
                         <button type="submit" class="btn btn-primary btn-sm px-5">
                             <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />

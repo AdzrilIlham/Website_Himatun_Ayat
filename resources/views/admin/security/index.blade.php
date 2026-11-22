@@ -126,7 +126,12 @@
                             </div>
                             <div class="flex items-center justify-end gap-2">
                                 <button type="button" @click="open = false" class="btn btn-secondary text-xs">Batal</button>
-                                <button type="submit" class="btn btn-danger text-xs">Konfirmasi & Logout Lainnya</button>
+                                <button type="submit" 
+                                        data-confirm="Keluarkan semua sesi login administrator lainnya dari seluruh perangkat?"
+                                        data-confirm-title="Konfirmasi Logout Sesi Lainnya"
+                                        data-confirm-type="danger"
+                                        data-confirm-button="Ya, Logout Semua"
+                                        class="btn btn-danger text-xs">Konfirmasi & Logout Lainnya</button>
                             </div>
                         </form>
                     </div>
@@ -162,7 +167,12 @@
                         <form method="POST" action="{{ route('admin.security.revoke-session') }}">
                             @csrf
                             <input type="hidden" name="session_hash" value="{{ $s->hashed_id }}">
-                            <button type="submit" class="btn btn-secondary text-xs text-danger hover:bg-danger-soft py-1 px-2.5">
+                            <button type="submit" 
+                                    data-confirm="Cabut sesi login ini? Pengguna pada sesi tersebut akan langsung dipaksa keluar."
+                                    data-confirm-title="Cabut Sesi"
+                                    data-confirm-type="danger"
+                                    data-confirm-button="Ya, Cabut Sesi"
+                                    class="btn btn-secondary text-xs text-danger hover:bg-danger-soft py-1 px-2.5">
                                 Cabut Sesi
                             </button>
                         </form>
@@ -207,7 +217,12 @@
                     <form method="POST" action="{{ route('admin.security.revoke-device', $device) }}">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="btn btn-secondary text-xs text-danger hover:bg-danger-soft py-1 px-2.5">
+                        <button type="submit" 
+                                data-confirm="Cabut akses untuk perangkat terpercaya ini? Sesi dari perangkat tersebut akan berakhir."
+                                data-confirm-title="Cabut Akses Perangkat"
+                                data-confirm-type="danger"
+                                data-confirm-button="Ya, Cabut Akses"
+                                class="btn btn-secondary text-xs text-danger hover:bg-danger-soft py-1 px-2.5">
                             Cabut Akses
                         </button>
                     </form>

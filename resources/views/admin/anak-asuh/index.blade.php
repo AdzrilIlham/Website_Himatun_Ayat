@@ -364,7 +364,11 @@
                                     </button>
 
                                     <!-- Hapus (Sampah) -->
-                                    <form method="POST" action="{{ route('admin.anak-asuh.destroy', $anak->id) }}" onsubmit="return confirm('Hapus data anak asuh {{ $anak->nama_lengkap }}?')">
+                                    <form method="POST" action="{{ route('admin.anak-asuh.destroy', $anak->id) }}"
+                                          data-confirm="Apakah Anda yakin ingin menghapus data anak asuh {{ $anak->nama_lengkap }}? Tindakan ini tidak dapat dibatalkan."
+                                          data-confirm-title="Hapus Data Anak Asuh"
+                                          data-confirm-type="danger"
+                                          data-confirm-button="Ya, Hapus">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" 
@@ -435,7 +439,11 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
                                 </svg>
                             </button>
-                            <form method="POST" action="{{ route('admin.anak-asuh.destroy', $anak->id) }}" onsubmit="return confirm('Hapus data anak asuh {{ $anak->nama_lengkap }}?')">
+                            <form method="POST" action="{{ route('admin.anak-asuh.destroy', $anak->id) }}"
+                                  data-confirm="Apakah Anda yakin ingin menghapus data anak asuh {{ $anak->nama_lengkap }}? Tindakan ini tidak dapat dibatalkan."
+                                  data-confirm-title="Hapus Data Anak Asuh"
+                                  data-confirm-type="danger"
+                                  data-confirm-button="Ya, Hapus">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" title="Hapus Data" class="p-1.5 text-muted-foreground/60 hover:text-danger hover:bg-danger-soft rounded-lg transition cursor-pointer">
@@ -539,7 +547,7 @@
          role="dialog"
          tabindex="-1"
          aria-labelledby="create-anak-modal-label">
-        <div class="hs-overlay-open:mt-7 hs-overlay-open:opacity-100 hs-overlay-open:duration-500 mt-0 opacity-0 ease-out transition-all sm:max-w-lg sm:w-full m-3 sm:mx-auto">
+        <div class="hs-overlay-open:opacity-100 hs-overlay-open:duration-300 opacity-0 ease-out transition-all sm:max-w-lg sm:w-full m-3 sm:mx-auto min-h-[calc(100%-3.5rem)] flex items-center justify-center">
             <div class="relative bg-overlay rounded-2xl shadow-2xl border border-overlay-line overflow-hidden w-full flex flex-col max-h-[90vh] pointer-events-auto">
                 <div class="px-5 py-4 border-b border-border-line-1 flex items-center justify-between bg-muted">
                     <h3 id="create-anak-modal-label" class="font-bold text-base text-foreground">Tambah Data Anak Asuh</h3>
@@ -626,8 +634,8 @@
                         <textarea name="keterangan" rows="2" placeholder="Catatan tambahan mengenai santri..." class="w-full rounded-xl border border-border px-3.5 py-2 text-sm focus:border-primary focus:outline-hidden"></textarea>
                     </div>
                     <div class="pt-2 border-t border-border-line-1 flex items-center justify-end gap-2">
-                        <button type="button" data-hs-overlay="#create-anak-modal" class="px-4 py-2 rounded-xl text-xs font-semibold text-muted-foreground-2 hover:bg-muted transition">Batal</button>
-                        <button type="submit" class="px-5 py-2 rounded-xl text-xs font-semibold bg-brand-700 text-white hover:bg-brand-800 transition">Simpan Data</button>
+                        <button type="button" data-hs-overlay="#create-anak-modal" class="px-4 py-2 rounded-xl text-xs font-semibold text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-950/40 transition cursor-pointer">Batal</button>
+                        <button type="submit" data-confirm="Simpan data anak asuh baru ke sistem?" data-confirm-title="Konfirmasi Simpan Data" data-confirm-type="success" data-confirm-button="Ya, Simpan" class="px-5 py-2 rounded-xl text-xs font-semibold bg-brand-700 text-white hover:bg-brand-800 transition cursor-pointer shadow-xs">Simpan Data</button>
                     </div>
                 </form>
             </div>
@@ -640,7 +648,7 @@
          role="dialog"
          tabindex="-1"
          aria-labelledby="edit-anak-modal-label">
-        <div class="hs-overlay-open:mt-7 hs-overlay-open:opacity-100 hs-overlay-open:duration-500 mt-0 opacity-0 ease-out transition-all sm:max-w-lg sm:w-full m-3 sm:mx-auto">
+        <div class="hs-overlay-open:opacity-100 hs-overlay-open:duration-300 opacity-0 ease-out transition-all sm:max-w-lg sm:w-full m-3 sm:mx-auto min-h-[calc(100%-3.5rem)] flex items-center justify-center">
             <div class="relative bg-overlay rounded-2xl shadow-2xl border border-overlay-line overflow-hidden w-full flex flex-col max-h-[90vh] pointer-events-auto">
                 <div class="px-5 py-4 border-b border-border-line-1 flex items-center justify-between bg-muted">
                     <h3 id="edit-anak-modal-label" class="font-bold text-base text-foreground">Ubah Data Anak Asuh</h3>
@@ -731,8 +739,8 @@
                         <textarea name="keterangan" x-model="editData.keterangan" rows="2" class="w-full rounded-xl border border-border px-3.5 py-2 text-sm focus:border-primary focus:outline-hidden"></textarea>
                     </div>
                     <div class="pt-2 border-t border-border-line-1 flex items-center justify-end gap-2">
-                        <button type="button" data-hs-overlay="#edit-anak-modal" class="px-4 py-2 rounded-xl text-xs font-semibold text-muted-foreground-2 hover:bg-muted transition">Batal</button>
-                        <button type="submit" class="px-5 py-2 rounded-xl text-xs font-semibold bg-brand-700 text-white hover:bg-brand-800 transition">Simpan Perubahan</button>
+                        <button type="button" data-hs-overlay="#edit-anak-modal" class="px-4 py-2 rounded-xl text-xs font-semibold text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-950/40 transition cursor-pointer">Batal</button>
+                        <button type="submit" data-confirm="Simpan perubahan data anak asuh ini?" data-confirm-title="Konfirmasi Perubahan Data" data-confirm-type="success" data-confirm-button="Ya, Simpan" class="px-5 py-2 rounded-xl text-xs font-semibold bg-brand-700 text-white hover:bg-brand-800 transition cursor-pointer shadow-xs">Simpan Perubahan</button>
                     </div>
                 </form>
             </div>
@@ -745,7 +753,7 @@
          role="dialog"
          tabindex="-1"
          aria-labelledby="detail-anak-modal-label">
-        <div class="hs-overlay-open:mt-7 hs-overlay-open:opacity-100 hs-overlay-open:duration-500 mt-0 opacity-0 ease-out transition-all sm:max-w-md sm:w-full m-3 sm:mx-auto">
+        <div class="hs-overlay-open:opacity-100 hs-overlay-open:duration-300 opacity-0 ease-out transition-all sm:max-w-md sm:w-full m-3 sm:mx-auto min-h-[calc(100%-3.5rem)] flex items-center justify-center">
             <div class="relative bg-overlay rounded-2xl shadow-2xl border border-overlay-line overflow-hidden w-full flex flex-col max-h-[90vh] pointer-events-auto">
                 <div class="px-5 py-4 border-b border-border-line-1 flex items-center justify-between bg-muted">
                     <h3 id="detail-anak-modal-label" class="font-bold text-base text-foreground">Detail Anak Asuh</h3>

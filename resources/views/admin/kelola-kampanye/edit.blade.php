@@ -22,10 +22,19 @@
         status: {{ json_encode($kampanye->status) }},
         isDirty: false,
         bannerPreview: {{ json_encode($kampanye->banner_path ? $kampanye->banner_url : null) }},
-        confirmLeave(e) {
+        async confirmLeave(e) {
             if (this.isDirty) {
-                if (!confirm('Perubahan formulir belum disimpan. Yakin ingin kembali ke halaman Kelola Kampanye?')) {
-                    e.preventDefault();
+                e.preventDefault();
+                const targetUrl = e.currentTarget.href;
+                const ok = await window.confirmAction({
+                    title: 'Tinggalkan Halaman?',
+                    message: 'Perubahan formulir belum disimpan. Yakin ingin kembali ke halaman Kelola Kampanye?',
+                    type: 'warning',
+                    confirmText: 'Ya, Tinggalkan',
+                    cancelText: 'Batal'
+                });
+                if (ok && targetUrl) {
+                    window.location.href = targetUrl;
                 }
             }
         },
@@ -302,6 +311,10 @@
                             </button>
 
                             <button type="submit" 
+                                    data-confirm="Apakah Anda yakin ingin menyimpan perubahan kampanye ini?"
+                                    data-confirm-title="Konfirmasi Perubahan Kampanye"
+                                    data-confirm-type="success"
+                                    data-confirm-button="Ya, Simpan"
                                     class="px-5 py-2.5 rounded-xl bg-brand-700 text-white text-xs sm:text-sm font-semibold hover:bg-brand-800 transition shadow-xs cursor-pointer">
                                 Perbarui Kampanye
                             </button>

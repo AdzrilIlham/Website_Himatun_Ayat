@@ -26,7 +26,6 @@
         <env name="DB_CONNECTION" value="sqlite"/>
         <env name="DB_DATABASE" value=":memory:"/>
         <env name="LOG_CHANNEL" value="null"/>
-        <env name="VIEW_COMPILED_PATH" value="C:/Users/ilyas/.gemini/antigravity-cli/brain/e7d5349a-4726-4bea-a84c-a9270e31a6d4/scratch/views"/>
         <env name="DB_URL" value=""/>
         <env name="MAIL_MAILER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
