@@ -841,10 +841,13 @@
                         </label>
                         <input id="form-nama-pemohon"
                                type="text"
+                               maxlength="100"
                                x-model="formData.namaPemohon"
-                               @input="formErrors.namaPemohon = ''"
+                               @input="validateNamaPemohon(false)"
+                               @blur="validateNamaPemohon(true)"
                                placeholder="Contoh: Komunitas Peduli / H. Ahmad Ramadhan"
-                               class="w-full rounded-xl border border-border bg-muted px-4 py-2.5 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:border-brand-700 focus:bg-card focus:ring-2 focus:ring-brand-700/20 focus:outline-none transition">
+                               :class="formErrors.namaPemohon ? 'border-danger bg-danger-soft/20 focus:border-danger focus:ring-danger/20' : 'border-border bg-muted focus:border-brand-700 focus:ring-brand-700/20'"
+                               class="w-full rounded-xl border px-4 py-2.5 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:bg-card focus:ring-2 focus:outline-none transition">
                         <p x-show="formErrors.namaPemohon" x-text="formErrors.namaPemohon" class="form-error"></p>
                     </div>
 
@@ -856,10 +859,14 @@
                             </label>
                             <input id="form-nomor-wa"
                                    type="tel"
+                                   inputmode="numeric"
+                                   maxlength="15"
                                    x-model="formData.nomorWhatsapp"
-                                   @input="formErrors.nomorWhatsapp = ''"
-                                   placeholder="0812-xxxx-xxxx"
-                                   class="w-full rounded-xl border border-border bg-muted px-4 py-2.5 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:border-brand-700 focus:bg-card focus:ring-2 focus:ring-brand-700/20 focus:outline-none transition">
+                                   @input="sanitizeWhatsappInput(false)"
+                                   @blur="sanitizeWhatsappInput(true)"
+                                   placeholder="Contoh: 081234567890"
+                                   :class="formErrors.nomorWhatsapp ? 'border-danger bg-danger-soft/20 focus:border-danger focus:ring-danger/20' : 'border-border bg-muted focus:border-brand-700 focus:ring-brand-700/20'"
+                                   class="w-full rounded-xl border px-4 py-2.5 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:bg-card focus:ring-2 focus:outline-none transition">
                             <p x-show="formErrors.nomorWhatsapp" x-text="formErrors.nomorWhatsapp" class="form-error"></p>
                         </div>
 
@@ -871,7 +878,8 @@
                                 <select id="form-jenis-kegiatan"
                                         x-model="formData.jenisKegiatan"
                                         @change="formErrors.jenisKegiatan = ''"
-                                        class="w-full appearance-none rounded-xl border border-border bg-muted py-2.5 pl-4 pr-10 text-xs sm:text-sm text-foreground focus:border-brand-700 focus:bg-card focus:ring-2 focus:ring-brand-700/20 focus:outline-none transition cursor-pointer">
+                                        :class="formErrors.jenisKegiatan ? 'border-danger bg-danger-soft/20 focus:border-danger focus:ring-danger/20' : 'border-border bg-muted focus:border-brand-700 focus:ring-brand-700/20'"
+                                        class="w-full appearance-none rounded-xl border py-2.5 pl-4 pr-10 text-xs sm:text-sm text-foreground focus:bg-card focus:ring-2 focus:outline-none transition cursor-pointer">
                                     <option value="">Pilih jenis kegiatan...</option>
                                     <template x-for="opsi in jenisKegiatanOptions" :key="opsi">
                                         <option :value="opsi" x-text="opsi"></option>
@@ -947,9 +955,11 @@
                         <textarea id="form-rencana-kegiatan"
                                   rows="3"
                                   x-model="formData.rencanaKegiatan"
-                                  @input="formErrors.rencanaKegiatan = ''"
+                                  @input="validateRencanaKegiatan(false)"
+                                  @blur="validateRencanaKegiatan(true)"
                                   placeholder="Sampaikan ringkasan susunan agenda atau perlengkapan ruangan yang dibutuhkan..."
-                                  class="w-full rounded-xl border border-border bg-muted px-4 py-2.5 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:border-brand-700 focus:bg-card focus:ring-2 focus:ring-brand-700/20 focus:outline-none transition resize-none"></textarea>
+                                  :class="formErrors.rencanaKegiatan ? 'border-danger bg-danger-soft/20 focus:border-danger focus:ring-danger/20' : 'border-border bg-muted focus:border-brand-700 focus:ring-brand-700/20'"
+                                  class="w-full rounded-xl border px-4 py-2.5 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:bg-card focus:ring-2 focus:outline-none transition resize-none"></textarea>
                         <p x-show="formErrors.rencanaKegiatan" x-text="formErrors.rencanaKegiatan" class="form-error"></p>
                     </div>
 
@@ -1416,16 +1426,90 @@
                     }
                 },
 
+                validateNamaPemohon(strict = true) {
+                    const nama = (this.formData.namaPemohon || '').trim();
+                    if (!nama) {
+                        this.formErrors.namaPemohon = strict ? 'Nama pemohon/komunitas/lembaga wajib diisi.' : '';
+                        return false;
+                    }
+                    if (!/[a-zA-Z]/.test(nama)) {
+                        this.formErrors.namaPemohon = 'Nama pemohon harus mengandung huruf yang valid.';
+                        return false;
+                    }
+                    if (strict && nama.length < 3) {
+                        this.formErrors.namaPemohon = 'Nama pemohon minimal 3 karakter.';
+                        return false;
+                    }
+                    this.formErrors.namaPemohon = '';
+                    return true;
+                },
+
+                sanitizeWhatsappInput(strict = false) {
+                    // Hanya izinkan tanda + di paling depan diikuti angka, maksimal 15 karakter
+                    let raw = (this.formData.nomorWhatsapp || '').replace(/[^\d+]/g, '');
+                    if (raw.indexOf('+') > 0) {
+                        raw = raw.replace(/\+/g, '');
+                    }
+                    raw = raw.slice(0, 15);
+                    this.formData.nomorWhatsapp = raw;
+
+                    if (!raw) {
+                        this.formErrors.nomorWhatsapp = strict ? 'Nomor WhatsApp wajib diisi.' : '';
+                        return false;
+                    }
+
+                    // Cek awalan secara real-time saat mengetik (wajib 08, 628, atau +628)
+                    const validPrefixWhileTyping = /^(\+$|\+6$|\+62$|\+628|6$|62$|628|0$|08)/.test(raw);
+                    if (!validPrefixWhileTyping) {
+                        this.formErrors.nomorWhatsapp = 'Nomor WhatsApp harus diawali 08, 628, atau +628.';
+                        return false;
+                    }
+
+                    const digits = raw.replace(/[^\d]/g, '');
+                    if (digits.length > 14) {
+                        this.formErrors.nomorWhatsapp = 'Nomor WhatsApp maksimal 14 digit angka.';
+                        return false;
+                    }
+
+                    if (strict) {
+                        if (!/^(\+?628|08)[1-9][0-9]{7,11}$/.test(raw)) {
+                            if (!/^(\+?628|08)/.test(raw)) {
+                                this.formErrors.nomorWhatsapp = 'Nomor WhatsApp harus diawali 08, 628, atau +628.';
+                            } else if (digits.length < 10 || digits.length > 14) {
+                                this.formErrors.nomorWhatsapp = 'Nomor WhatsApp harus terdiri dari 10 hingga 14 digit angka.';
+                            } else {
+                                this.formErrors.nomorWhatsapp = 'Format nomor WhatsApp tidak valid.';
+                            }
+                            return false;
+                        }
+                    }
+
+                    this.formErrors.nomorWhatsapp = '';
+                    return true;
+                },
+
+                validateRencanaKegiatan(strict = true) {
+                    const rencana = (this.formData.rencanaKegiatan || '').trim();
+                    if (!rencana) {
+                        this.formErrors.rencanaKegiatan = strict ? 'Rencana kegiatan atau kebutuhan fasilitas wajib diisi.' : '';
+                        return false;
+                    }
+                    if (strict && rencana.length < 10) {
+                        this.formErrors.rencanaKegiatan = 'Rencana kegiatan minimal 10 karakter agar rincian agenda jelas.';
+                        return false;
+                    }
+                    this.formErrors.rencanaKegiatan = '';
+                    return true;
+                },
+
                 validateForm() {
                     this.resetErrors();
                     let valid = true;
 
-                    if (!this.formData.namaPemohon.trim()) {
-                        this.formErrors.namaPemohon = 'Nama pemohon/komunitas/lembaga wajib diisi.';
+                    if (!this.validateNamaPemohon(true)) {
                         valid = false;
                     }
-                    if (!this.formData.nomorWhatsapp.trim()) {
-                        this.formErrors.nomorWhatsapp = 'Nomor WhatsApp wajib diisi.';
+                    if (!this.sanitizeWhatsappInput(true)) {
                         valid = false;
                     }
                     if (!this.formData.waktuMulai) {
@@ -1452,8 +1536,7 @@
                         this.formErrors.jenisKegiatan = 'Silakan pilih jenis kegiatan.';
                         valid = false;
                     }
-                    if (!this.formData.rencanaKegiatan.trim()) {
-                        this.formErrors.rencanaKegiatan = 'Rencana kegiatan atau kebutuhan fasilitas wajib diisi.';
+                    if (!this.validateRencanaKegiatan(true)) {
                         valid = false;
                     }
 
