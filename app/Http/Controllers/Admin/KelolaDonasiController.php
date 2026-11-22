@@ -21,37 +21,83 @@ class KelolaDonasiController extends Controller
     public function index(Request $request)
     {
         $search = $request->query('search');
-        $sort = $request->query('sort', 'total_donasi');
+        $sort = $request->query('sort', 'terbaru');
+        $sortWaktu = $request->query('sort_waktu', $sort === 'terlama' ? 'terlama' : 'terbaru');
+        $sortNama = $request->query('sort_nama', in_array($sort, ['nama_asc', 'nama'], true) ? 'nama_asc' : ($sort === 'nama_desc' ? 'nama_desc' : ''));
+        $kampanyeFilter = (string) $request->query('kampanye_id', '');
+        $statusFilter = $request->query('status', 'semua');
+        $metodeFilter = $request->query('metode', 'all');
+
+        if ($request->filled('sort_nama')) {
+            $sort = $sortNama;
+        } elseif ($request->filled('sort_waktu')) {
+            $sort = $sortWaktu;
+        }
 
         // Query donasi
         $query = Donasi::with('kampanye');
 
         if ($search) {
-            $query->where(function ($q) use ($search) {
+            $numericId = preg_replace('/[^0-9]/', '', $search);
+            $query->where(function ($q) use ($search, $numericId) {
                 $q->where('nama_donatur', 'like', "%{$search}%")
                     ->orWhere('email', 'like', "%{$search}%")
                     ->orWhere('no_whatsapp', 'like', "%{$search}%")
+                    ->orWhere('pesan_doa', 'like', "%{$search}%")
                     ->orWhereHas('kampanye', function ($kq) use ($search) {
                         $kq->where('judul', 'like', "%{$search}%");
                     });
+
+                if ($numericId !== '') {
+                    $q->orWhere('id', (int) $numericId);
+                }
             });
         }
 
-        // Sorting logic based on segmented button
-        switch ($sort) {
-            case 'frekuensi':
-                $query->latest('created_at');
-                break;
-            case 'nama':
-                $query->orderBy('nama_donatur', 'asc');
-                break;
-            case 'total_donasi':
-            default:
-                $query->orderByDesc('nominal');
-                break;
+        if (in_array($statusFilter, ['pending', 'verified', 'rejected'], true)) {
+            $query->where('status', $statusFilter);
+        }
+
+        if ($kampanyeFilter === 'umum') {
+            $query->whereNull('kampanye_id');
+        } elseif ($kampanyeFilter !== '' && is_numeric($kampanyeFilter)) {
+            $query->where('kampanye_id', (int) $kampanyeFilter);
+        }
+
+        if ($metodeFilter === 'transfer_bank') {
+            $query->where(function ($q) {
+                $q->where('metode_pembayaran', 'like', '%Transfer%')
+                    ->orWhere('metode_pembayaran', 'like', '%Bank%');
+            });
+        } elseif ($metodeFilter === 'qris_manual') {
+            $query->where('metode_pembayaran', 'like', '%QRIS%');
+        }
+
+        // Sorting logic based on unified filter / sort parameters
+        if ($sortNama === 'nama_asc' || in_array($sort, ['nama', 'nama_asc'], true)) {
+            $query->orderBy('nama_donatur', 'asc')
+                ->orderBy('created_at', $sortWaktu === 'terlama' ? 'asc' : 'desc')
+                ->orderByDesc('id');
+        } elseif ($sortNama === 'nama_desc' || $sort === 'nama_desc') {
+            $query->orderBy('nama_donatur', 'desc')
+                ->orderBy('created_at', $sortWaktu === 'terlama' ? 'asc' : 'desc')
+                ->orderByDesc('id');
+        } elseif ($sort === 'terlama' || $sortWaktu === 'terlama') {
+            $query->orderBy('created_at', 'asc')->orderBy('id', 'asc');
+        } elseif ($sort === 'total_donasi') {
+            $query->orderByDesc('nominal')->orderByDesc('id');
+        } else {
+            $query->orderByDesc('created_at')->orderByDesc('id');
         }
 
         $donasiList = $query->paginate(10)->withQueryString();
+
+        $statusCounts = [
+            'semua' => Donasi::count(),
+            'pending' => Donasi::where('status', 'pending')->count(),
+            'verified' => Donasi::where('status', 'verified')->count(),
+            'rejected' => Donasi::where('status', 'rejected')->count(),
+        ];
 
         // --- 4 Top Metrics (dari DB) ---
         $totalZis = (float) Donasi::where('status', 'verified')->sum('nominal');
@@ -60,7 +106,7 @@ class KelolaDonasiController extends Controller
 
         $totalOperasional = (float) PengeluaranOperasional::sum('nominal');
 
-        $saldoKas = $totalZis - $totalPenyaluranProgram - $totalOperasional;
+        $saldoKas = max(0, $totalZis - $totalPenyaluranProgram - $totalOperasional);
 
         // Rasio penyaluran (%) terhadap total ZIS
         $rasioEfektivitas = $totalZis > 0
@@ -144,6 +190,12 @@ class KelolaDonasiController extends Controller
             'asnaf',
             'search',
             'sort',
+            'sortWaktu',
+            'sortNama',
+            'kampanyeFilter',
+            'statusFilter',
+            'metodeFilter',
+            'statusCounts',
             'kampanyeList',
             'totalDonaturTerkini',
             'penyaluranList',
@@ -241,6 +293,14 @@ class KelolaDonasiController extends Controller
     }
 
     /**
+     * Verify a donation (alias for terima).
+     */
+    public function verifikasi(Donasi $donasi): RedirectResponse
+    {
+        return $this->terima($donasi);
+    }
+
+    /**
      * Accept / Verify a donation.
      */
     public function terima(Donasi $donasi): RedirectResponse
@@ -262,7 +322,36 @@ class KelolaDonasiController extends Controller
             }
         });
 
-        return back()->with('success', "Donasi dari {$donasi->nama_donatur} telah diterima dan diverifikasi.");
+        return back()->with('success', "Donasi #{$donasi->id} dari {$donasi->nama_donatur} telah diverifikasi.");
+    }
+
+    /**
+     * Reject a donation and revert kampanye dana_terkumpul if previously verified.
+     */
+    public function tolak(Donasi $donasi): RedirectResponse
+    {
+        DB::transaction(function () use ($donasi) {
+            $locked = Donasi::lockForUpdate()->findOrFail($donasi->id);
+            if ($locked->status === 'rejected') {
+                return;
+            }
+
+            if ($locked->status === 'verified' && $locked->kampanye_id) {
+                $kampanye = Kampanye::lockForUpdate()->find($locked->kampanye_id);
+                if ($kampanye) {
+                    $kampanye->update([
+                        'dana_terkumpul' => max(0, (float) $kampanye->dana_terkumpul - (float) $locked->nominal),
+                    ]);
+                }
+            }
+
+            $locked->update([
+                'status' => 'rejected',
+                'diverifikasi_pada' => now(),
+            ]);
+        });
+
+        return back()->with('warning', "Donasi #{$donasi->id} dari {$donasi->nama_donatur} telah ditolak.");
     }
 
     /**

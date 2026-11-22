@@ -154,10 +154,11 @@
         </div>
     </div>
 
+    <div data-admin-filter-scope="cms-berita" class="space-y-4">
     <!-- Search Bar & Filters -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 pt-2">
         <!-- Input Pencarian -->
-        <form method="GET" action="{{ route('admin.berita.index') }}" class="relative flex-1 w-full max-w-xl">
+        <form method="GET" action="{{ route('admin.berita.index') }}" data-admin-filter-form data-admin-filter-sync="search-form" class="relative flex-1 w-full max-w-xl">
             @if($sort)<input type="hidden" name="sort" value="{{ $sort }}">@endif
             @if(!empty($status))<input type="hidden" name="status" value="{{ $status }}">@endif
             @if(!empty($kategori))<input type="hidden" name="kategori" value="{{ $kategori }}">@endif
@@ -169,6 +170,7 @@
                        class="w-full bg-card border border-border-line-3 rounded-full px-5 py-2.5 pr-10 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:outline-hidden focus:ring-2 focus:ring-brand-700 focus:border-brand-700 transition shadow-xs">
                 @if($search)
                     <a href="{{ route('admin.berita.index', array_filter(['sort' => $sort, 'status' => $status ?? null, 'kategori' => $kategori ?? null])) }}" 
+                       data-admin-filter-link
                        class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-muted-foreground hover:text-muted-foreground-2 transition"
                        title="Hapus pencarian">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
@@ -182,19 +184,25 @@
         <!-- Filter Urutan -->
         <div class="flex items-center justify-between sm:justify-start gap-2 shrink-0">
             <span class="text-xs sm:text-sm text-muted-foreground-2 font-medium mr-1">Urutkan:</span>
-            <div class="inline-flex items-center gap-1.5">
+            <div data-sliding-pills data-admin-filter-sync="sort-pills" class="relative inline-flex items-center p-1 rounded-full bg-card border border-border-line-3 shadow-xs gap-1">
+                <span data-sliding-pill-bg aria-hidden="true" class="absolute top-0 left-0 rounded-full bg-brand-700 shadow-xs transition-[transform,width,height] duration-250 ease-out pointer-events-none z-0"></span>
                 <a href="{{ route('admin.berita.index', array_filter(['search' => $search, 'sort' => 'status', 'status' => $status ?? null, 'kategori' => $kategori ?? null])) }}" 
-                   class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition cursor-pointer {{ $sort === 'status' || !$sort ? 'bg-brand-700 text-white shadow-xs' : 'bg-card border border-border-line-3 text-muted-foreground-2 hover:bg-muted' }}">
+                   data-admin-filter-link
+                   data-pill-active="{{ $sort === 'status' || !$sort ? 'true' : 'false' }}"
+                   class="relative z-10 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors duration-200 cursor-pointer {{ $sort === 'status' || !$sort ? 'text-white' : 'text-muted-foreground-2 hover:text-brand-600 hover:bg-brand-50/70' }}">
                     Status
                 </a>
                 <a href="{{ route('admin.berita.index', array_filter(['search' => $search, 'sort' => 'kategori', 'status' => $status ?? null, 'kategori' => $kategori ?? null])) }}" 
-                   class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition cursor-pointer {{ $sort === 'kategori' ? 'bg-brand-700 text-white shadow-xs' : 'bg-card border border-border-line-3 text-muted-foreground-2 hover:bg-muted' }}">
+                   data-admin-filter-link
+                   data-pill-active="{{ $sort === 'kategori' ? 'true' : 'false' }}"
+                   class="relative z-10 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors duration-200 cursor-pointer {{ $sort === 'kategori' ? 'text-white' : 'text-muted-foreground-2 hover:text-brand-600 hover:bg-brand-50/70' }}">
                     Kategori
                 </a>
             </div>
         </div>
     </div>
 
+    <div data-admin-filter-results class="space-y-4">
     <!-- 1. Tampilan Desktop & Tablet (md ke atas): Tabel Lengkap Sesuai Mockup -->
     <div class="hidden md:block bg-card rounded-2xl border border-border overflow-hidden shadow-xs">
         <div class="overflow-x-auto w-full">
@@ -314,7 +322,7 @@
                                     </svg>
                                     <p class="font-medium text-muted-foreground-2">Tidak ada berita yang sesuai dengan kata kunci pencarian.</p>
                                     @if($search)
-                                        <a href="{{ route('admin.berita.index', array_filter(['sort' => $sort, 'status' => $status ?? null, 'kategori' => $kategori ?? null])) }}" class="mt-2 text-xs text-brand-700 hover:underline font-semibold cursor-pointer">
+                                        <a href="{{ route('admin.berita.index', array_filter(['sort' => $sort, 'status' => $status ?? null, 'kategori' => $kategori ?? null])) }}" data-admin-filter-link class="mt-2 text-xs text-brand-700 hover:underline font-semibold cursor-pointer">
                                             Reset Pencarian
                                         </a>
                                     @endif
@@ -426,7 +434,7 @@
                 </svg>
                 <p class="font-medium text-muted-foreground-2">Tidak ada berita yang sesuai dengan pencarian.</p>
                 @if($search)
-                    <a href="{{ route('admin.berita.index', array_filter(['sort' => $sort, 'status' => $status ?? null, 'kategori' => $kategori ?? null])) }}" class="mt-2 text-xs text-brand-700 hover:underline font-semibold cursor-pointer">
+                    <a href="{{ route('admin.berita.index', array_filter(['sort' => $sort, 'status' => $status ?? null, 'kategori' => $kategori ?? null])) }}" data-admin-filter-link class="mt-2 text-xs text-brand-700 hover:underline font-semibold cursor-pointer">
                         Reset Pencarian
                     </a>
                 @endif
@@ -495,5 +503,7 @@
             @endif
         </div>
     @endif
+    </div>
+    </div>
 </div>
 @endsection

@@ -272,7 +272,7 @@ class LaporanService
         $top4 = $programs->take(4);
         foreach ($top4 as $p) {
             $nom = (float) $p->total_nominal;
-            $labels[] = Str::limit($p->judul, 22);
+            $labels[] = $p->judul;
             $series[] = (float) round($nom, 2);
             $percentages[] = (float) round(($nom / $totalNominal) * 100, 1);
         }

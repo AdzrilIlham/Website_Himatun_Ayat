@@ -55,6 +55,7 @@ class AdminKelolaDonasiTest extends TestCase
             'kampanye_id' => $kampanye->id,
             'metode_pembayaran' => 'Transfer Bank (BSI)',
             'bukti_transfer_path' => 'images/receipt-placeholder.svg',
+            'pesan_doa' => 'Semoga menjadi amal jariyah',
             'status' => 'verified',
         ]);
 
@@ -62,8 +63,31 @@ class AdminKelolaDonasiTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('Donatur Khusus Testing');
         $response->assertSee('khusus.testing@gmail.com');
-        $response->assertSee('showBuktiModal', false);
-        $response->assertSee('openEditModal', false);
+        $response->assertSee('Semoga menjadi amal jariyah');
+        $response->assertSee('Program Uji');
+        $response->assertDontSee('Menampilkan antrian konfirmasi');
+        $response->assertDontSee('<span>Penyaluran Dana</span>', false);
+        $response->assertDontSee('✓ Terverifikasi');
+        $response->assertDontSee('✕ Ditolak');
+        $response->assertDontSee('⏳ Menunggu');
+        $response->assertSee('#proof-preview-modal', false);
+        $response->assertSee('open-bukti-modal', false);
+        $response->assertSee('#modal-edit-status-donasi', false);
+        $response->assertSee('open-edit-status-modal', false);
+        $response->assertSee('#modal-konfirmasi-aksi', false);
+        $response->assertSee('open-confirm-modal', false);
+        $response->assertSee('data-hs-select', false);
+        $response->assertSee('validatePenyaluranForm', false);
+        $response->assertSee('validateOperasionalForm', false);
+        $response->assertDontSee('onclick="return confirm(', false);
+        $response->assertSee('hs-donasi-filter-dropdown', false);
+        $response->assertSee('hs-column-manager-dropdown', false);
+        $response->assertSee('Column Manager');
+        $response->assertSee('Terapkan Filter');
+        $response->assertSee('x-show="cols.id_donasi"', false);
+        $response->assertSee('x-show="cols.aksi"', false);
+        $response->assertSee('Edit');
+        $response->assertDontSee('Semua Metode');
     }
 
     public function test_can_update_donasi(): void
@@ -148,6 +172,152 @@ class AdminKelolaDonasiTest extends TestCase
         ]);
     }
 
+    public function test_can_verifikasi_and_tolak_donasi_without_double_counting(): void
+    {
+        $kampanye = Kampanye::create([
+            'judul' => 'Kampanye Verifikasi',
+            'slug' => 'kampanye-verifikasi',
+            'kategori' => 'Pendidikan',
+            'deskripsi' => 'Deskripsi kampanye verifikasi dan tolak donasi',
+            'target_dana' => 5000000,
+            'dana_terkumpul' => 0,
+            'status' => 'aktif',
+        ]);
+
+        $donasi = Donasi::create([
+            'nama_donatur' => 'Donatur Uji Verif',
+            'kampanye_id' => $kampanye->id,
+            'nominal' => 250000,
+            'metode_pembayaran' => 'Transfer Bank (BSI)',
+            'bukti_transfer_path' => 'images/receipt-placeholder.svg',
+            'status' => 'pending',
+        ]);
+
+        $this->post("/admin/kelola-donasi/{$donasi->id}/verifikasi")->assertRedirect();
+        $this->assertDatabaseHas('donasi', ['id' => $donasi->id, 'status' => 'verified']);
+        $this->assertEquals(250000, (float) $kampanye->fresh()->dana_terkumpul);
+
+        // Idempotent: verifikasi ulang tidak menggandakan dana_terkumpul
+        $this->post("/admin/kelola-donasi/{$donasi->id}/verifikasi")->assertRedirect();
+        $this->assertEquals(250000, (float) $kampanye->fresh()->dana_terkumpul);
+
+        // Tolak mengurangi dana_terkumpul tepat satu kali
+        $this->post("/admin/kelola-donasi/{$donasi->id}/tolak")->assertRedirect();
+        $this->assertDatabaseHas('donasi', ['id' => $donasi->id, 'status' => 'rejected']);
+        $this->assertEquals(0, (float) $kampanye->fresh()->dana_terkumpul);
+
+        // Tolak ulang tidak membuat dana_terkumpul negatif
+        $this->post("/admin/kelola-donasi/{$donasi->id}/tolak")->assertRedirect();
+        $this->assertEquals(0, (float) $kampanye->fresh()->dana_terkumpul);
+    }
+
+    public function test_can_sort_donasi_by_terbaru_terlama_nama_asc_and_nama_desc(): void
+    {
+        $awal = Donasi::create([
+            'nama_donatur' => 'Zaki Pertama',
+            'nominal' => 100000,
+            'metode_pembayaran' => 'QRIS Manual',
+            'status' => 'verified',
+            'created_at' => now()->subDays(2),
+            'updated_at' => now()->subDays(2),
+        ]);
+
+        $akhir = Donasi::create([
+            'nama_donatur' => 'Aisyah Kedua',
+            'nominal' => 150000,
+            'metode_pembayaran' => 'Transfer Bank (BCA)',
+            'status' => 'verified',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $this->get('/admin/kelola-donasi?sort=terbaru')
+            ->assertStatus(200)
+            ->assertSeeInOrder([$akhir->nama_donatur, $awal->nama_donatur]);
+
+        $this->get('/admin/kelola-donasi?sort=terlama')
+            ->assertStatus(200)
+            ->assertSeeInOrder([$awal->nama_donatur, $akhir->nama_donatur]);
+
+        $this->get('/admin/kelola-donasi?sort=nama_asc')
+            ->assertStatus(200)
+            ->assertSeeInOrder([$akhir->nama_donatur, $awal->nama_donatur]);
+
+        $this->get('/admin/kelola-donasi?sort=nama_desc')
+            ->assertStatus(200)
+            ->assertSeeInOrder([$awal->nama_donatur, $akhir->nama_donatur]);
+
+        $this->get('/admin/kelola-donasi?sort_waktu=terlama')
+            ->assertStatus(200)
+            ->assertSeeInOrder([$awal->nama_donatur, $akhir->nama_donatur]);
+
+        $this->get('/admin/kelola-donasi?sort_waktu=terbaru&sort_nama=nama_asc')
+            ->assertStatus(200)
+            ->assertSeeInOrder([$akhir->nama_donatur, $awal->nama_donatur]);
+
+        $this->get('/admin/kelola-donasi?sort_waktu=terbaru&sort_nama=nama_desc')
+            ->assertStatus(200)
+            ->assertSeeInOrder([$awal->nama_donatur, $akhir->nama_donatur]);
+
+        $kampanyeFilter = Kampanye::create([
+            'judul' => 'Program Filter Khusus',
+            'slug' => 'program-filter-khusus',
+            'kategori' => 'Pendidikan',
+            'deskripsi' => 'Deskripsi filter kampanye',
+            'target_dana' => 5000000,
+            'dana_terkumpul' => 0,
+            'status' => 'aktif',
+        ]);
+
+        $khususProgram = Donasi::create([
+            'nama_donatur' => 'Donatur Program Filter',
+            'kampanye_id' => $kampanyeFilter->id,
+            'nominal' => 250000,
+            'metode_pembayaran' => 'QRIS Manual',
+            'status' => 'verified',
+        ]);
+
+        $this->get("/admin/kelola-donasi?kampanye_id={$kampanyeFilter->id}")
+            ->assertStatus(200)
+            ->assertSee($khususProgram->nama_donatur)
+            ->assertDontSee($awal->nama_donatur);
+
+        $this->get('/admin/kelola-donasi?kampanye_id=umum')
+            ->assertStatus(200)
+            ->assertSee($awal->nama_donatur)
+            ->assertDontSee($khususProgram->nama_donatur);
+    }
+
+    public function test_can_filter_donasi_by_status_and_metode_and_displays_hamba_allah(): void
+    {
+        Donasi::create([
+            'nama_donatur' => '',
+            'nominal' => 100000,
+            'metode_pembayaran' => 'QRIS Manual',
+            'status' => 'pending',
+        ]);
+
+        Donasi::create([
+            'nama_donatur' => 'Siti Aminah',
+            'nominal' => 300000,
+            'metode_pembayaran' => 'Transfer Bank (BSI)',
+            'status' => 'verified',
+        ]);
+
+        $this->get('/admin/kelola-donasi?status=pending&metode=qris')
+            ->assertStatus(200)
+            ->assertSee('Hamba Allah')
+            ->assertSee('Verifikasi')
+            ->assertSee('Tolak')
+            ->assertDontSee('Siti Aminah');
+
+        $this->get('/admin/kelola-donasi?status=verified&metode=bank')
+            ->assertStatus(200)
+            ->assertSee('Siti Aminah')
+            ->assertSee('open-edit-status-modal', false)
+            ->assertDontSee('Hamba Allah');
+    }
+
     public function test_can_delete_donasi(): void
     {
         $donasi = Donasi::create([
@@ -175,6 +345,14 @@ class AdminKelolaDonasiTest extends TestCase
 
     public function test_can_crud_penyaluran_dana_and_operasional(): void
     {
+        Donasi::create([
+            'nama_donatur' => 'Donatur Saldo Awal',
+            'nominal' => 10000000,
+            'metode_pembayaran' => 'QRIS Manual',
+            'status' => 'verified',
+            'diverifikasi_pada' => now(),
+        ]);
+
         // Store Penyaluran Dana
         $this->post('/admin/penyaluran-dana', [
             'klaster_asnaf' => 'pendidikan',
@@ -182,7 +360,7 @@ class AdminKelolaDonasiTest extends TestCase
             'nominal' => 5000000,
             'tanggal_penyaluran' => '2026-11-20',
             'penerima_manfaat' => '20 Anak Asuh',
-        ])->assertRedirect();
+        ])->assertRedirect()->assertSessionHasNoErrors();
 
         $penyaluran = PenyaluranDana::firstOrFail();
         $this->assertEquals(5000000, (float) $penyaluran->nominal);
@@ -194,7 +372,7 @@ class AdminKelolaDonasiTest extends TestCase
             'nominal' => 6000000,
             'tanggal_penyaluran' => '2026-11-21',
             'penerima_manfaat' => '30 Anak Asuh',
-        ])->assertRedirect();
+        ])->assertRedirect()->assertSessionHasNoErrors();
 
         $this->assertDatabaseHas('penyaluran_dana', [
             'id' => $penyaluran->id,
@@ -208,7 +386,7 @@ class AdminKelolaDonasiTest extends TestCase
             'keterangan' => 'Listrik dan Air Asrama',
             'nominal' => 1500000,
             'tanggal_pengeluaran' => '2026-11-20',
-        ])->assertRedirect();
+        ])->assertRedirect()->assertSessionHasNoErrors();
 
         $operasional = PengeluaranOperasional::firstOrFail();
 
@@ -218,13 +396,36 @@ class AdminKelolaDonasiTest extends TestCase
             'keterangan' => 'Listrik, Air, dan Internet Asrama',
             'nominal' => 2000000,
             'tanggal_pengeluaran' => '2026-11-21',
-        ])->assertRedirect();
+        ])->assertRedirect()->assertSessionHasNoErrors();
 
         $this->assertDatabaseHas('pengeluaran_operasional', [
             'id' => $operasional->id,
             'kategori' => 'Administrasi',
             'nominal' => 2000000,
         ]);
+
+        // Sisa saldo kas saat ini = 10.000.000 - 6.000.000 - 2.000.000 = 2.000.000
+        // Tidak boleh menyalurkan atau mencatat operasional melebihi sisa saldo kas
+        $this->post('/admin/penyaluran-dana', [
+            'klaster_asnaf' => 'asrama',
+            'keterangan' => 'Renovasi Darurat',
+            'nominal' => 2500000,
+            'tanggal_penyaluran' => '2026-11-22',
+        ])->assertSessionHasErrors('nominal');
+
+        $this->post('/admin/pengeluaran-operasional', [
+            'kategori' => 'Lainnya',
+            'keterangan' => 'Belanja Melebihi Saldo',
+            'nominal' => 2500000,
+            'tanggal_pengeluaran' => '2026-11-22',
+        ])->assertSessionHasErrors('nominal');
+
+        $this->put("/admin/pengeluaran-operasional/{$operasional->id}", [
+            'kategori' => 'Administrasi',
+            'keterangan' => 'Melebihi Batas Kas',
+            'nominal' => 4500000,
+            'tanggal_pengeluaran' => '2026-11-22',
+        ])->assertSessionHasErrors('nominal');
 
         // Delete both
         $this->delete("/admin/penyaluran-dana/{$penyaluran->id}")->assertRedirect();

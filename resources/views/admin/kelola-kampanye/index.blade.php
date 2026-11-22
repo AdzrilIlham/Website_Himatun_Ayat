@@ -125,10 +125,11 @@
         </div>
     </div>
 
+    <div data-admin-filter-scope="kelola-kampanye" class="space-y-4">
     <!-- Toolbar: Search Bar & Segmented Sorting (Persis Screenshot 1) -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
         <!-- Search Input Bar -->
-        <form method="GET" action="{{ route('admin.kelola-kampanye.index') }}" class="w-full sm:max-w-md">
+        <form method="GET" action="{{ route('admin.kelola-kampanye.index') }}" data-admin-filter-form data-admin-filter-sync="search-form" class="w-full sm:max-w-md">
             <input type="hidden" name="sort" value="{{ $sort }}">
             @if($status)<input type="hidden" name="status" value="{{ $status }}">@endif
             @if($kategori)<input type="hidden" name="kategori" value="{{ $kategori }}">@endif
@@ -140,6 +141,7 @@
                        class="w-full rounded-2xl border border-border-line-3 bg-card px-4 py-2 sm:py-2.5 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:border-brand-700 focus:ring-1 focus:ring-brand-700 focus:outline-hidden transition shadow-2xs">
                 @if($search)
                     <a href="{{ route('admin.kelola-kampanye.index', array_filter(['sort' => $sort, 'status' => $status, 'kategori' => $kategori])) }}" 
+                       data-admin-filter-link
                        class="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-muted-foreground-2 transition">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -152,16 +154,21 @@
         <!-- Segmented Sorting Buttons (Status / Kategori) -->
         <div class="flex items-center gap-2 self-start sm:self-auto text-xs sm:text-sm">
             <span class="text-muted-foreground-1 font-medium">Urutkan:</span>
-            <div class="flex items-center gap-1.5">
+            <div data-sliding-pills data-admin-filter-sync="sort-pills" class="relative inline-flex items-center p-1 rounded-xl bg-card border border-border-line-3 shadow-2xs gap-1">
+                <span data-sliding-pill-bg aria-hidden="true" class="absolute top-0 left-0 rounded-lg bg-brand-700 shadow-xs transition-[transform,width,height] duration-250 ease-out pointer-events-none z-0"></span>
                 <!-- Button Status -->
                 <a href="{{ route('admin.kelola-kampanye.index', array_filter(['search' => $search, 'sort' => 'status', 'status' => $status, 'kategori' => $kategori])) }}"
-                   class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer {{ $sort === 'status' || !$sort ? 'bg-brand-700 text-white shadow-xs' : 'bg-card border border-border-line-3 text-muted-foreground-2 hover:bg-muted' }}">
+                   data-admin-filter-link
+                   data-pill-active="{{ $sort === 'status' || !$sort ? 'true' : 'false' }}"
+                   class="relative z-10 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors duration-200 cursor-pointer {{ $sort === 'status' || !$sort ? 'text-white' : 'text-muted-foreground-2 hover:text-brand-600 hover:bg-brand-50/70' }}">
                     Status
                 </a>
 
                 <!-- Button Kategori -->
                 <a href="{{ route('admin.kelola-kampanye.index', array_filter(['search' => $search, 'sort' => 'kategori', 'status' => $status, 'kategori' => $kategori])) }}"
-                   class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer {{ $sort === 'kategori' ? 'bg-brand-700 text-white shadow-xs' : 'bg-card border border-border-line-3 text-muted-foreground-2 hover:bg-muted' }}">
+                   data-admin-filter-link
+                   data-pill-active="{{ $sort === 'kategori' ? 'true' : 'false' }}"
+                   class="relative z-10 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors duration-200 cursor-pointer {{ $sort === 'kategori' ? 'text-white' : 'text-muted-foreground-2 hover:text-brand-600 hover:bg-brand-50/70' }}">
                     Kategori
                 </a>
             </div>
@@ -169,6 +176,7 @@
     </div>
 
     <!-- ================= DATA CONTAINER ================= -->
+    <div data-admin-filter-results class="space-y-4">
 
     <!-- 1. Tampilan Desktop & Tablet (md ke atas): Desain Tabel Persis Screenshot 1 -->
     <div class="hidden md:block overflow-x-auto w-full pb-1">
@@ -402,6 +410,8 @@
                 </span>
             @endif
         </nav>
+    </div>
+    </div>
     </div>
 </div>
 @endsection

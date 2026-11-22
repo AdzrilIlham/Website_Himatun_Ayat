@@ -355,5 +355,251 @@
             </main>
         </div>
     </div>
+
+    <script>
+        (function () {
+            function positionSlidingPill(group, animate) {
+                const bg = group.querySelector('[data-sliding-pill-bg]');
+                const activeItem = group.querySelector('[data-pill-active="true"]');
+                if (!bg || !activeItem) {
+                    if (bg) bg.style.opacity = '0';
+                    return;
+                }
+
+                if (!animate) {
+                    bg.style.transition = 'none';
+                } else {
+                    bg.style.transition = '';
+                }
+
+                const left = Math.round(activeItem.offsetLeft);
+                const width = Math.round(activeItem.offsetWidth);
+                const top = Math.round(activeItem.offsetTop);
+                const height = Math.round(activeItem.offsetHeight);
+
+                bg.style.opacity = '1';
+                bg.style.width = width + 'px';
+                bg.style.height = height + 'px';
+                bg.style.transform = 'translate3d(' + left + 'px, ' + top + 'px, 0)';
+
+                if (!animate) {
+                    bg.offsetHeight;
+                    bg.style.transition = '';
+                }
+            }
+
+            function initSlidingPills(root, animate) {
+                (root || document).querySelectorAll('[data-sliding-pills]').forEach(function (group) {
+                    positionSlidingPill(group, !!animate);
+                });
+            }
+
+            window.initAdminSlidingPills = initSlidingPills;
+
+            window.addEventListener('resize', function () {
+                initSlidingPills(document, false);
+            });
+
+            document.addEventListener('DOMContentLoaded', function () {
+                initSlidingPills(document, false);
+            });
+
+            let activeAbortController = null;
+
+            async function loadAdminFilteredUrl(scopeEl, targetUrl, pushHistory) {
+                const resultsEl = scopeEl.querySelector('[data-admin-filter-results]');
+                if (!resultsEl) {
+                    window.location.href = targetUrl;
+                    return;
+                }
+
+                if (activeAbortController) {
+                    activeAbortController.abort();
+                }
+                activeAbortController = new AbortController();
+
+                resultsEl.style.transition = 'opacity 150ms ease-out';
+                resultsEl.style.opacity = '0.6';
+
+                try {
+                    const response = await fetch(targetUrl, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'text/html'
+                        },
+                        credentials: 'same-origin',
+                        signal: activeAbortController.signal
+                    });
+
+                    if (!response.ok) {
+                        window.location.href = targetUrl;
+                        return;
+                    }
+
+                    const html = await response.text();
+                    const doc = new DOMParser().parseFromString(html, 'text/html');
+                    const scopeName = scopeEl.getAttribute('data-admin-filter-scope');
+                    const newScope = doc.querySelector('[data-admin-filter-scope="' + scopeName + '"]');
+
+                    if (!newScope) {
+                        window.location.href = targetUrl;
+                        return;
+                    }
+
+                    const newResults = newScope.querySelector('[data-admin-filter-results]');
+                    if (newResults) {
+                        resultsEl.innerHTML = newResults.innerHTML;
+                    }
+
+                    // Sinkronkan juga hidden input pada form & href link filter lain agar multi-filter (search + sort + status) tetap konsisten
+                    scopeEl.querySelectorAll('[data-admin-filter-sync]').forEach(function (targetNode) {
+                        const syncKey = targetNode.getAttribute('data-admin-filter-sync');
+                        const freshNode = newScope.querySelector('[data-admin-filter-sync="' + syncKey + '"]');
+                        if (freshNode) {
+                            if (freshNode.hasAttribute('data-sliding-pills')) {
+                                // Sinkronkan href & active state tombol tanpa menghancurkan sliding pill indicator
+                                const oldLinks = targetNode.querySelectorAll('[data-admin-filter-link]');
+                                const newLinks = freshNode.querySelectorAll('[data-admin-filter-link]');
+                                if (oldLinks.length === newLinks.length) {
+                                    oldLinks.forEach(function (oldLink, idx) {
+                                        const freshLink = newLinks[idx];
+                                        oldLink.setAttribute('href', freshLink.getAttribute('href'));
+                                        oldLink.setAttribute('class', freshLink.getAttribute('class'));
+                                        oldLink.setAttribute('data-pill-active', freshLink.getAttribute('data-pill-active') || 'false');
+                                        oldLink.innerHTML = freshLink.innerHTML;
+                                    });
+                                    positionSlidingPill(targetNode, true);
+                                    return;
+                                }
+                            }
+                            const activeEl = document.activeElement;
+                            if (activeEl && targetNode.contains(activeEl) && activeEl.matches('input:not([type="hidden"]), textarea')) {
+                                targetNode.querySelectorAll('input[type="hidden"]').forEach(function (hiddenInput) {
+                                    hiddenInput.remove();
+                                });
+                                freshNode.querySelectorAll('input[type="hidden"]').forEach(function (freshHidden) {
+                                    targetNode.prepend(freshHidden.cloneNode(true));
+                                });
+                                return;
+                            }
+                            targetNode.innerHTML = freshNode.innerHTML;
+                        }
+                    });
+
+                    if (pushHistory) {
+                        window.history.pushState({ adminFilterScope: scopeName, url: targetUrl }, '', targetUrl);
+                    }
+
+                    resultsEl.style.opacity = '1';
+
+                    if (window.HSStaticMethods && typeof window.HSStaticMethods.autoInit === 'function') {
+                        window.HSStaticMethods.autoInit();
+                    }
+                } catch (err) {
+                    if (err.name !== 'AbortError') {
+                        window.location.href = targetUrl;
+                    }
+                }
+            }
+
+            // Delegated click handler untuk pill filter, reset link, dan pagination tanpa reload
+            document.addEventListener('click', function (e) {
+                const link = e.target.closest('[data-admin-filter-link], [data-admin-filter-results] nav a');
+                if (!link) return;
+                if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+
+                const scopeEl = link.closest('[data-admin-filter-scope]');
+                if (!scopeEl) return;
+
+                const href = link.getAttribute('href');
+                if (!href || href === '#') return;
+
+                e.preventDefault();
+
+                const dropdownEl = link.closest('.hs-dropdown');
+                if (dropdownEl && window.HSDropdown && typeof window.HSDropdown.close === 'function') {
+                    try {
+                        window.HSDropdown.close(dropdownEl);
+                    } catch (err) {}
+                }
+
+                // Jika link berada dalam sliding pills, geser background pill langsung
+                const pillGroup = link.closest('[data-sliding-pills]');
+                if (pillGroup) {
+                    pillGroup.querySelectorAll('[data-pill-active]').forEach(function (btn) {
+                        btn.setAttribute('data-pill-active', 'false');
+                        btn.classList.remove('text-white');
+                        btn.classList.add('text-muted-foreground-2', 'hover:text-brand-600', 'hover:bg-brand-50/70');
+                    });
+                    link.setAttribute('data-pill-active', 'true');
+                    link.classList.remove('text-muted-foreground-2', 'hover:text-foreground', 'hover:text-brand-600', 'hover:bg-brand-50/70');
+                    link.classList.add('text-white');
+                    positionSlidingPill(pillGroup, true);
+                }
+
+                loadAdminFilteredUrl(scopeEl, href, true);
+            });
+
+            // Delegated submit & input/change handler untuk form filter & pencarian tanpa reload
+            let searchDebounceTimer = null;
+            document.addEventListener('submit', function (e) {
+                const form = e.target.closest('form[data-admin-filter-form]');
+                if (!form) return;
+                const scopeEl = form.closest('[data-admin-filter-scope]');
+                if (!scopeEl) return;
+
+                e.preventDefault();
+
+                const dropdownEl = form.closest('.hs-dropdown');
+                if (dropdownEl && window.HSDropdown && typeof window.HSDropdown.close === 'function') {
+                    try {
+                        window.HSDropdown.close(dropdownEl);
+                    } catch (err) {}
+                }
+
+                const action = form.getAttribute('action') || window.location.pathname;
+                const params = new URLSearchParams(new FormData(form));
+                const url = action + (params.toString() ? '?' + params.toString() : '');
+                loadAdminFilteredUrl(scopeEl, url, true);
+            });
+
+            document.addEventListener('input', function (e) {
+                const input = e.target.closest('form[data-admin-filter-form] input[name="search"]');
+                if (!input) return;
+                const form = input.closest('form[data-admin-filter-form]');
+                const scopeEl = form.closest('[data-admin-filter-scope]');
+                if (!scopeEl) return;
+
+                clearTimeout(searchDebounceTimer);
+                searchDebounceTimer = setTimeout(function () {
+                    const action = form.getAttribute('action') || window.location.pathname;
+                    const params = new URLSearchParams(new FormData(form));
+                    const url = action + (params.toString() ? '?' + params.toString() : '');
+                    loadAdminFilteredUrl(scopeEl, url, true);
+                }, 350);
+            });
+
+            document.addEventListener('change', function (e) {
+                const selectOrDate = e.target.closest('form[data-admin-filter-form] select, form[data-admin-filter-form] input[type="date"]');
+                if (!selectOrDate) return;
+                const form = selectOrDate.closest('form[data-admin-filter-form]');
+                if (form.hasAttribute('data-manual-submit')) return;
+                const scopeEl = form.closest('[data-admin-filter-scope]');
+                if (!scopeEl) return;
+
+                const action = form.getAttribute('action') || window.location.pathname;
+                const params = new URLSearchParams(new FormData(form));
+                const url = action + (params.toString() ? '?' + params.toString() : '');
+                loadAdminFilteredUrl(scopeEl, url, true);
+            });
+
+            window.addEventListener('popstate', function () {
+                const scopeEl = document.querySelector('[data-admin-filter-scope]');
+                if (scopeEl) {
+                    loadAdminFilteredUrl(scopeEl, window.location.href, false);
+                }
+            });
+        })();
+    </script>
 </body>
 </html>

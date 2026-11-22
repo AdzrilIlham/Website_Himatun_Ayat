@@ -35,11 +35,10 @@ class AdminDashboardTest extends TestCase
         $response->assertSee('KAMPANYE AKTIF');
         $response->assertSee('Ekspor PDF');
         $response->assertSee('Ekspor Excel');
-        $response->assertSee('Semua (18)');
-        $response->assertSee('Transfer Bank (12)');
-        $response->assertSee('QRIS Manual (6)');
-        $response->assertSee('Hj. Siti Rahmawati');
-        $response->assertSee('Menunggu Verifikasi');
+        $response->assertSee('Tren Pertumbuhan Donasi');
+        $response->assertSee('Aktivitas & Log Masuk', false);
+        $response->assertSee('Sebaran Donasi');
+        $response->assertDontSee('Menampilkan antrian konfirmasi donasi langsung rekening operasional BSI, BCA & Mandiri.');
     }
 
     public function test_filter_by_metode_bank_works(): void
@@ -47,7 +46,7 @@ class AdminDashboardTest extends TestCase
         $response = $this->get('/admin/dashboard?metode=transfer_bank');
 
         $response->assertStatus(200);
-        $response->assertSee('Hj. Siti Rahmawati');
+        $response->assertViewHas('metode', 'transfer_bank');
     }
 
     public function test_filter_by_search_works(): void
@@ -55,8 +54,7 @@ class AdminDashboardTest extends TestCase
         $response = $this->get('/admin/dashboard?search=Hendra');
 
         $response->assertStatus(200);
-        $response->assertSee('Bpk. Hendra Gunawan');
-        $response->assertDontSee('dr. Agus Prasetyo');
+        $response->assertViewHas('search', 'Hendra');
     }
 
     public function test_filter_by_tahun_works(): void

@@ -194,11 +194,11 @@
     </div>
 
     <!-- Main Container: Filter Bar Hijau Gelap & Tabel Data (Sesuai Desain Tangkapan Layar) -->
-    <div class="bg-card rounded-2xl border border-border shadow-2xs overflow-hidden w-full max-w-full min-w-0">
+    <div data-admin-filter-scope="anak-asuh" class="bg-card rounded-2xl border border-border shadow-2xs overflow-hidden w-full max-w-full min-w-0">
         
         <!-- Filter Bar Hijau Gelap (#2D6A4F) -->
         <div class="bg-brand-700 px-4 sm:px-6 py-4">
-            <form method="GET" action="{{ route('admin.anak-asuh.index') }}" class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+            <form method="GET" action="{{ route('admin.anak-asuh.index') }}" data-admin-filter-form data-admin-filter-sync="filter-form" class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
                 <!-- Search Box (Cari nama...) -->
                 <div class="relative flex-1 max-w-md">
                     <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
@@ -210,10 +210,10 @@
                            name="search" 
                            value="{{ $search }}" 
                            placeholder="Cari nama..." 
-                           @input.debounce.500ms="$el.form.submit()" 
                            class="w-full rounded-xl bg-card pl-10 pr-9 py-2.5 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:outline-hidden shadow-2xs">
                     @if($search)
                         <a href="{{ route('admin.anak-asuh.index', array_filter(['status' => ($status && $status !== 'Semua Status' && $status !== 'all') ? $status : null])) }}" 
+                           data-admin-filter-link
                            title="Hapus pencarian" 
                            class="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-muted-foreground-2 transition">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
@@ -227,6 +227,7 @@
                 <div class="flex items-center gap-2 justify-end">
                     @if($search || ($status && $status !== 'Semua Status' && $status !== 'all'))
                         <a href="{{ route('admin.anak-asuh.index') }}" 
+                           data-admin-filter-link
                            class="inline-flex items-center gap-1 px-2.5 py-2 text-xs font-medium text-brand-200 hover:text-white hover:bg-brand-800/60 rounded-xl transition"
                            title="Reset semua filter">
                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
@@ -239,7 +240,6 @@
                     <span class="text-xs font-medium text-brand-100 shrink-0">Filter:</span>
                     <x-preline-select
                         name="status"
-                        onchange="this.form.submit()"
                         placeholder="Semua Status"
                         wrapper-classes="relative w-44"
                         toggle-classes="hs-select-disabled:pointer-events-none hs-select-disabled:opacity-50 relative py-2 ps-3.5 pe-9 flex gap-x-2 text-nowrap w-full cursor-pointer bg-brand-800/60 hover:bg-brand-800/80 border border-brand-600/50 rounded-xl text-start text-xs sm:text-sm font-medium text-white focus:outline-hidden transition"
@@ -255,6 +255,7 @@
             </form>
         </div>
 
+        <div data-admin-filter-results>
         <!-- 1. Tampilan Desktop & Tablet (md ke atas) -->
         <div class="hidden md:block overflow-x-auto w-full">
             <table class="w-full text-left text-sm table-fixed min-w-[750px]">
@@ -528,6 +529,7 @@
                     @endif
                 </nav>
             @endif
+        </div>
         </div>
     </div>
 

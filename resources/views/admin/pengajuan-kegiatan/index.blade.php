@@ -44,10 +44,12 @@
         </div>
     </div>
 
+    <div data-admin-filter-scope="pengajuan-kegiatan" class="space-y-4">
     <!-- 4 Summary Stat Cards -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
+    <div data-admin-filter-sync="stat-cards" class="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
         <!-- Semua -->
         <a href="{{ route('admin.pengajuan-kegiatan.index', ['status' => 'semua']) }}"
+           data-admin-filter-link
            class="bg-card rounded-2xl p-4 border transition {{ $status === 'semua' ? 'border-brand-700 ring-2 ring-brand-700/20' : 'border-border hover:border-brand-300' }}">
             <p class="text-2xs font-bold uppercase tracking-wider text-muted-foreground-1">Total Pengajuan</p>
             <p class="text-2xl sm:text-3xl font-extrabold text-foreground tabular mt-1">{{ $counts['total'] }}</p>
@@ -55,6 +57,7 @@
 
         <!-- Menunggu -->
         <a href="{{ route('admin.pengajuan-kegiatan.index', ['status' => 'menunggu']) }}"
+           data-admin-filter-link
            class="bg-card rounded-2xl p-4 border transition {{ $status === 'menunggu' ? 'border-warning ring-2 ring-warning/20' : 'border-border hover:border-warning' }}">
             <div class="flex items-center justify-between">
                 <p class="text-2xs font-bold uppercase tracking-wider text-warning">Menunggu Konfirmasi</p>
@@ -65,6 +68,7 @@
 
         <!-- Disetujui (ACC) -->
         <a href="{{ route('admin.pengajuan-kegiatan.index', ['status' => 'disetujui']) }}"
+           data-admin-filter-link
            class="bg-card rounded-2xl p-4 border transition {{ $status === 'disetujui' ? 'border-success ring-2 ring-success/20' : 'border-border hover:border-success' }}">
             <p class="text-2xs font-bold uppercase tracking-wider text-brand-700">Disetujui / Terbit</p>
             <p class="text-2xl sm:text-3xl font-extrabold text-brand-700 tabular mt-1">{{ $counts['disetujui'] }}</p>
@@ -72,6 +76,7 @@
 
         <!-- Ditolak -->
         <a href="{{ route('admin.pengajuan-kegiatan.index', ['status' => 'ditolak']) }}"
+           data-admin-filter-link
            class="bg-card rounded-2xl p-4 border transition {{ $status === 'ditolak' ? 'border-danger ring-2 ring-danger/20' : 'border-border hover:border-danger' }}">
             <p class="text-2xs font-bold uppercase tracking-wider text-danger">Ditolak</p>
             <p class="text-2xl sm:text-3xl font-extrabold text-danger tabular mt-1">{{ $counts['ditolak'] }}</p>
@@ -80,26 +85,35 @@
 
     <!-- Filter & Search Form -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-card p-3 rounded-2xl border border-border">
-        <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+        <div data-sliding-pills data-admin-filter-sync="status-pills" class="relative inline-flex flex-wrap items-center p-1 rounded-xl bg-muted/60 border border-border max-w-full gap-1">
+            <span data-sliding-pill-bg aria-hidden="true" class="absolute top-0 left-0 rounded-xl bg-brand-700 shadow-xs transition-[transform,width,height] duration-250 ease-out pointer-events-none z-0"></span>
             <a href="{{ route('admin.pengajuan-kegiatan.index', ['status' => 'semua', 'search' => $search]) }}"
-               class="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition {{ $status === 'semua' ? 'bg-brand-700 text-white' : 'text-muted-foreground-2 hover:bg-muted' }}">
+               data-admin-filter-link
+               data-pill-active="{{ $status === 'semua' ? 'true' : 'false' }}"
+               class="relative z-10 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-colors duration-200 whitespace-nowrap {{ $status === 'semua' ? 'text-white' : 'text-muted-foreground-2 hover:text-brand-600 hover:bg-brand-50/70' }}">
                 Semua
             </a>
             <a href="{{ route('admin.pengajuan-kegiatan.index', ['status' => 'menunggu', 'search' => $search]) }}"
-               class="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition {{ $status === 'menunggu' ? 'bg-brand-700 text-white' : 'text-muted-foreground-2 hover:bg-muted' }}">
+               data-admin-filter-link
+               data-pill-active="{{ $status === 'menunggu' ? 'true' : 'false' }}"
+               class="relative z-10 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-colors duration-200 whitespace-nowrap {{ $status === 'menunggu' ? 'text-white' : 'text-muted-foreground-2 hover:text-brand-600 hover:bg-brand-50/70' }}">
                 Menunggu ({{ $counts['menunggu'] }})
             </a>
             <a href="{{ route('admin.pengajuan-kegiatan.index', ['status' => 'disetujui', 'search' => $search]) }}"
-               class="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition {{ $status === 'disetujui' ? 'bg-brand-700 text-white' : 'text-muted-foreground-2 hover:bg-muted' }}">
+               data-admin-filter-link
+               data-pill-active="{{ $status === 'disetujui' ? 'true' : 'false' }}"
+               class="relative z-10 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-colors duration-200 whitespace-nowrap {{ $status === 'disetujui' ? 'text-white' : 'text-muted-foreground-2 hover:text-brand-600 hover:bg-brand-50/70' }}">
                 Disetujui ({{ $counts['disetujui'] }})
             </a>
             <a href="{{ route('admin.pengajuan-kegiatan.index', ['status' => 'ditolak', 'search' => $search]) }}"
-               class="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition {{ $status === 'ditolak' ? 'bg-brand-700 text-white' : 'text-muted-foreground-2 hover:bg-muted' }}">
+               data-admin-filter-link
+               data-pill-active="{{ $status === 'ditolak' ? 'true' : 'false' }}"
+               class="relative z-10 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-colors duration-200 whitespace-nowrap {{ $status === 'ditolak' ? 'text-white' : 'text-muted-foreground-2 hover:text-brand-600 hover:bg-brand-50/70' }}">
                 Ditolak ({{ $counts['ditolak'] }})
             </a>
         </div>
 
-        <form method="GET" action="{{ route('admin.pengajuan-kegiatan.index') }}" class="relative sm:w-64">
+        <form method="GET" action="{{ route('admin.pengajuan-kegiatan.index') }}" data-admin-filter-form data-admin-filter-sync="search-form" class="relative sm:w-64">
             <input type="hidden" name="status" value="{{ $status }}">
             <svg class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
@@ -109,6 +123,7 @@
         </form>
     </div>
 
+    <div data-admin-filter-results>
     <!-- Data Table -->
     <div class="card overflow-hidden">
         <div class="overflow-x-auto">
@@ -264,6 +279,8 @@
                 {{ $daftarPengajuan->links() }}
             </div>
         @endif
+    </div>
+    </div>
     </div>
 
     <!-- MODAL DETAIL PENGAJUAN -->
