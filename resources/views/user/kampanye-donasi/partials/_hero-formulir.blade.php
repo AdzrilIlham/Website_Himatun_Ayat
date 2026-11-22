@@ -109,14 +109,14 @@
                                     <span class="text-xs text-brand-700 font-semibold">Min. Rp 10.000</span>
                                 </div>
 
-                                <div class="grid grid-cols-4 gap-2 sm:gap-2.5">
+                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5">
                                     @php
                                         $presetNominals = [10000, 20000, 50000, 100000, 150000, 250000, 500000, 1000000];
                                     @endphp
                                     @foreach ($presetNominals as $nominal)
                                         <button type="button"
                                             wire:click="setNominal({{ $nominal }})"
-                                            class="py-2.5 px-1 sm:px-2 rounded-full text-xs sm:text-sm font-semibold transition-all duration-150 border text-center tabular {{ $selectedNominal === $nominal ? 'bg-brand-700 text-white border-brand-700 shadow-xs ring-2 ring-brand-700/20' : 'bg-white hover:bg-brand-50 text-brand-700 border-brand-200 hover:border-brand-700' }}">
+                                            class="py-2.5 px-2.5 sm:px-2 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap transition-all duration-150 border text-center tabular {{ $selectedNominal === $nominal ? 'bg-brand-700 text-white border-brand-700 shadow-xs ring-2 ring-brand-700/20' : 'bg-white hover:bg-brand-50 text-brand-700 border-brand-200 hover:border-brand-700' }}">
                                             Rp{{ number_format($nominal, 0, ',', '.') }}
                                         </button>
                                     @endforeach

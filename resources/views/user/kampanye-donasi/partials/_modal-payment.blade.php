@@ -73,23 +73,25 @@
                     </div>
 
                     <!-- Card 1: Selesaikan pembayaran anda + ID Pembayaran + Timer -->
-                    <div class="bg-card rounded-2xl p-4 sm:p-5 shadow-2xs border border-border/50 flex items-center justify-between gap-3">
-                        <div>
+                    <div class="bg-card rounded-2xl p-4 sm:p-5 shadow-2xs border border-border/50 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3">
+                        <div class="min-w-0">
                             <h4 class="text-sm sm:text-base font-bold text-foreground leading-tight">
                                 Selesaikan pembayaran anda
                             </h4>
-                            <div class="flex items-center gap-1.5 mt-1.5 text-xs sm:text-sm" x-data="{ copiedId: false }">
-                                <span class="text-muted-foreground font-medium">ID Pembayaran:</span>
-                                <span class="font-bold text-foreground font-mono">{{ $paymentId }}</span>
-                                <button type="button"
-                                    @click="navigator.clipboard.writeText('{{ $paymentId }}'); copiedId = true; setTimeout(() => copiedId = false, 2000)"
-                                    class="text-muted-foreground hover:text-foreground transition p-0.5"
-                                    title="Salin ID Pembayaran">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path>
-                                    </svg>
-                                </button>
-                                <span x-show="copiedId" class="badge badge-success">Tersalin!</span>
+                            <div class="flex flex-wrap items-center gap-x-1.5 gap-y-1 mt-1.5 text-xs sm:text-sm" x-data="{ copiedId: false }">
+                                <span class="text-muted-foreground font-medium whitespace-nowrap">ID Pembayaran:</span>
+                                <span class="inline-flex items-center gap-1 whitespace-nowrap">
+                                    <span class="font-bold text-foreground font-mono">{{ $paymentId }}</span>
+                                    <button type="button"
+                                        @click="navigator.clipboard.writeText('{{ $paymentId }}'); copiedId = true; setTimeout(() => copiedId = false, 2000)"
+                                        class="text-muted-foreground hover:text-foreground transition p-0.5 cursor-pointer"
+                                        title="Salin ID Pembayaran">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path>
+                                        </svg>
+                                    </button>
+                                </span>
+                                <span x-show="copiedId" x-cloak class="badge badge-success">Tersalin!</span>
                             </div>
                         </div>
 
@@ -175,13 +177,13 @@
                     </div>
 
                     <!-- Card ID & Timer Selesaikan Pembayaran -->
-                    <div class="bg-card rounded-2xl p-4 sm:p-5 shadow-2xs border border-border/50 flex items-center justify-between gap-3">
-                        <div>
-                            <div class="flex items-center gap-2">
-                                <span class="text-xs text-muted-foreground-1 font-medium">ID Pembayaran:</span>
+                    <div class="bg-card rounded-2xl p-4 sm:p-5 shadow-2xs border border-border/50 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3">
+                        <div class="min-w-0">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <span class="text-xs text-muted-foreground-1 font-medium whitespace-nowrap">ID Pembayaran:</span>
                                 <span class="badge badge-success">{{ $metodePembayaran }}</span>
                             </div>
-                            <div class="text-xs sm:text-sm font-bold text-foreground font-mono mt-1">{{ $paymentId }}</div>
+                            <div class="text-xs sm:text-sm font-bold text-foreground font-mono mt-1 whitespace-nowrap">{{ $paymentId }}</div>
                         </div>
 
                         <!-- Countdown Timer Badges [00] : [05] : [00] -->
