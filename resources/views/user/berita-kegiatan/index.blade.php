@@ -433,11 +433,12 @@
                     {{-- Grid Tanggal (Senin - Ahad) --}}
                     <div x-cloak class="mt-1 grid grid-cols-7 gap-1.5 sm:gap-2.5">
                         <template x-for="cell in calendarCells" :key="cell.key">
-                            <div>
+                            <div class="min-w-0">
                                 {{-- Tanggal di luar bulan aktif (Redup / Disabled) --}}
                                 <template x-if="!cell.isCurrentMonth">
-                                    <div class="flex min-h-18 sm:min-h-22 flex-col justify-between rounded-xl sm:rounded-2xl bg-slate-50/70 p-2 sm:p-2.5 text-center select-none opacity-60">
-                                        <span class="text-2xs sm:text-xs font-semibold text-muted-foreground" x-text="cell.outsideLabel"></span>
+                                    <div class="flex aspect-square sm:aspect-auto sm:min-h-22 flex-col items-center justify-center sm:items-start sm:justify-between rounded-xl sm:rounded-2xl bg-slate-50/70 p-1 sm:p-2.5 select-none opacity-50">
+                                        <span class="sm:hidden text-xs font-semibold text-muted-foreground tabular leading-none" x-text="cell.day"></span>
+                                        <span class="hidden sm:inline text-xs font-semibold text-muted-foreground tabular leading-none" x-text="cell.outsideLabel"></span>
                                     </div>
                                 </template>
 
@@ -445,40 +446,55 @@
                                 <template x-if="cell.isCurrentMonth && cell.events && cell.events.length > 0">
                                     <button type="button"
                                             @click="handleDateClick(cell)"
-                                            class="group relative flex min-h-18 sm:min-h-22 w-full flex-col justify-between rounded-xl sm:rounded-2xl p-2 sm:p-2.5 text-left transition duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-700"
+                                            class="group relative flex aspect-square sm:aspect-auto sm:min-h-22 w-full min-w-0 flex-col items-center justify-center sm:items-stretch sm:justify-between rounded-xl sm:rounded-2xl p-1 sm:p-2.5 text-center sm:text-left transition duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-700"
                                             :class="highlightedDateIso === cell.dateIso
-                                                ? 'bg-brand-700 text-white shadow-md ring-2 ring-brand-700 ring-offset-2'
+                                                ? 'bg-brand-700 text-white shadow-md ring-2 ring-brand-700 ring-offset-1 sm:ring-offset-2'
                                                 : 'border-2 border-brand-400 bg-brand-50 text-brand-950 hover:bg-brand-100/80 hover:shadow-xs'">
-                                        <div class="flex w-full items-start justify-between">
-                                            <span class="text-xs sm:text-sm font-extrabold tabular leading-none"
+
+                                        {{-- TAMPILAN MOBILE (< 640px): Angka Tanggal di Tengah + Indikator Titik Jumlah Agenda (Tanpa Teks Terpotong) --}}
+                                        <div class="flex sm:hidden flex-col items-center justify-center gap-1">
+                                            <span class="text-xs font-extrabold tabular leading-none"
                                                   :class="highlightedDateIso === cell.dateIso ? 'text-white' : 'text-brand-950'"
                                                   x-text="cell.day"></span>
-                                            <div class="flex items-center gap-1">
-                                                <template x-if="cell.events.length > 1">
-                                                    <span class="rounded-full px-1.5 py-0.5 text-[8px] sm:text-[9px] font-extrabold leading-none"
-                                                          :class="highlightedDateIso === cell.dateIso ? 'bg-amber-300 text-brand-950' : 'bg-brand-200 text-brand-900'"
-                                                          x-text="cell.events.length + ' Agenda'"></span>
+                                            <div class="flex items-center justify-center gap-1">
+                                                <template x-for="dotIdx in Math.min(cell.events.length, 3)" :key="dotIdx">
+                                                    <span class="size-1.5 rounded-full"
+                                                          :class="highlightedDateIso === cell.dateIso ? 'bg-amber-300' : 'bg-brand-700'"></span>
                                                 </template>
-                                                <span class="size-2 sm:size-2.5 rounded-full shrink-0"
-                                                      :class="highlightedDateIso === cell.dateIso ? 'bg-amber-300' : 'bg-brand-700'"></span>
                                             </div>
                                         </div>
 
-                                        <div class="mt-2 w-full space-y-1">
-                                            <span class="flex w-full items-center justify-center gap-1 truncate rounded-full px-1.5 py-0.5 text-[9px] sm:text-[10px] font-bold leading-tight shadow-2xs transition"
+                                        {{-- TAMPILAN TABLET & DESKTOP (>= 640px) --}}
+                                        <div class="hidden sm:flex w-full items-center justify-between gap-1">
+                                            <span class="text-sm font-extrabold tabular leading-none"
+                                                  :class="highlightedDateIso === cell.dateIso ? 'text-white' : 'text-brand-950'"
+                                                  x-text="cell.day"></span>
+
+                                            <template x-if="cell.events.length === 1">
+                                                <span class="size-2.5 rounded-full shrink-0"
+                                                      :class="highlightedDateIso === cell.dateIso ? 'bg-amber-300' : 'bg-brand-700'"></span>
+                                            </template>
+
+                                            <template x-if="cell.events.length > 1">
+                                                <span class="inline-flex h-4 min-w-4 shrink-0 items-center justify-center rounded-full px-1.5 text-[9px] font-extrabold leading-none whitespace-nowrap tabular shadow-2xs"
+                                                      :class="highlightedDateIso === cell.dateIso
+                                                          ? 'bg-amber-300 text-brand-950'
+                                                          : 'bg-amber-300/90 text-brand-950'"
+                                                      :title="cell.events.length + ' agenda terjadwal di tanggal ini'"
+                                                      x-text="cell.events.length + ' Agenda'"></span>
+                                            </template>
+                                        </div>
+
+                                        <div class="hidden sm:block mt-2 w-full min-w-0">
+                                            <span class="flex w-full items-center justify-center gap-1 truncate rounded-full px-2 py-0.5 text-[10px] font-bold leading-tight shadow-2xs transition"
                                                   :class="highlightedDateIso === cell.dateIso
                                                       ? 'bg-white text-brand-900'
                                                       : 'bg-brand-700 text-white group-hover:bg-brand-800'">
-                                                <svg class="hidden sm:inline size-2.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                                <svg class="size-2.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                                     <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>
                                                 </svg>
                                                 <span class="truncate" x-text="cell.event.badge_title"></span>
                                             </span>
-                                            <template x-if="cell.events.length > 1">
-                                                <span class="block w-full truncate text-center text-[8px] sm:text-[9px] font-bold leading-none"
-                                                      :class="highlightedDateIso === cell.dateIso ? 'text-brand-100' : 'text-brand-800'"
-                                                      x-text="'+' + (cell.events.length - 1) + ' kegiatan lainnya'"></span>
-                                            </template>
                                         </div>
                                     </button>
                                 </template>
@@ -487,16 +503,26 @@
                                 <template x-if="cell.isCurrentMonth && (!cell.events || cell.events.length === 0)">
                                     <button type="button"
                                             @click="handleDateClick(cell)"
-                                            class="group flex min-h-18 sm:min-h-22 w-full flex-col justify-between rounded-xl sm:rounded-2xl border border-slate-200/80 bg-white p-2 sm:p-2.5 text-left transition duration-150 hover:border-brand-300 hover:bg-brand-50/40 hover:shadow-2xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-700/40">
-                                        <div class="flex w-full items-start justify-between">
-                                            <span class="text-xs sm:text-sm font-bold tabular leading-none"
+                                            class="group flex aspect-square sm:aspect-auto sm:min-h-22 w-full min-w-0 flex-col items-center justify-center sm:items-stretch sm:justify-between rounded-xl sm:rounded-2xl border border-slate-200/80 bg-white p-1 sm:p-2.5 text-center sm:text-left transition duration-150 hover:border-brand-300 hover:bg-brand-50/40 hover:shadow-2xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-700/40">
+
+                                        {{-- TAMPILAN MOBILE (< 640px): Angka Tanggal Bersih di Tengah + Titik Halus --}}
+                                        <div class="flex sm:hidden flex-col items-center justify-center gap-1">
+                                            <span class="text-xs font-bold tabular leading-none"
                                                   :class="cell.isSunday ? 'text-danger' : 'text-brand-950'"
                                                   x-text="cell.day"></span>
-                                            <span class="size-1.5 sm:size-2 rounded-full bg-slate-200 transition group-hover:bg-brand-400"></span>
+                                            <span class="size-1 rounded-full bg-slate-200 transition group-hover:bg-brand-400"></span>
                                         </div>
 
-                                        <div class="mt-2 w-full">
-                                            <span class="block w-full truncate rounded-md border border-slate-100 bg-slate-50 px-1 py-0.5 text-center text-[9px] sm:text-[10px] font-medium text-muted-foreground transition group-hover:border-brand-200 group-hover:bg-brand-100/70 group-hover:text-brand-800">
+                                        {{-- TAMPILAN TABLET & DESKTOP (>= 640px) --}}
+                                        <div class="hidden sm:flex w-full items-center justify-between gap-1">
+                                            <span class="text-sm font-bold tabular leading-none"
+                                                  :class="cell.isSunday ? 'text-danger' : 'text-brand-950'"
+                                                  x-text="cell.day"></span>
+                                            <span class="size-2 rounded-full bg-slate-200 shrink-0 transition group-hover:bg-brand-400"></span>
+                                        </div>
+
+                                        <div class="hidden sm:block mt-2 w-full min-w-0">
+                                            <span class="block w-full truncate rounded-md border border-slate-100 bg-slate-50 px-1.5 py-0.5 text-center text-[10px] font-medium text-muted-foreground transition group-hover:border-brand-200 group-hover:bg-brand-100/70 group-hover:text-brand-800">
                                                 Slot Tersedia
                                             </span>
                                         </div>

@@ -550,27 +550,83 @@
                     </div>
                 </div>
 
-                <!-- Sisi Kanan: Dokumentasi Kegiatan -->
-                <div class="lg:col-span-6 space-y-3 sm:space-y-4" data-animate-item="slide-right" data-animate-distance="28">
+                <!-- Sisi Kanan: Kegiatan Mendatang -->
+                <div class="lg:col-span-6 space-y-3.5 sm:space-y-4" data-animate-item="slide-right" data-animate-distance="28">
+                    <div class="flex items-center justify-between gap-3">
+                        <div class="flex items-center gap-2.5">
+                            <span class="flex size-8 items-center justify-center rounded-xl bg-[#2D6A4F] text-white shadow-2xs">
+                                <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 9v7.5" />
+                                </svg>
+                            </span>
+                            <h3 class="text-lg sm:text-xl font-extrabold text-[#143D2B] tracking-tight">
+                                Kegiatan Mendatang
+                            </h3>
+                        </div>
 
-                    <!-- Foto Utama + Caption Overlay -->
-                    <div class="group relative rounded-xl sm:rounded-2xl overflow-hidden aspect-[16/9] bg-slate-100 shadow-xs">
-                        <img src="{{ asset('images/User/WisudaKhotmilQuran.png') }}"
-                             alt="Dokumentasi kegiatan bersama adik-adik asuh"
-                             class="w-full h-full object-cover transition duration-500 group-hover:scale-[1.03]">
-                        <div class="absolute inset-0 pointer-events-none bg-gradient-to-t from-[#143D2B]/90 via-[#1E4D3B]/40 to-transparent"></div>
-                        <p class="absolute inset-x-0 bottom-0 p-3.5 sm:p-5 text-white text-xs sm:text-sm font-semibold leading-snug">
-                            Dokumentasi kegiatan bersama adik-adik asuh
-                        </p>
+                        <a href="{{ route('berita-kegiatan.index') }}#kalender-kegiatan"
+                           class="inline-flex items-center gap-1 text-xs font-bold text-[#2D6A4F] hover:text-[#143D2B] transition">
+                            <span>Lihat Kalender</span>
+                            <svg class="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                            </svg>
+                        </a>
                     </div>
 
-                    <!-- Foto Pendukung -->
-                    <div class="group relative rounded-xl sm:rounded-2xl overflow-hidden aspect-[16/6] bg-slate-100 shadow-xs">
-                        <img src="{{ asset('images/User/Renovasi Ruang Belajar.png') }}"
-                             alt="Pembangunan ruang belajar yayasan"
-                             class="w-full h-full object-cover transition duration-500 group-hover:scale-[1.03]">
-                    </div>
+                    <div class="space-y-3">
+                        @foreach ($kegiatanMendatang as $agenda)
+                            <div class="group relative rounded-2xl bg-white border border-[#DCEEE3] p-4 sm:p-5 shadow-2xs hover:shadow-md hover:border-[#2D6A4F]/40 transition-all duration-200">
+                                <div class="flex items-start gap-3.5 sm:gap-4">
+                                    <!-- Kotak Tanggal & Bulan -->
+                                    <div class="flex w-16 sm:w-20 shrink-0 flex-col items-center justify-center rounded-xl sm:rounded-2xl bg-[#E4F1EB] border border-[#CFE6DA] px-2.5 py-3 text-center transition group-hover:bg-[#2D6A4F] group-hover:border-[#2D6A4F]">
+                                        <span class="text-xl sm:text-2xl font-extrabold leading-none text-[#143D2B] tabular transition group-hover:text-white">
+                                            {{ $agenda['day'] }}
+                                        </span>
+                                        <span class="mt-1.5 text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-[#235843] transition group-hover:text-emerald-100">
+                                            {{ $agenda['month_year'] }}
+                                        </span>
+                                    </div>
 
+                                    <!-- Detail Kegiatan -->
+                                    <div class="min-w-0 flex-1">
+                                        <span class="inline-flex items-center gap-1.5 rounded-full bg-[#E4F1EB] px-2.5 py-0.5 text-[10px] sm:text-[11px] font-bold text-[#1E4D3B]">
+                                            <span class="size-1.5 rounded-full bg-[#2D6A4F]"></span>
+                                            <span>{{ $agenda['badge'] }}</span>
+                                        </span>
+
+                                        <h4 class="mt-1.5 text-sm sm:text-base font-extrabold text-[#143D2B] leading-snug group-hover:text-[#2D6A4F] transition">
+                                            {{ $agenda['judul'] }}
+                                        </h4>
+
+                                        <div class="mt-2 space-y-1 text-xs text-slate-600">
+                                            <div class="flex items-center gap-2">
+                                                <svg class="size-3.5 shrink-0 text-[#2D6A4F]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                                </svg>
+                                                <span class="font-medium">{{ $agenda['waktu'] }}</span>
+                                            </div>
+
+                                            <div class="flex items-center gap-2">
+                                                <svg class="size-3.5 shrink-0 text-[#2D6A4F]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+                                                </svg>
+                                                <span class="truncate">{{ $agenda['lokasi'] }}</span>
+                                            </div>
+                                        </div>
+
+                                        <a href="{{ $agenda['url'] }}"
+                                           class="mt-2.5 inline-flex items-center gap-1.5 text-xs font-extrabold text-[#2D6A4F] hover:text-[#143D2B] transition">
+                                            <span>Informasi Kegiatan</span>
+                                            <svg class="size-3.5 transition-transform duration-200 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                                            </svg>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
 
             </div>

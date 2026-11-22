@@ -28,6 +28,7 @@ class LandingPageController extends Controller
         $paketKilat = $kampanyeAktif->slice(1, 3)->values();
 
         $beritaTerbaru = $this->beritaTerbaru();
+        $kegiatanMendatang = $this->kegiatanMendatang();
 
         return view('user.landing-page.index', [
             'recentDonors' => $this->recentDonors(),
@@ -35,6 +36,7 @@ class LandingPageController extends Controller
             'paketKilat' => $paketKilat->map(fn (Kampanye $kampanye): array => $this->formatKampanye($kampanye, 150)),
             'beritaTerbaru' => $beritaTerbaru,
             'kategoriBerita' => $beritaTerbaru->pluck('kategori')->unique()->values(),
+            'kegiatanMendatang' => $kegiatanMendatang,
             'title' => 'Yayasan Himmatun Ayat Bandung - Mengukir Senyum dan Masa Depan Anak Yatim',
         ]);
     }
@@ -100,5 +102,87 @@ class LandingPageController extends Controller
             'persentase' => (int) round($kampanye->persentase_tercapai),
             'url' => route('kampanye.index', ['program' => $kampanye->slug]),
         ];
+    }
+
+    /**
+     * Tiga agenda kegiatan mendatang yang terjadwal di kalender untuk section Kolaborasi Kegiatan.
+     *
+     * @return Collection<int, array<string, string>>
+     */
+    private function kegiatanMendatang(): Collection
+    {
+        $items = BeritaKegiatan::query()
+            ->where('terjadwal_di_kalender', true)
+            ->whereDate('tanggal', '>=', today())
+            ->orderBy('tanggal')
+            ->orderBy('id')
+            ->take(3)
+            ->get();
+
+        if ($items->isEmpty()) {
+            $items = BeritaKegiatan::query()
+                ->where('terjadwal_di_kalender', true)
+                ->whereDate('tanggal', '>=', now()->startOfMonth()->toDateString())
+                ->orderBy('tanggal')
+                ->orderBy('id')
+                ->take(3)
+                ->get();
+        }
+
+        if ($items->isNotEmpty()) {
+            return $items->map(function (BeritaKegiatan $kegiatan): array {
+                $waktu = filled($kegiatan->waktu_teks) ? $kegiatan->waktu_teks : '09.00–11.30 WIB';
+                $hari = $kegiatan->tanggal->locale('id')->translatedFormat('l');
+
+                return [
+                    'day' => $kegiatan->tanggal->format('d'),
+                    'month_year' => Str::upper($kegiatan->tanggal->locale('id')->translatedFormat('M Y')),
+                    'badge' => filled($kegiatan->kategori) ? 'Terbuka untuk umum • '.$kegiatan->kategori : 'Terbuka untuk umum',
+                    'judul' => $kegiatan->judul,
+                    'waktu' => $hari.', '.$waktu,
+                    'lokasi' => $kegiatan->lokasi ?: 'Asrama Cibiru, Bandung',
+                    'penyelenggara' => $kegiatan->penyelenggara ?: 'Yayasan Himmatun Ayat Bandung',
+                    'url' => route('berita-kegiatan.index').'#kalender-kegiatan',
+                ];
+            });
+        }
+
+        $currentMonth = now()->startOfMonth();
+        $d1 = $currentMonth->copy()->day(19);
+        $d2 = $currentMonth->copy()->day(25);
+        $d3 = $currentMonth->copy()->addMonth()->day(2);
+
+        return collect([
+            [
+                'day' => $d1->format('d'),
+                'month_year' => Str::upper($d1->locale('id')->translatedFormat('M Y')),
+                'badge' => 'Terbuka untuk umum',
+                'judul' => 'Doa Bersama & Santunan Anak Yatim',
+                'waktu' => $d1->locale('id')->translatedFormat('l').', 09.00–11.30 WIB',
+                'lokasi' => 'Asrama Cibiru, Bandung',
+                'penyelenggara' => 'Yayasan Himmatun Ayat Bandung',
+                'url' => route('berita-kegiatan.index').'#kalender-kegiatan',
+            ],
+            [
+                'day' => $d2->format('d'),
+                'month_year' => Str::upper($d2->locale('id')->translatedFormat('M Y')),
+                'badge' => 'Pendaftaran dibuka',
+                'judul' => 'Kelas Inspirasi Bersama Relawan',
+                'waktu' => $d2->locale('id')->translatedFormat('l').', 09.00–12.00 WIB',
+                'lokasi' => 'Ruang Belajar Cikutra',
+                'penyelenggara' => 'Komunitas Relawan Muda Bandung',
+                'url' => route('berita-kegiatan.index').'#kalender-kegiatan',
+            ],
+            [
+                'day' => $d3->format('d'),
+                'month_year' => Str::upper($d3->locale('id')->translatedFormat('M Y')),
+                'badge' => 'Terbuka untuk umum',
+                'judul' => 'Kajian Ahad & Khataman Al-Quran',
+                'waktu' => $d3->locale('id')->translatedFormat('l').', 08.00–10.30 WIB',
+                'lokasi' => 'Asrama Cibiru, Bandung',
+                'penyelenggara' => 'Pengurus Asrama & Pembimbing Tahfidz',
+                'url' => route('berita-kegiatan.index').'#kalender-kegiatan',
+            ],
+        ]);
     }
 }
