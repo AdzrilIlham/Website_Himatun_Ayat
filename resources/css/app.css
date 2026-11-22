@@ -365,3 +365,66 @@
 .perspective-1000 {
     perspective: 1000px;
 }
+
+/* --------------------------------------------------------------------------
+   Interactive Water Pipeline Tree (Scroll-driven Liquid Pipe)
+   -------------------------------------------------------------------------- */
+[data-org-tree] {
+    position: relative;
+}
+
+.pipe-connector {
+    position: relative;
+    width: 100%;
+    pointer-events: none;
+}
+
+/* Empty glass/acrylic conduit track */
+.pipe-track {
+    stroke: rgba(16, 185, 129, 0.22);
+    stroke-width: 6.5px;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    fill: none;
+    vector-effect: non-scaling-stroke;
+    filter: drop-shadow(0 0 4px rgba(6, 78, 59, 0.45));
+}
+
+/* Glowing liquid water stream flowing through the conduit */
+.pipe-water {
+    stroke: url(#pipeWaterGrad);
+    stroke-width: 4px;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    fill: none;
+    vector-effect: non-scaling-stroke;
+    filter: drop-shadow(0 0 6px rgba(52, 211, 153, 0.9)) drop-shadow(0 0 12px rgba(56, 189, 248, 0.65));
+    /* Fallback if JS disabled / reduced motion: fully filled */
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+}
+
+/* Valve Node Circles */
+.pipe-node-track {
+    fill: #064E3B;
+    stroke: rgba(52, 211, 153, 0.45);
+    stroke-width: 2px;
+    vector-effect: non-scaling-stroke;
+}
+
+.pipe-node-water {
+    fill: #F9BC38;
+    filter: drop-shadow(0 0 6px #F9BC38) drop-shadow(0 0 10px rgba(52, 211, 153, 0.8));
+    transform-origin: center;
+    vector-effect: non-scaling-stroke;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .pipe-water {
+        stroke-dashoffset: 0 !important;
+    }
+    .pipe-node-water {
+        opacity: 1 !important;
+        transform: none !important;
+    }
+}

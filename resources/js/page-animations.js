@@ -925,6 +925,53 @@ function init3DHeroParallax(root, { isMobile }) {
     return () => cleanups.forEach((fn) => fn());
 }
 
+/**
+ * Organizational Tree Interactive Water Pipe Animation
+ * Mengalirkan air bercahaya di dalam pipa secara progresif sesuai posisi scroll (GSAP ScrollTrigger scrub).
+ * Efeknya seperti pipa yang terisi air saat user scroll maju, dan surut saat scroll mundur.
+ */
+function initOrgTreeAnimation(root) {
+    const connectors = Array.from(root.querySelectorAll('[data-pipe-connector]'));
+    if (!connectors.length) return () => {};
+
+    const cleanups = [];
+
+    connectors.forEach((connector) => {
+        const waterPaths = Array.from(connector.querySelectorAll('.pipe-water'));
+        if (!waterPaths.length) return;
+
+        // Reset dan standarisasi pathLength="1" agar strokeDashoffset 1 -> 0 terisi presisi
+        waterPaths.forEach((path) => {
+            path.setAttribute('pathLength', '1');
+            path.style.strokeDasharray = '1';
+            path.style.strokeDashoffset = '1';
+        });
+
+        // Timeline dengan ScrollTrigger scrub untuk efek cairan mengalir di pipa
+        const tl = gsap.timeline({
+            scrollTrigger: {
+                trigger: connector,
+                start: 'top 85%',
+                end: 'bottom 40%',
+                scrub: 0.6, // Inersia fluida yang halus dan responsif
+            },
+        });
+
+        tl.to(waterPaths, {
+            strokeDashoffset: 0,
+            ease: 'none',
+            stagger: 0.05,
+        });
+
+        cleanups.push(() => {
+            if (tl.scrollTrigger) tl.scrollTrigger.kill();
+            tl.kill();
+        });
+    });
+
+    return () => cleanups.forEach((fn) => fn());
+}
+
 export function initPageAnimations() {
     if (initialized) return;
 
@@ -957,7 +1004,14 @@ export function initPageAnimations() {
         },
         (context) => {
             // Reduced motion: biarkan konten tampil apa adanya tanpa animasi entrance.
-            if (context.conditions.reduceMotion) return;
+            if (context.conditions.reduceMotion) {
+                roots.forEach((root) => {
+                    root.querySelectorAll('[data-org-tree]').forEach((tree) => {
+                        tree.classList.add('org-tree-active');
+                    });
+                });
+                return;
+            }
 
             const lock = createTransitionLock();
             const options = {
@@ -986,6 +1040,9 @@ export function initPageAnimations() {
 
                 const cleanupHero3D = init3DHeroParallax(root, options);
                 if (typeof cleanupHero3D === 'function') cleanups.push(cleanupHero3D);
+
+                const cleanupOrg = initOrgTreeAnimation(root);
+                if (typeof cleanupOrg === 'function') cleanups.push(cleanupOrg);
             });
 
             return () => {

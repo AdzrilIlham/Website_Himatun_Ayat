@@ -276,7 +276,7 @@
             <div class="absolute bottom-0 left-1/4 w-96 h-96 bg-emerald-700/15 rounded-full blur-3xl pointer-events-none">
             </div>
 
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10" data-org-tree>
 
                 <!-- Section Header: Sesuai Kop Bagan Organisasi Resmi -->
                 <div class="text-center max-w-3xl mx-auto mb-12 sm:mb-16 space-y-3" data-animate-group="fade-up"
@@ -292,62 +292,160 @@
                         Struktur Organisasi Yayasan Himmatun Ayat Bandung
                     </h2>
 
+                    <div class="inline-flex flex-wrap items-center justify-center gap-2 pt-1">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-950/70 border border-emerald-400/30 text-[10px] sm:text-xs text-emerald-200 font-mono tracking-wide shadow-2xs">
+                            <span class="w-1.5 h-1.5 rounded-full bg-[#F9BC38]"></span>
+                            AHU-0012596.AH.01.04 TAHUN 2022
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-950/70 border border-emerald-400/30 text-[10px] sm:text-xs text-emerald-200 font-mono tracking-wide shadow-2xs">
+                            AKTA NOTARIS NO. 5022061332101212 TGL 13 JUNI 2022
+                        </span>
+                    </div>
+
                     <p class="text-[11px] sm:text-xs text-emerald-200/90 font-mono tracking-wider uppercase">
                         Jl. Cibiru Indah 7 RT/RW 04/14 &bull; Tlp. 085862033063 Desa Cibiru Wetan Cileunyi Kab. Bandung
                     </p>
 
                     <p class="text-xs sm:text-sm text-emerald-100/85 leading-relaxed max-w-xl mx-auto font-normal pt-1">
-                        Dikelola secara kolektif kolegial berlandaskan prinsip transparansi amanah, pengawasan syariah
-                        independen, serta pembagian tugas profesional.
+                        Dikelola secara amanah berlandaskan musyawarah, pengawasan syariah independen, serta pembagian tugas profesional.
                     </p>
                 </div>
+
+                <!-- Shared SVG Definitions for Water Pipeline Liquid and Glow Effects -->
+                <svg class="absolute w-0 h-0 pointer-events-none -z-10" aria-hidden="true" focusable="false">
+                    <defs>
+                        <!-- Fluid Water Linear Gradient: Aqua Cyan -> Luminous Emerald -> Golden Crest -->
+                        <linearGradient id="pipeWaterGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#38BDF8" />
+                            <stop offset="45%" stop-color="#34D399" />
+                            <stop offset="100%" stop-color="#F9BC38" />
+                        </linearGradient>
+                        <linearGradient id="pipeWaterGradV" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stop-color="#38BDF8" />
+                            <stop offset="50%" stop-color="#34D399" />
+                            <stop offset="100%" stop-color="#F9BC38" />
+                        </linearGradient>
+                    </defs>
+                </svg>
 
                 <!-- ============================================================== -->
                 <!-- TIER 1: DEWAN PEMBINA                                          -->
                 <!-- ============================================================== -->
-                <div class="flex flex-col items-center" data-animate="fade-up" data-animate-distance="24"
+                <div class="flex flex-col items-center relative" data-animate="fade-up" data-animate-distance="24"
                     data-animate-duration="0.75" data-animate-start="top 84%">
 
                     <!-- Tier Badge -->
                     <div
-                        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#245C49] border border-emerald-400/30 text-emerald-200 text-2xs font-extrabold tracking-wider uppercase mb-3 shadow-2xs">
+                        class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#245C49] border border-emerald-400/30 text-emerald-200 text-2xs font-extrabold tracking-wider uppercase mb-3 shadow-2xs">
                         <span class="w-1.5 h-1.5 rounded-full bg-[#F9BC38]"></span>
                         DEWAN PEMBINA
                     </div>
 
-                    <!-- Pembina Card: Imran rosadi S.Ag -->
+                    <!-- Pembina Card: Imran Rosadi S.Ag -->
                     <x-tentang-kami.pengurus-card number="01" name="Imran Rosadi, S.Ag." role="Pembina"
                         :image="asset('images/Asset/Imran.avif')" icon="leader" :featured="true" />
-
-                    <!-- Vertical Connector to Tier 2 -->
-                    <div class="w-0.5 h-7 sm:h-9 bg-gradient-to-b from-emerald-400/60 to-emerald-400/30 my-1"></div>
                 </div>
 
                 <!-- ============================================================== -->
-                <!-- TIER 2: DEWAN PENGAWAS                                         -->
+                <!-- TIER 2: DEWAN PENGAWAS (2 Pengawas Sesuai Bagan Resmi)        -->
                 <!-- ============================================================== -->
-                <div class="flex flex-col items-center" data-animate="fade-up" data-animate-distance="24"
-                    data-animate-duration="0.75" data-animate-start="top 84%">
+                <div class="relative max-w-3xl mx-auto w-full" data-animate-group="fade-up" data-animate-distance="24"
+                    data-animate-duration="0.75" data-animate-stagger="0.12" data-animate-start="top 84%">
 
-                    <!-- Tier Badge -->
-                    <div
-                        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#245C49] border border-emerald-400/30 text-emerald-200 text-2xs font-extrabold tracking-wider uppercase mb-3 shadow-2xs">
-                        <span class="w-1.5 h-1.5 rounded-full bg-[#F9BC38]"></span>
-                        DEWAN PENGAWAS
+                    <!-- Water Pipeline Connector: Pembina -> 2 Pengawas -->
+                    <div class="hidden sm:block relative w-full h-16 sm:h-20" data-pipe-connector="1">
+                        <svg viewBox="0 0 1000 80" preserveAspectRatio="none" class="w-full h-full overflow-visible pipe-connector">
+                            <!-- Background Conduit Pipes -->
+                            <path d="M 500 0 L 500 32 Q 500 40 490 40 L 260 40 Q 250 40 250 48 L 250 80" class="pipe-track" />
+                            <path d="M 500 0 L 500 32 Q 500 40 510 40 L 740 40 Q 750 40 750 48 L 750 80" class="pipe-track" />
+                            <!-- Node Circles Track -->
+                            <circle cx="500" cy="40" r="5" class="pipe-node-track" />
+                            <circle cx="250" cy="76" r="5" class="pipe-node-track" />
+                            <circle cx="750" cy="76" r="5" class="pipe-node-track" />
+
+                            <!-- Liquid Water Pipes (terisi seiring scroll) -->
+                            <path d="M 500 0 L 500 32 Q 500 40 490 40 L 260 40 Q 250 40 250 48 L 250 80" class="pipe-water" />
+                            <path d="M 500 0 L 500 32 Q 500 40 510 40 L 740 40 Q 750 40 750 48 L 750 80" class="pipe-water" />
+                            <!-- Liquid Node Dots -->
+                            <circle cx="500" cy="40" r="4.5" class="pipe-node-water" />
+                            <circle cx="250" cy="76" r="4.5" class="pipe-node-water" />
+                            <circle cx="750" cy="76" r="4.5" class="pipe-node-water" />
+                        </svg>
                     </div>
 
-                    <!-- Pengawas Card: Ust atep kaokabadin S.Pdi -->
-                    <x-tentang-kami.pengurus-card number="02" name="Ust. Atep Kaokabadin, S.Pd.I." role="Pengawas"
-                        :image="asset('images/Asset/atep.avif')" icon="leader" :featured="true" />
+                    <!-- Mobile vertical connector (< sm) -->
+                    <div class="sm:hidden w-8 h-10 mx-auto my-1" data-pipe-connector="1-m">
+                        <svg viewBox="0 0 40 60" preserveAspectRatio="none" class="w-full h-full overflow-visible pipe-connector">
+                            <path d="M 20 0 L 20 60" class="pipe-track" />
+                            <circle cx="20" cy="56" r="4" class="pipe-node-track" />
+                            <path d="M 20 0 L 20 60" class="pipe-water" />
+                            <circle cx="20" cy="56" r="3.5" class="pipe-node-water" />
+                        </svg>
+                    </div>
 
-                    <!-- Vertical Connector to Tier 3 -->
-                    <div class="w-0.5 h-7 sm:h-9 bg-gradient-to-b from-emerald-400/60 to-emerald-400/30 my-1"></div>
+                    <!-- 2 Columns Grid: Ust. Atep (25%) & H. Lily (75%) -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2">
+
+                        <!-- Pengawas 1: Ust. Atep Kaokabadin, S.Pd.I. -->
+                        <div class="flex flex-col items-center px-4">
+                            <div
+                                class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[#245C49] border border-emerald-400/30 text-emerald-200 text-2xs font-extrabold tracking-wider uppercase mb-2 shadow-2xs">
+                                <span class="w-1.5 h-1.5 rounded-full bg-[#F9BC38]"></span>
+                                PENGAWAS
+                            </div>
+                            <x-tentang-kami.pengurus-card number="02" name="Ust. Atep Kaokabadin, S.Pd.I." role="Pengawas"
+                                :image="asset('images/Asset/atep.avif')" icon="leader" :featured="true" />
+                        </div>
+
+                        <!-- Pengawas 2: H. Lily Koswara (Dummy Photo) -->
+                        <div class="flex flex-col items-center px-4 mt-6 sm:mt-0">
+                            <div
+                                class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[#245C49] border border-emerald-400/30 text-emerald-200 text-2xs font-extrabold tracking-wider uppercase mb-2 shadow-2xs">
+                                <span class="w-1.5 h-1.5 rounded-full bg-[#F9BC38]"></span>
+                                PENGAWAS
+                            </div>
+                            <x-tentang-kami.pengurus-card number="03" name="H. Lily Koswara" role="Pengawas"
+                                :image="asset('images/Asset/Daslim.png')" icon="leader" :featured="true" />
+                        </div>
+
+                    </div>
+
+                    <!-- Water Pipeline Connector: 2 Pengawas -> Ketua -->
+                    <div class="hidden sm:block relative w-full h-16 sm:h-20 mt-2" data-pipe-connector="2">
+                        <svg viewBox="0 0 1000 80" preserveAspectRatio="none" class="w-full h-full overflow-visible pipe-connector">
+                            <!-- Background Conduit Pipes -->
+                            <path d="M 250 0 L 250 32 Q 250 40 260 40 L 490 40 Q 500 40 500 48 L 500 80" class="pipe-track" />
+                            <path d="M 750 0 L 750 32 Q 750 40 740 40 L 510 40 Q 500 40 500 48 L 500 80" class="pipe-track" />
+                            <circle cx="250" cy="4" r="5" class="pipe-node-track" />
+                            <circle cx="750" cy="4" r="5" class="pipe-node-track" />
+                            <circle cx="500" cy="40" r="5" class="pipe-node-track" />
+                            <circle cx="500" cy="76" r="5" class="pipe-node-track" />
+
+                            <!-- Liquid Water Pipes (terisi seiring scroll) -->
+                            <path d="M 250 0 L 250 32 Q 250 40 260 40 L 490 40 Q 500 40 500 48 L 500 80" class="pipe-water" />
+                            <path d="M 750 0 L 750 32 Q 750 40 740 40 L 510 40 Q 500 40 500 48 L 500 80" class="pipe-water" />
+                            <circle cx="250" cy="4" r="4.5" class="pipe-node-water" />
+                            <circle cx="750" cy="4" r="4.5" class="pipe-node-water" />
+                            <circle cx="500" cy="40" r="4.5" class="pipe-node-water" />
+                            <circle cx="500" cy="76" r="4.5" class="pipe-node-water" />
+                        </svg>
+                    </div>
+
+                    <!-- Mobile vertical connector (< sm) -->
+                    <div class="sm:hidden w-8 h-10 mx-auto my-1" data-pipe-connector="2-m">
+                        <svg viewBox="0 0 40 60" preserveAspectRatio="none" class="w-full h-full overflow-visible pipe-connector">
+                            <path d="M 20 0 L 20 60" class="pipe-track" />
+                            <circle cx="20" cy="56" r="4" class="pipe-node-track" />
+                            <path d="M 20 0 L 20 60" class="pipe-water" />
+                            <circle cx="20" cy="56" r="3.5" class="pipe-node-water" />
+                        </svg>
+                    </div>
                 </div>
 
                 <!-- ============================================================== -->
                 <!-- TIER 3: KETUA YAYASAN                                          -->
                 <!-- ============================================================== -->
-                <div class="flex flex-col items-center" data-animate="fade-up" data-animate-distance="24"
+                <div class="flex flex-col items-center relative" data-animate="fade-up" data-animate-distance="24"
                     data-animate-duration="0.75" data-animate-start="top 84%">
 
                     <!-- Tier Badge -->
@@ -361,103 +459,196 @@
                         KETUA YAYASAN
                     </div>
 
-                    <!-- Ketua Card: YUSUF HAMDANI S.Pdi -->
-                    <x-tentang-kami.pengurus-card number="03" name="Yusuf Hamdani, S.Pd.I." role="Ketua Yayasan"
+                    <!-- Ketua Card: Ust. Yusuf Hamdani, S.Pd.I. -->
+                    <x-tentang-kami.pengurus-card number="04" name="Ust. Yusuf Hamdani, S.Pd.I." role="Ketua Yayasan"
                         :image="asset('images/Asset/Yusuf.avif')" icon="leader" :featured="true" />
-
-                    <!-- Stem Line Down from Ketua -->
-                    <div class="w-0.5 h-8 bg-gradient-to-b from-emerald-400/60 to-emerald-400/40 my-1"></div>
                 </div>
 
                 <!-- ============================================================== -->
-                <!-- TIER 4: BENDAHARA & SEKRETARIS (Cabang Kiri & Kanan)           -->
+                <!-- TIER 4: PENGURUS HARIAN (Sekretaris - Pendidikan - Bendahara) -->
                 <!-- ============================================================== -->
-                <div class="relative max-w-3xl mx-auto mb-2" data-animate-group="fade-up" data-animate-distance="24"
-                    data-animate-duration="0.75" data-animate-stagger="0.14" data-animate-start="top 84%">
+                <div class="relative max-w-5xl mx-auto w-full" data-animate-group="fade-up" data-animate-distance="24"
+                    data-animate-duration="0.75" data-animate-stagger="0.12" data-animate-start="top 84%">
 
-                    <!-- Desktop Tree Branch Line (Horizontal bar connecting Bendahara & Sekretaris) -->
-                    <div class="hidden sm:block absolute top-0 left-1/4 right-1/4 h-0.5 bg-emerald-400/40 -translate-y-px">
+                    <!-- Water Pipeline Connector: Ketua -> 3 Pengurus Harian -->
+                    <div class="hidden md:block relative w-full h-16 sm:h-20" data-pipe-connector="3">
+                        <svg viewBox="0 0 1000 80" preserveAspectRatio="none" class="w-full h-full overflow-visible pipe-connector">
+                            <!-- Background Conduit Pipes -->
+                            <path d="M 500 0 L 500 32 Q 500 40 490 40 L 176.7 40 Q 166.7 40 166.7 48 L 166.7 80" class="pipe-track" />
+                            <path d="M 500 0 L 500 80" class="pipe-track" />
+                            <path d="M 500 0 L 500 32 Q 500 40 510 40 L 823.3 40 Q 833.3 40 833.3 48 L 833.3 80" class="pipe-track" />
+                            <circle cx="500" cy="40" r="5" class="pipe-node-track" />
+                            <circle cx="166.7" cy="76" r="5" class="pipe-node-track" />
+                            <circle cx="500" cy="76" r="5" class="pipe-node-track" />
+                            <circle cx="833.3" cy="76" r="5" class="pipe-node-track" />
+
+                            <!-- Liquid Water Pipes (terisi seiring scroll) -->
+                            <path d="M 500 0 L 500 32 Q 500 40 490 40 L 176.7 40 Q 166.7 40 166.7 48 L 166.7 80" class="pipe-water" />
+                            <path d="M 500 0 L 500 80" class="pipe-water" />
+                            <path d="M 500 0 L 500 32 Q 500 40 510 40 L 823.3 40 Q 833.3 40 833.3 48 L 833.3 80" class="pipe-water" />
+                            <circle cx="500" cy="40" r="4.5" class="pipe-node-water" />
+                            <circle cx="166.7" cy="76" r="4.5" class="pipe-node-water" />
+                            <circle cx="500" cy="76" r="4.5" class="pipe-node-water" />
+                            <circle cx="833.3" cy="76" r="4.5" class="pipe-node-water" />
+                        </svg>
                     </div>
-                    <div class="hidden sm:block absolute top-0 left-1/4 w-0.5 h-5 bg-emerald-400/40"></div>
-                    <div class="hidden sm:block absolute top-0 right-1/4 w-0.5 h-5 bg-emerald-400/40"></div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-12 pt-3 sm:pt-5">
+                    <!-- Mobile vertical connector (< md) -->
+                    <div class="md:hidden w-8 h-10 mx-auto my-1" data-pipe-connector="3-m">
+                        <svg viewBox="0 0 40 60" preserveAspectRatio="none" class="w-full h-full overflow-visible pipe-connector">
+                            <path d="M 20 0 L 20 60" class="pipe-track" />
+                            <circle cx="20" cy="56" r="4" class="pipe-node-track" />
+                            <path d="M 20 0 L 20 60" class="pipe-water" />
+                            <circle cx="20" cy="56" r="3.5" class="pipe-node-water" />
+                        </svg>
+                    </div>
 
-                        <!-- Bendahara: Eius nuraeni S.Pdi -->
-                        <div class="flex flex-col items-center">
+                    <!-- 3 Columns Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-3">
+
+                        <!-- 1. Sekretaris: Asep Dedi, A.Ma. -->
+                        <div class="flex flex-col items-center px-3">
                             <div
-                                class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[#245C49] border border-emerald-400/30 text-emerald-200 text-2xs font-extrabold tracking-wider uppercase mb-2.5 shadow-2xs">
-                                BENDAHARA
-                            </div>
-                            <x-tentang-kami.pengurus-card number="04" name="Euis Nuraeni, S.Pd.I." role="Bendahara"
-                                :image="asset('images/Asset/EuisNuraeni.webp')" icon="manager" />
-                        </div>
-
-                        <!-- Sekretaris: Asep dedi A.ma -->
-                        <div class="flex flex-col items-center">
-                            <div
-                                class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[#245C49] border border-emerald-400/30 text-emerald-200 text-2xs font-extrabold tracking-wider uppercase mb-2.5 shadow-2xs">
+                                class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[#245C49] border border-emerald-400/30 text-emerald-200 text-2xs font-extrabold tracking-wider uppercase mb-2 shadow-2xs">
                                 SEKRETARIS
                             </div>
                             <x-tentang-kami.pengurus-card number="05" name="Asep Dedi, A.Ma." role="Sekretaris"
                                 :image="asset('images/Asset/AseoDedi.webp')" icon="manager" />
                         </div>
 
+                        <!-- 2. Pendidikan: Ust. Cical Irmansyah, Lc. -->
+                        <div class="flex flex-col items-center px-3 mt-6 md:mt-0">
+                            <div
+                                class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[#245C49] border border-emerald-400/30 text-emerald-200 text-2xs font-extrabold tracking-wider uppercase mb-2 shadow-2xs">
+                                PENDIDIKAN
+                            </div>
+                            <x-tentang-kami.pengurus-card number="06" name="Ust. Cical Irmansyah, Lc."
+                                role="Pendidikan" :image="asset('images/Asset/CicalIrmansyah.webp')" icon="manager" />
+                        </div>
+
+                        <!-- 3. Bendahara: Euis Nuraeni, S.Pd.I. -->
+                        <div class="flex flex-col items-center px-3 mt-6 md:mt-0">
+                            <div
+                                class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[#245C49] border border-emerald-400/30 text-emerald-200 text-2xs font-extrabold tracking-wider uppercase mb-2 shadow-2xs">
+                                BENDAHARA
+                            </div>
+                            <x-tentang-kami.pengurus-card number="07" name="Euis Nuraeni, S.Pd.I." role="Bendahara"
+                                :image="asset('images/Asset/EuisNuraeni.webp')" icon="manager" />
+                        </div>
+
                     </div>
 
-                    <!-- Center Stem Line Down towards Tier 5 (Departemen) -->
-                    <div
-                        class="w-0.5 h-10 sm:h-12 bg-gradient-to-b from-emerald-400/40 to-emerald-400/60 mx-auto mt-4 sm:mt-6">
+                    <!-- Water Pipeline Connector: Pendidikan -> 2 Divisi Operasional -->
+                    <div class="hidden md:block relative w-full h-16 sm:h-20" data-pipe-connector="4">
+                        <svg viewBox="0 0 1000 80" preserveAspectRatio="none" class="w-full h-full overflow-visible pipe-connector">
+                            <!-- Background Conduit Pipes -->
+                            <path d="M 500 0 L 500 32 Q 500 40 490 40 L 260 40 Q 250 40 250 48 L 250 80" class="pipe-track" />
+                            <path d="M 500 0 L 500 32 Q 500 40 510 40 L 740 40 Q 750 40 750 48 L 750 80" class="pipe-track" />
+                            <circle cx="500" cy="40" r="5" class="pipe-node-track" />
+                            <circle cx="250" cy="76" r="5" class="pipe-node-track" />
+                            <circle cx="750" cy="76" r="5" class="pipe-node-track" />
+
+                            <!-- Liquid Water Pipes (terisi seiring scroll) -->
+                            <path d="M 500 0 L 500 32 Q 500 40 490 40 L 260 40 Q 250 40 250 48 L 250 80" class="pipe-water" />
+                            <path d="M 500 0 L 500 32 Q 500 40 510 40 L 740 40 Q 750 40 750 48 L 750 80" class="pipe-water" />
+                            <circle cx="500" cy="40" r="4.5" class="pipe-node-water" />
+                            <circle cx="250" cy="76" r="4.5" class="pipe-node-water" />
+                            <circle cx="750" cy="76" r="4.5" class="pipe-node-water" />
+                        </svg>
+                    </div>
+
+                    <!-- Mobile vertical connector (< md) -->
+                    <div class="md:hidden w-8 h-10 mx-auto my-1" data-pipe-connector="4-m">
+                        <svg viewBox="0 0 40 60" preserveAspectRatio="none" class="w-full h-full overflow-visible pipe-connector">
+                            <path d="M 20 0 L 20 60" class="pipe-track" />
+                            <circle cx="20" cy="56" r="4" class="pipe-node-track" />
+                            <path d="M 20 0 L 20 60" class="pipe-water" />
+                            <circle cx="20" cy="56" r="3.5" class="pipe-node-water" />
+                        </svg>
                     </div>
                 </div>
 
                 <!-- ============================================================== -->
-                <!-- TIER 5: 4 DEPARTEMEN BIDANG OPERASIONAL                       -->
+                <!-- TIER 5: BIDANG & DIVISI OPERASIONAL (HUMAS & WIRAUSAHA)       -->
                 <!-- ============================================================== -->
-                <div class="relative max-w-6xl mx-auto" data-animate-group="fade-up" data-animate-distance="26"
-                    data-animate-duration="0.75" data-animate-stagger="0.12" data-animate-start="top 84%">
+                <div class="relative max-w-5xl mx-auto w-full" data-animate-group="fade-up" data-animate-distance="26"
+                    data-animate-duration="0.75" data-animate-stagger="0.1" data-animate-start="top 84%">
 
-                    <!-- Desktop Tree Horizontal Branching Line across 4 departments -->
-                    <div
-                        class="hidden lg:block absolute top-0 left-[12.5%] right-[12.5%] h-0.5 bg-emerald-400/40 -translate-y-px">
-                    </div>
-                    <div class="hidden lg:block absolute top-0 left-[12.5%] w-0.5 h-5 bg-emerald-400/40"></div>
-                    <div class="hidden lg:block absolute top-0 left-[37.5%] w-0.5 h-5 bg-emerald-400/40"></div>
-                    <div class="hidden lg:block absolute top-0 right-[37.5%] w-0.5 h-5 bg-emerald-400/40"></div>
-                    <div class="hidden lg:block absolute top-0 right-[12.5%] w-0.5 h-5 bg-emerald-400/40"></div>
+                    <!-- 2 Divisions Grid: Humas (50%) & Wirausaha (50%) Sejajar -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 items-stretch">
 
-                    <!-- Section Badge for Operational Departments -->
-                    <div class="text-center mb-6 pt-2">
-                        <span
-                            class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#245C49] border border-emerald-400/30 text-emerald-200 text-2xs font-extrabold tracking-wider uppercase shadow-2xs">
-                            DEPARTEMEN BIDANG OPERASIONAL
-                        </span>
-                    </div>
+                        <!-- ========================================================== -->
+                        <!-- DIVISI HUMAS (3 Anggota: Apid, Hj. Lilis, Pak Harli)       -->
+                        <!-- ========================================================== -->
+                        <div class="flex flex-col rounded-2xl bg-black/15 border border-emerald-400/20 p-5 sm:p-6 backdrop-blur-[2px]">
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-6 lg:gap-6 pt-2">
+                            <!-- Header Divisi Humas (Aksen merah khas banner resmi) -->
+                            <div class="flex items-center justify-between mb-5 pb-3 border-b border-emerald-400/15">
+                                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-[#DC2626]/20 border border-red-500/40 text-red-200 text-xs font-bold tracking-wider uppercase">
+                                    <span class="w-2 h-2 rounded-full bg-red-400 animate-pulse"></span>
+                                    DIVISI HUMAS
+                                </div>
+                                <span class="text-2xs text-emerald-300/70 font-mono uppercase tracking-wide">
+                                    3 Anggota Pelaksana
+                                </span>
+                            </div>
 
-                        <!-- Dep. Administrasi: Rian setiwan -->
-                        <div class="flex flex-col items-center">
-                            <x-tentang-kami.pengurus-card number="06" name="Rian Setiawan" role="Dep. Administrasi"
-                                :image="asset('images/Asset/Daslim.png')" icon="manager" />
+                            <!-- 3 Cards Grid -->
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+
+                                <!-- Apid (Dummy Photo) -->
+                                <div class="flex flex-col items-center">
+                                    <x-tentang-kami.pengurus-card number="08" name="Apid" role="Humas"
+                                        :image="asset('images/Asset/Daslim.png')" icon="manager" />
+                                </div>
+
+                                <!-- Hj. Lilis (Dummy Photo Juhaeriyah) -->
+                                <div class="flex flex-col items-center">
+                                    <x-tentang-kami.pengurus-card number="09" name="Hj. Lilis" role="Humas"
+                                        :image="asset('images/Asset/Juhaeriyah.png')" icon="manager" />
+                                </div>
+
+                                <!-- Pak Harli (Dummy Photo) -->
+                                <div class="flex flex-col items-center">
+                                    <x-tentang-kami.pengurus-card number="10" name="Pak Harli" role="Humas"
+                                        :image="asset('images/Asset/Daslim.png')" icon="manager" />
+                                </div>
+
+                            </div>
                         </div>
 
-                        <!-- Dep. Pendanaan: Herdianto -->
-                        <div class="flex flex-col items-center">
-                            <x-tentang-kami.pengurus-card number="07" name="Herdianto" role="Dep. Pendanaan"
-                                :image="asset('images/Asset/Daslim.png')" icon="manager" />
-                        </div>
+                        <!-- ========================================================== -->
+                        <!-- DIVISI WIRAUSAHA (2 Anggota: Herdianto, Rian Setiawan)     -->
+                        <!-- ========================================================== -->
+                        <div class="flex flex-col rounded-2xl bg-black/15 border border-emerald-400/20 p-5 sm:p-6 backdrop-blur-[2px]">
 
-                        <!-- Dep. Pendidikan: Cical irmansyah Lc -->
-                        <div class="flex flex-col items-center">
-                            <x-tentang-kami.pengurus-card number="08" name="Cical Irmansyah, Lc."
-                                role="Dep. Pendidikan" :image="asset('images/Asset/CicalIrmansyah.webp')" icon="manager" />
-                        </div>
+                            <!-- Header Divisi Wirausaha (Aksen oranye khas banner resmi) -->
+                            <div class="flex items-center justify-between mb-5 pb-3 border-b border-emerald-400/15">
+                                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-[#EA580C]/20 border border-orange-500/40 text-orange-200 text-xs font-bold tracking-wider uppercase">
+                                    <span class="w-2 h-2 rounded-full bg-orange-400 animate-pulse"></span>
+                                    DIVISI WIRAUSAHA
+                                </div>
+                                <span class="text-2xs text-emerald-300/70 font-mono uppercase tracking-wide">
+                                    2 Anggota Pelaksana
+                                </span>
+                            </div>
 
-                        <!-- Dep. Kesejahteraan: Hapid abidin -->
-                        <div class="flex flex-col items-center">
-                            <x-tentang-kami.pengurus-card number="09" name="Hapid Abidin" role="Dep. Kesejahteraan"
-                                :image="asset('images/Asset/Daslim.png')" icon="manager" />
+                            <!-- 2 Cards Grid -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-sm sm:max-w-none mx-auto w-full my-auto">
+
+                                <!-- Herdianto (Dummy Photo) -->
+                                <div class="flex flex-col items-center">
+                                    <x-tentang-kami.pengurus-card number="11" name="Herdianto" role="Wirausaha"
+                                        :image="asset('images/Asset/Daslim.png')" icon="manager" />
+                                </div>
+
+                                <!-- Rian Setiawan (Dummy Photo) -->
+                                <div class="flex flex-col items-center">
+                                    <x-tentang-kami.pengurus-card number="12" name="Rian Setiawan" role="Wirausaha"
+                                        :image="asset('images/Asset/Daslim.png')" icon="manager" />
+                                </div>
+
+                            </div>
                         </div>
 
                     </div>
