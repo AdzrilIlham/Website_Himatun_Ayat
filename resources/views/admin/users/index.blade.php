@@ -82,7 +82,12 @@
                     </ul>
                 </div>
 
-                <button type="submit" class="w-full py-2.5 px-4 rounded-xl bg-brand-700 hover:bg-brand-800 text-white text-xs sm:text-sm font-semibold transition cursor-pointer shadow-xs">
+                <button type="submit" 
+                        data-confirm="Kirimkan undangan dan daftarkan administrator baru ini?"
+                        data-confirm-title="Konfirmasi Tambah Administrator"
+                        data-confirm-type="success"
+                        data-confirm-button="Ya, Kirim Undangan"
+                        class="w-full py-2.5 px-4 rounded-xl bg-brand-700 hover:bg-brand-800 text-white text-xs sm:text-sm font-semibold transition cursor-pointer shadow-xs">
                     Kirim Undangan Admin
                 </button>
             </form>
@@ -145,14 +150,23 @@
                                         @unless ($admin->email_verified_at)
                                             <form method="POST" action="{{ route('admin.users.resend-invitation', $admin) }}">
                                                 @csrf
-                                                <button type="submit" class="rounded-xl border border-brand-200 bg-brand-50 px-3 py-1.5 text-xs font-semibold text-brand-800 hover:bg-brand-100 transition">Kirim Ulang</button>
+                                                <button type="submit" 
+                                                        data-confirm="Kirim ulang email undangan untuk administrator {{ $admin->name }}?"
+                                                        data-confirm-title="Kirim Ulang Undangan"
+                                                        data-confirm-type="info"
+                                                        data-confirm-button="Ya, Kirim Ulang"
+                                                        class="rounded-xl border border-brand-200 bg-brand-50 px-3 py-1.5 text-xs font-semibold text-brand-800 hover:bg-brand-100 transition cursor-pointer">Kirim Ulang</button>
                                             </form>
                                         @endunless
                                         @if (! $admin->is(auth()->user()) && $adminCount > 1)
-                                            <form method="POST" action="{{ route('admin.users.destroy', $admin) }}" onsubmit="return confirm('Hapus akun administrator ini? Tindakan ini tidak dapat dibatalkan.')">
+                                            <form method="POST" action="{{ route('admin.users.destroy', $admin) }}"
+                                                  data-confirm="Apakah Anda yakin ingin menghapus akun administrator {{ $admin->name }}? Tindakan ini tidak dapat dibatalkan."
+                                                  data-confirm-title="Hapus Administrator"
+                                                  data-confirm-type="danger"
+                                                  data-confirm-button="Ya, Hapus">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="rounded-xl border border-danger/30 px-3 py-1.5 text-xs font-semibold text-danger hover:bg-danger-soft transition">Hapus</button>
+                                                <button type="submit" class="rounded-xl border border-danger/30 px-3 py-1.5 text-xs font-semibold text-danger hover:bg-danger-soft transition cursor-pointer">Hapus</button>
                                             </form>
                                         @endif
                                     </div>

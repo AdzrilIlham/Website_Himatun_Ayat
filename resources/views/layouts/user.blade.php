@@ -297,6 +297,9 @@
         </div>
     </footer>
 
+    <!-- Global Preline Confirmation Modal -->
+    <x-confirm-modal />
+
     @livewireScripts
 </body>
 

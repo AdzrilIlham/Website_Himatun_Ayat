@@ -1,12 +1,14 @@
-import HSStaticMethods, { HSSelect } from 'preline';
+import HSStaticMethods, { HSSelect, HSOverlay } from 'preline';
 import Alpine from 'alpinejs';
 import ApexCharts from 'apexcharts';
 import './hero-swiper';
 import './page-animations';
 import './cloudinary-upload';
+import './confirm-modal';
 
 window.HSStaticMethods = HSStaticMethods;
 window.HSSelect = HSSelect;
+window.HSOverlay = HSOverlay;
 window.ApexCharts = ApexCharts;
 
 // Fokus ke toggle Preline Select (elemen <select> aslinya tersembunyi),

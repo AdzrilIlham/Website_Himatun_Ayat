@@ -340,7 +340,7 @@
                 </div>
 
                 <div class="flex items-center justify-end gap-2">
-                    <button type="button" @click="tolakModalOpen = false" class="btn btn-secondary btn-sm">Batal</button>
+                    <button type="button" @click="tolakModalOpen = false" class="btn btn-secondary text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-950/40 btn-sm">Batal</button>
                     <button type="submit" class="btn btn-danger btn-sm">Tolak Pengajuan</button>
                 </div>
             </form>
@@ -439,8 +439,14 @@
                 </div>
 
                 <div class="flex items-center justify-end gap-2 pt-2 border-t border-border">
-                    <button type="button" @click="editModalOpen = false" class="btn btn-secondary btn-sm">Batal</button>
-                    <button type="submit" :disabled="!editWaktuMulai || !editWaktuSelesai" class="btn btn-primary btn-sm disabled:opacity-50 disabled:cursor-not-allowed">Simpan Perubahan</button>
+                    <button type="button" @click="editModalOpen = false" class="btn btn-secondary text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-950/40 btn-sm">Batal</button>
+                    <button type="submit" 
+                            data-confirm="Simpan perubahan data pengajuan kegiatan ini?"
+                            data-confirm-title="Konfirmasi Perubahan Data"
+                            data-confirm-type="success"
+                            data-confirm-button="Ya, Simpan"
+                            :disabled="!editWaktuMulai || !editWaktuSelesai" 
+                            class="btn btn-primary btn-sm disabled:opacity-50 disabled:cursor-not-allowed">Simpan Perubahan</button>
                 </div>
             </form>
         </div>
@@ -483,7 +489,7 @@
 
             <form :action="'/admin/pengajuan-kegiatan/' + selected.id + '/setujui'" method="POST" class="flex items-center justify-end gap-2.5 pt-1">
                 @csrf
-                <button type="button" @click="setujuiModalOpen = false" class="btn btn-secondary btn-sm px-4">Batal</button>
+                <button type="button" @click="setujuiModalOpen = false" class="btn btn-secondary text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-950/40 btn-sm px-4">Batal</button>
                 <button type="submit" class="btn btn-primary btn-sm px-5">
                     <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
@@ -517,7 +523,7 @@
             <form :action="'/admin/pengajuan-kegiatan/' + selected.id" method="POST" class="flex items-center justify-end gap-2.5 pt-1">
                 @csrf
                 @method('DELETE')
-                <button type="button" @click="hapusModalOpen = false" class="btn btn-secondary btn-sm px-4">Batal</button>
+                <button type="button" @click="hapusModalOpen = false" class="btn btn-secondary text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-950/40 btn-sm px-4">Batal</button>
                 <button type="submit" class="btn btn-danger btn-sm px-5">Ya, Hapus Permanen</button>
             </form>
         </div>

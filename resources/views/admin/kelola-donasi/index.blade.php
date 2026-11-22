@@ -377,6 +377,10 @@
                                 <form method="POST" action="{{ route('admin.kelola-donasi.terima', $donasi->id) }}">
                                     @csrf
                                     <button type="submit"
+                                            data-confirm="Verifikasi penerimaan donasi sebesar Rp{{ number_format($donasi->nominal, 0, ',', '.') }} dari {{ $donasi->nama_donatur }}?"
+                                            data-confirm-title="Verifikasi Donasi"
+                                            data-confirm-type="success"
+                                            data-confirm-button="Ya, Verifikasi"
                                             class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-brand-100 dark:bg-brand-900/50 text-brand-900 dark:text-brand-200 hover:bg-brand-200 dark:hover:bg-brand-800 transition shadow-2xs cursor-pointer"
                                             title="Verifikasi Donasi">
                                         Terima
@@ -389,7 +393,10 @@
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit"
-                                        onclick="return confirm('Hapus donasi ini?')"
+                                        data-confirm="Apakah Anda yakin ingin menghapus data donasi ini? Tindakan ini tidak dapat dibatalkan."
+                                        data-confirm-title="Hapus Data Donasi"
+                                        data-confirm-type="danger"
+                                        data-confirm-button="Ya, Hapus"
                                         class="p-1.5 rounded-lg text-muted-foreground-2 hover:text-danger hover:bg-danger-soft transition cursor-pointer"
                                         title="Hapus Donasi">
                                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
@@ -477,6 +484,10 @@
                             <form method="POST" action="{{ route('admin.kelola-donasi.terima', $donasi->id) }}">
                                 @csrf
                                 <button type="submit"
+                                        data-confirm="Verifikasi penerimaan donasi sebesar Rp{{ number_format($donasi->nominal, 0, ',', '.') }} dari {{ $donasi->nama_donatur }}?"
+                                        data-confirm-title="Verifikasi Donasi"
+                                        data-confirm-type="success"
+                                        data-confirm-button="Ya, Verifikasi"
                                         class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-brand-100 dark:bg-brand-900/50 text-brand-900 dark:text-brand-200 hover:bg-brand-200 dark:hover:bg-brand-800 transition shadow-2xs cursor-pointer">
                                     Terima
                                 </button>
@@ -488,8 +499,12 @@
                             @csrf
                             @method('DELETE')
                             <button type="submit"
-                                    onclick="return confirm('Hapus donasi ini?')"
-                                    class="p-1.5 rounded-lg text-muted-foreground-2 hover:text-danger hover:bg-danger-soft transition cursor-pointer">
+                                    data-confirm="Apakah Anda yakin ingin menghapus data donasi ini? Tindakan ini tidak dapat dibatalkan."
+                                    data-confirm-title="Hapus Data Donasi"
+                                    data-confirm-type="danger"
+                                    data-confirm-button="Ya, Hapus"
+                                    class="p-1.5 rounded-lg text-muted-foreground-2 hover:text-danger hover:bg-danger-soft transition cursor-pointer"
+                                    title="Hapus Donasi">
                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
                                 </svg>
@@ -657,10 +672,14 @@
 
             <div class="px-5 py-4 border-t border-border flex items-center justify-end gap-2">
                 <button type="button" onclick="closeEditModal()"
-                        class="px-4 py-2 rounded-xl text-xs font-semibold text-muted-foreground-2 hover:bg-muted transition cursor-pointer">
+                        class="px-4 py-2 rounded-xl text-xs font-semibold text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-950/40 transition cursor-pointer">
                     Batal
                 </button>
                 <button type="submit"
+                        data-confirm="Simpan perubahan status donasi ini?"
+                        data-confirm-title="Konfirmasi Status Donasi"
+                        data-confirm-type="success"
+                        data-confirm-button="Ya, Simpan"
                         class="px-5 py-2 rounded-xl bg-brand-700 text-white text-xs font-semibold hover:bg-brand-800 transition shadow-xs cursor-pointer">
                     Simpan Perubahan
                 </button>
@@ -732,6 +751,10 @@
 
                 <div class="flex justify-end">
                     <button type="submit" id="penyaluran-submit-btn"
+                            data-confirm="Simpan data penyaluran dana donasi ini?"
+                            data-confirm-title="Konfirmasi Penyaluran Dana"
+                            data-confirm-type="success"
+                            data-confirm-button="Ya, Simpan"
                             class="px-4 py-2 rounded-xl bg-brand-700 text-white text-xs font-semibold hover:bg-brand-800 transition cursor-pointer">
                         Simpan Penyaluran
                     </button>
@@ -770,7 +793,11 @@
                                     <form method="POST" action="{{ route('admin.penyaluran-dana.destroy', $item->id) }}">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" onclick="return confirm('Hapus data penyaluran ini?')"
+                                        <button type="submit"
+                                                data-confirm="Apakah Anda yakin ingin menghapus data penyaluran dana ini? Tindakan ini tidak dapat dibatalkan."
+                                                data-confirm-title="Hapus Penyaluran Dana"
+                                                data-confirm-type="danger"
+                                                data-confirm-button="Ya, Hapus"
                                                 class="p-1.5 rounded-lg text-muted-foreground-2 hover:text-danger hover:bg-danger-soft transition cursor-pointer"
                                                 title="Hapus">
                                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
@@ -842,6 +869,10 @@
 
                 <div class="flex justify-end">
                     <button type="submit" id="operasional-submit-btn"
+                            data-confirm="Simpan data pengeluaran operasional ini?"
+                            data-confirm-title="Konfirmasi Pengeluaran Operasional"
+                            data-confirm-type="success"
+                            data-confirm-button="Ya, Simpan"
                             class="px-4 py-2 rounded-xl bg-brand-700 text-white text-xs font-semibold hover:bg-brand-800 transition cursor-pointer">
                         Simpan Operasional
                     </button>
@@ -877,7 +908,11 @@
                                     <form method="POST" action="{{ route('admin.pengeluaran-operasional.destroy', $op->id) }}">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" onclick="return confirm('Hapus data operasional ini?')"
+                                        <button type="submit"
+                                                data-confirm="Apakah Anda yakin ingin menghapus data pengeluaran operasional ini? Tindakan ini tidak dapat dibatalkan."
+                                                data-confirm-title="Hapus Pengeluaran Operasional"
+                                                data-confirm-type="danger"
+                                                data-confirm-button="Ya, Hapus"
                                                 class="p-1.5 rounded-lg text-muted-foreground-2 hover:text-danger hover:bg-danger-soft transition cursor-pointer"
                                                 title="Hapus">
                                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
