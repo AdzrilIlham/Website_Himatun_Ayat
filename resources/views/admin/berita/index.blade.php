@@ -5,19 +5,6 @@
 
 @section('content')
 <div class="space-y-4 sm:space-y-5 pb-12 w-full max-w-full min-w-0">
-    <!-- Flash Notifications -->
-    @if(session('success'))
-        <div class="p-3.5 rounded-xl bg-brand-50 border border-brand-200 text-brand-800 text-xs sm:text-sm flex items-center justify-between shadow-2xs">
-            <div class="flex items-center gap-2">
-                <svg class="w-4 h-4 text-brand-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span>{{ session('success') }}</span>
-            </div>
-            <button type="button" onclick="this.parentElement.remove()" class="text-brand-600 hover:text-brand-900 text-lg leading-none cursor-pointer">&times;</button>
-        </div>
-    @endif
-
     <!-- Header Page: Title + Tambah Berita Button -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>

@@ -13,31 +13,6 @@
         </p>
     </div>
 
-    <!-- Alert Messages -->
-    @if (session('success'))
-        <div class="p-3.5 rounded-xl bg-brand-50 border border-brand-200 text-brand-800 text-xs sm:text-sm flex items-center justify-between shadow-2xs">
-            <div class="flex items-center gap-2">
-                <svg class="w-4 h-4 text-brand-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" />
-                </svg>
-                <span>{{ session('success') }}</span>
-            </div>
-            <button type="button" onclick="this.parentElement.remove()" class="text-brand-600 hover:text-brand-900 text-lg leading-none cursor-pointer">&times;</button>
-        </div>
-    @endif
-
-    @if (session('info'))
-        <div class="p-3.5 rounded-xl bg-info-soft border border-info/30 text-info text-xs sm:text-sm flex items-center justify-between shadow-2xs">
-            <div class="flex items-center gap-2">
-                <svg class="w-4 h-4 text-info shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
-                </svg>
-                <span>{{ session('info') }}</span>
-            </div>
-            <button type="button" onclick="this.parentElement.remove()" class="text-info hover:opacity-80 text-lg leading-none cursor-pointer">&times;</button>
-        </div>
-    @endif
-
     @if ($errors->any())
         <div class="p-3.5 rounded-xl bg-danger-soft border border-danger/30 text-danger text-xs sm:text-sm">
             <div class="flex items-center gap-2 mb-1">

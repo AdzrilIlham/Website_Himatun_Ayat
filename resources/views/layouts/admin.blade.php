@@ -596,5 +596,8 @@
 
     <!-- Global Preline Confirmation Modal -->
     <x-confirm-modal />
+
+    <!-- Global Preline Default Toast -->
+    <x-admin-toast />
 </body>
 </html>
