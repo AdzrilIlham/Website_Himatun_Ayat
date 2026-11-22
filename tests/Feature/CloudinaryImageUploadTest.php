@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Livewire\User\KampanyeDonasi;
 use App\Models\BeritaKegiatan;
 use App\Models\Donasi;
+use App\Models\Kampanye;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
@@ -187,6 +188,52 @@ class CloudinaryImageUploadTest extends TestCase
 
         $this->postJson(route('admin.image-uploads.store'), ['purpose' => $purpose, 'bytes' => 1234, 'mime' => 'image/jpeg'])
             ->assertOk()->assertJsonPath('parameters.asset_folder', 'HimatunAyat/news');
+    }
+
+    public function test_campaign_banner_is_signed_into_the_campaigns_folder(): void
+    {
+        $this->actingAs(User::factory()->withTwoFactor()->create());
+        $this->configureCloudinary();
+
+        $this->postJson(route('admin.image-uploads.store'), ['purpose' => 'banner', 'bytes' => 1234, 'mime' => 'image/jpeg'])
+            ->assertOk()
+            ->assertJsonPath('parameters.asset_folder', 'HimatunAyat/campaigns')
+            ->assertJsonPath('parameters.type', 'upload');
+    }
+
+    public function test_child_photo_is_signed_into_the_anak_asuh_folder(): void
+    {
+        $this->actingAs(User::factory()->withTwoFactor()->create());
+        $this->configureCloudinary();
+
+        $this->postJson(route('admin.image-uploads.store'), ['purpose' => 'foto', 'bytes' => 1234, 'mime' => 'image/jpeg'])
+            ->assertOk()
+            ->assertJsonPath('parameters.asset_folder', 'HimatunAyat/anak-asuh');
+    }
+
+    public function test_campaign_banner_is_verified_and_saved(): void
+    {
+        $this->actingAs(User::factory()->withTwoFactor()->create());
+        $reference = $this->cloudinaryImageReference('banner');
+
+        $this->postJson(route('admin.kelola-kampanye.store'), [
+            'judul' => 'Kampanye Banner Cloudinary',
+            'kategori' => 'Kemanusiaan',
+            'deskripsi' => 'Deskripsi kampanye untuk pengujian banner.',
+            'target_dana' => 1000000,
+            'tanggal_mulai' => today()->toDateString(),
+            'tenggat_waktu' => today()->addDays(10)->toDateString(),
+            'status' => 'aktif',
+            'banner' => $reference,
+        ])->assertRedirect(route('admin.kelola-kampanye.index'));
+
+        $kampanye = Kampanye::sole();
+        $this->assertSame(
+            'https://res.cloudinary.com/test-cloud/image/upload/v123/'.$reference['public_id'].'.jpg',
+            $kampanye->banner_path,
+        );
+        $this->assertSame($reference['public_id'], $kampanye->banner_cloudinary['public_id']);
+        $this->assertDatabaseCount('image_upload_intents', 0);
     }
 
     #[TestWith(['QRIS'])]

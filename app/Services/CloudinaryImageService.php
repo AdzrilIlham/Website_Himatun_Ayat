@@ -28,8 +28,10 @@ class CloudinaryImageService
     private const FORMATS = ['jpg', 'jpeg', 'png', 'webp'];
 
     private const ASSET_FOLDERS = [
+        'banner' => 'HimatunAyat/campaigns',
         'gambar' => 'HimatunAyat/news',
         'gambar_konten' => 'HimatunAyat/news',
+        'foto' => 'HimatunAyat/anak-asuh',
         'buktiTransfer' => 'HimatunAyat/transactions',
     ];
 
