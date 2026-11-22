@@ -72,19 +72,6 @@
         }
      }">
 
-    <!-- Flash Notifications -->
-    @if(session('success'))
-        <div class="p-3.5 rounded-xl bg-brand-50 border border-brand-200 text-brand-800 text-xs sm:text-sm flex items-center justify-between">
-            <div class="flex items-center gap-2">
-                <svg class="w-4 h-4 text-brand-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span>{{ session('success') }}</span>
-            </div>
-            <button type="button" onclick="this.parentElement.remove()" class="text-brand-600 hover:text-brand-900">&times;</button>
-        </div>
-    @endif
-
     @if($errors->any())
         <div class="p-3.5 rounded-xl bg-danger-soft border border-danger/30 text-danger text-xs sm:text-sm">
             <p class="font-bold mb-1">Terjadi kesalahan pada input data:</p>

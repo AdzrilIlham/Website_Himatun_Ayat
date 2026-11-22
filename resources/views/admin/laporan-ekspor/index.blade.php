@@ -774,22 +774,6 @@
             </div>
         </div>
     </div>
-
-    <!-- Toast Notification -->
-    <div x-show="showToast"
-         x-cloak
-         x-transition:enter="transition ease-out duration-300"
-         x-transition:enter-start="opacity-0 translate-y-2"
-         x-transition:enter-end="opacity-100 translate-y-0"
-         x-transition:leave="transition ease-in duration-200"
-         x-transition:leave-start="opacity-100 translate-y-0"
-         x-transition:leave-end="opacity-0 translate-y-2"
-         class="fixed bottom-5 right-5 z-50 max-w-sm bg-brand-950 text-white text-xs sm:text-sm px-4 py-3 rounded-xl shadow-lg flex items-center gap-2.5">
-        <svg class="w-4 h-4 text-brand-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-        <span x-text="toastMessage"></span>
-    </div>
 </div>
 
 <!-- Dedicated Alpine.js Component Script -->
@@ -813,9 +797,6 @@ function laporanEksporApp() {
         initialized: false,
         previewAbortController: null,
         selectedDetailItem: null,
-        showToast: false,
-        toastMessage: '',
-        toastTimeout: null,
         pagination: initData.pagination || { current_page: 1, last_page: 1, total: 0, from: 0, to: 0, per_page: 5 },
         stats: initData.stats || { total: '0', aktif_pendidikan: '0', aktif_asrama: '0', perlu_perhatian: '0' },
         columns: initData.columns || [],
@@ -878,9 +859,9 @@ function laporanEksporApp() {
         setPreviewMode(mode) {
             this.previewMode = mode;
             if (mode === 'pdf') {
-                this.showToastNotification('Memuat format pratinjau dokumen PDF...');
+                this.showToastNotification('Memuat format pratinjau dokumen PDF...', 'info');
             } else if (mode === 'excel') {
-                this.showToastNotification('Memuat format pratinjau lembar kerja Excel...');
+                this.showToastNotification('Memuat format pratinjau lembar kerja Excel...', 'info');
             }
         },
 
@@ -994,7 +975,7 @@ function laporanEksporApp() {
             } catch (err) {
                 if (err.name === 'AbortError') return;
                 console.error('Gagal memuat preview data laporan:', err);
-                this.showToastNotification('Gagal memuat preview data laporan. Periksa koneksi Anda.');
+                this.showToastNotification('Gagal memuat preview data laporan. Periksa koneksi Anda.', 'error');
             } finally {
                 this.previewLoading = false;
             }
@@ -1060,13 +1041,10 @@ function laporanEksporApp() {
             this.selectedDetailItem = item;
         },
 
-        showToastNotification(msg) {
-            this.toastMessage = msg;
-            this.showToast = true;
-            clearTimeout(this.toastTimeout);
-            this.toastTimeout = setTimeout(() => {
-                this.showToast = false;
-            }, 3000);
+        showToastNotification(msg, type = 'success') {
+            if (typeof window.adminToast === 'function') {
+                window.adminToast(msg, type);
+            }
         },
 
         getStatusBadgeClass(status) {

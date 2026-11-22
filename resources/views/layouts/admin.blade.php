@@ -337,20 +337,6 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- Divider -->
-                    <div class="h-6 w-px bg-border"></div>
-
-                    <!-- User Profile Quick Badge -->
-                    <div class="flex items-center gap-2.5">
-                        <div class="w-8 h-8 rounded-full bg-brand-700 flex items-center justify-center font-bold text-xs text-white shadow-2xs">
-                            AD
-                        </div>
-                        <div class="hidden sm:block text-left">
-                            <p class="text-xs font-bold text-foreground leading-tight">Admin Yayasan</p>
-                            <p class="text-[10px] text-muted-foreground font-medium">Petugas Operasional</p>
-                        </div>
-                    </div>
                 </div>
             </header>
 
@@ -610,5 +596,8 @@
 
     <!-- Global Preline Confirmation Modal -->
     <x-confirm-modal />
+
+    <!-- Global Preline Default Toast -->
+    <x-admin-toast />
 </body>
 </html>
