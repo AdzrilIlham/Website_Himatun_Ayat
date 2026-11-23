@@ -78,7 +78,9 @@ class PengajuanKegiatan extends Model
      */
     public function scopeTerbaru(Builder $query): Builder
     {
-        return $query->orderByRaw("FIELD(status, 'menunggu', 'disetujui', 'ditolak')")
-            ->orderByDesc('created_at');
+        return $query
+            ->orderByRaw("CASE status WHEN 'menunggu' THEN 1 WHEN 'disetujui' THEN 2 WHEN 'ditolak' THEN 3 ELSE 4 END")
+            ->orderByDesc('created_at')
+            ->orderByDesc('id');
     }
 }

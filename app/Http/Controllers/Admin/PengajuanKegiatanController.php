@@ -49,15 +49,8 @@ class PengajuanKegiatanController extends Controller
             });
         }
 
-        $driver = DB::getDriverName();
-        $orderByStatus = $driver === 'sqlite'
-            ? "CASE status WHEN 'menunggu' THEN 1 WHEN 'disetujui' THEN 2 WHEN 'ditolak' THEN 3 ELSE 4 END"
-            : "FIELD(status, 'menunggu', 'disetujui', 'ditolak')";
-
         $daftarPengajuan = $query
-            ->orderByRaw($orderByStatus)
-            ->orderByDesc('created_at')
-            ->orderByDesc('id')
+            ->terbaru()
             ->paginate(10)
             ->withQueryString();
 

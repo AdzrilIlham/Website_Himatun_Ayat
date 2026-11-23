@@ -471,4 +471,55 @@ class PengajuanKegiatanTest extends TestCase
         $this->assertNull(PengajuanKegiatanController::parseTimeRange('pagi sampai siang'));
         $this->assertNull(PengajuanKegiatanController::parseTimeRange(null));
     }
+
+    /**
+     * Pengurutan status pengajuan bekerja portabel di controller dan scope model (non-MySQL/SQLite).
+     */
+    public function test_pengajuan_status_ordering_works_portably_in_controller_and_model_scope(): void
+    {
+        $this->actingAs($this->admin);
+
+        $ditolak = PengajuanKegiatan::create([
+            'nama_pemohon' => 'Pemohon Ditolak',
+            'nomor_whatsapp' => '081200000001',
+            'tanggal' => now()->addDays(4)->toDateString(),
+            'waktu' => '08.00 - 10.00 WIB',
+            'jenis_kegiatan' => 'Santunan & Bakti Sosial',
+            'rencana_kegiatan' => 'Uji urutan ditolak.',
+            'status' => 'ditolak',
+        ]);
+
+        $disetujui = PengajuanKegiatan::create([
+            'nama_pemohon' => 'Pemohon Disetujui',
+            'nomor_whatsapp' => '081200000002',
+            'tanggal' => now()->addDays(5)->toDateString(),
+            'waktu' => '08.00 - 10.00 WIB',
+            'jenis_kegiatan' => 'Santunan & Bakti Sosial',
+            'rencana_kegiatan' => 'Uji urutan disetujui.',
+            'status' => 'disetujui',
+        ]);
+
+        $menunggu = PengajuanKegiatan::create([
+            'nama_pemohon' => 'Pemohon Menunggu',
+            'nomor_whatsapp' => '081200000003',
+            'tanggal' => now()->addDays(6)->toDateString(),
+            'waktu' => '08.00 - 10.00 WIB',
+            'jenis_kegiatan' => 'Santunan & Bakti Sosial',
+            'rencana_kegiatan' => 'Uji urutan menunggu.',
+            'status' => 'menunggu',
+        ]);
+
+        $this->assertSame(
+            ['menunggu', 'disetujui', 'ditolak'],
+            PengajuanKegiatan::query()->terbaru()->pluck('status')->all()
+        );
+
+        $response = $this->get(route('admin.pengajuan-kegiatan.index'));
+        $response->assertStatus(200);
+        $response->assertSeeInOrder([
+            $menunggu->nama_pemohon,
+            $disetujui->nama_pemohon,
+            $ditolak->nama_pemohon,
+        ]);
+    }
 }
