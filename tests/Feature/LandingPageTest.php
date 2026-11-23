@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\AnakAsuh;
 use App\Models\BeritaKegiatan;
 use App\Models\Donasi;
 use App\Models\Kampanye;
@@ -11,6 +12,142 @@ use Tests\TestCase;
 class LandingPageTest extends TestCase
 {
     use RefreshDatabase;
+
+    public function test_landing_page_displays_impact_statistics_from_database(): void
+    {
+        $this->travelTo('2026-11-23 09:00:00');
+
+        $aktifCampaigns = collect(range(1, 5))->map(fn (int $index): Kampanye => $this->createKampanye([
+            'judul' => 'Program Aktif '.$index,
+            'slug' => 'program-aktif-'.$index,
+            'status' => 'aktif',
+        ]));
+
+        $this->createKampanye([
+            'judul' => 'Program Selesai',
+            'slug' => 'program-selesai',
+            'status' => 'selesai',
+        ]);
+
+        $this->createKampanye([
+            'judul' => 'Program Draft',
+            'slug' => 'program-draft',
+            'status' => 'draft',
+        ]);
+
+        Donasi::create([
+            'kampanye_id' => $aktifCampaigns[0]->id,
+            'nama_donatur' => 'Donatur Pertama',
+            'nominal' => 250000000,
+            'metode_pembayaran' => 'Transfer Bank (BSI)',
+            'status' => 'verified',
+        ]);
+
+        Donasi::create([
+            'kampanye_id' => $aktifCampaigns[1]->id,
+            'nama_donatur' => 'Donatur Kedua',
+            'nominal' => 175200000,
+            'metode_pembayaran' => 'QRIS',
+            'status' => 'verified',
+        ]);
+
+        Donasi::create([
+            'kampanye_id' => $aktifCampaigns[0]->id,
+            'nama_donatur' => 'Donatur Pending',
+            'nominal' => 50000000,
+            'metode_pembayaran' => 'QRIS',
+            'status' => 'pending',
+        ]);
+
+        Donasi::create([
+            'kampanye_id' => $aktifCampaigns[0]->id,
+            'nama_donatur' => 'Donatur Ditolak',
+            'nominal' => 25000000,
+            'metode_pembayaran' => 'QRIS',
+            'status' => 'rejected',
+        ]);
+
+        foreach (range(1, 3) as $index) {
+            AnakAsuh::create([
+                'nama_lengkap' => 'Santri Aktif '.$index,
+                'jenis_kelamin' => $index % 2 === 0 ? 'P' : 'L',
+                'status_asuhan' => 'Aktif',
+            ]);
+        }
+
+        AnakAsuh::create([
+            'nama_lengkap' => 'Santri Alumni',
+            'jenis_kelamin' => 'L',
+            'status_asuhan' => 'Alumni',
+        ]);
+
+        AnakAsuh::create([
+            'nama_lengkap' => 'Santri Non Aktif',
+            'jenis_kelamin' => 'P',
+            'status_asuhan' => 'Non-Aktif',
+        ]);
+
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertViewHas('impactStats', [
+                'tahun_akumulasi' => 2026,
+                'total_dana_nominal' => 425200000.0,
+                'total_dana_formatted' => 'Rp 425,2 Juta',
+                'anak_asuh_aktif' => 3,
+                'anak_asuh_formatted' => '3',
+                'program_aktif' => 5,
+                'program_aktif_formatted' => '5',
+            ])
+            ->assertSee('Akumulasi s.d. 2026')
+            ->assertSee('Total Dana Amanah Terhimpun')
+            ->assertSee('data-impact-stat="total-dana">Rp 425,2 Juta</h3>', false)
+            ->assertSee('data-impact-stat="anak-asuh">3</h3>', false)
+            ->assertSee('data-impact-stat="program-aktif">5</h3>', false)
+            ->assertDontSee('Rp. 400 Juta+')
+            ->assertDontSee('250+')
+            ->assertDontSee('Akumulasi 2025');
+    }
+
+    public function test_landing_page_formats_compact_currency_across_thresholds(): void
+    {
+        $kampanye = $this->createKampanye();
+
+        Donasi::create([
+            'kampanye_id' => $kampanye->id,
+            'nama_donatur' => 'Donatur Ribuan',
+            'nominal' => 750000,
+            'metode_pembayaran' => 'QRIS',
+            'status' => 'verified',
+        ]);
+
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertSee('data-impact-stat="total-dana">Rp 750.000</h3>', false);
+
+        Donasi::create([
+            'kampanye_id' => $kampanye->id,
+            'nama_donatur' => 'Donatur Jutaan Bulat',
+            'nominal' => 1250000,
+            'metode_pembayaran' => 'QRIS',
+            'status' => 'verified',
+        ]);
+
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertSee('data-impact-stat="total-dana">Rp 2 Juta</h3>', false);
+
+        Donasi::create([
+            'kampanye_id' => $kampanye->id,
+            'nama_donatur' => 'Donatur Miliar',
+            'nominal' => 1498000000,
+            'metode_pembayaran' => 'Transfer Bank (BSI)',
+            'status' => 'verified',
+        ]);
+
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertSee('data-impact-stat="total-dana">Rp 1,5 Miliar</h3>', false);
+    }
 
     public function test_landing_page_shows_only_verified_donations_in_the_ticker(): void
     {
@@ -108,7 +245,12 @@ class LandingPageTest extends TestCase
         $this->get(route('home'))
             ->assertOk()
             ->assertSee('Belum ada kabar terbaru')
-            ->assertDontSee('Paket Donasi Cepat Terarah');
+            ->assertDontSee('Paket Donasi Cepat Terarah')
+            ->assertSee('data-impact-stat="total-dana">Rp 0</h3>', false)
+            ->assertSee('data-impact-stat="anak-asuh">0</h3>', false)
+            ->assertSee('data-impact-stat="program-aktif">0</h3>', false)
+            ->assertDontSee('Rp. 400 Juta+')
+            ->assertDontSee('250+');
     }
 
     /**

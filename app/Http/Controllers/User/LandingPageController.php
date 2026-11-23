@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Models\AnakAsuh;
 use App\Models\BeritaKegiatan;
 use App\Models\Donasi;
 use App\Models\Kampanye;
@@ -31,6 +32,7 @@ class LandingPageController extends Controller
         $kegiatanMendatang = $this->kegiatanMendatang();
 
         return view('user.landing-page.index', [
+            'impactStats' => $this->impactStats(),
             'recentDonors' => $this->recentDonors(),
             'programUtama' => $programUtama ? $this->formatKampanye($programUtama, 260) : null,
             'paketKilat' => $paketKilat->map(fn (Kampanye $kampanye): array => $this->formatKampanye($kampanye, 150)),
@@ -39,6 +41,76 @@ class LandingPageController extends Controller
             'kegiatanMendatang' => $kegiatanMendatang,
             'title' => 'Yayasan Himmatun Ayat Bandung - Mengukir Senyum dan Masa Depan Anak Yatim',
         ]);
+    }
+
+    /**
+     * Statistik dampak yayasan untuk section statistik di landing page.
+     *
+     * @return array{
+     *     tahun_akumulasi: int,
+     *     total_dana_nominal: float,
+     *     total_dana_formatted: string,
+     *     anak_asuh_aktif: int,
+     *     anak_asuh_formatted: string,
+     *     program_aktif: int,
+     *     program_aktif_formatted: string,
+     * }
+     */
+    private function impactStats(): array
+    {
+        $totalDana = (float) Donasi::query()
+            ->where('status', 'verified')
+            ->sum('nominal');
+
+        $anakAsuhAktif = AnakAsuh::query()
+            ->where('status_asuhan', 'Aktif')
+            ->count();
+
+        $programAktif = Kampanye::query()
+            ->where('status', 'aktif')
+            ->count();
+
+        return [
+            'tahun_akumulasi' => now()->year,
+            'total_dana_nominal' => $totalDana,
+            'total_dana_formatted' => $this->formatRingkasRupiah($totalDana),
+            'anak_asuh_aktif' => $anakAsuhAktif,
+            'anak_asuh_formatted' => number_format($anakAsuhAktif, 0, ',', '.'),
+            'program_aktif' => $programAktif,
+            'program_aktif_formatted' => number_format($programAktif, 0, ',', '.'),
+        ];
+    }
+
+    /**
+     * Format nominal rupiah secara ringkas untuk nominal besar (Juta/Miliar/Triliun).
+     */
+    private function formatRingkasRupiah(float $nominal): string
+    {
+        $rounded = round(max(0.0, $nominal));
+
+        if ($rounded >= 1_000_000_000_000 || ($rounded >= 1_000_000_000 && round($rounded / 1_000_000_000, 1) >= 1000)) {
+            return 'Rp '.$this->formatDesimalRingkas(round($rounded / 1_000_000_000_000, 1)).' Triliun';
+        }
+
+        if ($rounded >= 1_000_000_000 || ($rounded >= 1_000_000 && round($rounded / 1_000_000, 1) >= 1000)) {
+            return 'Rp '.$this->formatDesimalRingkas(round($rounded / 1_000_000_000, 1)).' Miliar';
+        }
+
+        if ($rounded >= 1_000_000) {
+            return 'Rp '.$this->formatDesimalRingkas(round($rounded / 1_000_000, 1)).' Juta';
+        }
+
+        return 'Rp '.number_format($rounded, 0, ',', '.');
+    }
+
+    /**
+     * Format angka desimal maksimal 1 digit di belakang koma tanpa akhiran ",0".
+     */
+    private function formatDesimalRingkas(float $value): string
+    {
+        $formatted = number_format($value, 1, ',', '.');
+
+        return str_ends_with($formatted, ',0') ? substr($formatted, 0, -2) : $formatted;
     }
 
     /**

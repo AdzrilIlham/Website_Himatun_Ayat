@@ -171,20 +171,18 @@
                                 <img src="{{ asset('images/User/Icons.png') }}" alt="Icon Donasi" class="w-5 h-5 object-contain">
                             </div>
                             <span class="bg-[#FDE68A] text-[#92400E] text-[10px] sm:text-[11px] font-bold px-2.5 py-0.5 rounded-full">
-                                Akumulasi 2025
+                                Akumulasi s.d. {{ $impactStats['tahun_akumulasi'] }}
                             </span>
                         </div>
                         <div class="mt-4">
-                            <h3 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
-                                Rp. 400 Juta+
-                            </h3>
+                            <h3 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight" data-impact-stat="total-dana">{{ $impactStats['total_dana_formatted'] }}</h3>
                             <p class="font-bold text-xs sm:text-[13px] text-slate-800 mt-1">
-                                Total Dana Amanah Disalurkan
+                                Total Dana Amanah Terhimpun
                             </p>
                         </div>
                     </div>
                     <p class="text-[11px] sm:text-xs text-slate-600 mt-2.5 leading-relaxed">
-                        Pendayagunaan zakat, infaq, sedekah, dan wakaf yang disalurkan tepat sasaran kepada mustahik.
+                        Penghimpunan zakat, infaq, sedekah, dan wakaf terverifikasi yang diamanahkan untuk para mustahik.
                     </p>
                 </div>
 
@@ -200,9 +198,7 @@
                             </span>
                         </div>
                         <div class="mt-4">
-                            <h3 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
-                                250+
-                            </h3>
+                            <h3 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight" data-impact-stat="anak-asuh">{{ $impactStats['anak_asuh_formatted'] }}</h3>
                             <p class="font-bold text-xs sm:text-[13px] text-slate-800 mt-1">
                                 Anak Asuh & Keluarga Dhuafa
                             </p>
@@ -225,9 +221,7 @@
                             </span>
                         </div>
                         <div class="mt-4">
-                            <h3 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
-                                250+
-                            </h3>
+                            <h3 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight" data-impact-stat="program-aktif">{{ $impactStats['program_aktif_formatted'] }}</h3>
                             <p class="font-bold text-xs sm:text-[13px] text-slate-800 mt-1">
                                 Program Pendidikan & Dakwah
                             </p>
