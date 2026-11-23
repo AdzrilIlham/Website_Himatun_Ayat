@@ -82,7 +82,7 @@ class DonasiExport implements FromCollection, WithHeadings, WithMapping
     public function map(mixed $row): array
     {
         return [
-            $row->id,
+            $row->kode_donasi ?: ('DNS-'.str_pad((string) $row->id, 4, '0', STR_PAD_LEFT)),
             $row->created_at->format('Y-m-d H:i'),
             $row->nama_donatur,
             $row->no_whatsapp,

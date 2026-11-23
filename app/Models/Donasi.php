@@ -16,6 +16,7 @@ class Donasi extends Model
     protected $table = 'donasi';
 
     protected $fillable = [
+        'kode_donasi',
         'kampanye_id',
         'nama_donatur',
         'no_whatsapp',
@@ -27,6 +28,26 @@ class Donasi extends Model
         'status',
         'diverifikasi_pada',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (self $donasi): void {
+            if (empty($donasi->kode_donasi)) {
+                $donasi->kode_donasi = static::generateKodeDonasi();
+            }
+        });
+    }
+
+    public static function generateKodeDonasi(?string $exclude = null): string
+    {
+        do {
+            $firstSegment = (string) random_int(10000000, 99999999);
+            $secondSegment = str_pad((string) random_int(100, 999), 3, '0', STR_PAD_LEFT);
+            $generated = "DNS-{$firstSegment}-{$secondSegment}";
+        } while ($generated === $exclude || static::where('kode_donasi', $generated)->exists());
+
+        return $generated;
+    }
 
     protected $casts = [
         'nominal' => 'decimal:2',
