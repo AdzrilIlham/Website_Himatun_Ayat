@@ -36,6 +36,30 @@ class AdminKelolaKampanyeTest extends TestCase
             'status' => 'aktif',
         ]);
 
+        Kampanye::create([
+            'judul' => 'Santunan Yatim & Piatu Cibiru',
+            'slug' => 'santunan-yatim-piatu-cibiru',
+            'kategori' => 'Kemanusiaan',
+            'deskripsi' => 'Program santunan kemanusiaan.',
+            'target_dana' => 50000000,
+            'dana_terkumpul' => 41000000,
+            'tanggal_mulai' => '2026-08-17',
+            'tenggat_waktu' => '2026-11-30',
+            'status' => 'aktif',
+        ]);
+
+        Kampanye::create([
+            'judul' => 'Operasional Asrama Putri Himatun Ayat',
+            'slug' => 'operasional-asrama-putri',
+            'kategori' => 'Operasional',
+            'deskripsi' => 'Program operasional asrama.',
+            'target_dana' => 30000000,
+            'dana_terkumpul' => 21300000,
+            'tanggal_mulai' => '2026-09-11',
+            'tenggat_waktu' => '2026-12-02',
+            'status' => 'aktif',
+        ]);
+
         $response = $this->get('/admin/kelola-kampanye');
 
         $response->assertStatus(200);
@@ -43,6 +67,17 @@ class AdminKelolaKampanyeTest extends TestCase
         $response->assertSee('Buat Kampanye Baru');
         $response->assertSee('Program Kafalah Guru Ngaji');
         $response->assertSee('Dakwah &amp; Syiar', false);
+        $response->assertSee('Santunan Yatim &amp; Piatu Cibiru', false);
+        $response->assertSee('Kemanusiaan');
+        $response->assertSeeInOrder(['NO', 'KAMPANYE', 'KATEGORI', 'TARGET', 'TERKUMPUL', 'STATUS', 'TANGGAL', 'AKSI']);
+        $response->assertSeeInOrder(['Santunan Yatim &amp; Piatu Cibiru', 'Kemanusiaan'], false);
+        $response->assertSee('bg-brand-50 text-brand-800 border-brand-200', false);
+        $response->assertDontSee('bg-info-soft text-info border-info/30', false);
+        $response->assertDontSee('bg-warning-soft text-warning border-warning/30', false);
+        $response->assertDontSee('bg-danger-soft text-danger border-danger/30', false);
+        $response->assertSee('hover:border-brand-600', false);
+        $response->assertSee('hover:border-warning', false);
+        $response->assertSee('hover:border-danger', false);
     }
 
     public function test_campaign_detail_route_is_not_registered_without_a_detail_page(): void

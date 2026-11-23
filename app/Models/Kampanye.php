@@ -82,17 +82,11 @@ class Kampanye extends Model
     }
 
     /**
-     * Helper styling badge kategori sesuai screenshot referensi.
+     * Helper styling badge kategori dengan warna hijau brand sesuai design system.
      */
     public function getKategoriBadgeClassesAttribute(): string
     {
-        return match ($this->kategori) {
-            'Dakwah & Syiar' => 'bg-info-soft text-info border-info/30',
-            'Gizi & Sembako' => 'bg-warning-soft text-warning border-warning/30',
-            'Kemanusiaan' => 'bg-danger-soft text-danger border-danger/30',
-            'Pendidikan & Tahfidz' => 'bg-brand-100 dark:bg-brand-900/50 text-brand-700 dark:text-brand-200 border-brand-200 dark:border-brand-800',
-            default => 'bg-muted text-muted-foreground-2 border-border',
-        };
+        return 'bg-brand-50 text-brand-800 border-brand-200';
     }
 
     /**

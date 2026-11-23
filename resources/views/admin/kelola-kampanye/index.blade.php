@@ -14,7 +14,7 @@
         <div class="flex items-center gap-2">
             <!-- Tombol Buat Kampanye Baru -->
             <a href="{{ route('admin.kelola-kampanye.create') }}"
-               class="inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-brand-700 text-white text-xs sm:text-sm font-semibold hover:bg-brand-800 transition shadow-xs cursor-pointer">
+               class="btn btn-primary btn-sm sm:btn-md rounded-xl shadow-xs cursor-pointer">
                 <svg class="w-4 h-4 text-white shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                 </svg>
@@ -23,10 +23,10 @@
         </div>
     </div>
 
-    <!-- 3 Stat Cards (Persis Screenshot 1) -->
+    <!-- 3 Stat Cards -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
         <!-- Card 1: TOTAL KAMPANYE AKTIF -->
-        <div class="bg-card rounded-2xl p-4 sm:p-5 border border-border/70 shadow-2xs relative overflow-hidden flex flex-col justify-between">
+        <div class="bg-card rounded-2xl p-4 sm:p-5 border border-border shadow-2xs hover:border-brand-600 hover:shadow-sm transition-all duration-200 relative overflow-hidden flex flex-col justify-between">
             <div class="relative z-10">
                 <div class="flex items-center justify-between">
                     <span class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-muted-foreground-1">TOTAL KAMPANYE AKTIF</span>
@@ -38,7 +38,7 @@
                 </div>
                 <div class="mt-2.5">
                     <div class="flex items-baseline gap-1.5">
-                        <span class="text-3xl font-extrabold tracking-tight text-foreground">{{ $metrics['total_aktif'] }}</span>
+                        <span class="text-3xl font-extrabold tracking-tight text-foreground tabular">{{ $metrics['total_aktif'] }}</span>
                         <span class="text-sm font-bold text-muted-foreground-2">Program</span>
                     </div>
                 </div>
@@ -56,7 +56,7 @@
         </div>
 
         <!-- Card 2: KABAR PENYALURAN TERBIT -->
-        <div class="bg-card rounded-2xl p-4 sm:p-5 border border-border/70 shadow-2xs relative overflow-hidden flex flex-col justify-between">
+        <div class="bg-card rounded-2xl p-4 sm:p-5 border border-border shadow-2xs hover:border-warning hover:shadow-sm transition-all duration-200 relative overflow-hidden flex flex-col justify-between">
             <div class="relative z-10">
                 <div class="flex items-center justify-between">
                     <span class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-muted-foreground-1">KABAR PENYALURAN TERBIT</span>
@@ -68,7 +68,7 @@
                 </div>
                 <div class="mt-2.5">
                     <div class="flex items-baseline gap-1.5">
-                        <span class="text-3xl font-extrabold tracking-tight text-foreground">{{ $metrics['kabar_penyaluran'] }}</span>
+                        <span class="text-3xl font-extrabold tracking-tight text-foreground tabular">{{ $metrics['kabar_penyaluran'] }}</span>
                         <span class="text-sm font-bold text-muted-foreground-2">Rilis Berita</span>
                     </div>
                 </div>
@@ -84,7 +84,7 @@
         </div>
 
         <!-- Card 3: MENDEKATI BATAS WAKTU -->
-        <div class="bg-card rounded-2xl p-4 sm:p-5 border border-danger/30 shadow-2xs relative overflow-hidden flex flex-col justify-between">
+        <div class="bg-card rounded-2xl p-4 sm:p-5 border border-border shadow-2xs hover:border-danger hover:shadow-sm transition-all duration-200 relative overflow-hidden flex flex-col justify-between">
             <div class="relative z-10">
                 <div class="flex items-center justify-between">
                     <span class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-danger">MENDEKATI BATAS WAKTU</span>
@@ -96,7 +96,7 @@
                 </div>
                 <div class="mt-2.5">
                     <div class="flex items-baseline gap-1.5">
-                        <span class="text-3xl font-extrabold tracking-tight text-danger">{{ $metrics['mendekati_batas_waktu'] }}</span>
+                        <span class="text-3xl font-extrabold tracking-tight text-danger tabular">{{ $metrics['mendekati_batas_waktu'] }}</span>
                         <span class="text-sm font-bold text-foreground">Program &lt; 14 Hari</span>
                     </div>
                 </div>
@@ -113,7 +113,7 @@
     </div>
 
     <div data-admin-filter-scope="kelola-kampanye" class="space-y-4">
-    <!-- Toolbar: Search Bar & Segmented Sorting (Persis Screenshot 1) -->
+    <!-- Toolbar: Search Bar & Segmented Sorting -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
         <!-- Search Input Bar -->
         <form method="GET" action="{{ route('admin.kelola-kampanye.index') }}" data-admin-filter-form data-admin-filter-sync="search-form" class="w-full sm:max-w-md">
@@ -121,11 +121,16 @@
             @if($status)<input type="hidden" name="status" value="{{ $status }}">@endif
             @if($kategori)<input type="hidden" name="kategori" value="{{ $kategori }}">@endif
             <div class="relative">
+                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
+                    <svg class="w-4 h-4 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                    </svg>
+                </div>
                 <input type="text" 
                        name="search" 
                        value="{{ $search }}" 
                        placeholder="Cari Kampanye / Donasi..." 
-                       class="w-full rounded-2xl border border-border-line-3 bg-card px-4 py-2 sm:py-2.5 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:border-brand-700 focus:ring-1 focus:ring-brand-700 focus:outline-hidden transition shadow-2xs">
+                       class="form-input bg-card pl-10 pr-9 py-2 sm:py-2.5 text-xs sm:text-sm rounded-xl shadow-2xs">
                 @if($search)
                     <a href="{{ route('admin.kelola-kampanye.index', array_filter(['sort' => $sort, 'status' => $status, 'kategori' => $kategori])) }}" 
                        data-admin-filter-link
@@ -141,7 +146,7 @@
         <!-- Segmented Sorting Buttons (Status / Kategori) -->
         <div class="flex items-center gap-2 self-start sm:self-auto text-xs sm:text-sm">
             <span class="text-muted-foreground-1 font-medium">Urutkan:</span>
-            <div data-sliding-pills data-admin-filter-sync="sort-pills" class="relative inline-flex items-center p-1 rounded-xl bg-card border border-border-line-3 shadow-2xs gap-1">
+            <div data-sliding-pills data-admin-filter-sync="sort-pills" class="relative inline-flex items-center p-1 rounded-xl bg-card border border-border shadow-2xs gap-1">
                 <span data-sliding-pill-bg aria-hidden="true" class="absolute top-0 left-0 rounded-lg bg-brand-700 shadow-xs transition-[transform,width,height] duration-250 ease-out pointer-events-none z-0"></span>
                 <!-- Button Status -->
                 <a href="{{ route('admin.kelola-kampanye.index', array_filter(['search' => $search, 'sort' => 'status', 'status' => $status, 'kategori' => $kategori])) }}"
@@ -165,112 +170,109 @@
     <!-- ================= DATA CONTAINER ================= -->
     <div data-admin-filter-results class="space-y-4">
 
-    <!-- 1. Tampilan Desktop & Tablet (md ke atas): Desain Tabel Persis Screenshot 1 -->
-    <div class="hidden md:block overflow-x-auto w-full pb-1">
-        <div class="min-w-[880px] space-y-2">
-            <!-- Rounded Pill Table Header (Persis Screenshot 1) -->
-            <div class="bg-brand-100 dark:bg-brand-900/40 text-muted-foreground-2 font-bold uppercase text-[11px] tracking-wider rounded-2xl px-6 py-3 flex items-center shadow-2xs">
-                <div class="w-[5%] text-center">No</div>
-                <div class="w-[25%] text-left">KATEGORI</div>
-                <div class="w-[18%] text-left">KAMPANYE</div>
-                <div class="w-[15%] text-left">TARGET</div>
-                <div class="w-[15%] text-left">TERKUMPUL</div>
-                <div class="w-[10%] text-center">STATUS</div>
-                <div class="w-[12%] text-left">TANGGAL</div>
-                <div class="w-[8%] text-center">AKSI</div>
-            </div>
-
-            <!-- Table Rows Container -->
-            <div class="bg-card rounded-2xl border border-border/70 shadow-2xs divide-y divide-border-line-1 overflow-hidden">
+    <!-- 1. Tampilan Desktop & Tablet (md ke atas): Tabel Semantik Rapi -->
+    <div class="hidden md:block bg-card rounded-2xl border border-border shadow-2xs overflow-x-auto w-full">
+        <table class="w-full text-left text-xs">
+            <thead>
+                <tr class="bg-brand-100 text-muted-foreground-2 font-bold uppercase text-2xs tracking-wider border-b border-brand-200">
+                    <th class="py-3.5 px-4 text-center w-12 whitespace-nowrap">NO</th>
+                    <th class="py-3.5 px-4 min-w-[220px]">KAMPANYE</th>
+                    <th class="py-3.5 px-4 whitespace-nowrap">KATEGORI</th>
+                    <th class="py-3.5 px-4 whitespace-nowrap">TARGET</th>
+                    <th class="py-3.5 px-4 whitespace-nowrap">TERKUMPUL</th>
+                    <th class="py-3.5 px-3 text-center whitespace-nowrap">STATUS</th>
+                    <th class="py-3.5 px-4 whitespace-nowrap">TANGGAL</th>
+                    <th class="py-3.5 px-4 text-center whitespace-nowrap">AKSI</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-border-line-1">
                 @forelse($kampanyeList as $index => $item)
-                    <div class="px-6 py-4 flex items-center hover:bg-muted transition">
+                    <tr class="hover:bg-muted/60 transition align-middle">
                         <!-- NO -->
-                        <div class="w-[5%] text-center text-xs font-semibold text-muted-foreground-2">
+                        <td class="py-3.5 px-4 text-center font-semibold text-muted-foreground-2 tabular whitespace-nowrap">
                             {{ $kampanyeList->firstItem() + $index }}
-                        </div>
+                        </td>
 
-                        <!-- KATEGORI (Judul Program Kampanye) -->
-                        <div class="w-[25%] pr-3">
-                            <span class="font-bold text-foreground text-sm block truncate" title="{{ $item->judul }}">
+                        <!-- KAMPANYE (Judul Program Kampanye) -->
+                        <td class="py-3.5 px-4 max-w-[280px]">
+                            <span class="font-bold text-foreground text-xs sm:text-sm block truncate" title="{{ $item->judul }}">
                                 {{ $item->judul }}
                             </span>
-                        </div>
+                        </td>
 
-                        <!-- KAMPANYE (Badge Kategori Warna Warni) -->
-                        <div class="w-[18%] pr-3">
-                            <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold border {{ $item->kategori_badge_classes }}">
+                        <!-- KATEGORI (Badge Hijau Seragam) -->
+                        <td class="py-3.5 px-4 whitespace-nowrap">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-2xs font-semibold border whitespace-nowrap {{ $item->kategori_badge_classes }}">
                                 {{ $item->kategori }}
                             </span>
-                        </div>
+                        </td>
 
                         <!-- TARGET -->
-                        <div class="w-[15%] text-xs font-bold text-foreground">
+                        <td class="py-3.5 px-4 font-bold text-foreground tabular whitespace-nowrap">
                             Rp {{ number_format($item->target_dana, 0, ',', '.') }}
-                        </div>
+                        </td>
 
                         <!-- TERKUMPUL -->
-                        <div class="w-[15%] text-xs font-bold text-foreground">
+                        <td class="py-3.5 px-4 font-bold text-brand-900 tabular whitespace-nowrap">
                             Rp {{ number_format($item->total_terkumpul, 0, ',', '.') }}
-                        </div>
+                        </td>
 
-                        <!-- STATUS (Pill Badge) -->
-                        <div class="w-[10%] text-center">
+                        <!-- STATUS -->
+                        <td class="py-3.5 px-3 text-center whitespace-nowrap">
                             @if($item->status === 'selesai')
-                                <span class="inline-block px-3 py-0.5 rounded-full text-xs font-semibold bg-info-soft text-info border border-info/30">
-                                    Selesai
-                                </span>
+                                <span class="badge badge-info">Selesai</span>
                             @elseif($item->status === 'aktif')
-                                <span class="inline-block px-3 py-0.5 rounded-full text-xs font-semibold bg-brand-100 dark:bg-brand-900/50 text-brand-700 dark:text-brand-200 border border-brand-200 dark:border-brand-800">
-                                    Aktif
-                                </span>
+                                <span class="badge badge-success">Aktif</span>
                             @else
-                                <span class="inline-block px-3 py-0.5 rounded-full text-xs font-semibold bg-surface text-muted-foreground-2 border border-border">
-                                    Draft
-                                </span>
+                                <span class="badge badge-neutral">Draft</span>
                             @endif
-                        </div>
+                        </td>
 
                         <!-- TANGGAL (Periode) -->
-                        <div class="w-[12%] text-xs text-muted-foreground-1 font-medium">
+                        <td class="py-3.5 px-4 text-muted-foreground-1 font-medium tabular whitespace-nowrap">
                             {{ $item->periode_text }}
-                        </div>
+                        </td>
 
-                        <!-- AKSI (Edit & Delete Icons Persis Screenshot 1) -->
-                        <div class="w-[8%] flex items-center justify-center gap-2">
-                            <!-- Edit -->
-                            <a href="{{ route('admin.kelola-kampanye.edit', $item->id) }}" 
-                               title="Edit Kampanye"
-                               class="text-muted-foreground-1 hover:text-foreground transition p-1 rounded-md hover:bg-muted cursor-pointer">
-                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
-                                </svg>
-                            </a>
-
-                            <!-- Delete -->
-                            <form method="POST" action="{{ route('admin.kelola-kampanye.destroy', $item->id) }}" class="inline">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" 
-                                        data-confirm="Apakah Anda yakin ingin menghapus kampanye '{{ $item->judul }}'? Tindakan ini tidak dapat dibatalkan."
-                                        data-confirm-title="Hapus Kampanye"
-                                        data-confirm-type="danger"
-                                        data-confirm-button="Ya, Hapus"
-                                        title="Hapus Kampanye"
-                                        class="text-danger hover:text-danger transition p-1 rounded-md hover:bg-danger-soft cursor-pointer">
+                        <!-- AKSI -->
+                        <td class="py-3.5 px-4 text-center whitespace-nowrap">
+                            <div class="inline-flex items-center justify-center gap-1.5">
+                                <!-- Edit -->
+                                <a href="{{ route('admin.kelola-kampanye.edit', $item->id) }}" 
+                                   title="Edit Kampanye"
+                                   class="text-muted-foreground-1 hover:text-brand-700 transition p-1.5 rounded-lg hover:bg-brand-50 cursor-pointer">
                                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
                                     </svg>
-                                </button>
-                            </form>
-                        </div>
-                    </div>
+                                </a>
+
+                                <!-- Delete -->
+                                <form method="POST" action="{{ route('admin.kelola-kampanye.destroy', $item->id) }}" class="inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" 
+                                            data-confirm="Apakah Anda yakin ingin menghapus kampanye '{{ $item->judul }}'? Tindakan ini tidak dapat dibatalkan."
+                                            data-confirm-title="Hapus Kampanye"
+                                            data-confirm-type="danger"
+                                            data-confirm-button="Ya, Hapus"
+                                            title="Hapus Kampanye"
+                                            class="text-danger hover:text-danger transition p-1.5 rounded-lg hover:bg-danger-soft cursor-pointer">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                                        </svg>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
                 @empty
-                    <div class="py-12 text-center text-muted-foreground text-sm">
-                        Tidak ada data kampanye yang sesuai dengan filter atau pencarian.
-                    </div>
+                    <tr>
+                        <td colspan="8" class="py-12 text-center text-muted-foreground text-sm">
+                            Tidak ada data kampanye yang sesuai dengan filter atau pencarian.
+                        </td>
+                    </tr>
                 @endforelse
-            </div>
-        </div>
+            </tbody>
+        </table>
     </div>
 
     <!-- 2. Tampilan Khusus Mobile (< md): Kartu Responsif, Bersih, dan Bebas Menumpuk -->
@@ -280,24 +282,18 @@
                 <!-- Header Kartu: Judul & Badge Status -->
                 <div class="flex items-start justify-between gap-2.5">
                     <div class="min-w-0">
-                        <span class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold border mb-1.5 {{ $item->kategori_badge_classes }}">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-2xs font-semibold border mb-1.5 {{ $item->kategori_badge_classes }}">
                             {{ $item->kategori }}
                         </span>
                         <h2 class="font-bold text-foreground text-sm leading-snug">{{ $item->judul }}</h2>
                     </div>
 
                     @if($item->status === 'selesai')
-                        <span class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-info-soft text-info shrink-0 border border-info/30">
-                            Selesai
-                        </span>
+                        <span class="badge badge-info shrink-0">Selesai</span>
                     @elseif($item->status === 'aktif')
-                        <span class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-brand-100 dark:bg-brand-900/50 text-brand-700 dark:text-brand-200 shrink-0 border border-brand-200 dark:border-brand-800">
-                            Aktif
-                        </span>
+                        <span class="badge badge-success shrink-0">Aktif</span>
                     @else
-                        <span class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-surface text-muted-foreground-2 shrink-0 border border-border">
-                            Draft
-                        </span>
+                        <span class="badge badge-neutral shrink-0">Draft</span>
                     @endif
                 </div>
 
@@ -305,11 +301,11 @@
                 <div class="grid grid-cols-2 gap-2 text-xs bg-muted p-2.5 rounded-xl border border-border-line-1">
                     <div>
                         <span class="block text-[10px] text-muted-foreground uppercase font-bold tracking-wider">TARGET</span>
-                        <span class="font-bold text-foreground">Rp {{ number_format($item->target_dana, 0, ',', '.') }}</span>
+                        <span class="font-bold text-foreground tabular">Rp {{ number_format($item->target_dana, 0, ',', '.') }}</span>
                     </div>
                     <div>
                         <span class="block text-[10px] text-muted-foreground uppercase font-bold tracking-wider">TERKUMPUL</span>
-                        <span class="font-bold text-brand-800">Rp {{ number_format($item->total_terkumpul, 0, ',', '.') }}</span>
+                        <span class="font-bold text-brand-800 tabular">Rp {{ number_format($item->total_terkumpul, 0, ',', '.') }}</span>
                     </div>
                 </div>
 
