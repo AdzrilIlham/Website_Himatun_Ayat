@@ -822,7 +822,7 @@
     {{-- MODAL: LIHAT BUKTI TRANSFER (Preline Overlay)                 --}}
     {{-- ============================================================ --}}
     <div id="proof-preview-modal"
-         class="hs-overlay hidden size-full fixed top-0 inset-s-0 z-80 overflow-x-hidden overflow-y-auto pointer-events-none"
+         class="hs-overlay hidden size-full fixed top-0 inset-s-0 z-[100] overflow-x-hidden overflow-y-auto pointer-events-none"
          role="dialog"
          tabindex="-1"
          aria-labelledby="proof-preview-modal-label">
@@ -871,7 +871,7 @@
     {{-- MODAL: UBAH STATUS VERIFIKASI DONASI (Preline Overlay)        --}}
     {{-- ============================================================ --}}
     <div id="modal-edit-status-donasi"
-         class="hs-overlay hidden size-full fixed top-0 inset-s-0 z-80 overflow-x-hidden overflow-y-auto pointer-events-none"
+         class="hs-overlay hidden size-full fixed top-0 inset-s-0 z-[100] overflow-x-hidden overflow-y-auto pointer-events-none"
          role="dialog"
          tabindex="-1"
          aria-labelledby="modal-edit-status-donasi-label">
@@ -968,7 +968,7 @@
     {{-- MODAL: KONFIRMASI VERIFIKASI / TOLAK DONASI (Preline Overlay) --}}
     {{-- ============================================================ --}}
     <div id="modal-konfirmasi-aksi"
-         class="hs-overlay hidden size-full fixed top-0 inset-s-0 z-80 overflow-x-hidden overflow-y-auto pointer-events-none"
+         class="hs-overlay hidden size-full fixed top-0 inset-s-0 z-[100] overflow-x-hidden overflow-y-auto pointer-events-none"
          role="dialog"
          tabindex="-1"
          aria-labelledby="modal-konfirmasi-aksi-label">
@@ -1044,7 +1044,7 @@
     {{-- MODAL: CRUD PENYALURAN DANA & KLASTER ASNAF (Preline Overlay) --}}
     {{-- ============================================================ --}}
     <div id="modal-penyaluran"
-         class="hs-overlay hidden size-full fixed top-0 inset-s-0 z-80 overflow-x-hidden overflow-y-auto pointer-events-none"
+         class="hs-overlay hidden size-full fixed top-0 inset-s-0 z-[100] overflow-x-hidden overflow-y-auto pointer-events-none"
          role="dialog"
          tabindex="-1"
          aria-labelledby="penyaluran-modal-title">
@@ -1189,7 +1189,7 @@
     {{-- MODAL: CRUD PENGELUARAN OPERASIONAL (Preline Overlay)         --}}
     {{-- ============================================================ --}}
     <div id="modal-operasional"
-         class="hs-overlay hidden size-full fixed top-0 inset-s-0 z-80 overflow-x-hidden overflow-y-auto pointer-events-none"
+         class="hs-overlay hidden size-full fixed top-0 inset-s-0 z-[100] overflow-x-hidden overflow-y-auto pointer-events-none"
          role="dialog"
          tabindex="-1"
          aria-labelledby="operasional-modal-title">

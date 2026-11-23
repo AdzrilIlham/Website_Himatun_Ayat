@@ -660,7 +660,7 @@
              ===================================================================== --}}
         <div x-show="modalState !== null"
              x-cloak
-             class="fixed inset-0 z-80 flex items-center justify-center overflow-x-hidden overflow-y-auto p-4 sm:p-6"
+             class="fixed inset-0 z-[100] flex items-center justify-center overflow-x-hidden overflow-y-auto p-4 sm:p-6"
              role="dialog"
              aria-modal="true">
 

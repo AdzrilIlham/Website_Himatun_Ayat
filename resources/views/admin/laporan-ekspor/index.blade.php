@@ -647,7 +647,7 @@
 
     <!-- Modal Riwayat Ekspor (Preline Modal) -->
     <div id="history-export-modal"
-         class="hs-overlay hidden size-full fixed top-0 inset-s-0 z-80 overflow-x-hidden overflow-y-auto pointer-events-none"
+         class="hs-overlay hidden size-full fixed top-0 inset-s-0 z-[100] overflow-x-hidden overflow-y-auto pointer-events-none"
          role="dialog"
          tabindex="-1"
          aria-labelledby="history-export-modal-label">
@@ -713,7 +713,7 @@
 
     <!-- Modal Detail Item (Saat Klik Aksi 3 Titik) -->
     <div id="detail-laporan-modal"
-         class="hs-overlay hidden size-full fixed top-0 inset-s-0 z-80 overflow-x-hidden overflow-y-auto pointer-events-none"
+         class="hs-overlay hidden size-full fixed top-0 inset-s-0 z-[100] overflow-x-hidden overflow-y-auto pointer-events-none"
          role="dialog"
          tabindex="-1"
          aria-labelledby="detail-laporan-modal-label">

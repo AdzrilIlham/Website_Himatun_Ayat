@@ -216,7 +216,7 @@ Modal memakai overlay Preline, bukan `x-show`:
         aria-controls="contoh-modal">Buka</button>
 
 <div id="contoh-modal"
-     class="hs-overlay hidden size-full fixed top-0 inset-s-0 z-80 overflow-x-hidden overflow-y-auto pointer-events-none"
+     class="hs-overlay hidden size-full fixed top-0 inset-s-0 z-[100] overflow-x-hidden overflow-y-auto pointer-events-none"
      role="dialog" tabindex="-1" aria-labelledby="contoh-modal-label">
     <div class="hs-overlay-open:mt-7 hs-overlay-open:opacity-100 hs-overlay-open:duration-500 mt-0 opacity-0 ease-out transition-all sm:max-w-lg sm:w-full m-3 sm:mx-auto">
         <div class="relative bg-overlay rounded-2xl shadow-2xl border border-overlay-line overflow-hidden pointer-events-auto">

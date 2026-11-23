@@ -260,7 +260,7 @@
 
     <!-- MODAL DETAIL PENGAJUAN -->
     <div x-show="detailModalOpen" x-cloak
-         class="fixed inset-0 z-80 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs"
+         class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs"
          @click.self="detailModalOpen = false">
         <div class="relative w-full max-w-lg rounded-3xl bg-card border border-border p-6 sm:p-7 shadow-2xl space-y-4">
             <div class="flex items-start justify-between">
@@ -316,7 +316,7 @@
 
     <!-- MODAL TOLAK PENGAJUAN -->
     <div x-show="tolakModalOpen" x-cloak
-         class="fixed inset-0 z-80 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs"
+         class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs"
          @click.self="tolakModalOpen = false">
         <div class="relative w-full max-w-md rounded-3xl bg-card border border-border p-6 shadow-2xl space-y-4">
             <h3 class="text-lg font-extrabold text-foreground">Tolak Pengajuan Kegiatan</h3>
@@ -341,7 +341,7 @@
 
     <!-- MODAL EDIT DATA PENGAJUAN -->
     <div x-show="editModalOpen" x-cloak
-         class="fixed inset-0 z-80 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs"
+         class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs"
          @click.self="editModalOpen = false">
         <div class="relative w-full max-w-lg rounded-3xl bg-card border border-border p-6 sm:p-7 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto">
             <div class="flex items-start justify-between border-b border-border pb-3">
@@ -446,7 +446,7 @@
 
     <!-- MODAL KONFIRMASI SETUJUI (ACC) -->
     <div x-show="setujuiModalOpen" x-cloak
-         class="fixed inset-0 z-80 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs"
+         class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs"
          @click.self="setujuiModalOpen = false"
          @keydown.escape.window="setujuiModalOpen = false">
         <div class="relative w-full max-w-md rounded-3xl bg-card border border-border p-6 sm:p-7 shadow-2xl space-y-5">
@@ -494,7 +494,7 @@
 
     <!-- MODAL KONFIRMASI HAPUS PENGAJUAN -->
     <div x-show="hapusModalOpen" x-cloak
-         class="fixed inset-0 z-80 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs"
+         class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs"
          @click.self="hapusModalOpen = false"
          @keydown.escape.window="hapusModalOpen = false">
         <div class="relative w-full max-w-md rounded-3xl bg-card border border-border p-6 sm:p-7 shadow-2xl space-y-5">

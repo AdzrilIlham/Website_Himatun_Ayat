@@ -149,7 +149,7 @@
 
             <!-- Modal Konfirmasi ACC dari Widget Dashboard -->
             <div x-show="setujuiModalOpen" x-cloak
-                 class="fixed inset-0 z-80 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs"
+                 class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs"
                  @click.self="setujuiModalOpen = false"
                  @keydown.escape.window="setujuiModalOpen = false">
                 <div class="relative w-full max-w-md rounded-3xl bg-card border border-border p-6 sm:p-7 shadow-2xl space-y-5">

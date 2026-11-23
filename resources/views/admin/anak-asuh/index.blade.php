@@ -530,7 +530,7 @@
 
     <!-- ================= MODAL TAMBAH ANAK ASUH ================= -->
     <div id="create-anak-modal"
-         class="hs-overlay hidden size-full fixed top-0 inset-s-0 z-80 overflow-x-hidden overflow-y-auto pointer-events-none"
+         class="hs-overlay hidden size-full fixed top-0 inset-s-0 z-[100] overflow-x-hidden overflow-y-auto pointer-events-none"
          role="dialog"
          tabindex="-1"
          aria-labelledby="create-anak-modal-label">
@@ -631,7 +631,7 @@
 
     <!-- ================= MODAL EDIT ANAK ASUH ================= -->
     <div id="edit-anak-modal"
-         class="hs-overlay hidden size-full fixed top-0 inset-s-0 z-80 overflow-x-hidden overflow-y-auto pointer-events-none"
+         class="hs-overlay hidden size-full fixed top-0 inset-s-0 z-[100] overflow-x-hidden overflow-y-auto pointer-events-none"
          role="dialog"
          tabindex="-1"
          aria-labelledby="edit-anak-modal-label">
@@ -736,7 +736,7 @@
 
     <!-- ================= MODAL DETAIL ANAK ASUH ================= -->
     <div id="detail-anak-modal"
-         class="hs-overlay hidden size-full fixed top-0 inset-s-0 z-80 overflow-x-hidden overflow-y-auto pointer-events-none"
+         class="hs-overlay hidden size-full fixed top-0 inset-s-0 z-[100] overflow-x-hidden overflow-y-auto pointer-events-none"
          role="dialog"
          tabindex="-1"
          aria-labelledby="detail-anak-modal-label">
