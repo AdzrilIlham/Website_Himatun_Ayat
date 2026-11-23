@@ -299,11 +299,11 @@ class LaporanEksporController extends Controller
     {
         $columns = [
             ['key' => 'no', 'label' => 'No', 'width' => 'w-12 text-center'],
-            ['key' => 'id_anak', 'label' => 'ID Anak', 'width' => 'w-24'],
-            ['key' => 'nama', 'label' => 'Nama Anak Asuh', 'width' => 'min-w-[160px]'],
-            ['key' => 'kategori', 'label' => 'Kategori', 'width' => 'w-28'],
-            ['key' => 'status', 'label' => 'Status', 'width' => 'w-28'],
-            ['key' => 'tanggal', 'label' => 'Tanggal Bergabung', 'width' => 'w-36'],
+            ['key' => 'id_anak', 'label' => 'ID Anak', 'width' => 'w-28'],
+            ['key' => 'nama', 'label' => 'Nama Anak Asuh', 'width' => 'min-w-[150px]'],
+            ['key' => 'kategori', 'label' => 'Kategori', 'width' => 'min-w-[140px]'],
+            ['key' => 'status', 'label' => 'Status', 'width' => 'w-32 text-center'],
+            ['key' => 'tanggal', 'label' => 'Tanggal Bergabung', 'width' => 'min-w-[140px]'],
         ];
 
         // Jika database belum diisi data (misal saat fresh test), sediakan sample mockup yang konsisten dengan slicing
@@ -345,11 +345,11 @@ class LaporanEksporController extends Controller
             ];
 
             $sampleRows = [
-                ['no' => '001', 'id_anak' => 'AA-0021', 'nama' => 'Nur Aisyah', 'kategori' => 'Pendidikan', 'status' => 'Aktif', 'tanggal' => '12 Sep 2025'],
-                ['no' => '002', 'id_anak' => 'AA-0022', 'nama' => 'Muhammad Rizki', 'kategori' => 'Yatim', 'status' => 'Aktif', 'tanggal' => '10 Sep 2025'],
-                ['no' => '003', 'id_anak' => 'AA-0023', 'nama' => 'Siti Rahma', 'kategori' => 'Pendidikan', 'status' => 'Perlu Pembaruan', 'tanggal' => '08 Sep 2025'],
-                ['no' => '004', 'id_anak' => 'AA-0024', 'nama' => 'Ahmad Fauzan', 'kategori' => 'Yatim', 'status' => 'Aktif', 'tanggal' => '05 Sep 2025'],
-                ['no' => '005', 'id_anak' => 'AA-0025', 'nama' => 'Fadli Ramadhan', 'kategori' => 'Pendidikan', 'status' => 'Aktif', 'tanggal' => '01 Sep 2025'],
+                ['no' => '001', 'id_anak' => 'AA-0021', 'nama' => 'Nur Aisyah', 'kategori' => 'Pendidikan', 'status' => 'Aktif', 'tanggal' => '12 Sep 2025', 'nilai_utama' => '12 Sep 2025', 'nilai_sub' => null],
+                ['no' => '002', 'id_anak' => 'AA-0022', 'nama' => 'Muhammad Rizki', 'kategori' => 'Yatim', 'status' => 'Aktif', 'tanggal' => '10 Sep 2025', 'nilai_utama' => '10 Sep 2025', 'nilai_sub' => null],
+                ['no' => '003', 'id_anak' => 'AA-0023', 'nama' => 'Siti Rahma', 'kategori' => 'Pendidikan', 'status' => 'Perlu Pembaruan', 'tanggal' => '08 Sep 2025', 'nilai_utama' => '08 Sep 2025', 'nilai_sub' => null],
+                ['no' => '004', 'id_anak' => 'AA-0024', 'nama' => 'Ahmad Fauzan', 'kategori' => 'Yatim', 'status' => 'Aktif', 'tanggal' => '05 Sep 2025', 'nilai_utama' => '05 Sep 2025', 'nilai_sub' => null],
+                ['no' => '005', 'id_anak' => 'AA-0025', 'nama' => 'Fadli Ramadhan', 'kategori' => 'Pendidikan', 'status' => 'Aktif', 'tanggal' => '01 Sep 2025', 'nilai_utama' => '01 Sep 2025', 'nilai_sub' => null],
             ];
 
             return [
@@ -455,13 +455,17 @@ class LaporanEksporController extends Controller
                 $catLabel = 'Yatim';
             }
 
+            $tanggalText = $item->created_at ? $item->created_at->translatedFormat('d M Y') : '-';
+
             $previewRows[] = [
                 'no' => sprintf('%03d', $offset + $index + 1),
                 'id_anak' => 'AA-'.str_pad((string) $item->id, 4, '0', STR_PAD_LEFT),
                 'nama' => $item->nama_lengkap,
                 'kategori' => $catLabel,
                 'status' => $item->status_asuhan ?: 'Aktif',
-                'tanggal' => $item->created_at ? $item->created_at->translatedFormat('d M Y') : '-',
+                'tanggal' => $tanggalText,
+                'nilai_utama' => $tanggalText,
+                'nilai_sub' => null,
                 'detail' => [
                     'Nama Panggilan' => $item->nama_panggilan ?: '-',
                     'Jenis Kelamin' => $item->jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan',
@@ -494,11 +498,11 @@ class LaporanEksporController extends Controller
     {
         $columns = [
             ['key' => 'no', 'label' => 'No', 'width' => 'w-12 text-center'],
-            ['key' => 'id_anak', 'label' => 'ID Donasi', 'width' => 'w-24'],
-            ['key' => 'nama', 'label' => 'Nama Donatur', 'width' => 'min-w-[160px]'],
-            ['key' => 'kategori', 'label' => 'Program Kampanye', 'width' => 'min-w-[150px]'],
-            ['key' => 'status', 'label' => 'Status', 'width' => 'w-28'],
-            ['key' => 'tanggal', 'label' => 'Nominal & Waktu', 'width' => 'w-40'],
+            ['key' => 'id_anak', 'label' => 'ID Donasi', 'width' => 'w-28'],
+            ['key' => 'nama', 'label' => 'Nama Donatur', 'width' => 'min-w-[150px]'],
+            ['key' => 'kategori', 'label' => 'Program Kampanye', 'width' => 'min-w-[140px]'],
+            ['key' => 'status', 'label' => 'Status', 'width' => 'w-32 text-center'],
+            ['key' => 'tanggal', 'label' => 'Nominal & Waktu', 'width' => 'min-w-[145px]'],
         ];
 
         $query = Donasi::with('kampanye');
@@ -529,7 +533,7 @@ class LaporanEksporController extends Controller
         $totalPending = (clone $query)->where('status', 'pending')->count();
 
         $stats = [
-            'total' => 'Rp'.number_format($totalNominal, 0, ',', '.'),
+            'total' => 'Rp '.number_format($totalNominal, 0, ',', '.'),
             'aktif_pendidikan' => (string) $totalVerified.' Transaksi',
             'aktif_pendidikan_persen' => 'Terverifikasi',
             'aktif_asrama' => (string) $totalPending.' Menunggu',
@@ -539,7 +543,7 @@ class LaporanEksporController extends Controller
             'cards' => [
                 [
                     'title' => 'Penerimaan Donasi',
-                    'value' => 'Rp'.number_format($totalNominal, 0, ',', '.'),
+                    'value' => 'Rp '.number_format($totalNominal, 0, ',', '.'),
                     'sub' => 'Donasi terverifikasi',
                     'type' => 'total',
                 ],
@@ -570,23 +574,29 @@ class LaporanEksporController extends Controller
 
         foreach ($paginator->items() as $index => $item) {
             $statusText = match ($item->status) {
-                'verified' => 'Aktif',
-                'pending' => 'Perlu Pembaruan',
+                'verified' => 'Terverifikasi',
+                'pending' => 'Menunggu',
                 default => 'Ditolak',
             };
+
+            $donaturName = filled($item->nama_donatur) ? $item->nama_donatur : 'Hamba Allah';
+            $nominalFormatted = 'Rp '.number_format($item->nominal, 0, ',', '.');
+            $tanggalFormatted = $item->created_at ? $item->created_at->translatedFormat('d M Y') : '-';
 
             $previewRows[] = [
                 'no' => sprintf('%03d', $offset + $index + 1),
                 'id_anak' => 'DON-'.str_pad((string) $item->id, 4, '0', STR_PAD_LEFT),
-                'nama' => $item->nama_donatur,
+                'nama' => $donaturName,
                 'kategori' => $item->kampanye?->judul ?? 'Donasi Umum',
                 'status' => $statusText,
-                'tanggal' => 'Rp'.number_format($item->nominal, 0, ',', '.').' ('.($item->created_at ? $item->created_at->format('d/m/y') : '-').')',
+                'tanggal' => $nominalFormatted.' ('.($item->created_at ? $item->created_at->format('d/m/y') : '-').')',
+                'nilai_utama' => $nominalFormatted,
+                'nilai_sub' => $tanggalFormatted,
                 'detail' => [
-                    'Nominal' => 'Rp'.number_format($item->nominal, 0, ',', '.'),
+                    'Nominal' => $nominalFormatted,
                     'Metode Pembayaran' => $item->metode_pembayaran,
                     'No WhatsApp' => $item->no_whatsapp ?: '-',
-                    'Status' => ucfirst($item->status),
+                    'Status' => $statusText,
                     'Waktu Transaksi' => $item->created_at ? $item->created_at->translatedFormat('d F Y H:i') : '-',
                     'Pesan / Doa' => $item->pesan_doa ?: '-',
                 ],
@@ -616,10 +626,10 @@ class LaporanEksporController extends Controller
         $columns = [
             ['key' => 'no', 'label' => 'No', 'width' => 'w-12 text-center'],
             ['key' => 'id_anak', 'label' => 'ID Kampanye', 'width' => 'w-28'],
-            ['key' => 'nama', 'label' => 'Judul Kampanye', 'width' => 'min-w-[170px]'],
-            ['key' => 'kategori', 'label' => 'Kategori', 'width' => 'w-32'],
-            ['key' => 'status', 'label' => 'Status', 'width' => 'w-24'],
-            ['key' => 'tanggal', 'label' => 'Terkumpul / Target', 'width' => 'min-w-[150px]'],
+            ['key' => 'nama', 'label' => 'Judul Kampanye', 'width' => 'min-w-[160px]'],
+            ['key' => 'kategori', 'label' => 'Kategori', 'width' => 'min-w-[140px]'],
+            ['key' => 'status', 'label' => 'Status', 'width' => 'w-32 text-center'],
+            ['key' => 'tanggal', 'label' => 'Terkumpul / Target', 'width' => 'min-w-[155px]'],
         ];
 
         $query = Kampanye::query();
@@ -648,7 +658,7 @@ class LaporanEksporController extends Controller
             'total' => (string) $totalFiltered.' Program',
             'aktif_pendidikan' => (string) $totalAktif.' Aktif',
             'aktif_pendidikan_persen' => 'Sedang Berjalan',
-            'aktif_asrama' => 'Rp'.number_format($totalTerkumpul / 1000000, 1, ',', '.').' Jt',
+            'aktif_asrama' => 'Rp '.number_format($totalTerkumpul / 1000000, 1, ',', '.').' Jt',
             'aktif_asrama_persen' => 'Dana Terhimpun',
             'perlu_perhatian' => $avgPersen,
             'perlu_perhatian_persen' => 'Rerata Capaian',
@@ -667,7 +677,7 @@ class LaporanEksporController extends Controller
                 ],
                 [
                     'title' => 'Total Terkumpul',
-                    'value' => 'Rp'.number_format($totalTerkumpul, 0, ',', '.'),
+                    'value' => 'Rp '.number_format($totalTerkumpul, 0, ',', '.'),
                     'sub' => 'Akumulasi seluruh program',
                     'type' => 'asrama',
                 ],
@@ -685,19 +695,30 @@ class LaporanEksporController extends Controller
         $offset = ($page - 1) * $perPage;
 
         foreach ($paginator->items() as $index => $item) {
+            $statusText = match ($item->status) {
+                'aktif' => 'Aktif',
+                'selesai' => 'Selesai',
+                default => 'Draft',
+            };
+
+            $terkumpulFormatted = 'Rp '.number_format($item->dana_terkumpul, 0, ',', '.');
+            $targetFormatted = 'Rp '.number_format($item->target_dana, 0, ',', '.');
+
             $previewRows[] = [
                 'no' => sprintf('%03d', $offset + $index + 1),
                 'id_anak' => 'KMP-'.str_pad((string) $item->id, 4, '0', STR_PAD_LEFT),
                 'nama' => $item->judul,
                 'kategori' => $item->kategori ?: 'Sosial',
-                'status' => $item->status === 'aktif' ? 'Aktif' : 'Selesai',
-                'tanggal' => 'Rp'.number_format($item->dana_terkumpul, 0, ',', '.').' / '.number_format($item->target_dana, 0, ',', '.'),
+                'status' => $statusText,
+                'tanggal' => $terkumpulFormatted.' / '.$targetFormatted,
+                'nilai_utama' => $terkumpulFormatted,
+                'nilai_sub' => 'Target '.$targetFormatted,
                 'detail' => [
-                    'Target Dana' => 'Rp'.number_format($item->target_dana, 0, ',', '.'),
-                    'Dana Terkumpul' => 'Rp'.number_format($item->dana_terkumpul, 0, ',', '.'),
+                    'Target Dana' => $targetFormatted,
+                    'Dana Terkumpul' => $terkumpulFormatted,
                     'Persentase' => $item->persentase_tercapai.'%',
                     'Periode' => $item->periode_text,
-                    'Status' => ucfirst($item->status),
+                    'Status' => $statusText,
                 ],
             ];
         }

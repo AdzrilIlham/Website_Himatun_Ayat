@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Models\Donasi;
+use App\Models\Kampanye;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -27,7 +29,19 @@ class AdminLaporanEksporTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('Laporan & Ekspor', false);
-        $response->assertSee('Pilih Jenis Laporan');
+        $response->assertSee('Filter Laporan');
+        $response->assertDontSee('Tampilkan Preview');
+        $response->assertDontSee('Pilih filter di atas, lalu klik tombol untuk memperbarui preview', false);
+        $response->assertSee('bg-brand-100', false);
+        $response->assertSee('text-2xs', false);
+        $response->assertSee('whitespace-nowrap', false);
+        $response->assertSee('tabular', false);
+        $response->assertDontSee('bg-purple-100', false);
+        $response->assertDontSee('bg-[#107C41]', false);
+        $response->assertDontSee('dark:bg-brand-900', false);
+        $response->assertDontSee('dark:bg-amber-950', false);
+        $response->assertDontSee('dark:bg-purple-950', false);
+        $this->assertStringNotContainsString('dark:', file_get_contents(resource_path('views/admin/laporan-ekspor/index.blade.php')));
         $response->assertSee('Total Anak Asuh');
         $response->assertSee('Aktif Pendidikan');
         $response->assertSee('Aktif di Asrama');
@@ -89,6 +103,40 @@ class AdminLaporanEksporTest extends TestCase
      */
     public function test_ajax_preview_donasi_returns_proper_data(): void
     {
+        $kampanye = Kampanye::create([
+            'judul' => 'Santunan Yatim Cibiru',
+            'slug' => 'santunan-yatim-cibiru',
+            'kategori' => 'Kemanusiaan',
+            'deskripsi' => 'Program santunan kemanusiaan.',
+            'target_dana' => 10000000,
+            'dana_terkumpul' => 2500000,
+            'status' => 'aktif',
+        ]);
+
+        Donasi::create([
+            'nama_donatur' => 'Donatur Terverifikasi',
+            'nominal' => 1000000,
+            'kampanye_id' => $kampanye->id,
+            'metode_pembayaran' => 'QRIS',
+            'status' => 'verified',
+        ]);
+
+        Donasi::create([
+            'nama_donatur' => 'Donatur Menunggu',
+            'nominal' => 500000,
+            'kampanye_id' => $kampanye->id,
+            'metode_pembayaran' => 'QRIS',
+            'status' => 'pending',
+        ]);
+
+        Donasi::create([
+            'nama_donatur' => '',
+            'nominal' => 250000,
+            'kampanye_id' => $kampanye->id,
+            'metode_pembayaran' => 'QRIS',
+            'status' => 'rejected',
+        ]);
+
         $response = $this->getJson('/admin/laporan-ekspor?json=1&jenis_laporan=Kelola+Donasi');
 
         $response->assertStatus(200);
@@ -96,6 +144,23 @@ class AdminLaporanEksporTest extends TestCase
             'success' => true,
             'jenisLaporan' => 'Kelola Donasi',
         ]);
+
+        $rows = collect($response->json('previewData'));
+        $verifiedRow = $rows->firstWhere('nama', 'Donatur Terverifikasi');
+        $pendingRow = $rows->firstWhere('nama', 'Donatur Menunggu');
+        $rejectedRow = $rows->firstWhere('nama', 'Hamba Allah');
+
+        $this->assertNotNull($verifiedRow);
+        $this->assertSame('Terverifikasi', $verifiedRow['status']);
+        $this->assertSame('Rp 1.000.000', $verifiedRow['nilai_utama']);
+        $this->assertNotEmpty($verifiedRow['nilai_sub']);
+        $this->assertSame('Terverifikasi', $verifiedRow['detail']['Status']);
+
+        $this->assertNotNull($pendingRow);
+        $this->assertSame('Menunggu', $pendingRow['status']);
+
+        $this->assertNotNull($rejectedRow);
+        $this->assertSame('Ditolak', $rejectedRow['status']);
     }
 
     /**
@@ -103,6 +168,36 @@ class AdminLaporanEksporTest extends TestCase
      */
     public function test_ajax_preview_kampanye_returns_proper_data(): void
     {
+        Kampanye::create([
+            'judul' => 'Program Tahfidz Aktif',
+            'slug' => 'program-tahfidz-aktif',
+            'kategori' => 'Pendidikan & Tahfidz',
+            'deskripsi' => 'Program pendidikan santri.',
+            'target_dana' => 50000000,
+            'dana_terkumpul' => 25000000,
+            'status' => 'aktif',
+        ]);
+
+        Kampanye::create([
+            'judul' => 'Program Bantuan Selesai',
+            'slug' => 'program-bantuan-selesai',
+            'kategori' => 'Kemanusiaan',
+            'deskripsi' => 'Program bantuan sosial.',
+            'target_dana' => 20000000,
+            'dana_terkumpul' => 20000000,
+            'status' => 'selesai',
+        ]);
+
+        Kampanye::create([
+            'judul' => 'Program Rencana Draft',
+            'slug' => 'program-rencana-draft',
+            'kategori' => 'Operasional',
+            'deskripsi' => 'Program rencana draft.',
+            'target_dana' => 15000000,
+            'dana_terkumpul' => 0,
+            'status' => 'draft',
+        ]);
+
         $response = $this->getJson('/admin/laporan-ekspor?json=1&jenis_laporan=Kelola+Kampanye');
 
         $response->assertStatus(200);
@@ -110,6 +205,22 @@ class AdminLaporanEksporTest extends TestCase
             'success' => true,
             'jenisLaporan' => 'Kelola Kampanye',
         ]);
+
+        $rows = collect($response->json('previewData'));
+        $aktifRow = $rows->firstWhere('nama', 'Program Tahfidz Aktif');
+        $selesaiRow = $rows->firstWhere('nama', 'Program Bantuan Selesai');
+        $draftRow = $rows->firstWhere('nama', 'Program Rencana Draft');
+
+        $this->assertNotNull($aktifRow);
+        $this->assertSame('Aktif', $aktifRow['status']);
+        $this->assertSame('Rp 25.000.000', $aktifRow['nilai_utama']);
+        $this->assertSame('Target Rp 50.000.000', $aktifRow['nilai_sub']);
+
+        $this->assertNotNull($selesaiRow);
+        $this->assertSame('Selesai', $selesaiRow['status']);
+
+        $this->assertNotNull($draftRow);
+        $this->assertSame('Draft', $draftRow['status']);
     }
 
     /**

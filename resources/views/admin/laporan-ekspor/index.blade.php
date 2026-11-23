@@ -51,21 +51,39 @@
 
     <!-- 1. Card Filter: Pilih Jenis Laporan & Filter -->
     <div class="bg-card rounded-2xl border border-border p-5 sm:p-6 shadow-2xs space-y-4">
-        <div class="flex items-center justify-between gap-2 border-b border-border-line-1 pb-3">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-border-line-1 pb-3">
             <div class="flex items-center gap-2 text-foreground font-bold text-sm sm:text-base">
                 <svg class="w-4.5 h-4.5 text-muted-foreground-2" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
                 </svg>
                 <span>Filter Laporan</span>
+                <span class="hidden sm:inline-flex badge badge-success" x-text="jenisLaporan">{{ $jenisLaporan }}</span>
             </div>
-            <span class="text-xs text-muted-foreground font-medium hidden sm:inline" x-text="'Laporan aktif: ' + jenisLaporan">Laporan aktif: {{ $jenisLaporan }}</span>
+            <div class="flex items-center gap-2.5 ml-auto">
+                <span x-show="previewLoading" x-cloak class="inline-flex items-center gap-1.5 text-xs text-brand-700 font-semibold">
+                    <svg class="animate-spin h-3.5 w-3.5 text-brand-600" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                    </svg>
+                    <span>Memuat...</span>
+                </span>
+                <button type="button"
+                        @click="resetFilter()"
+                        :disabled="previewLoading"
+                        class="btn btn-secondary btn-sm cursor-pointer">
+                    <svg class="w-3.5 h-3.5 text-muted-foreground-1" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                    </svg>
+                    <span>Reset</span>
+                </button>
+            </div>
         </div>
 
-        <form action="{{ route('admin.laporan-ekspor.index', [], false) }}" method="GET" @submit.prevent="triggerPreview(1)" class="space-y-4">
+        <form action="{{ route('admin.laporan-ekspor.index', [], false) }}" method="GET" @submit.prevent="triggerPreview(1)">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <!-- Jenis Laporan -->
                 <div class="space-y-1.5">
-                    <label class="block text-xs font-semibold text-foreground">Jenis Laporan</label>
+                    <label class="form-label mb-0 text-xs font-semibold">Jenis Laporan</label>
                     <x-preline-select name="jenis_laporan"
                                       x-model="jenisLaporan"
                                       @change="handleJenisChange()"
@@ -78,7 +96,7 @@
 
                 <!-- Bulan -->
                 <div class="space-y-1.5">
-                    <label class="block text-xs font-semibold text-foreground">Bulan</label>
+                    <label class="form-label mb-0 text-xs font-semibold">Bulan</label>
                     <x-preline-select name="bulan"
                                       x-model="bulan"
                                       @change="handleFilterChange()"
@@ -91,7 +109,7 @@
 
                 <!-- Tahun -->
                 <div class="space-y-1.5">
-                    <label class="block text-xs font-semibold text-foreground">Tahun</label>
+                    <label class="form-label mb-0 text-xs font-semibold">Tahun</label>
                     <x-preline-select name="tahun"
                                       x-model="tahun"
                                       @change="handleFilterChange()"
@@ -104,7 +122,7 @@
 
                 <!-- Kategori -->
                 <div class="space-y-1.5">
-                    <label class="block text-xs font-semibold text-foreground">Kategori</label>
+                    <label class="form-label mb-0 text-xs font-semibold">Kategori</label>
                     <x-preline-select name="kategori"
                                       x-ref="kategoriSelect"
                                       x-model="kategori"
@@ -116,53 +134,13 @@
                     </x-preline-select>
                 </div>
             </div>
-
-            <!-- Tombol Aksi Filter: Tampilkan Preview & Reset -->
-            <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
-                <div class="text-xs text-muted-foreground-1 font-medium">
-                    <span x-show="previewLoading" class="inline-flex items-center gap-1.5 text-brand-700 font-semibold">
-                        <svg class="animate-spin h-3.5 w-3.5 text-brand-600" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-                        </svg>
-                        Memuat data preview...
-                    </span>
-                    <span x-show="!previewLoading" class="text-muted-foreground">
-                        Pilih filter di atas, lalu klik tombol untuk memperbarui preview tabel, PDF, atau Excel.
-                    </span>
-                </div>
-                <div class="flex items-center gap-2.5 w-full sm:w-auto">
-                    <button type="button"
-                            @click="resetFilter()"
-                            :disabled="previewLoading"
-                            class="btn btn-secondary flex-1 sm:flex-none">
-                        <svg class="w-3.5 h-3.5 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
-                        </svg>
-                        <span>Reset</span>
-                    </button>
-                    <button type="submit"
-                            :disabled="previewLoading"
-                            class="btn btn-primary flex-1 sm:flex-none">
-                        <svg x-show="previewLoading" class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-                        </svg>
-                        <svg x-show="!previewLoading" class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                        <span x-text="previewLoading ? 'Memuat...' : 'Tampilkan Preview'">Tampilkan Preview</span>
-                    </button>
-                </div>
-            </div>
         </form>
     </div>
 
     <!-- 2. Stat Cards (4 Cards) -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
         <!-- Card 1 -->
-        <div class="bg-card rounded-2xl p-4 sm:p-5 border border-border shadow-2xs flex items-center gap-4">
+        <div class="bg-card rounded-2xl p-4 sm:p-5 border border-border shadow-2xs hover:border-brand-300 hover:shadow-sm transition-all duration-200 flex items-center gap-4">
             <div class="w-12 h-12 rounded-full bg-brand-50 text-brand-700 flex items-center justify-center shrink-0">
                 <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
@@ -170,13 +148,13 @@
             </div>
             <div class="min-w-0 flex-1">
                 <p class="text-xs text-muted-foreground-1 font-medium truncate" x-text="stats.cards?.[0]?.title ?? 'Total Data'">{{ $stats['cards'][0]['title'] ?? 'Total Data' }}</p>
-                <p class="text-2xl sm:text-3xl font-black text-foreground tracking-tight mt-0.5 truncate" x-text="stats.cards?.[0]?.value ?? stats.total">{{ $stats['cards'][0]['value'] ?? $stats['total'] }}</p>
+                <p class="text-xl sm:text-2xl font-extrabold text-foreground tracking-tight mt-0.5 tabular truncate" :title="stats.cards?.[0]?.value ?? stats.total" x-text="stats.cards?.[0]?.value ?? stats.total">{{ $stats['cards'][0]['value'] ?? $stats['total'] }}</p>
                 <p class="text-2xs text-muted-foreground mt-0.5 font-medium truncate" x-text="stats.cards?.[0]?.sub ?? 'Data sesuai filter'">{{ $stats['cards'][0]['sub'] ?? 'Data sesuai filter' }}</p>
             </div>
         </div>
 
         <!-- Card 2 -->
-        <div class="bg-card rounded-2xl p-4 sm:p-5 border border-border shadow-2xs flex items-center gap-4">
+        <div class="bg-card rounded-2xl p-4 sm:p-5 border border-border shadow-2xs hover:border-brand-300 hover:shadow-sm transition-all duration-200 flex items-center gap-4">
             <div class="w-12 h-12 rounded-full bg-brand-50 text-brand-700 flex items-center justify-center shrink-0">
                 <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-5.25 6.557c.725 0 1.436-.033 2.138-.098" />
@@ -184,13 +162,13 @@
             </div>
             <div class="min-w-0 flex-1">
                 <p class="text-xs text-muted-foreground-1 font-medium truncate" x-text="stats.cards?.[1]?.title ?? 'Status Utama'">{{ $stats['cards'][1]['title'] ?? 'Status Utama' }}</p>
-                <p class="text-2xl sm:text-3xl font-black text-foreground tracking-tight mt-0.5 truncate" x-text="stats.cards?.[1]?.value ?? stats.aktif_pendidikan">{{ $stats['cards'][1]['value'] ?? $stats['aktif_pendidikan'] }}</p>
+                <p class="text-xl sm:text-2xl font-extrabold text-foreground tracking-tight mt-0.5 tabular truncate" :title="stats.cards?.[1]?.value ?? stats.aktif_pendidikan" x-text="stats.cards?.[1]?.value ?? stats.aktif_pendidikan">{{ $stats['cards'][1]['value'] ?? $stats['aktif_pendidikan'] }}</p>
                 <p class="text-2xs text-muted-foreground mt-0.5 font-medium truncate" x-text="stats.cards?.[1]?.sub ?? (stats.aktif_pendidikan_persen + ' dari total')">{{ $stats['cards'][1]['sub'] ?? ($stats['aktif_pendidikan_persen'] . ' dari total') }}</p>
             </div>
         </div>
 
         <!-- Card 3 -->
-        <div class="bg-card rounded-2xl p-4 sm:p-5 border border-border shadow-2xs flex items-center gap-4">
+        <div class="bg-card rounded-2xl p-4 sm:p-5 border border-border shadow-2xs hover:border-brand-300 hover:shadow-sm transition-all duration-200 flex items-center gap-4">
             <div class="w-12 h-12 rounded-full bg-brand-50 text-brand-700 flex items-center justify-center shrink-0">
                 <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
@@ -198,13 +176,13 @@
             </div>
             <div class="min-w-0 flex-1">
                 <p class="text-xs text-muted-foreground-1 font-medium truncate" x-text="stats.cards?.[2]?.title ?? 'Aktivitas'">{{ $stats['cards'][2]['title'] ?? 'Aktivitas' }}</p>
-                <p class="text-2xl sm:text-3xl font-black text-foreground tracking-tight mt-0.5 truncate" x-text="stats.cards?.[2]?.value ?? stats.aktif_asrama">{{ $stats['cards'][2]['value'] ?? $stats['aktif_asrama'] }}</p>
+                <p class="text-xl sm:text-2xl font-extrabold text-foreground tracking-tight mt-0.5 tabular truncate" :title="stats.cards?.[2]?.value ?? stats.aktif_asrama" x-text="stats.cards?.[2]?.value ?? stats.aktif_asrama">{{ $stats['cards'][2]['value'] ?? $stats['aktif_asrama'] }}</p>
                 <p class="text-2xs text-muted-foreground mt-0.5 font-medium truncate" x-text="stats.cards?.[2]?.sub ?? (stats.aktif_asrama_persen + ' dari total')">{{ $stats['cards'][2]['sub'] ?? ($stats['aktif_asrama_persen'] . ' dari total') }}</p>
             </div>
         </div>
 
         <!-- Card 4 -->
-        <div class="bg-card rounded-2xl p-4 sm:p-5 border border-border shadow-2xs flex items-center gap-4">
+        <div class="bg-card rounded-2xl p-4 sm:p-5 border border-border shadow-2xs hover:border-warning/60 hover:shadow-sm transition-all duration-200 flex items-center gap-4">
             <div class="w-12 h-12 rounded-full bg-warning-soft text-warning flex items-center justify-center shrink-0">
                 <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
@@ -212,18 +190,18 @@
             </div>
             <div class="min-w-0 flex-1">
                 <p class="text-xs text-muted-foreground-1 font-medium truncate" x-text="stats.cards?.[3]?.title ?? 'Perlu Tindakan'">{{ $stats['cards'][3]['title'] ?? 'Perlu Tindakan' }}</p>
-                <p class="text-2xl sm:text-3xl font-black text-warning tracking-tight mt-0.5 truncate" x-text="stats.cards?.[3]?.value ?? stats.perlu_perhatian">{{ $stats['cards'][3]['value'] ?? $stats['perlu_perhatian'] }}</p>
+                <p class="text-xl sm:text-2xl font-extrabold text-warning tracking-tight mt-0.5 tabular truncate" :title="stats.cards?.[3]?.value ?? stats.perlu_perhatian" x-text="stats.cards?.[3]?.value ?? stats.perlu_perhatian">{{ $stats['cards'][3]['value'] ?? $stats['perlu_perhatian'] }}</p>
                 <p class="text-2xs text-muted-foreground mt-0.5 font-medium truncate" x-text="stats.cards?.[3]?.sub ?? (stats.perlu_perhatian_persen + ' dari total')">{{ $stats['cards'][3]['sub'] ?? ($stats['perlu_perhatian_persen'] . ' dari total') }}</p>
             </div>
         </div>
     </div>
 
     <!-- 3. Grid 2 Kolom: Preview Laporan (Kiri) & Ekspor Laporan + Catatan (Kanan) -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5">
+    <div class="grid grid-cols-1 xl:grid-cols-12 gap-4 sm:gap-5">
         <!-- Kolom Kiri: Preview Laporan Lengkap (8 cols) -->
-        <div class="lg:col-span-8 bg-card rounded-2xl border border-border shadow-2xs p-5 sm:p-6 space-y-4">
+        <div class="xl:col-span-8 min-w-0 bg-card rounded-2xl border border-border shadow-2xs p-5 sm:p-6 space-y-4">
 
-            <!-- Header Preview: Mode Switcher (Tabel / PDF / Excel) & Tombol Refresh -->
+            <!-- Header Preview: Mode Switcher (Tabel / PDF / Excel) -->
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-border-line-1">
                 <div class="space-y-1">
                     <div class="flex items-center gap-2">
@@ -236,12 +214,12 @@
                 </div>
 
                 <!-- Preview Mode Segmented Tabs -->
-                <div class="inline-flex p-1 rounded-xl bg-muted/80 border border-border-line-1 shrink-0 self-start sm:self-auto">
+                <div class="inline-flex p-1 rounded-xl bg-surface border border-border shrink-0 self-start sm:self-auto gap-0.5">
                     <!-- Tab Tabel -->
                     <button type="button"
                             @click="setPreviewMode('table')"
-                            :class="previewMode === 'table' ? 'bg-card text-foreground shadow-2xs font-bold' : 'text-muted-foreground-2 hover:text-foreground font-medium'"
-                            class="px-3 py-1.5 text-xs rounded-lg transition inline-flex items-center gap-1.5 cursor-pointer">
+                            :class="previewMode === 'table' ? 'bg-card text-foreground shadow-2xs ring-1 ring-border/70 font-bold' : 'text-muted-foreground-2 hover:text-brand-700 font-medium'"
+                            class="px-3 py-1.5 text-xs rounded-lg transition-colors duration-150 inline-flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                         </svg>
@@ -251,8 +229,8 @@
                     <!-- Tab PDF -->
                     <button type="button"
                             @click="setPreviewMode('pdf')"
-                            :class="previewMode === 'pdf' ? 'bg-card text-danger shadow-2xs font-bold' : 'text-muted-foreground-2 hover:text-danger font-medium'"
-                            class="px-3 py-1.5 text-xs rounded-lg transition inline-flex items-center gap-1.5 cursor-pointer">
+                            :class="previewMode === 'pdf' ? 'bg-card text-danger shadow-2xs ring-1 ring-border/70 font-bold' : 'text-muted-foreground-2 hover:text-danger font-medium'"
+                            class="px-3 py-1.5 text-xs rounded-lg transition-colors duration-150 inline-flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
                         <svg class="w-3.5 h-3.5 text-danger" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m6.75 12l-3-3m0 0l-3 3m3-3v6m-1.5-15H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
                         </svg>
@@ -262,8 +240,8 @@
                     <!-- Tab Excel -->
                     <button type="button"
                             @click="setPreviewMode('excel')"
-                            :class="previewMode === 'excel' ? 'bg-card text-brand-800 shadow-2xs font-bold' : 'text-muted-foreground-2 hover:text-brand-800 font-medium'"
-                            class="px-3 py-1.5 text-xs rounded-lg transition inline-flex items-center gap-1.5 cursor-pointer">
+                            :class="previewMode === 'excel' ? 'bg-card text-brand-800 shadow-2xs ring-1 ring-border/70 font-bold' : 'text-muted-foreground-2 hover:text-brand-700 font-medium'"
+                            class="px-3 py-1.5 text-xs rounded-lg transition-colors duration-150 inline-flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
                         <svg class="w-3.5 h-3.5 text-brand-600" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M3.375 19.5h17.25m-17.25 0a1.125 1.125 0 01-1.125-1.125M3.375 19.5h7.5c.621 0 1.125-.504 1.125-1.125m-9.75 0V5.625m0 12.75v-1.5c0-.621.504-1.125 1.125-1.125m18.375 2.625V5.625m0 12.75c0 .621-.504 1.125-1.125 1.125m1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125m0 3.75h-7.5A1.125 1.125 0 0112 18.375m9.75-12.75c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125m19.5 0v1.5c0 .621-.504 1.125-1.125 1.125M2.25 5.625v1.5c0 .621.504 1.125 1.125 1.125m0 0h17.25m-17.25 0h7.5c.621 0 1.125.504 1.125 1.125M12 10.875v7.5m0-7.5a1.125 1.125 0 011.125-1.125h7.125" />
                         </svg>
@@ -273,7 +251,7 @@
             </div>
 
             <!-- Loading Spinner Global -->
-            <div x-show="previewLoading" class="py-12 flex flex-col items-center justify-center gap-3 text-muted-foreground-1">
+            <div x-show="previewLoading" x-cloak class="py-12 flex flex-col items-center justify-center gap-3 text-muted-foreground-1">
                 <div class="w-8 h-8 border-3 border-brand-700 border-t-transparent rounded-full animate-spin"></div>
                 <p class="text-xs font-semibold text-muted-foreground-2">Menyiapkan preview data laporan...</p>
             </div>
@@ -292,45 +270,64 @@
                 </div>
 
                 <!-- Desktop Table (md ke atas) -->
-                <div x-show="previewData.length > 0" class="hidden md:block overflow-x-auto w-full rounded-xl border border-border-line-1">
-                    <table class="w-full text-left border-collapse text-xs sm:text-sm min-w-[650px]">
+                <div x-show="previewData.length > 0" class="hidden md:block overflow-x-auto custom-scrollbar w-full rounded-xl border border-border">
+                    <table class="w-full text-left border-collapse text-xs min-w-[680px]">
                         <thead>
-                            <tr class="text-muted-foreground-2 font-bold border-b border-border bg-muted/80">
+                            <tr class="bg-brand-100 text-muted-foreground-2 font-bold uppercase text-2xs tracking-wider border-b border-brand-200">
                                 <template x-for="col in columns" :key="col.key">
-                                    <th scope="col" :class="'py-3 px-3 ' + (col.width || '')" x-text="col.label"></th>
+                                    <th scope="col"
+                                        class="py-3.5 px-3 whitespace-nowrap"
+                                        :class="getColumnHeaderClass(col.key)"
+                                        x-text="col.label">
+                                    </th>
                                 </template>
-                                <th scope="col" class="py-3 px-2 text-center w-10"></th>
+                                <th scope="col" class="py-3.5 px-2.5 text-center whitespace-nowrap w-14">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-border-line-1 bg-card">
-                            <template x-for="(item, idx) in previewData" :key="item.id_anak || idx">
-                                <tr class="hover:bg-muted/70 transition">
-                                    <td class="py-3 px-3 text-muted-foreground-1 font-medium" x-text="item.no"></td>
-                                    <td class="py-3 px-3 font-bold text-foreground" x-text="item.id_anak"></td>
-                                    <td class="py-3 px-4 font-semibold text-foreground" x-text="item.nama"></td>
-                                    <td class="py-3 px-3">
-                                        <span class="badge text-xs"
-                                              :class="getCategoryBadgeClass(item.kategori)"
-                                              x-text="item.kategori">
+                            <template x-for="(item, idx) in previewData" :key="(item.id_anak || '') + '-' + idx">
+                                <tr class="hover:bg-muted/60 transition align-middle">
+                                    <td class="py-3.5 px-3 text-center text-xs font-semibold text-muted-foreground-1 tabular whitespace-nowrap" x-text="item.no"></td>
+                                    <td class="py-3.5 px-3 whitespace-nowrap">
+                                        <span class="font-mono text-xs font-bold text-foreground tabular" x-text="item.id_anak"></span>
+                                    </td>
+                                    <td class="py-3.5 px-3 max-w-[190px]">
+                                        <span class="block text-xs sm:text-[13px] font-semibold text-foreground truncate" :title="item.nama" x-text="item.nama"></span>
+                                    </td>
+                                    <td class="py-3.5 px-3 max-w-[185px]">
+                                        <span class="inline-flex items-center max-w-full rounded-full px-2.5 py-0.5 text-2xs font-semibold border bg-brand-50 text-brand-800 border-brand-200"
+                                              :title="item.kategori">
+                                            <span class="truncate" x-text="item.kategori"></span>
                                         </span>
                                     </td>
-                                    <td class="py-3 px-3">
-                                        <span class="badge text-xs"
+                                    <td class="py-3.5 px-3 text-center whitespace-nowrap">
+                                        <span class="badge whitespace-nowrap"
                                               :class="getStatusBadgeClass(item.status)"
                                               x-text="item.status">
                                         </span>
                                     </td>
-                                    <td class="py-3 px-4 text-muted-foreground-1 font-medium" x-text="item.tanggal"></td>
-                                    <td class="py-3 px-2 text-center text-muted-foreground">
+                                    <td class="py-3.5 px-3 whitespace-nowrap">
+                                        <template x-if="item.nilai_sub">
+                                            <div class="leading-tight">
+                                                <span class="block text-xs font-bold text-brand-900 tabular" x-text="item.nilai_utama || item.tanggal"></span>
+                                                <span class="block text-2xs text-muted-foreground tabular mt-0.5" x-text="item.nilai_sub"></span>
+                                            </div>
+                                        </template>
+                                        <template x-if="!item.nilai_sub">
+                                            <span class="text-xs font-medium text-muted-foreground-1 tabular" x-text="item.nilai_utama || item.tanggal"></span>
+                                        </template>
+                                    </td>
+                                    <td class="py-3.5 px-2.5 text-center whitespace-nowrap">
                                         <button type="button"
                                                 data-hs-overlay="#detail-laporan-modal"
                                                 aria-controls="detail-laporan-modal"
                                                 @click="openDetail(item)"
-                                                class="p-1 hover:text-foreground rounded-md hover:bg-muted transition cursor-pointer"
+                                                class="p-1.5 rounded-lg text-muted-foreground-1 hover:text-brand-700 hover:bg-brand-50 transition cursor-pointer"
                                                 title="Lihat Detail"
                                                 aria-label="Lihat detail">
                                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                             </svg>
                                         </button>
                                     </td>
@@ -342,42 +339,55 @@
 
                 <!-- Mobile Card List (< md) -->
                 <div x-show="previewData.length > 0" class="md:hidden space-y-3">
-                    <template x-for="(item, idx) in previewData" :key="item.id_anak || idx">
-                        <div class="bg-muted/70 border border-border rounded-xl p-3.5 space-y-2.5">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-xs font-bold text-muted-foreground" x-text="'#' + item.no"></span>
-                                    <span class="px-2 py-0.5 rounded-md bg-card border border-border text-xs font-black text-foreground shadow-2xs" x-text="item.id_anak"></span>
+                    <template x-for="(item, idx) in previewData" :key="(item.id_anak || '') + '-m-' + idx">
+                        <div class="bg-card border border-border rounded-xl p-3.5 space-y-2.5 shadow-2xs">
+                            <div class="flex items-center justify-between gap-2">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <span class="text-xs font-bold text-muted-foreground tabular" x-text="'#' + item.no"></span>
+                                    <span class="px-2 py-0.5 rounded-md bg-muted border border-border text-xs font-mono font-bold text-foreground tabular" x-text="item.id_anak"></span>
                                 </div>
-                                <div class="flex items-center gap-1.5">
-                                    <span class="badge text-[11px]"
+                                <div class="flex items-center gap-1.5 shrink-0">
+                                    <span class="badge whitespace-nowrap"
                                           :class="getStatusBadgeClass(item.status)"
                                           x-text="item.status"></span>
                                     <button type="button"
                                             data-hs-overlay="#detail-laporan-modal"
                                             aria-controls="detail-laporan-modal"
                                             @click="openDetail(item)"
-                                            class="p-1 text-muted-foreground hover:text-foreground cursor-pointer"
+                                            class="p-1.5 rounded-lg text-muted-foreground-1 hover:text-brand-700 hover:bg-brand-50 transition cursor-pointer"
+                                            title="Lihat Detail"
                                             aria-label="Lihat detail">
                                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                         </svg>
                                     </button>
                                 </div>
                             </div>
                             <div>
-                                <h4 class="font-bold text-foreground text-sm leading-snug" x-text="item.nama"></h4>
+                                <h4 class="font-bold text-foreground text-sm leading-snug break-words" x-text="item.nama"></h4>
                             </div>
-                            <div class="flex items-center justify-between text-xs pt-2 border-t border-border">
-                                <span class="badge text-[11px]"
-                                      :class="getCategoryBadgeClass(item.kategori)"
-                                      x-text="item.kategori"></span>
-                                <span class="text-muted-foreground font-medium flex items-center gap-1 text-right">
-                                    <svg class="w-3.5 h-3.5 text-muted-foreground shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 9v7.5" />
-                                    </svg>
-                                    <span x-text="item.tanggal"></span>
+                            <div class="flex items-center justify-between gap-2 text-xs pt-2 border-t border-border-line-1">
+                                <span class="inline-flex items-center max-w-[60%] rounded-full px-2.5 py-0.5 text-2xs font-semibold border bg-brand-50 text-brand-800 border-brand-200"
+                                      :title="item.kategori">
+                                    <span class="truncate" x-text="item.kategori"></span>
                                 </span>
+                                <div class="text-right shrink-0">
+                                    <template x-if="item.nilai_sub">
+                                        <div class="leading-tight">
+                                            <span class="block font-bold text-brand-900 tabular" x-text="item.nilai_utama || item.tanggal"></span>
+                                            <span class="block text-2xs text-muted-foreground tabular" x-text="item.nilai_sub"></span>
+                                        </div>
+                                    </template>
+                                    <template x-if="!item.nilai_sub">
+                                        <span class="text-muted-foreground-1 font-medium inline-flex items-center gap-1 tabular">
+                                            <svg class="w-3.5 h-3.5 text-muted-foreground shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 9v7.5" />
+                                            </svg>
+                                            <span x-text="item.nilai_utama || item.tanggal"></span>
+                                        </span>
+                                    </template>
+                                </div>
                             </div>
                         </div>
                     </template>
@@ -385,7 +395,7 @@
 
                 <!-- Footer Paginasi -->
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-border-line-1 text-xs text-muted-foreground-1 font-medium">
-                    <div class="text-center sm:text-left">
+                    <div class="text-center sm:text-left tabular">
                         Menampilkan <span class="font-bold text-foreground" x-text="pagination.from || 0">{{ $pagination['from'] ?? 0 }}</span> - <span class="font-bold text-foreground" x-text="pagination.to || 0">{{ $pagination['to'] ?? 0 }}</span> dari <span class="font-bold text-foreground" x-text="pagination.total || 0">{{ $pagination['total'] ?? 0 }}</span> data
                     </div>
                     <div class="flex items-center justify-center gap-1 self-center sm:self-auto" x-show="pagination.last_page > 1">
@@ -399,8 +409,8 @@
                         <template x-for="p in getPageNumbers()" :key="p">
                             <button type="button"
                                     @click="triggerPreview(p)"
-                                    class="size-8 rounded-lg font-bold flex items-center justify-center transition cursor-pointer"
-                                    :class="pagination.current_page === p ? 'bg-primary text-primary-foreground shadow-2xs' : 'border border-border bg-card text-muted-foreground-2 hover:bg-muted font-medium'"
+                                    class="size-8 rounded-lg font-bold tabular flex items-center justify-center transition cursor-pointer"
+                                    :class="pagination.current_page === p ? 'bg-primary text-primary-foreground shadow-xs' : 'border border-border bg-card text-muted-foreground-2 hover:bg-muted font-medium'"
                                     x-text="p">
                             </button>
                         </template>
@@ -418,20 +428,20 @@
             <!-- ========================================== -->
             <!-- 2. MODE TAMPILAN PREVIEW PDF DOKUMEN       -->
             <!-- ========================================== -->
-            <div x-show="!previewLoading && previewMode === 'pdf'" class="space-y-3">
+            <div x-show="!previewLoading && previewMode === 'pdf'" x-cloak class="space-y-3">
                 <!-- Toolbar Preview PDF -->
                 <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 p-3 rounded-xl bg-muted border border-border">
-                    <div class="flex items-center gap-2 text-xs">
-                        <span class="badge badge-danger">
+                    <div class="flex items-center gap-2 text-xs min-w-0">
+                        <span class="badge badge-danger shrink-0">
                             <svg class="w-3.5 h-3.5 text-danger" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" />
                             </svg>
                             <span>PDF Siap Cetak</span>
                         </span>
-                        <span class="text-muted-foreground-2 font-medium truncate max-w-[260px] sm:max-w-none" x-text="`Laporan-${jenisLaporan.replace(/\s+/g, '_')}-${bulan}-${tahun}.pdf`"></span>
+                        <span class="text-muted-foreground-2 font-medium truncate max-w-[260px] sm:max-w-none" x-text="'Laporan-' + jenisLaporan.replace(/\s+/g, '_') + '-' + bulan + '-' + tahun + '.pdf'"></span>
                     </div>
 
-                    <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <div class="flex items-center gap-2 w-full sm:w-auto shrink-0">
                         <!-- Tombol Buka Tab Baru -->
                         <a :href="getPreviewPdfUrl()"
                            target="_blank"
@@ -466,24 +476,24 @@
             <!-- ========================================== -->
             <!-- 3. MODE TAMPILAN PREVIEW EXCEL SPREADSHEET -->
             <!-- ========================================== -->
-            <div x-show="!previewLoading && previewMode === 'excel'" class="space-y-3">
+            <div x-show="!previewLoading && previewMode === 'excel'" x-cloak class="space-y-3">
                 <!-- Excel Window Wrapper -->
                 <div class="rounded-xl border border-border overflow-hidden shadow-xs bg-card">
                     <!-- Excel Ribbon Header -->
-                    <div class="bg-[#107C41] text-white px-4 py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                        <div class="flex items-center gap-2.5">
-                            <div class="w-7 h-7 rounded-md bg-white/20 flex items-center justify-center font-black text-xs">
+                    <div class="bg-brand-800 text-white px-4 py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <div class="w-7 h-7 rounded-md bg-white/20 flex items-center justify-center font-black text-xs shrink-0">
                                 X
                             </div>
-                            <div>
-                                <p class="text-xs font-bold leading-tight" x-text="`Laporan_${jenisLaporan.replace(/\s+/g, '_')}_${bulan}_${tahun}.xlsx`"></p>
-                                <p class="text-[10px] text-emerald-100">Microsoft Excel Worksheet (.xlsx) &bull; Mode Pratinjau Lembar Kerja</p>
+                            <div class="min-w-0">
+                                <p class="text-xs font-bold leading-tight truncate" x-text="'Laporan_' + jenisLaporan.replace(/\s+/g, '_') + '_' + bulan + '_' + tahun + '.xlsx'"></p>
+                                <p class="text-2xs text-brand-100">Microsoft Excel Worksheet (.xlsx) &bull; Mode Pratinjau Lembar Kerja</p>
                             </div>
                         </div>
 
                         <a :href="getExportExcelUrl()"
                            @click="recordExport('Excel (.xlsx)')"
-                           class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-white hover:bg-emerald-50 text-[#107C41] text-xs font-bold transition shadow-xs">
+                           class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-card hover:bg-brand-50 text-brand-800 text-xs font-bold transition shadow-xs shrink-0">
                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
                             </svg>
@@ -492,45 +502,45 @@
                     </div>
 
                     <!-- Formula Bar Simulasi -->
-                    <div class="bg-slate-50 border-b border-slate-200 px-3 py-1.5 flex items-center gap-2 text-xs text-slate-600 font-mono">
-                        <span class="px-2 py-0.5 rounded bg-white border border-slate-300 font-bold text-slate-700 text-[11px]">A1</span>
-                        <span class="text-slate-400 font-sans italic text-[11px]">fx</span>
-                        <span class="text-slate-800 font-sans font-semibold truncate" x-text="'Laporan ' + jenisLaporan + ' Yayasan Himatun Ayat Bandung (' + bulan + ' ' + tahun + ')'"></span>
+                    <div class="bg-muted border-b border-border px-3 py-1.5 flex items-center gap-2 text-xs text-muted-foreground-2 font-mono">
+                        <span class="px-2 py-0.5 rounded bg-card border border-border-line-3 font-bold text-foreground text-2xs">A1</span>
+                        <span class="text-muted-foreground font-sans italic text-2xs">fx</span>
+                        <span class="text-foreground font-sans font-semibold truncate" x-text="'Laporan ' + jenisLaporan + ' Yayasan Himatun Ayat Bandung (' + bulan + ' ' + tahun + ')'"></span>
                     </div>
 
                     <!-- Grid Spreadsheet Table -->
-                    <div class="overflow-x-auto max-h-[500px]">
-                        <table class="w-full text-left border-collapse text-xs font-sans min-w-[700px]">
+                    <div class="overflow-x-auto custom-scrollbar max-h-[500px]">
+                        <table class="w-full text-left border-collapse text-xs font-sans min-w-[720px]">
                             <thead>
                                 <!-- Baris Huruf Kolom Excel (A, B, C, D, E, F) -->
-                                <tr class="bg-slate-100 text-slate-500 font-semibold text-center border-b border-slate-300">
-                                    <th class="w-10 py-1 border-r border-slate-300 bg-slate-200/80"></th>
-                                    <th class="py-1 px-3 border-r border-slate-300">A</th>
-                                    <th class="py-1 px-3 border-r border-slate-300">B</th>
-                                    <th class="py-1 px-3 border-r border-slate-300">C</th>
-                                    <th class="py-1 px-3 border-r border-slate-300">D</th>
-                                    <th class="py-1 px-3 border-r border-slate-300">E</th>
+                                <tr class="bg-surface text-muted-foreground-1 font-semibold text-center border-b border-border-line-3">
+                                    <th class="w-10 py-1 border-r border-border-line-3 bg-surface-1"></th>
+                                    <th class="py-1 px-3 border-r border-border-line-3">A</th>
+                                    <th class="py-1 px-3 border-r border-border-line-3">B</th>
+                                    <th class="py-1 px-3 border-r border-border-line-3">C</th>
+                                    <th class="py-1 px-3 border-r border-border-line-3">D</th>
+                                    <th class="py-1 px-3 border-r border-border-line-3">E</th>
                                     <th class="py-1 px-3">F</th>
                                 </tr>
                                 <!-- Baris 1: Header Judul Kolom (Background Hijau Lembut Khas Excel) -->
-                                <tr class="bg-emerald-50 text-emerald-950 font-bold border-b border-slate-300">
-                                    <td class="text-center font-mono text-[11px] text-slate-500 bg-slate-100 border-r border-slate-300">1</td>
+                                <tr class="bg-brand-50 text-brand-950 font-bold border-b border-border-line-3">
+                                    <td class="text-center font-mono text-2xs text-muted-foreground-1 bg-surface border-r border-border-line-3">1</td>
                                     <template x-for="col in columns" :key="col.key">
-                                        <td class="py-2.5 px-3 border-r border-slate-200 text-slate-900 font-bold" x-text="col.label"></td>
+                                        <td class="py-2.5 px-3 border-r border-border last:border-r-0 text-foreground font-bold whitespace-nowrap" x-text="col.label"></td>
                                     </template>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-slate-200 bg-white font-mono text-xs">
-                                <template x-for="(item, idx) in previewData" :key="item.id_anak || idx">
-                                    <tr class="hover:bg-emerald-50/40 transition">
+                            <tbody class="divide-y divide-border bg-card font-mono text-xs">
+                                <template x-for="(item, idx) in previewData" :key="(item.id_anak || '') + '-xls-' + idx">
+                                    <tr class="hover:bg-brand-50/50 transition">
                                         <!-- Nomor Baris Excel (2, 3, 4, ...) -->
-                                        <td class="text-center text-[11px] text-slate-500 bg-slate-100 border-r border-slate-300 font-sans" x-text="idx + 2"></td>
-                                        <td class="py-2 px-3 border-r border-slate-200 text-slate-600" x-text="item.no"></td>
-                                        <td class="py-2 px-3 border-r border-slate-200 font-bold text-slate-900 font-sans" x-text="item.id_anak"></td>
-                                        <td class="py-2 px-3 border-r border-slate-200 text-slate-800 font-sans font-medium" x-text="item.nama"></td>
-                                        <td class="py-2 px-3 border-r border-slate-200 text-slate-700 font-sans" x-text="item.kategori"></td>
-                                        <td class="py-2 px-3 border-r border-slate-200 text-slate-700 font-sans" x-text="item.status"></td>
-                                        <td class="py-2 px-3 text-slate-700 font-sans" x-text="item.tanggal"></td>
+                                        <td class="text-center text-2xs text-muted-foreground-1 bg-surface border-r border-border-line-3 font-sans tabular" x-text="idx + 2"></td>
+                                        <td class="py-2 px-3 border-r border-border text-muted-foreground-2 whitespace-nowrap tabular" x-text="item.no"></td>
+                                        <td class="py-2 px-3 border-r border-border font-bold text-foreground whitespace-nowrap tabular" x-text="item.id_anak"></td>
+                                        <td class="py-2 px-3 border-r border-border text-foreground font-sans font-medium max-w-[220px] truncate" :title="item.nama" x-text="item.nama"></td>
+                                        <td class="py-2 px-3 border-r border-border text-muted-foreground-2 font-sans max-w-[200px] truncate" :title="item.kategori" x-text="item.kategori"></td>
+                                        <td class="py-2 px-3 border-r border-border text-muted-foreground-2 font-sans whitespace-nowrap" x-text="item.status"></td>
+                                        <td class="py-2 px-3 text-muted-foreground-2 font-sans whitespace-nowrap tabular" x-text="item.tanggal"></td>
                                     </tr>
                                 </template>
                             </tbody>
@@ -538,19 +548,19 @@
                     </div>
 
                     <!-- Excel Sheet Bar di Bawah -->
-                    <div class="bg-slate-100 border-t border-slate-300 px-3 py-1.5 flex items-center justify-between text-xs text-slate-500">
+                    <div class="bg-surface border-t border-border-line-3 px-3 py-1.5 flex items-center justify-between text-xs text-muted-foreground-1">
                         <div class="flex items-center gap-1">
-                            <span class="px-3 py-1 bg-white border border-slate-300 rounded-t-md text-emerald-800 font-bold text-[11px] shadow-2xs" x-text="'Sheet1 - Data ' + jenisLaporan"></span>
-                            <span class="px-2 py-1 text-slate-400 text-xs">+</span>
+                            <span class="px-3 py-1 bg-card border border-border-line-3 rounded-t-md text-brand-800 font-bold text-2xs shadow-2xs" x-text="'Sheet1 - Data ' + jenisLaporan"></span>
+                            <span class="px-2 py-1 text-muted-foreground text-xs">+</span>
                         </div>
-                        <span class="text-[11px] text-slate-400 font-medium" x-text="'Total ' + (pagination.total || previewData.length) + ' baris siap diekspor'"></span>
+                        <span class="text-2xs text-muted-foreground font-medium tabular" x-text="'Total ' + (pagination.total || previewData.length) + ' baris siap diekspor'"></span>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Kolom Kanan: Ekspor Laporan & Catatan (4 cols) -->
-        <div class="lg:col-span-4 space-y-4">
+        <div class="xl:col-span-4 min-w-0 space-y-4">
             <!-- Card Ekspor Laporan -->
             <div class="bg-card rounded-2xl border border-border shadow-2xs p-5 sm:p-6 space-y-4">
                 <div class="flex items-start gap-2.5">
@@ -577,7 +587,7 @@
                                 </div>
                                 <div>
                                     <span class="font-bold text-xs sm:text-sm text-foreground group-hover:text-brand-800 transition block">Ekspor Excel</span>
-                                    <span class="text-[11px] text-muted-foreground font-normal">Format spreadsheet (.xlsx)</span>
+                                    <span class="text-2xs text-muted-foreground font-normal">Format spreadsheet (.xlsx)</span>
                                 </div>
                             </div>
                             <svg class="w-4.5 h-4.5 text-muted-foreground group-hover:text-brand-700 transition" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
@@ -586,7 +596,7 @@
                         </a>
                         <button type="button"
                                 @click="setPreviewMode('excel')"
-                                class="text-[11px] text-brand-700 hover:text-brand-900 font-semibold flex items-center gap-1 pl-2 pt-0.5 cursor-pointer">
+                                class="text-2xs text-brand-700 hover:text-brand-900 font-semibold flex items-center gap-1 pl-2 pt-0.5 cursor-pointer">
                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -608,7 +618,7 @@
                                 </div>
                                 <div>
                                     <span class="font-bold text-xs sm:text-sm text-foreground group-hover:text-danger transition block">Ekspor PDF</span>
-                                    <span class="text-[11px] text-muted-foreground font-normal">Dokumen resmi cetak (.pdf)</span>
+                                    <span class="text-2xs text-muted-foreground font-normal">Dokumen resmi cetak (.pdf)</span>
                                 </div>
                             </div>
                             <svg class="w-4.5 h-4.5 text-muted-foreground group-hover:text-danger transition" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
@@ -617,7 +627,7 @@
                         </a>
                         <button type="button"
                                 @click="setPreviewMode('pdf')"
-                                class="text-[11px] text-danger hover:text-red-700 font-semibold flex items-center gap-1 pl-2 pt-0.5 cursor-pointer">
+                                class="text-2xs text-danger hover:text-destructive-hover font-semibold flex items-center gap-1 pl-2 pt-0.5 cursor-pointer">
                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -630,7 +640,7 @@
 
             <!-- Card Catatan -->
             <div class="bg-brand-50 border border-brand-100 rounded-2xl p-4 sm:p-5 flex items-start gap-3">
-                <div class="w-5 h-5 rounded-full bg-brand-100 dark:bg-brand-900/50 text-brand-800 dark:text-brand-200 flex items-center justify-center shrink-0 mt-0.5">
+                <div class="w-5 h-5 rounded-full bg-brand-100 text-brand-800 flex items-center justify-center shrink-0 mt-0.5">
                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m0 3.75h.007v.008H12v-.008zM12 3a9 9 0 100 18 9 9 0 000-18z" />
                     </svg>
@@ -669,14 +679,14 @@
                     </button>
                 </div>
 
-                <div class="p-5 space-y-2.5 text-xs overflow-y-auto">
+                <div class="p-5 space-y-2.5 text-xs overflow-y-auto custom-scrollbar">
                     <template x-if="riwayatEkspor.length === 0">
                         <div class="p-8 text-center text-muted-foreground bg-muted rounded-xl space-y-1">
                             <svg class="w-8 h-8 mx-auto text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
                             </svg>
                             <p class="font-medium text-muted-foreground-2">Belum ada riwayat unduhan laporan.</p>
-                            <p class="text-[11px] text-muted-foreground">Unduh laporan dalam format Excel atau PDF untuk melihat catatan riwayat di sini.</p>
+                            <p class="text-2xs text-muted-foreground">Unduh laporan dalam format Excel atau PDF untuk melihat catatan riwayat di sini.</p>
                         </div>
                     </template>
 
@@ -711,7 +721,7 @@
         </div>
     </div>
 
-    <!-- Modal Detail Item (Saat Klik Aksi 3 Titik) -->
+    <!-- Modal Detail Item (Saat Klik Aksi Detail) -->
     <div id="detail-laporan-modal"
          class="hs-overlay hidden size-full fixed top-0 inset-s-0 z-[100] overflow-x-hidden overflow-y-auto pointer-events-none"
          role="dialog"
@@ -721,7 +731,7 @@
             <div class="flex flex-col bg-overlay border border-overlay-line shadow-2xs rounded-2xl pointer-events-auto">
                 <div class="flex justify-between items-center gap-3 py-3 px-5 border-b border-border-line-1">
                     <div class="flex items-center gap-2 min-w-0">
-                        <span class="px-2.5 py-1 rounded-md bg-brand-50 text-brand-700 font-bold text-xs shrink-0" x-text="selectedDetailItem?.id_anak"></span>
+                        <span class="px-2.5 py-1 rounded-md bg-brand-50 text-brand-700 font-mono font-bold text-xs tabular shrink-0" x-text="selectedDetailItem?.id_anak"></span>
                         <h3 id="detail-laporan-modal-label" class="text-sm sm:text-base font-bold text-foreground truncate" x-text="selectedDetailItem?.nama">Detail Data</h3>
                     </div>
                     <button type="button"
@@ -737,26 +747,26 @@
 
                 <div class="p-5 space-y-2 text-xs">
                     <div class="p-3 bg-muted rounded-xl border border-border-line-1 space-y-1.5">
-                        <div class="flex justify-between py-1 border-b border-border/50">
-                            <span class="text-muted-foreground-1 font-medium">Kategori / Program</span>
-                            <span class="text-foreground font-bold" x-text="selectedDetailItem?.kategori"></span>
+                        <div class="flex justify-between items-start gap-4 py-1.5 border-b border-border/50">
+                            <span class="text-muted-foreground-1 font-medium shrink-0">Kategori / Program</span>
+                            <span class="text-foreground font-bold text-right break-words min-w-0" x-text="selectedDetailItem?.kategori"></span>
                         </div>
-                        <div class="flex justify-between py-1 border-b border-border/50">
-                            <span class="text-muted-foreground-1 font-medium">Status</span>
-                            <span class="badge" :class="getStatusBadgeClass(selectedDetailItem?.status)" x-text="selectedDetailItem?.status"></span>
+                        <div class="flex justify-between items-center gap-4 py-1.5 border-b border-border/50">
+                            <span class="text-muted-foreground-1 font-medium shrink-0">Status</span>
+                            <span class="badge whitespace-nowrap" :class="getStatusBadgeClass(selectedDetailItem?.status)" x-text="selectedDetailItem?.status"></span>
                         </div>
-                        <div class="flex justify-between py-1 border-b border-border/50">
-                            <span class="text-muted-foreground-1 font-medium">Waktu / Nilai</span>
-                            <span class="text-foreground font-bold" x-text="selectedDetailItem?.tanggal"></span>
+                        <div class="flex justify-between items-start gap-4 py-1.5 border-b border-border/50">
+                            <span class="text-muted-foreground-1 font-medium shrink-0">Waktu / Nilai</span>
+                            <span class="text-foreground font-bold text-right break-words min-w-0 tabular" x-text="selectedDetailItem?.tanggal"></span>
                         </div>
 
                         <!-- Info tambahan dari detail -->
                         <template x-if="selectedDetailItem?.detail">
                             <div>
                                 <template x-for="(val, label) in selectedDetailItem.detail" :key="label">
-                                    <div class="flex justify-between py-1 border-b border-border/50 last:border-none">
-                                        <span class="text-muted-foreground-1 font-medium" x-text="label"></span>
-                                        <span class="text-foreground font-bold text-right" x-text="val"></span>
+                                    <div class="flex justify-between items-start gap-4 py-1.5 border-b border-border/50 last:border-none">
+                                        <span class="text-muted-foreground-1 font-medium shrink-0" x-text="label"></span>
+                                        <span class="text-foreground font-bold text-right break-words min-w-0 tabular" x-text="val"></span>
                                     </div>
                                 </template>
                             </div>
@@ -795,6 +805,7 @@ function laporanEksporApp() {
         kategori: initData.kategori || 'Semua Kategori',
         previewLoading: false,
         initialized: false,
+        isSyncing: false,
         previewAbortController: null,
         selectedDetailItem: null,
         pagination: initData.pagination || { current_page: 1, last_page: 1, total: 0, from: 0, to: 0, per_page: 5 },
@@ -908,26 +919,45 @@ function laporanEksporApp() {
         },
 
         handleJenisChange() {
-            if (!this.initialized) return;
+            if (!this.initialized || this.isSyncing) return;
+            this.isSyncing = true;
             this.kategori = 'Semua Kategori';
             this.syncKategoriDropdown();
-            this.syncPrelineSelects();
+            this.$nextTick(() => {
+                this.isSyncing = false;
+            });
             this.triggerPreview(1);
         },
 
         handleFilterChange() {
-            if (!this.initialized) return;
+            if (!this.initialized || this.isSyncing) return;
             this.triggerPreview(1);
         },
 
         resetFilter() {
+            this.isSyncing = true;
             this.jenisLaporan = 'Data Anak Asuh';
             this.bulan = 'Semua Bulan';
             this.tahun = 'Semua Tahun';
             this.kategori = 'Semua Kategori';
             this.syncKategoriDropdown();
             this.syncPrelineSelects();
+            this.$nextTick(() => {
+                this.isSyncing = false;
+            });
             this.triggerPreview(1);
+        },
+
+        getColumnHeaderClass(key) {
+            const map = {
+                no: 'w-12 text-center',
+                id_anak: 'w-28',
+                nama: 'min-w-[150px]',
+                kategori: 'min-w-[140px]',
+                status: 'w-32 text-center',
+                tanggal: 'min-w-[145px]'
+            };
+            return map[key] || '';
         },
 
         async triggerPreview(page = 1) {
@@ -1050,29 +1080,22 @@ function laporanEksporApp() {
         getStatusBadgeClass(status) {
             const s = String(status || '').toLowerCase();
             if (s === 'aktif' || s === 'terverifikasi' || s === 'verified') {
-                return 'bg-success-soft text-brand-800 dark:bg-brand-900/60 dark:text-brand-200';
+                return 'badge-success';
             }
             if (s.includes('perlu') || s === 'pending' || s.includes('menunggu')) {
-                return 'bg-warning-soft text-warning dark:bg-amber-950/50 dark:text-amber-200';
+                return 'badge-warning';
             }
-            if (s === 'selesai' || s === 'alumni') {
-                return 'bg-muted text-muted-foreground-2';
+            if (s === 'ditolak' || s === 'rejected') {
+                return 'badge-danger';
             }
-            return 'bg-muted text-muted-foreground-2';
+            if (s === 'selesai') {
+                return 'badge-info';
+            }
+            return 'badge-neutral';
         },
 
-        getCategoryBadgeClass(cat) {
-            const c = String(cat || '').toLowerCase();
-            if (c.includes('pendidikan') || c.includes('tahfidz') || c.includes('sd') || c.includes('smp') || c.includes('sma')) {
-                return 'bg-success-soft text-brand-800 dark:bg-brand-900/60 dark:text-brand-200';
-            }
-            if (c.includes('yatim') || c.includes('kemanusiaan')) {
-                return 'bg-info-soft text-info dark:bg-sky-950/50 dark:text-sky-300';
-            }
-            if (c.includes('dhuafa') || c.includes('sembako') || c.includes('gizi')) {
-                return 'bg-warning-soft text-warning dark:bg-amber-950/50 dark:text-amber-200';
-            }
-            return 'bg-purple-100 text-purple-700 dark:bg-purple-950/50 dark:text-purple-300';
+        getCategoryBadgeClass() {
+            return 'bg-brand-50 text-brand-800 border border-brand-200';
         },
 
         getPageNumbers() {
