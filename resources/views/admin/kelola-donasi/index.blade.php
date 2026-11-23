@@ -500,11 +500,12 @@
                             @php
                                 $proofUrl = $donasi->bukti_transfer_path ? route('admin.donasi.bukti-transfer.show', $donasi) : null;
                                 $donaturName = filled($donasi->nama_donatur) ? $donasi->nama_donatur : 'Hamba Allah';
+                                $kodeDonasi = '#'.($donasi->kode_donasi ?: ('DNS-'.str_pad((string) $donasi->id, 4, '0', STR_PAD_LEFT)));
                             @endphp
                             <tr class="hover:bg-muted/60 transition align-middle">
                                 <!-- ID DONASI -->
                                 <td x-show="cols.id_donasi" class="py-3.5 px-4 whitespace-nowrap">
-                                    <span class="font-mono font-bold text-foreground">#DNS-{{ str_pad((string) $donasi->id, 4, '0', STR_PAD_LEFT) }}</span>
+                                    <span class="font-mono font-bold text-foreground">{{ $kodeDonasi }}</span>
                                     <span class="block text-[10px] text-muted-foreground mt-0.5">{{ $donasi->created_at?->format('d M Y, H:i') }}</span>
                                 </td>
 
@@ -592,7 +593,7 @@
                                                         type: 'verifikasi',
                                                         title: 'Verifikasi Donasi',
                                                         message: 'Pastikan bukti pembayaran QRIS sudah valid dan dana telah diterima sebelum memverifikasi donasi ini.',
-                                                        id: @js('#DNS-' . str_pad((string) $donasi->id, 4, '0', STR_PAD_LEFT)),
+                                                        id: @js($kodeDonasi),
                                                         nama: @js($donaturName),
                                                         nominal: @js('Rp ' . number_format($donasi->nominal, 0, ',', '.')),
                                                         actionUrl: @js(route('admin.kelola-donasi.verifikasi', $donasi->id)),
@@ -610,7 +611,7 @@
                                                         type: 'tolak',
                                                         title: 'Tolak Donasi',
                                                         message: 'Donasi yang ditolak tidak akan dihitung ke dalam dana terkumpul kampanye.',
-                                                        id: @js('#DNS-' . str_pad((string) $donasi->id, 4, '0', STR_PAD_LEFT)),
+                                                        id: @js($kodeDonasi),
                                                         nama: @js($donaturName),
                                                         nominal: @js('Rp ' . number_format($donasi->nominal, 0, ',', '.')),
                                                         actionUrl: @js(route('admin.kelola-donasi.tolak', $donasi->id)),
@@ -624,7 +625,7 @@
                                                     data-hs-overlay="#modal-edit-status-donasi"
                                                     aria-haspopup="dialog"
                                                     aria-controls="modal-edit-status-donasi"
-                                                    @click="$dispatch('open-edit-status-modal', { id: @js('#DNS-' . str_pad((string) $donasi->id, 4, '0', STR_PAD_LEFT)), nama: @js($donaturName), nominal: @js('Rp ' . number_format($donasi->nominal, 0, ',', '.')), status: @js($donasi->status), verifikasiUrl: @js(route('admin.kelola-donasi.verifikasi', $donasi->id)), tolakUrl: @js(route('admin.kelola-donasi.tolak', $donasi->id)) })"
+                                                    @click="$dispatch('open-edit-status-modal', { id: @js($kodeDonasi), nama: @js($donaturName), nominal: @js('Rp ' . number_format($donasi->nominal, 0, ',', '.')), status: @js($donasi->status), verifikasiUrl: @js(route('admin.kelola-donasi.verifikasi', $donasi->id)), tolakUrl: @js(route('admin.kelola-donasi.tolak', $donasi->id)) })"
                                                     class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold border border-border bg-surface text-foreground hover:border-brand-700 hover:bg-brand-50 hover:text-brand-800 transition cursor-pointer">
                                                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
@@ -652,6 +653,7 @@
                     @php
                         $proofUrl = $donasi->bukti_transfer_path ? route('admin.donasi.bukti-transfer.show', $donasi) : null;
                         $donaturName = filled($donasi->nama_donatur) ? $donasi->nama_donatur : 'Hamba Allah';
+                        $kodeDonasi = '#'.($donasi->kode_donasi ?: ('DNS-'.str_pad((string) $donasi->id, 4, '0', STR_PAD_LEFT)));
                     @endphp
                     <div class="bg-card rounded-2xl border border-border shadow-2xs p-4 space-y-3 transition hover:border-brand-700">
                         <!-- Baris 1: ID, Avatar, Nama Donatur, & Status -->
@@ -661,7 +663,7 @@
                                     {{ strtoupper(mb_substr($donaturName, 0, 2)) }}
                                 </div>
                                 <div class="min-w-0">
-                                    <span class="text-[10px] font-mono font-bold text-muted-foreground block">#DNS-{{ str_pad((string) $donasi->id, 4, '0', STR_PAD_LEFT) }}</span>
+                                    <span class="text-[10px] font-mono font-bold text-muted-foreground block">{{ $kodeDonasi }}</span>
                                     <p class="font-bold text-foreground text-sm truncate leading-snug">{{ $donaturName }}</p>
                                     <p class="text-xs text-muted-foreground-1 font-medium truncate mt-0.5">{{ $donasi->email ?: '-' }}</p>
                                 </div>
@@ -726,7 +728,7 @@
                                                 type: 'verifikasi',
                                                 title: 'Verifikasi Donasi',
                                                 message: 'Pastikan bukti pembayaran QRIS sudah valid dan dana telah diterima sebelum memverifikasi donasi ini.',
-                                                id: @js('#DNS-' . str_pad((string) $donasi->id, 4, '0', STR_PAD_LEFT)),
+                                                id: @js($kodeDonasi),
                                                 nama: @js($donaturName),
                                                 nominal: @js('Rp ' . number_format($donasi->nominal, 0, ',', '.')),
                                                 actionUrl: @js(route('admin.kelola-donasi.verifikasi', $donasi->id)),
@@ -744,7 +746,7 @@
                                                 type: 'tolak',
                                                 title: 'Tolak Donasi',
                                                 message: 'Donasi yang ditolak tidak akan dihitung ke dalam dana terkumpul kampanye.',
-                                                id: @js('#DNS-' . str_pad((string) $donasi->id, 4, '0', STR_PAD_LEFT)),
+                                                id: @js($kodeDonasi),
                                                 nama: @js($donaturName),
                                                 nominal: @js('Rp ' . number_format($donasi->nominal, 0, ',', '.')),
                                                 actionUrl: @js(route('admin.kelola-donasi.tolak', $donasi->id)),
@@ -758,7 +760,7 @@
                                             data-hs-overlay="#modal-edit-status-donasi"
                                             aria-haspopup="dialog"
                                             aria-controls="modal-edit-status-donasi"
-                                            @click="$dispatch('open-edit-status-modal', { id: @js('#DNS-' . str_pad((string) $donasi->id, 4, '0', STR_PAD_LEFT)), nama: @js($donaturName), nominal: @js('Rp ' . number_format($donasi->nominal, 0, ',', '.')), status: @js($donasi->status), verifikasiUrl: @js(route('admin.kelola-donasi.verifikasi', $donasi->id)), tolakUrl: @js(route('admin.kelola-donasi.tolak', $donasi->id)) })"
+                                            @click="$dispatch('open-edit-status-modal', { id: @js($kodeDonasi), nama: @js($donaturName), nominal: @js('Rp ' . number_format($donasi->nominal, 0, ',', '.')), status: @js($donasi->status), verifikasiUrl: @js(route('admin.kelola-donasi.verifikasi', $donasi->id)), tolakUrl: @js(route('admin.kelola-donasi.tolak', $donasi->id)) })"
                                             class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border border-border bg-surface text-foreground hover:border-brand-700 hover:bg-brand-50 hover:text-brand-800 transition cursor-pointer">
                                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />

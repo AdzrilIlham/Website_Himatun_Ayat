@@ -144,7 +144,7 @@ class KampanyeDonasi extends Component
         }
 
         $this->currentDonasi = $donasi;
-        $this->paymentId = (string) $active['payment_id'];
+        $this->paymentId = $donasi->kode_donasi ?: (string) $active['payment_id'];
         $this->metodePembayaran = (string) ($active['metode_pembayaran'] ?? 'QRIS');
         $this->selectedNominal = (int) round((float) $donasi->nominal);
         $this->customNominal = $this->selectedNominal;
@@ -285,7 +285,10 @@ class KampanyeDonasi extends Component
 
         $finalNama = $this->isAnonim ? 'Hamba Allah' : trim($this->namaDonatur);
 
+        $generatedKode = $this->generatePaymentId();
+
         $donasi = Donasi::create([
+            'kode_donasi' => $generatedKode,
             'kampanye_id' => $this->selectedKampanyeId,
             'nama_donatur' => $finalNama,
             'no_whatsapp' => $this->noTelepon,
@@ -298,7 +301,7 @@ class KampanyeDonasi extends Component
         ]);
 
         $this->currentDonasi = $donasi;
-        $this->paymentId = $this->generatePaymentId($donasi->id);
+        $this->paymentId = $donasi->kode_donasi ?: $generatedKode;
         $this->paymentStep = 1;
         $this->paymentExpiresAt = now()->addMinutes(5)->timestamp;
         $this->showFailedModal = false;
@@ -308,13 +311,7 @@ class KampanyeDonasi extends Component
 
     protected function generatePaymentId(?int $donasiId = null): string
     {
-        do {
-            $firstSegment = (string) random_int(10000000, 99999999);
-            $secondSegment = str_pad((string) random_int(100, 999), 3, '0', STR_PAD_LEFT);
-            $generated = "DNS-{$firstSegment}-{$secondSegment}";
-        } while ($generated === $this->paymentId);
-
-        return $generated;
+        return Donasi::generateKodeDonasi($this->paymentId);
     }
 
     public function selectMetodePembayaran(string $metode): void

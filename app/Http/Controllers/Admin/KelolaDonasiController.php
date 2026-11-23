@@ -38,9 +38,11 @@ class KelolaDonasiController extends Controller
         $query = Donasi::with('kampanye');
 
         if ($search) {
+            $cleanSearch = ltrim(trim($search), '#');
             $numericId = preg_replace('/[^0-9]/', '', $search);
-            $query->where(function ($q) use ($search, $numericId) {
-                $q->where('nama_donatur', 'like', "%{$search}%")
+            $query->where(function ($q) use ($search, $cleanSearch, $numericId) {
+                $q->where('kode_donasi', 'like', "%{$cleanSearch}%")
+                    ->orWhere('nama_donatur', 'like', "%{$search}%")
                     ->orWhere('email', 'like', "%{$search}%")
                     ->orWhere('no_whatsapp', 'like', "%{$search}%")
                     ->orWhere('pesan_doa', 'like', "%{$search}%")
@@ -322,7 +324,9 @@ class KelolaDonasiController extends Controller
             }
         });
 
-        return back()->with('success', "Donasi #{$donasi->id} dari {$donasi->nama_donatur} telah diverifikasi.");
+        $kode = $donasi->kode_donasi ?: 'DNS-'.str_pad((string) $donasi->id, 4, '0', STR_PAD_LEFT);
+
+        return back()->with('success', "Donasi #{$kode} dari {$donasi->nama_donatur} telah diverifikasi.");
     }
 
     /**
@@ -351,7 +355,9 @@ class KelolaDonasiController extends Controller
             ]);
         });
 
-        return back()->with('warning', "Donasi #{$donasi->id} dari {$donasi->nama_donatur} telah ditolak.");
+        $kode = $donasi->kode_donasi ?: 'DNS-'.str_pad((string) $donasi->id, 4, '0', STR_PAD_LEFT);
+
+        return back()->with('warning', "Donasi #{$kode} dari {$donasi->nama_donatur} telah ditolak.");
     }
 
     /**
