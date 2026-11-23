@@ -31,6 +31,7 @@ Route::get('/profile', [TentangKamiController::class, 'index'])->name('profile')
 Route::get('/berita-kegiatan', [BeritaKegiatanController::class, 'index'])->name('berita-kegiatan.index');
 Route::get('/berita-kegiatan/{beritaKegiatan:slug}', [BeritaKegiatanController::class, 'show'])->name('berita-kegiatan.show');
 Route::post('/pengajuan-kegiatan/ajukan', [BeritaKegiatanController::class, 'storePengajuan'])->name('pengajuan-kegiatan.store');
+Route::get('/laporan-keuangan/pdf', [LandingPageController::class, 'downloadLaporanPdf'])->name('laporan-keuangan.pdf');
 
 // Halaman preview design system (hanya lokal)
 if (app()->environment('local')) {

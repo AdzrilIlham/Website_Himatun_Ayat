@@ -647,96 +647,109 @@
                 </svg>
             </div>
 
-            <!-- Content Grid: Left Text & Right 3 Cards -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center relative z-10">
+            <!-- Content Grid: Left Text & Right Alokasi Penyaluran Dana Card -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-center relative z-10">
                 
                 <!-- Sisi Kiri: Narasi Transparansi & Download Button -->
-                <div class="lg:col-span-5 space-y-3 sm:space-y-4"
+                <div class="lg:col-span-5 space-y-3.5 sm:space-y-4"
                      data-animate-group="slide-left"
                      data-animate-start="top 80%"
                      data-animate-distance="24"
                      data-animate-duration="0.7"
                      data-animate-stagger="0.1">
-                    <div class="inline-flex items-center gap-1.5 text-2xs sm:text-xs font-bold tracking-wider text-emerald-200 uppercase">
+                    <div class="inline-flex items-center gap-1.5 text-2xs sm:text-xs font-bold tracking-[0.14em] text-emerald-200 uppercase">
                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
                         </svg>
-                        <span>LAPORAN AUDIT & TRANSPARANSI</span>
+                        <span>LAPORAN AUDIT &amp; TRANSPARANSI</span>
                     </div>
 
-                    <h2 class="text-xl sm:text-2xl lg:text-[1.7rem] font-extrabold text-white leading-tight">
-                        Setiap Rupiah Dipertanggungjawabkan Dunia & Akhirat
+                    <h2 class="text-2xl sm:text-3xl lg:text-[2.1rem] font-extrabold text-white leading-[1.18] tracking-tight">
+                        Setiap Rupiah Dipertanggungjawabkan Dunia &amp; Akhirat
                     </h2>
 
-                    <p class="text-xs sm:text-[13px] text-emerald-100/90 leading-relaxed font-normal">
-                        Kami memegang teguh amanah para muhsin. Seluruh alokasi dana donasi disalurkan secara profesional dengan presentase efisiensi operasional sesuai regulasi Syariah & BAZNAZ
+                    <p class="text-xs sm:text-sm text-emerald-100/90 leading-relaxed font-normal max-w-md">
+                        Seluruh alokasi dana donasi disalurkan secara profesional dengan persentase efisiensi operasional yang jelas.
                     </p>
 
-                    <div class="pt-1">
-                        <a href="/admin/dashboard/export/pdf" target="_blank" class="py-2.5 px-4 inline-flex items-center gap-x-2 text-xs font-bold rounded-xl bg-white text-slate-900 hover:bg-slate-50 transition shadow-xs">
+                    <div class="pt-1.5">
+                        <a href="{{ route('laporan-keuangan.pdf') }}"
+                           class="py-3 px-5 inline-flex items-center gap-x-2.5 text-xs sm:text-sm font-bold rounded-xl bg-white text-slate-900 hover:bg-emerald-50 transition shadow-sm cursor-pointer">
                             <img src="{{ asset('images/User/lembaran.png') }}" alt="PDF" class="w-4 h-4 object-contain">
-                            <span>Unduh Laporan Keuangan 2025 (PDF)</span>
+                            <span>Unduh Laporan Keuangan (PDF)</span>
                         </a>
                     </div>
                 </div>
 
-                <!-- Sisi Kanan: 3 White Stat Cards -->
-                <div class="lg:col-span-7">
-                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3.5"
-                         data-animate-group="fade-scale"
-                         data-animate-start="top 80%"
-                         data-animate-distance="16"
-                         data-animate-duration="0.6"
-                         data-animate-stagger="0.1">
-                        
-                        <!-- Card 1: Pendidikan & Santunan -->
-                        <div class="bg-white rounded-xl sm:rounded-2xl p-3.5 sm:p-4 text-center flex flex-col items-center justify-center shadow-xs">
-                            <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#E4F1EB] flex items-center justify-center p-1.5 mb-1.5">
-                                <img src="{{ asset('images/User/wisuda.png') }}" alt="Pendidikan" class="w-5 h-5 object-contain">
-                            </div>
-                            <span class="text-lg sm:text-xl lg:text-[1.35rem] font-extrabold text-slate-900">
-                                78,5%
+                <!-- Sisi Kanan: Kartu Putih Alokasi Penyaluran Dana + Donut Chart 4 Segmen (3 Teratas + 1 Lainnya) -->
+                <div class="lg:col-span-7"
+                     data-animate="fade-scale"
+                     data-animate-start="top 80%"
+                     data-animate-distance="20"
+                     data-animate-duration="0.65">
+                    <div class="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-7 lg:p-8 text-slate-900 shadow-xl">
+                        <!-- Header Card -->
+                        <div class="flex items-center justify-between gap-3 mb-5 sm:mb-6">
+                            <h3 class="text-sm sm:text-base font-extrabold text-slate-900 tracking-tight">
+                                Alokasi Penyaluran Dana
+                            </h3>
+                            <span class="inline-flex items-center rounded-full bg-[#F5F1E6] px-3 py-1 text-[11px] font-bold text-[#6E6248]">
+                                {{ $alokasiDana['badge'] ?? 'Contoh data' }}
                             </span>
-                            <h4 class="font-bold text-[11px] sm:text-xs text-slate-900 mt-1">
-                                Pendidikan &amp; Santunan
-                            </h4>
-                            <p class="text-[10px] text-slate-500 mt-0.5">
-                                Beasiswa, asrama, &amp; gizi langsung
-                            </p>
                         </div>
 
-                        <!-- Card 2: Dakwah & Syiar Islam -->
-                        <div class="bg-white rounded-xl sm:rounded-2xl p-3.5 sm:p-4 text-center flex flex-col items-center justify-center shadow-xs">
-                            <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#E4F1EB] flex items-center justify-center p-1.5 mb-1.5">
-                                <img src="{{ asset('images/User/masjid.png') }}" alt="Dakwah" class="w-5 h-5 object-contain">
-                            </div>
-                            <span class="text-lg sm:text-xl lg:text-[1.35rem] font-extrabold text-slate-900">
-                                12%
-                            </span>
-                            <h4 class="font-bold text-[11px] sm:text-xs text-slate-900 mt-1">
-                                Dakwah &amp; Syiar Islam
-                            </h4>
-                            <p class="text-[10px] text-slate-500 mt-0.5">
-                                Tahfidz Quran &amp; Kajian pembinaan
-                            </p>
-                        </div>
+                        <!-- Body Card: Kiri Donut Chart Multi-Segmen & Kanan 4 Detail Kategori -->
+                        <div class="grid grid-cols-1 sm:grid-cols-12 gap-6 sm:gap-6 items-center">
+                            <!-- Donut Chart SVG (Keliling r=15.9155 => 100 satuan) -->
+                            <div class="sm:col-span-5 flex items-center justify-center">
+                                <div class="relative w-44 h-44 sm:w-48 sm:h-48 flex items-center justify-center">
+                                    <svg viewBox="0 0 42 42" class="w-full h-full">
+                                        <!-- Background Ring -->
+                                        <circle cx="21" cy="21" r="15.91549430918954"
+                                                fill="transparent"
+                                                stroke="#E7EFEA"
+                                                stroke-width="5.5"></circle>
 
-                        <!-- Card 3: Operasional Amil (Full-width col-span-2 di Mobile) -->
-                        <div class="col-span-2 sm:col-span-1 bg-white rounded-xl sm:rounded-2xl p-3.5 sm:p-4 text-center flex flex-col items-center justify-center shadow-xs">
-                            <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#E4F1EB] flex items-center justify-center p-1.5 mb-1.5">
-                                <img src="{{ asset('images/User/operasionaladmin.png') }}" alt="Operasional" class="w-5 h-5 object-contain">
-                            </div>
-                            <span class="text-lg sm:text-xl lg:text-[1.35rem] font-extrabold text-slate-900">
-                                9,5%
-                            </span>
-                            <h4 class="font-bold text-[11px] sm:text-xs text-slate-900 mt-1">
-                                Operasional Amil
-                            </h4>
-                            <p class="text-[10px] text-slate-500 mt-0.5">
-                                Sesuai batas ketetapan fiqih
-                            </p>
-                        </div>
+                                        <!-- 4 Segmen Warna Sesuai Detail di Kanan -->
+                                        @foreach ($alokasiDana['items'] ?? [] as $slice)
+                                            @if ($slice['percentage'] > 0)
+                                                <circle cx="21" cy="21" r="15.91549430918954"
+                                                        fill="transparent"
+                                                        stroke="{{ $slice['color'] }}"
+                                                        stroke-width="5.5"
+                                                        stroke-dasharray="{{ $slice['dasharray'] }}"
+                                                        stroke-dashoffset="{{ $slice['dashoffset'] }}"></circle>
+                                            @endif
+                                        @endforeach
+                                    </svg>
 
+                                    <!-- Persentase Tengah -->
+                                    <div class="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
+                                        <span class="text-2xl sm:text-3xl font-extrabold text-[#235843] tabular leading-none">
+                                            {{ $alokasiDana['center_label'] ?? '69%' }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 4 Detail Kategori (3 Teratas + 1 Lainnya) -->
+                            <div class="sm:col-span-7 grid grid-cols-2 sm:grid-cols-2 gap-x-5 gap-y-4">
+                                @foreach ($alokasiDana['items'] ?? [] as $item)
+                                    <div class="space-y-1">
+                                        <div class="flex items-center gap-2">
+                                            <span class="w-3 h-3 rounded-[4px] shrink-0"
+                                                  style="background-color: {{ $item['color'] }};"></span>
+                                            <span class="text-xs font-semibold text-slate-600 truncate" title="{{ $item['label'] }}">
+                                                {{ $item['label'] }}
+                                            </span>
+                                        </div>
+                                        <p class="text-2xl sm:text-[1.75rem] font-extrabold text-slate-900 tabular leading-tight">
+                                            {{ $item['percentage_label'] }}
+                                        </p>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
                     </div>
                 </div>
 

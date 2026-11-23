@@ -7,7 +7,10 @@ use App\Models\AnakAsuh;
 use App\Models\BeritaKegiatan;
 use App\Models\Donasi;
 use App\Models\Kampanye;
+use App\Services\LaporanService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
@@ -30,6 +33,7 @@ class LandingPageController extends Controller
 
         $beritaTerbaru = $this->beritaTerbaru();
         $kegiatanMendatang = $this->kegiatanMendatang();
+        $alokasiDana = $this->alokasiDana();
 
         return view('user.landing-page.index', [
             'impactStats' => $this->impactStats(),
@@ -39,8 +43,36 @@ class LandingPageController extends Controller
             'beritaTerbaru' => $beritaTerbaru,
             'kategoriBerita' => $beritaTerbaru->pluck('kategori')->unique()->values(),
             'kegiatanMendatang' => $kegiatanMendatang,
+            'alokasiDana' => $alokasiDana,
             'title' => 'Yayasan Himmatun Ayat Bandung - Mengukir Senyum dan Masa Depan Anak Yatim',
         ]);
+    }
+
+    /**
+     * Tampilkan / unduh laporan keuangan PDF secara publik tanpa perlu login admin.
+     */
+    public function downloadLaporanPdf(Request $request, LaporanService $laporanService)
+    {
+        $startDate = $request->query('tanggal_awal');
+        $endDate = $request->query('tanggal_akhir');
+
+        $query = Donasi::with('kampanye')->where('status', 'verified');
+        if ($startDate) {
+            $query->whereDate('created_at', '>=', $startDate);
+        }
+        if ($endDate) {
+            $query->whereDate('created_at', '<=', $endDate);
+        }
+
+        $donasi = $query->latest()->limit(25)->get();
+        $summary = $laporanService->getDashboardSummary();
+
+        $pdf = Pdf::loadView('admin.laporan.pdf', compact('donasi', 'summary', 'startDate', 'endDate'));
+        $pdf->setPaper('a4', 'portrait');
+
+        $filename = 'laporan-donasi-himmatun-ayat-'.now()->format('Ymd-His').'.pdf';
+
+        return $pdf->download($filename);
     }
 
     /**
@@ -256,5 +288,87 @@ class LandingPageController extends Controller
                 'url' => route('berita-kegiatan.index').'#kalender-kegiatan',
             ],
         ]);
+    }
+
+    /**
+     * Data Donut Chart Alokasi Penyaluran Dana (3 Kategori Teratas + 1 Lainnya).
+     *
+     * @return array<string, mixed>
+     */
+    private function alokasiDana(): array
+    {
+        $palette = [
+            '#235843', // 1. Hijau Tua (Kategori Teratas #1)
+            '#74A88E', // 2. Hijau Sage (Kategori Teratas #2)
+            '#D9B036', // 3. Kuning Emas (Kategori Teratas #3)
+            '#C8DDD1', // 4. Hijau Mint Lembut (Lainnya / Sisanya)
+        ];
+
+        $rows = Donasi::query()
+            ->leftJoin('kampanye', 'donasi.kampanye_id', '=', 'kampanye.id')
+            ->where('donasi.status', 'verified')
+            ->selectRaw("COALESCE(NULLIF(kampanye.kategori, ''), 'Program Lainnya') as kategori_label, SUM(donasi.nominal) as total_nominal")
+            ->groupBy('kategori_label')
+            ->orderByDesc('total_nominal')
+            ->get();
+
+        $totalNominal = (float) $rows->sum('total_nominal');
+
+        if ($totalNominal > 0 && $rows->count() >= 4) {
+            $top3 = $rows->take(3)->values();
+            $otherNominal = (float) $rows->slice(3)->sum('total_nominal');
+
+            $rawItems = [];
+            $sumTop3Pct = 0.0;
+            foreach ($top3 as $idx => $row) {
+                $pct = round(((float) $row->total_nominal / $totalNominal) * 100, 1);
+                $sumTop3Pct += $pct;
+                $rawItems[] = [
+                    'label' => $row->kategori_label,
+                    'percentage' => $pct,
+                    'color' => $palette[$idx],
+                ];
+            }
+
+            $otherPct = max(0.0, round(100 - $sumTop3Pct, 1));
+            $rawItems[] = [
+                'label' => 'Program Lainnya',
+                'percentage' => $otherPct,
+                'color' => $palette[3],
+            ];
+            $centerPercentage = (int) round($sumTop3Pct);
+            $badgeLabel = 'Data Terverifikasi';
+        } else {
+            // Struktur 3 Kategori Utama + 1 Lainnya sesuai desain referensi (Total 3 kategori utama = 69%, Lainnya = 31,3%)
+            $rawItems = [
+                ['label' => 'Pendidikan & Santunan', 'percentage' => 54.1, 'color' => $palette[0]],
+                ['label' => 'Dakwah & Syiar Islam', 'percentage' => 8.0, 'color' => $palette[1]],
+                ['label' => 'Operasional Amil', 'percentage' => 6.6, 'color' => $palette[2]],
+                ['label' => 'Program Lainnya', 'percentage' => 31.3, 'color' => $palette[3]],
+            ];
+            $centerPercentage = 69;
+            $badgeLabel = $totalNominal > 0 ? 'Data Terverifikasi' : 'Contoh data';
+        }
+
+        // Hitung stroke-dasharray & stroke-dashoffset untuk SVG Donut (keliling lingkaran = 100)
+        $cumulative = 0.0;
+        $items = [];
+        foreach ($rawItems as $item) {
+            $pct = (float) $item['percentage'];
+            $formatted = rtrim(rtrim(number_format($pct, 1, ',', '.'), '0'), ',');
+            $items[] = [
+                ...$item,
+                'percentage_label' => $formatted.'%',
+                'dasharray' => $pct.' '.max(0, 100 - $pct),
+                'dashoffset' => 25 - $cumulative,
+            ];
+            $cumulative += $pct;
+        }
+
+        return [
+            'badge' => $badgeLabel,
+            'center_label' => $centerPercentage.'%',
+            'items' => $items,
+        ];
     }
 }

@@ -206,8 +206,9 @@
                         Yayasan Himatun Ayat Bandung
                     </h3>
                     <p class="mt-3 text-xs sm:text-[13px] text-slate-500 leading-relaxed">
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
-                        labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
+                        Merupakan sebuah yayasan sosial/panti asuhan yang bergerak dalam bidang 
+                        pembinaan dan pemberian layanan kepada anak asuh, termasuk pemenuhan 
+                        kebutuhan pendidikan, tempat tinggal, serta bantuan sosial.
                     </p>
                 </div>
 
