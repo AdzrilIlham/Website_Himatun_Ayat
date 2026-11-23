@@ -219,7 +219,7 @@
 
                             <!-- Pak Yusuf Illustration (Berdiri tegak di kanan bawah kartu) -->
                             <div class="absolute bottom-0 right-0 w-[42%] sm:w-[40%] max-w-[210px] pointer-events-none z-0">
-                                <img src="{{ asset('images/Asset/YusufHamdani.png') }}" alt="Pak Yusuf Hamdani"
+                                <img src="{{ asset('images/Asset/yusuf-flip.avif') }}" alt="Pak Yusuf Hamdani"
                                     class="w-full h-auto object-contain object-bottom drop-shadow-2xl translate-y-1">
                             </div>
 
