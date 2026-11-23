@@ -6,6 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>Autentikasi 2FA</title>
+    <x-favicon />
 
     <!-- Fonts: Plus Jakarta Sans sesuai DESIGN_SYSTEM.md -->
     <link rel="preconnect" href="https://fonts.bunny.net">

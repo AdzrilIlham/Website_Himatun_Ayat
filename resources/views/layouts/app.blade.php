@@ -6,6 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>{{ $title ?? 'Yayasan Himatun Ayat Bandung - Portal Donasi & Program Kebaikan' }}</title>
+    <x-favicon />
 
     <!-- Fonts: Plus Jakarta Sans via Bunny CDN sesuai Design System -->
     <link rel="preconnect" href="https://fonts.bunny.net">

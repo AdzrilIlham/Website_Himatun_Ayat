@@ -8,6 +8,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>{{ $title ?? 'Yayasan Himatun Ayat - Mengukir Senyum dan Masa Depan Anak Yatim' }}</title>
+    <x-favicon />
 
     @if (file_exists(public_path('images/logo-himmatun-ayat.avif')))
         <link rel="preload" as="image" href="{{ asset('images/logo-himmatun-ayat.avif') }}" type="image/avif" fetchpriority="high">

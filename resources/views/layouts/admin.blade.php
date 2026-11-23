@@ -24,6 +24,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>@yield('title', ($title ?? ($moduleBreadcrumb . ' - Admin Panel Himmatun Ayat')))</title>
+    <x-favicon />
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
